@@ -1,6 +1,6 @@
 # CSG cube API comparison
 
-This example is deliberately small: one parameter, primitive solids and boolean
+This example is deliberately small: one size argument, primitive solids and boolean
 operations. It is intended to compare **modeling syntax**, not geometry engines.
 
 All variants describe the same intent:
@@ -13,7 +13,7 @@ All variants describe the same intent:
 ## Variants
 
 - `solidcraftforge/model.rs` — the SolidCraftForge Rust script. It defines
-  the reusable `CsgCube` type and ends with `CsgCube::new(50.mm())`.
+  the reusable `CsgCube` type and ends with `CsgCube::new(50.0)`.
   There is no `main()`, `show()`, `build!()` or transport code in the script.
 - `solidcraftforge/solidcraft.json` — the reviewed raw SolidCraft command
   sequence generated from that script.
@@ -54,3 +54,5 @@ back from analytic BRep to a watertight mesh. CI treats this as a valid
 geometry result while preserving `degradations`, `why_not_brep` and the
 stage-by-stage volumes as evidence. The vcad output is therefore STL for this
 case unless a later pinned kernel retains BRep and can also emit STEP.
+
+The SolidCraftForge script uses plain numeric millimetre values. Its CSG size is currently compiled as literal dimensions; editable native CSG parameters are not automatically inferred from Rust variable names.
