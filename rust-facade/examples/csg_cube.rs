@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 mod cad_model {
     use solidcraft_facade_poc::csg::{Cube, Cylinder, LengthUnits, Shape, Sphere, X, Y, Z};
-    use solidcraft_facade_poc::{part, root};
+    use solidcraft_facade_poc::{build, part};
 
     include!("../../examples/csg-cube/ours/model.rs");
 }

@@ -282,7 +282,7 @@ macro_rules! part {
 }
 
 #[macro_export]
-macro_rules! root {
+macro_rules! build {
     ($expr:expr) => {
         pub fn model() -> $crate::csg::Shape {
             $expr

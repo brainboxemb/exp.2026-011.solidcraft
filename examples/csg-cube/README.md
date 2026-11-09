@@ -13,7 +13,7 @@ All variants describe the same intent:
 ## Variants
 
 - `ours/model.rs` — Experiment 011's actual Rust CAD scripting style. A named
-  `part!(...)` defines a reusable CAD part and `root!(...)` selects the
+  `part!(...)` defines a reusable CAD part and `build!(...)` selects the
   top-level instance. There is no CLI, JSON, transport or SolidCraft setup in
   the model file.
 - `ours/solidcraft.json` — the reviewed raw SolidCraft command sequence
@@ -33,12 +33,12 @@ uses SolidCraft as its geometry engine.
 Execution, export and measurement plumbing belongs in CI runners, not in the
 model files.
 
-## Why `part!` and `root!`?
+## Why `part!` and `build!`?
 
 The model should have a named, reusable top-level CAD concept rather than being
 an anonymous Rust block. `part!` gives the model a name and typed parameters.
 Plain Rust cannot execute `CsgCube(50.mm())` directly at module scope, so the
-small `root!` macro marks the top-level instance without introducing a
+small `build!` macro marks the top-level instance without introducing a
 `main()` function into the CAD source.
 
 ## Tested versions

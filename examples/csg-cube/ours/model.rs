@@ -5,4 +5,4 @@ part!(CsgCube(size: Length) {
     body - holes
 });
 
-root!(CsgCube(50.mm()));
+build!(CsgCube(50.mm()));
