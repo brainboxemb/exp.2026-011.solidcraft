@@ -1,6 +1,6 @@
 # Rust proof of principle — semantic CAD API for SolidCraft
 
-The experimental crate has **three layers**:
+The experimental crate has **three layers**, but only one public modeling direction:
 
 | Layer | Location | Responsibility |
 |---|---|---|
@@ -50,12 +50,6 @@ First command tests CAD semantics and translation without SolidCraft.
 Second generates ignored `output/cad-plate.json` without installing
 SolidCraft. Third also invokes `solidcraft-cli` to request a STEP export;
 it requires a current SolidCraft installation.
-
-The **older command wrapper** remains as a separate comparison binary:
-
-```powershell
-cargo run --manifest-path rust-facade/Cargo.toml --bin solidcraft-facade-poc
-```
 
 ## Explicit limitations
 
