@@ -172,6 +172,28 @@ impl Cylinder {
         Self { height: height.into(), diameter: diameter.into() }
     }
 
+    /// Locate identical Z-axis cylindrical cutters in a centered rectangle.
+    /// These are cutters for semantic CAD parts, not standalone SolidCraft commands.
+    /// Their height must reach through the part being subtracted from.
+    pub fn rectangular_pattern<X: Into<crate::cad::LengthExpr>, Y: Into<crate::cad::LengthExpr>>(
+        self, spacing_x: X, spacing_y: Y
+    ) -> Result<crate::cad::CylinderCut, DesignError> {
+        let spacing_x = spacing_x.into().value_mm();
+        let spacing_y = spacing_y.into().value_mm();
+        let height = self.height.value_mm();
+        let diameter = self.diameter.value_mm();
+        if !spacing_x.is_finite() || spacing_x <= 0.0
+            || !spacing_y.is_finite() || spacing_y <= 0.0
+            || !height.is_finite() || height <= 0.0
+            || !diameter.is_finite() || diameter <= 0.0
+        {
+            return Err(DesignError::InvalidDimension("cylinder rectangular pattern"));
+        }
+        Ok(crate::cad::CylinderCut::rectangular(
+            height, diameter, spacing_x, spacing_y
+        ))
+    }
+
     pub fn orient<const N: usize>(&self, axes: [Axis; N]) -> Shape {
         let mut shapes: Vec<Shape> = axes.into_iter()
             .map(|axis| Shape::Cylinder {
