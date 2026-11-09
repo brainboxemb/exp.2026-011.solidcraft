@@ -7,6 +7,9 @@ on:
       - 'feature/issue-1-python-interface'
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   verify-rust-cad-api:
     runs-on: ubuntu-latest
@@ -35,3 +38,21 @@ jobs:
           set -euo pipefail
           jq empty output/examples/csg-cube/solidcraftforge/solidcraft.json
           jq -e -s '.[0] == .[1]'             examples/csg-cube/solidcraftforge/solidcraft.json             output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+
+      - name: Retain generated SolidCraftForge JSON as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solidcraftforge-bld-json
+          path: |
+            output/examples/plate/solidcraftforge/solidcraft.json
+            output/examples/csg-cube/solidcraftforge/solidcraft.json
+          if-no-files-found: error
+      - name: Publish successful generated commands to orphan bld branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: bld
+          publish_dir: ./output/examples
+          force_orphan: true
+          commit_message: "SolidCraftForge generated command plans from ${{ github.sha }}"
