@@ -1,17 +1,19 @@
-use vcad_kernel::Solid;
+{
+    let size = 50.0;
+    let half = size / 2.0;
 
-// vcad's public Rust API is the comparison point here.
-// The three orthogonal-cylinder transform details still need to be pinned to a
-// specific vcad revision before this reference becomes an executable fixture.
+    let body = Solid::sphere(size / 1.5, 64)
+        & Solid::cube(size, size, size).translate(-half, -half, -half);
 
-fn csg_cube(size: f64) -> Solid {
-    let body = Solid::sphere(size / 1.5 / 2.0, 32)
-        & Solid::cube(size, size, size);
+    let radius = size / 1.5 / 2.0;
+    let hole_x = Solid::cylinder(radius, size, 64)
+        .translate(0.0, 0.0, -half)
+        .rotate(0.0, 90.0, 0.0);
+    let hole_y = Solid::cylinder(radius, size, 64)
+        .translate(0.0, 0.0, -half)
+        .rotate(-90.0, 0.0, 0.0);
+    let hole_z = Solid::cylinder(radius, size, 64)
+        .translate(0.0, 0.0, -half);
 
-    // TODO: construct the X/Y/Z cylinders using vcad's current transform API.
-    let holes = todo!("three orthogonal cylinders, diameter = size / 1.5");
-
-    body - holes
+    body - (hole_x + hole_y + hole_z)
 }
-
-let model = csg_cube(50.0);

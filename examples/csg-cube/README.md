@@ -21,6 +21,5 @@ All variants describe the same intent:
 The reference implementations are design comparisons only. Experiment 011 still
 uses SolidCraft as its geometry engine.
 
-> Note: `ours/model.rs` is a **target API example**. The current Rust facade
-> does not yet implement all primitives, boolean operators, `part!`, or the
-> no-boilerplate runner needed to compile this file directly.
+The files under the comparison implementations contain only the modeling code.
+Execution/export plumbing belongs in CI runners, not in the model itself.
