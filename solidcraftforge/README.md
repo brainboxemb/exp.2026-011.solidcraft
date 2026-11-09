@@ -23,12 +23,14 @@ the model, for example:
 pub struct CsgCube;
 
 impl CsgCube {
-    pub fn new(size: Length) -> Shape {
-        // construct the CAD object
+    pub fn new(size: f64) -> Shape {
+        let body = Sphere::new(size / 1.5) & Cube::new(size);
+        let holes = Cylinder::new(size, size / 1.5).orient([X, Y, Z]);
+        body - holes
     }
 }
 
-CsgCube::new(50.mm())
+CsgCube::new(50.0)
 ```
 
 The Plate model uses ordinary numbers in millimetres, creates a set of
@@ -39,11 +41,11 @@ builder is internal to SolidCraftForge:
 pub struct Plate;
 
 impl Plate {
-    pub fn new(length: f64, width: f64, thickness: f64) -> Model {
+    pub fn new(length: f64, width: f64, thickness: f64) -> Shape {
         let cylinders = Cylinder::new(thickness, 8.0)
             .rectangular_pattern(70.0, 30.0);
 
-        Model::box3d(length, width, thickness)
+        Shape::box3d(length, width, thickness)
             .named("Plate")
             .fillet(Edges::OuterVertical, 2.0)
             .subtract(cylinders)
@@ -60,15 +62,14 @@ model file. The adapter still preserves SolidCraft's native sketch/history.
 The Cargo files under `solidcraftforge/examples/` are test harnesses only.
 They are not part of the model syntax.
 
-Ordinary `Length` arguments passed to `Part::box3d()` automatically become
-editable SolidCraft dimensions (`length`, `width`, `thickness`). The script
-does not construct `LengthParam` objects. Explicit `LengthParam` is retained
-for advanced domain callers; plain numeric shorthand remains fixed.
+All plain numbers are millimetres. For box dimensions, the adapter creates
+editable SolidCraft parameters (`length`, `width`, `thickness`) internally.
+The CSG cube uses literal numerical dimensions for now; automatic symbolic
+parameterization of arbitrary CSG expressions remains a separate problem.
 
-The build-time wrapper also no longer needs to know whether a model returns
-`Shape` or `Part`. Both are converted outside the user script through
-`IntoScriptModel`. This keeps the special-case runner plumbing out of
-`model.rs`.
+Both feature-based CAD and CSG scripts return the same public `Shape`.
+The runner translates it into the appropriate internal Part or CSG
+representation. Users do not need to distinguish those implementations.
 
 ## Running
 
