@@ -16,7 +16,7 @@ jobs:
       - name: Rust CAD domain and adapter tests
         run: cargo test --manifest-path rust-facade/Cargo.toml --all-targets
       - name: Generate semantic CAD script
-        run: cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
+        run: cargo run --manifest-path rust-facade/Cargo.toml --example plate
       - name: Validate generated JSON
         run: jq empty output/cad-plate.json
       - name: Fixture matches generated CAD plan
