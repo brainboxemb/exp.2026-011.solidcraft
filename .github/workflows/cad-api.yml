@@ -1,9 +1,11 @@
-name: CAD API / Rust (offline)
+name: Rust CAD API offline
 
 on:
   push:
-    branches: [main, feature/issue-1-python-interface]
-  workflow_dispatch:
+    branches:
+      - main
+      - 'feature/issue-1-python-interface'
+  workflow_dispatch: {}
 
 jobs:
   verify-rust-cad-api:
@@ -17,5 +19,10 @@ jobs:
         run: cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
       - name: Validate generated JSON
         run: jq empty output/cad-plate.json
-      - name: Compare generated CAD plan with fixture
-        run: jq -e -s '.[0] == .[1]' fixtures/plate-top-face.json output/cad-plate.json
+      - name: Fixture matches generated CAD plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e -s '.[0] == .[1]' \
+            fixtures/plate-top-face.json \
+            output/cad-plate.json >/dev/null
