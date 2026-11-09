@@ -48,6 +48,13 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
         self.transport
     }
 
+    pub fn build_model(&mut self, model: &BuiltModel) -> Result<(), CadError> {
+        match model {
+            BuiltModel::Csg(shape) => self.build_csg(shape, "CsgCube"),
+            BuiltModel::Feature(part) => self.build(part),
+        }
+    }
+
     pub fn build_csg(&mut self, shape: &Shape, name: &str) -> Result<(), CadError> {
         shape.validate().map_err(|_| CadError::InvalidInput("invalid CSG model"))?;
 
