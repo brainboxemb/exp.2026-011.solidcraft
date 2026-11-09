@@ -60,21 +60,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install µcad 0.5.1
+      - name: Install µcad 0.6.0
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y ninja-build
-          cargo install microcad --version 0.5.1 --locked
-          microcad --version
-          microcad install std
-      - name: Evaluate and export µcad model
+          cargo install mucad --version 0.6.0 --locked
+          mucad --version
+      - name: Check and export µcad model
         shell: bash
         run: |
           set -euo pipefail
-          microcad eval examples/csg-cube/microcad/model.µcad
-          microcad export examples/csg-cube/microcad/model.µcad
+          mucad check examples/csg-cube/microcad/model.mu
+          mucad export examples/csg-cube/microcad/model.mu
           mkdir -p output/examples/csg-cube/microcad
           cp examples/csg-cube/microcad/model.stl output/examples/csg-cube/microcad/model.stl
           python scripts/measure_stl.py output/examples/csg-cube/microcad/model.stl \
