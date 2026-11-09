@@ -182,3 +182,17 @@ The lower-level `Part`, `LengthParam`, `DesignError`, and CSG AST remain
 implementation details used by the runner/adapter. Box dimensions become
 named parameters in SolidCraft automatically; generic CSG parameters are not
 yet inferred from Rust variables.
+
+
+## Annotated CAD parameters
+
+The SolidCraftForge script runner imports `#[cad]` automatically.
+Within a marked `impl`, a constructor's `#[parameter] size: f64` argument
+is converted by the procedural macro into an internal named CAD value
+without changing its public `f64` constructor signature. As a result,
+`CsgCube::new(50.0)` preserves expressions such as `size / 1.5` in the
+native JSON. No explicit `ParamLength` is required in the script.
+
+The macro currently supports **named f64 arguments** only; other Rust types
+and arbitrary Rust computation are not silently treated as CAD expressions.
+Unmarked arguments remain ordinary f64 values.
