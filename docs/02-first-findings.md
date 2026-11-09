@@ -31,7 +31,7 @@ Run live tests before relying on generated parameter names. If there are differe
 
 `python -m unittest discover -s tests -v` uses a fake CAD object to verify command order, geometry parameters, error handling for invalid dimensions, and that extrusion receives the outline curve identifiers.
 
-**Offline result:** five tests passed in a local Python environment on 2026-11-09. These tests do *not* prove the actual SolidCraft runtime works.
+**Offline status:** five tests have been added, but have not been run in this connected GitHub session. Even when they pass, they will verify only the command sequence, *not* the actual SolidCraft runtime.
 
 ## Outside the Python binding
 
