@@ -55,4 +55,4 @@ geometry result while preserving `degradations`, `why_not_brep` and the
 stage-by-stage volumes as evidence. The vcad output is therefore STL for this
 case unless a later pinned kernel retains BRep and can also emit STEP.
 
-The SolidCraftForge script uses plain numeric millimetre values. Its CSG size is currently compiled as literal dimensions; editable native CSG parameters are not automatically inferred from Rust variable names.
+The SolidCraftForge script uses plain numeric millimetre values at its call site. The constructor marks `size` with `#[parameter]` under `#[cad]`; the macro preserves named native SolidCraft expressions such as `size / 1.5` without exposing `ParamLength` to the script.
