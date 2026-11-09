@@ -207,6 +207,14 @@ jobs:
           solidcraft-cli snapshot output/native/plate.sc \
             --out output/native/plate.png \
             --no-grid --no-axes
+      - name: Record native verification provenance
+        if: success()
+        shell: bash
+        run: |
+          jq -n --arg commit "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
+            --arg version "$SOLIDCRAFT_VERSION" \
+            '{source_commit:$commit, workflow_run:$run, solidcraft_version:$version, verified:true}' \
+            > output/native/verification.json
       - name: Retain runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
