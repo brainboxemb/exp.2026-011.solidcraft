@@ -26,3 +26,5 @@ geometry such as hulls, Minkowski operations or cutters.
   successfully, so the example uses rectangles plus corner circles.
 
 Execution and export plumbing stays outside these model files.
+
+The SolidCraftForge constructor annotates the three editable box dimensions with `#[parameter]` inside a `#[cad]` impl. Cylinders are specified in a centered four-position pattern, then subtracted. Plain numeric values are millimetres; the runner handles the parameter metadata and native feature history.
