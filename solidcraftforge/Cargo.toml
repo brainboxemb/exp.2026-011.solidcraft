@@ -1,5 +1,5 @@
 [package]
-name = "solidcraft-facade-poc"
+name = "solidcraftforge"
 version = "0.1.0"
 edition = "2021"
 publish = false

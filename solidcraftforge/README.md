@@ -1,4 +1,4 @@
-# Rust proof of principle — semantic CAD API for SolidCraft
+# SolidCraftForge
 
 The experimental crate has **three layers**, but only one public modeling direction:
 
@@ -41,9 +41,9 @@ emits a top-face sketch, N circles, sketch-finish and a cut.
 From the repository root:
 
 ```powershell
-cargo test --manifest-path rust-facade/Cargo.toml
-cargo run --manifest-path rust-facade/Cargo.toml --example plate
-cargo run --manifest-path rust-facade/Cargo.toml --example plate -- --run
+cargo test --manifest-path solidcraftforge/Cargo.toml
+cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+cargo run --manifest-path solidcraftforge/Cargo.toml --example plate -- --run
 ```
 
 First command tests CAD semantics and translation without SolidCraft.

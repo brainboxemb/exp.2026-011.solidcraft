@@ -7,7 +7,6 @@
 
 use crate::cad::{Edges, Faces, Feature, LengthExpr, Part};
 use crate::csg::{Axis, Shape};
-use crate::script::BuiltModel;
 use crate::{CadError, CommandTransport};
 use serde_json::json;
 
@@ -46,13 +45,6 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
 
     pub fn into_transport(self) -> T {
         self.transport
-    }
-
-    pub fn build_model(&mut self, model: &BuiltModel) -> Result<(), CadError> {
-        match model {
-            BuiltModel::Csg(shape) => self.build_csg(shape, "CsgCube"),
-            BuiltModel::Feature(part) => self.build(part),
-        }
     }
 
     pub fn build_csg(&mut self, shape: &Shape, name: &str) -> Result<(), CadError> {

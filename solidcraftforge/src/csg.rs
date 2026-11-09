@@ -278,26 +278,6 @@ impl Shape {
 }
 
 
-#[macro_export]
-macro_rules! part {
-    ($name:ident($($param:ident : Length),* $(,)?) -> Part $body:block) => {
-        #[allow(non_snake_case)]
-        pub fn $name(
-            $($param: $crate::cad::Length),*
-        ) -> Result<$crate::cad::Part, $crate::cad::DesignError> {
-            $(let $param = $crate::csg::ParamLength::new(stringify!($param), $param);)*
-            $body
-        }
-    };
-    ($name:ident($($param:ident : Length),* $(,)?) $body:block) => {
-        #[allow(non_snake_case)]
-        pub fn $name($($param: $crate::cad::Length),*) -> $crate::csg::Shape {
-            $(let $param = $crate::csg::ParamLength::new(stringify!($param), $param);)*
-            $body
-        }
-    };
-}
-
 
 #[cfg(test)]
 mod tests {

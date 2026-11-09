@@ -6,7 +6,6 @@
 
 pub mod cad;
 pub mod csg;
-pub mod script;
 pub mod solidcraft_adapter;
 
 use serde_json::{json, Value};
