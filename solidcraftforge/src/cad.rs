@@ -96,7 +96,7 @@ impl LengthExpr {
 }
 
 impl From<f64> for LengthExpr {
-    fn from(value: f64) -> Self { Self::Fixed(Length::mm(value)) }
+    fn from(value: f64) -> Self { Self::Auto(Length::mm(value)) }
 }
 
 impl From<Length> for LengthExpr {
@@ -223,13 +223,13 @@ impl Workplane {
 
     /// Four positions of a centered rectangular pattern on this workplane.
     /// Spacings are the distances between hole centres, not edge margins.
-    pub fn rectangular_pattern(
+    pub fn rectangular_pattern<X: Into<LengthExpr>, Y: Into<LengthExpr>>(
         self,
-        spacing_x: Length,
-        spacing_y: Length,
+        spacing_x: X,
+        spacing_y: Y,
     ) -> Result<RectangularPattern, DesignError> {
-        let sx = positive(spacing_x.to_mm(), "pattern x spacing")?;
-        let sy = positive(spacing_y.to_mm(), "pattern y spacing")?;
+        let sx = positive(spacing_x.into().value_mm(), "pattern x spacing")?;
+        let sy = positive(spacing_y.into().value_mm(), "pattern y spacing")?;
         Ok(RectangularPattern { workplane: self, spacing_x: sx, spacing_y: sy })
     }
 
@@ -249,8 +249,8 @@ pub struct RectangularPattern {
 }
 
 impl RectangularPattern {
-    pub fn holes(mut self, diameter: Length) -> Result<Workplane, DesignError> {
-        let diameter = positive(diameter.to_mm(), "hole diameter")?;
+    pub fn holes<D: Into<LengthExpr>>(mut self, diameter: D) -> Result<Workplane, DesignError> {
+        let diameter = positive(diameter.into().value_mm(), "hole diameter")?;
         let hx = self.spacing_x / 2.0;
         let hy = self.spacing_y / 2.0;
         for (x, y) in [(-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy)] {
@@ -268,9 +268,9 @@ impl Part {
         W: Into<LengthExpr>,
         H: Into<LengthExpr>,
     {
-        // Ordinary script Length values become editable SolidCraft dimensions.
-        // Explicit LengthParam values retain their chosen names, while numeric
-        // shorthand (f64) remains a fixed dimension for existing CAD callers.
+        // Numeric dimensions default to millimetres and become editable.
+        // Explicit LengthParam preserves a custom name; LengthExpr::Fixed
+        // remains available for internal callers that need a literal.
         fn named(value: LengthExpr, name: &str) -> Result<LengthExpr, DesignError> {
             match value {
                 LengthExpr::Auto(length) => Ok(LengthExpr::Parameter(LengthParam::new(name, length)?)),
@@ -464,8 +464,12 @@ mod tests {
         assert_eq!(part.base.width.parameter().unwrap().name(), "width");
         assert_eq!(part.base.height.parameter().unwrap().name(), "thickness");
 
-        // Numeric shorthand remains a fixed value.
-        let fixed = Part::box3d(100.0, 60.0, 10.0).unwrap();
+        // Explicit fixed values remain possible for internal callers.
+        let fixed = Part::box3d(
+            LengthExpr::Fixed(Length::mm(100.0)),
+            LengthExpr::Fixed(Length::mm(60.0)),
+            LengthExpr::Fixed(Length::mm(10.0)),
+        ).unwrap();
         assert!(fixed.base.length.parameter().is_none());
     }
 
