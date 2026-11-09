@@ -137,6 +137,28 @@ impl Hole {
     }
 }
 
+/// A family of Z-aligned cylindrical solids used as subtractive tools.
+/// Kept as CAD intent so the SolidCraft adapter can retain an editable
+/// top-face sketch and a through-cut instead of baking the boolean into a mesh.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CylinderCut {
+    height: f64,
+    diameter: f64,
+    centers: Vec<(f64, f64)>,
+}
+
+impl CylinderCut {
+    pub(crate) fn rectangular(height: f64, diameter: f64, spacing_x: f64, spacing_y: f64) -> Self {
+        let hx = spacing_x / 2.0;
+        let hy = spacing_y / 2.0;
+        Self {
+            height,
+            diameter,
+            centers: vec![(-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy)],
+        }
+    }
+}
+
 /// A *semantic* edge selection, not a string or a list of SolidCraft pick points.
 /// More general selectors need live topology queries before they can be added.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -307,6 +329,19 @@ impl Part {
         SelectedFace { part: self, face }
     }
 
+    /// Subtract a centered pattern of cylindrical cutters. For the currently
+    /// supported Z-axis through-cut, SolidCraftForge converts these cutters
+    /// into an editable top-face sketch with circles and a negative extrusion.
+    pub fn subtract(self, cutters: CylinderCut) -> Result<Self, DesignError> {
+        if cutters.height < self.base.height.value_mm() {
+            return Err(DesignError::InvalidDimension("cylinder too short to cut through plate"));
+        }
+        let holes = cutters.centers.iter()
+            .map(|&(x, y)| Hole::at(x, y, cutters.diameter))
+            .collect::<Result<Vec<_>, _>>()?;
+        self.through_holes_on(Faces::Top, &holes)
+    }
+
     /// Through-holes run from the top to the underside of the base box.
     /// This does not expose sketches, cuts, planes, or SolidCraft command IDs.
     pub fn through_holes(self, holes: &[Hole]) -> Result<Self, DesignError> {
@@ -402,6 +437,24 @@ mod tests {
         assert!(Part::box_with_units(
             Length::mm(f64::NAN), Length::mm(10.0), Length::mm(2.0)
         ).is_err());
+    }
+
+    #[test]
+    fn subtract_rectangular_cylinders_retains_editable_through_holes() {
+        use crate::csg::Cylinder;
+        let plate = Part::box3d(100.0, 60.0, 10.0).unwrap()
+            .subtract(Cylinder::new(10.0, 8.0)
+                .rectangular_pattern(70.0, 30.0).unwrap())
+            .unwrap();
+        assert!(matches!(
+            &plate.features[0],
+            Feature::ThroughHoles { holes, .. }
+                if holes.iter().map(|h| (h.x, h.y)).collect::<Vec<_>>()
+                    == vec![(-35.0, -15.0), (35.0, -15.0), (35.0, 15.0), (-35.0, 15.0)]
+        ));
+        assert!(Part::box3d(100.0, 60.0, 10.0).unwrap()
+            .subtract(Cylinder::new(5.0, 8.0)
+                .rectangular_pattern(70.0, 30.0).unwrap()).is_err());
     }
 
     #[test]
