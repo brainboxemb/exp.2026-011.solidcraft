@@ -279,19 +279,22 @@ mod tests {
         adapter.build(&model).unwrap();
         let script = adapter.into_transport().document();
         let commands = script["commands"].as_array().unwrap();
-        assert_eq!(commands.len(), 10);
-        assert_eq!(commands[0]["command"], "sketch.create");
-        assert_eq!(commands[1]["command"], "sketch.rectangle.two_point");
-        assert_eq!(commands[3]["command"], "solid.extrude");
-        assert_eq!(commands[4]["command"], "solid.fillet");
-        assert_eq!(commands[4]["params"]["edges"].as_array().unwrap().len(), 4);
-        assert_eq!(commands[5]["command"], "sketch.create");
-        assert_eq!(commands[5]["params"]["plane"]["face"], json!([0.0, 0.0, 10.0]));
-        assert_eq!(commands[6]["command"], "sketch.circle.center");
-        assert_eq!(commands[7]["command"], "sketch.circle.center");
-        assert_eq!(commands[8]["command"], "sketch.finish");
-        assert_eq!(commands[9]["params"]["operation"], "cut");
-        assert_eq!(commands[9]["params"]["targets"][0], "Plate");
+        assert_eq!(commands.len(), 13);
+        assert_eq!(commands[0]["command"], "parameters.add");
+        assert_eq!(commands[1]["command"], "parameters.add");
+        assert_eq!(commands[2]["command"], "parameters.add");
+        assert_eq!(commands[3]["command"], "sketch.create");
+        assert_eq!(commands[4]["command"], "sketch.rectangle.two_point");
+        assert_eq!(commands[6]["command"], "solid.extrude");
+        assert_eq!(commands[7]["command"], "solid.fillet");
+        assert_eq!(commands[7]["params"]["edges"].as_array().unwrap().len(), 4);
+        assert_eq!(commands[8]["command"], "sketch.create");
+        assert_eq!(commands[8]["params"]["plane"]["face"], json!([0.0, 0.0, 10.0]));
+        assert_eq!(commands[9]["command"], "sketch.circle.center");
+        assert_eq!(commands[10]["command"], "sketch.circle.center");
+        assert_eq!(commands[11]["command"], "sketch.finish");
+        assert_eq!(commands[12]["params"]["operation"], "cut");
+        assert_eq!(commands[12]["params"]["targets"][0], "Plate");
     }
 
     /// The adapter must not swallow a transport error and keep issuing commands.
@@ -322,12 +325,12 @@ mod tests {
         adapter.build(&model).unwrap();
         let script = adapter.into_transport().document();
         let commands = script["commands"].as_array().unwrap();
-        assert_eq!(commands[4]["command"], "sketch.create");
-        assert_eq!(commands[4]["params"]["plane"]["face"], json!([0.0, 0.0, 5.0]));
-        assert_eq!(commands[5]["command"], "sketch.circle.center");
-        assert_eq!(commands[6]["command"], "sketch.circle.center");
-        assert_eq!(commands[8]["command"], "solid.extrude");
-        assert_eq!(commands[8]["params"]["direction"], "negative");
+        assert_eq!(commands[7]["command"], "sketch.create");
+        assert_eq!(commands[7]["params"]["plane"]["face"], json!([0.0, 0.0, 5.0]));
+        assert_eq!(commands[8]["command"], "sketch.circle.center");
+        assert_eq!(commands[9]["command"], "sketch.circle.center");
+        assert_eq!(commands[11]["command"], "solid.extrude");
+        assert_eq!(commands[11]["params"]["direction"], "negative");
     }
 
     #[test]
