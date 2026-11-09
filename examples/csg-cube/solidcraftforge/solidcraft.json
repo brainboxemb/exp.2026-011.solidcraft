@@ -1,9 +1,17 @@
 {
   "commands": [
     {
+      "command": "parameters.add",
+      "params": {
+        "name": "size",
+        "expression": "50",
+        "unit": "mm"
+      }
+    },
+    {
       "command": "solid.sphere",
       "params": {
-        "radius": 33.333333333333336,
+        "radius": "size / 1.5",
         "center": [
           0,
           0,
@@ -16,9 +24,9 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 50,
-        "width": 50,
-        "height": 50,
+        "length": "size",
+        "width": "size",
+        "height": "size",
         "center": [
           0,
           0,
@@ -33,10 +41,10 @@
     {
       "command": "solid.cylinder",
       "params": {
-        "height": 50,
-        "diameter": 33.333333333333336,
+        "height": "size",
+        "diameter": "size / 1.5",
         "base": [
-          -25,
+          "-(size) / 2",
           0,
           0
         ],
@@ -50,11 +58,11 @@
     {
       "command": "solid.cylinder",
       "params": {
-        "height": 50,
-        "diameter": 33.333333333333336,
+        "height": "size",
+        "diameter": "size / 1.5",
         "base": [
           0,
-          -25,
+          "-(size) / 2",
           0
         ],
         "axis": "Y",
@@ -67,12 +75,12 @@
     {
       "command": "solid.cylinder",
       "params": {
-        "height": 50,
-        "diameter": 33.333333333333336,
+        "height": "size",
+        "diameter": "size / 1.5",
         "base": [
           0,
           0,
-          -25
+          "-(size) / 2"
         ],
         "axis": "Z",
         "operation": "cut",
