@@ -17,11 +17,23 @@ macro_rules! impl_mm {
 }
 impl_mm!(f64, f32, i32, i64, u32, u64, usize);
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ParamLength {
+    name: &'static str,
+    default: Length,
+}
+
+impl ParamLength {
+    pub fn new(name: &'static str, default: Length) -> Self {
+        Self { name, default }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct DimExpr {
     value_mm: f64,
     expression: Option<String>,
-    parameters: Vec<LengthParam>,
+    parameters: Vec<ParamLength>,
 }
 
 impl DimExpr {
@@ -45,7 +57,7 @@ impl DimExpr {
         }
     }
 
-    pub(crate) fn parameters(&self) -> &[LengthParam] { &self.parameters }
+    pub(crate) fn parameters(&self) -> &[ParamLength] { &self.parameters }
 
     fn validate_positive(&self) -> Result<(), DesignError> {
         if self.value_mm.is_finite() && self.value_mm > 0.0 {
@@ -58,6 +70,24 @@ impl DimExpr {
 
 impl From<Length> for DimExpr {
     fn from(value: Length) -> Self { Self::fixed(value) }
+}
+
+impl From<ParamLength> for DimExpr {
+    fn from(value: ParamLength) -> Self {
+        Self {
+            value_mm: value.default.to_mm(),
+            expression: Some(value.name.to_owned()),
+            parameters: vec![value],
+        }
+    }
+}
+
+impl Div<f64> for ParamLength {
+    type Output = DimExpr;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        DimExpr::from(self) / rhs
+    }
 }
 
 impl Div<f64> for DimExpr {
@@ -73,13 +103,9 @@ impl Div<f64> for DimExpr {
     }
 }
 
-pub fn parameter(name: &str, default: Length) -> Result<DimExpr, DesignError> {
-    let parameter = LengthParam::new(name, default)?;
-    Ok(DimExpr {
-        value_mm: default.to_mm(),
-        expression: Some(name.to_owned()),
-        parameters: vec![parameter],
-    })
+pub fn parameter(name: &'static str, default: Length) -> Result<DimExpr, DesignError> {
+    LengthParam::new(name, default)?;
+    Ok(ParamLength::new(name, default).into())
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -216,8 +242,11 @@ impl Shape {
     pub(crate) fn collect_parameters(&self, out: &mut Vec<LengthParam>) {
         fn add(expr: &DimExpr, out: &mut Vec<LengthParam>) {
             for parameter in expr.parameters() {
-                if !out.iter().any(|p| p.name() == parameter.name()) {
-                    out.push(parameter.clone());
+                if !out.iter().any(|p| p.name() == parameter.name) {
+                    out.push(
+                        LengthParam::new(parameter.name, parameter.default)
+                            .expect("validated CAD parameter"),
+                    );
                 }
             }
         }
@@ -238,6 +267,27 @@ impl Shape {
             }
         }
     }
+}
+
+
+#[macro_export]
+macro_rules! part {
+    ($name:ident($($param:ident : Length),* $(,)?) $body:block) => {
+        #[allow(non_snake_case)]
+        pub fn $name($($param: $crate::cad::Length),*) -> $crate::csg::Shape {
+            $(let $param = $crate::csg::ParamLength::new(stringify!($param), $param);)*
+            $body
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! root {
+    ($expr:expr) => {
+        pub fn model() -> $crate::csg::Shape {
+            $expr
+        }
+    };
 }
 
 #[cfg(test)]

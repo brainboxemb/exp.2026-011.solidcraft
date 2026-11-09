@@ -1,17 +1,17 @@
-use solidcraft_facade_poc::csg::{
-    parameter, Cube, Cylinder, LengthUnits, Shape, Sphere, X, Y, Z,
-};
 use solidcraft_facade_poc::solidcraft_adapter::SolidCraftAdapter;
 use solidcraft_facade_poc::ScriptTransport;
 use std::error::Error;
 use std::path::PathBuf;
 
-fn model() -> Result<Shape, solidcraft_facade_poc::cad::DesignError> {
-    include!("../../examples/csg-cube/ours/model.rs")
+mod cad_model {
+    use solidcraft_facade_poc::csg::{Cube, Cylinder, LengthUnits, Shape, Sphere, X, Y, Z};
+    use solidcraft_facade_poc::{part, root};
+
+    include!("../../examples/csg-cube/ours/model.rs");
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let model = model()?;
+    let model = cad_model::model();
     let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
     cad.build_csg(&model, "CsgCube")?;
 

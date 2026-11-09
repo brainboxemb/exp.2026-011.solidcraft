@@ -92,13 +92,50 @@ jobs:
           name: csg-cube-microcad
           path: output/examples/csg-cube/microcad/
 
+  pythonscad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PythonSCAD 1.1.2
+        run: python -m pip install --upgrade pip pythonscad==1.1.2
+      - name: Execute clean PythonSCAD model and export geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/csg-cube/pythonscad
+          python - <<'PY'
+          import runpy
+          ns = runpy.run_path("examples/csg-cube/pythonscad/model.py")
+          result = ns["result"]
+          result.export("output/examples/csg-cube/pythonscad/model.stl")
+          PY
+          python scripts/measure_stl.py output/examples/csg-cube/pythonscad/model.stl \
+            > output/examples/csg-cube/pythonscad/measurements.json
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/pythonscad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-pythonscad
+          path: output/examples/csg-cube/pythonscad/
+
   vcad:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Compile and execute vcad-kernel 0.11.0 BRep model
+      - name: Compile and execute pinned vcad-kernel 0.11.0 BRep model
         shell: bash
         run: |
           set -euo pipefail
@@ -111,7 +148,7 @@ jobs:
           publish = false
 
           [dependencies]
-          vcad-kernel = { version = "=0.11.0", default-features = false }
+          vcad-kernel = { git = "https://github.com/muni-works/vcad.git", rev = "b44f7bfd00402a45675a59b160b3d33b32a2d626", default-features = false }
           serde_json = "1"
           TOML
           cat > "$RUNNER_TEMP/vcad-runner/src/main.rs" <<'RS'
