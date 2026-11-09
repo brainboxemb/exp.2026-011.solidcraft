@@ -22,8 +22,9 @@ the model, for example:
 ```rust
 pub struct CsgCube;
 
+#[cad]
 impl CsgCube {
-    pub fn new(size: f64) -> Shape {
+    pub fn new(#[parameter] size: f64) -> Shape {
         let body = Sphere::new(size / 1.5) & Cube::new(size);
         let holes = Cylinder::new(size, size / 1.5).orient([X, Y, Z]);
         body - holes
@@ -40,8 +41,13 @@ builder is internal to SolidCraftForge:
 ```rust
 pub struct Plate;
 
+#[cad]
 impl Plate {
-    pub fn new(length: f64, width: f64, thickness: f64) -> Shape {
+    pub fn new(
+        #[parameter] length: f64,
+        #[parameter] width: f64,
+        #[parameter] thickness: f64,
+    ) -> Shape {
         let cylinders = Cylinder::new(thickness, 8.0)
             .rectangular_pattern(70.0, 30.0);
 
@@ -64,8 +70,10 @@ They are not part of the model syntax.
 
 All plain numbers are millimetres. For box dimensions, the adapter creates
 editable SolidCraft parameters (`length`, `width`, `thickness`) internally.
-The CSG cube uses literal numerical dimensions for now; automatic symbolic
-parameterization of arbitrary CSG expressions remains a separate problem.
+The CSG cube's annotated `size` becomes a symbolic SolidCraft parameter.
+Expressions like `size / 1.5` remain symbolic in the generated command plan.
+This works for the supported f64 parameter annotations and CSG operations;
+arbitrary Rust expressions and parameter types are not automatically supported.
 
 Both feature-based CAD and CSG scripts return the same public `Shape`.
 The runner translates it into the appropriate internal Part or CSG
