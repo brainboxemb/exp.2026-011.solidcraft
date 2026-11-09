@@ -3,7 +3,7 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "plate_length",
+        "name": "length",
         "expression": "100",
         "unit": "mm"
       }
@@ -11,7 +11,7 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "plate_width",
+        "name": "width",
         "expression": "60",
         "unit": "mm"
       }
@@ -35,12 +35,12 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          "-plate_length / 2",
-          "-plate_width / 2"
+          "-length / 2",
+          "-width / 2"
         ],
         "p1": [
-          "plate_length / 2",
-          "plate_width / 2"
+          "length / 2",
+          "width / 2"
         ]
       }
     },
