@@ -69,10 +69,11 @@ The official Windows installer places
 From the repository root:
 
 ```powershell
-.\scripts\qualify-solidcraft.ps1 -Snapshot
+.\scripts\qualify-solidcraft.ps1 -SkipBuild -Snapshot   # use checked fixture; no Rust required
+.\scripts\qualify-solidcraft.ps1 -Snapshot              # additionally compile and test Rust
 ```
 
-This builds/tests the Rust API, generates `output/cad-plate.json`,
+Without `-SkipBuild`, this builds/tests the Rust API and generates `output/cad-plate.json`; with `-SkipBuild`, it copies the committed and CI-checked fixture into that path. It then
 uses the real SolidCraft CLI with **strict parameter checking**, exports
 `cad-plate.step` and the native `cad-plate.sc` design, and records
 measurements/results. Output stays in ignored `output/`.

@@ -39,6 +39,13 @@ The semantic `Faces::Top` feature now maps to a **native SolidCraft face source*
 
 A [Windows qualification script](../scripts/qualify-solidcraft.ps1) can run the experiment against an installed SolidCraft CLI; it has not been executed on the user's computer.
 
+## Canonical CAD script fixture
+
+The latest [offline CI](https://github.com/brainboxemb/exp.2026-011.solidcraft/actions/runs/42668871056) checks the Rust-generated design command plan against the committed
+[`fixtures/plate-top-face.json`](../fixtures/plate-top-face.json), *in addition to* compiling and running Rust/Python unit tests.
+
+The [Windows qualification script](../scripts/qualify-solidcraft.ps1) now supports `-SkipBuild`: test the same semantic CAD fixture with the installed SolidCraft CLI **without requiring Rust**. This avoids making Rust installation a prerequisite for checking SolidCraft geometry.
+
 ## Not yet tested
 
 - Running `solidcraft-cli run output/cad-plate.json --out output/cad-plate.step`

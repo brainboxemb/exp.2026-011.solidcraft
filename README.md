@@ -74,7 +74,8 @@ cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 After installing official SolidCraft, run this from the repository root:
 
 ```powershell
-.\scripts\qualify-solidcraft.ps1 -Snapshot
+.\scripts\qualify-solidcraft.ps1 -SkipBuild -Snapshot  # direct, no Rust required
+.\scripts\qualify-solidcraft.ps1 -Snapshot             # build and test Rust first
 ```
 
 The [qualification script](scripts/qualify-solidcraft.ps1) finds the installed CLI (normally `C:\Program Files\SolidCraft\solidcraft-cli.exe`), tests the Rust code, builds the semantic CAD script, and asks the actual SolidCraft CLI to export **STEP** and a native **.sc design** with strict parameter checking. Raw measurements/results stay under ignored `output/`. This has **not yet been run against the user's Windows installation**.
