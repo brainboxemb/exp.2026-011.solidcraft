@@ -65,14 +65,15 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
                     // A semantic face selection becomes a native SolidCraft
                     // face attachment. The on-face point is the center of this
                     // known base box's top face, BEFORE any subtractive cuts.
-                    // The runtime owns face resolution, and saves attachment
-                    // information in the native feature history.
+                    // Use a point-only face pick. SolidCraft 0.30.1 rejects
+                    // {body, face} without an exact face index. For this
+                    // single-body PoP the top-centre point is unambiguous,
+                    // so SolidCraft can resolve and capture the face itself.
                     self.transport.execute(
                         "sketch.create",
                         json!({
                             "plane": {
-                                "face": [0.0, 0.0, base.height],
-                                "body": name
+                                "face": [0.0, 0.0, base.height]
                             },
                             "name": format!("{name} top-face holes")
                         }),
@@ -131,7 +132,6 @@ mod tests {
         assert_eq!(commands[4]["params"]["edges"].as_array().unwrap().len(), 4);
         assert_eq!(commands[5]["command"], "sketch.create");
         assert_eq!(commands[5]["params"]["plane"]["face"], json!([0.0, 0.0, 10.0]));
-        assert_eq!(commands[5]["params"]["plane"]["body"], "Plate");
         assert_eq!(commands[6]["command"], "sketch.circle.center");
         assert_eq!(commands[7]["command"], "sketch.circle.center");
         assert_eq!(commands[8]["command"], "sketch.finish");
@@ -169,7 +169,6 @@ mod tests {
         let commands = script["commands"].as_array().unwrap();
         assert_eq!(commands[4]["command"], "sketch.create");
         assert_eq!(commands[4]["params"]["plane"]["face"], json!([0.0, 0.0, 5.0]));
-        assert_eq!(commands[4]["params"]["plane"]["body"], "Workplane sample");
         assert_eq!(commands[5]["command"], "sketch.circle.center");
         assert_eq!(commands[6]["command"], "sketch.circle.center");
         assert_eq!(commands[8]["command"], "solid.extrude");

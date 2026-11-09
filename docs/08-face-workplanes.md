@@ -30,14 +30,19 @@ documents `sketch.create` with a face source:
 
 ```json
 {"command": "sketch.create", "params": {
-  "plane": {"face": [0.0, 0.0, 10.0], "body": "Plate"},
+  "plane": {"face": [0.0, 0.0, 10.0]},
   "name": "Plate top-face holes"
 }}
 ```
 
 The adapter knows the original centered box is at Z=0..H and chooses
-its upper face's center as the native reference point. SolidCraft
-is responsible for actually resolving the face and attaching the sketch.
+its upper face's center as the native reference point.
+
+The first live SolidCraft 0.30.1 run showed that adding a body name
+without a face index is invalid: an exact pick requires both. We therefore
+use a **point-only** pick for this deliberately simple single-body model.
+SolidCraft is responsible for resolving that unique planar face and
+capturing the attachment. We do not guess a face index.
 The adapter then draws the circular profiles, finishes the sketch and
 uses a subtractive extrusion to form the holes.
 
@@ -82,6 +87,7 @@ An accepted export does **not** prove the intended geometry: inspect
 the STEP, hole positions, fillets, and editable native feature history.
 Capture command output and SolidCraft version with any failures.
 
-**Status:** GitHub Actions tests of the Rust domain and JSON command
-generation passed; SolidCraft runtime evaluation on the user's Windows
-installation is not yet verified.
+**Status:** the first actual SolidCraft 0.30.1 runtime test exposed the
+invalid partial exact pick. The adapter now emits a point-only face pick;
+the pinned runtime workflow must confirm whether the corrected model
+executes and produces the intended geometry.
