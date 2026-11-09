@@ -98,7 +98,7 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
                     // The first PoP knows only the analytic *base box* topology.
                     // Its four upright edges are selected at their midpoints.
                     // No claim of general topology selection is made here.
-                    let z = base.height / 2.0;
+                    let z = base.height.value_mm() / 2.0;
                     let edges = [
                         [-hx, -hy, z], [hx, -hy, z],
                         [hx, hy, z], [-hx, hy, z],
