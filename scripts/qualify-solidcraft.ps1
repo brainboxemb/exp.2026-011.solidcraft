@@ -53,7 +53,7 @@ else {
         & cargo test --manifest-path (Join-Path $root 'rust-facade\Cargo.toml') --all-targets
     }
     Invoke-Checked 'Generate semantic CAD script' {
-        & cargo run --manifest-path (Join-Path $root 'rust-facade\Cargo.toml') --bin cad_plate
+        & cargo run --manifest-path (Join-Path $root 'rust-facade\Cargo.toml') --example plate
     }
 }
 if (-not (Test-Path -LiteralPath $scriptFile)) { throw "Missing generated script: $scriptFile" }
