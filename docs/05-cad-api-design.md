@@ -26,7 +26,7 @@ solidcraft.build(&plate)?;
 ```
 
 This second example corresponds to **real code in**
-[`rust-facade/src/bin/cad_plate.rs`](../rust-facade/src/bin/cad_plate.rs),
+[`rust-facade/examples/plate.rs`](../rust-facade/examples/plate.rs),
 using the `SolidCraftAdapter` under the variable name `solidcraft`
 for illustration. The linked file gives its precise imports and setup.
 
