@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Compile and execute vcad 0.10.0 model
+      - name: Compile and execute vcad-kernel 0.10.0 BRep model
         shell: bash
         run: |
           set -euo pipefail
@@ -111,14 +111,14 @@ jobs:
           publish = false
 
           [dependencies]
-          vcad = "=0.10.0"
+          vcad-kernel = { version = "=0.10.0", default-features = false }
           serde_json = "1"
           TOML
           cat > "$RUNNER_TEMP/vcad-runner/src/main.rs" <<'RS'
           use std::fs;
-          use vcad::{centered_cube, centered_cylinder, Part};
+          use vcad_kernel::Solid;
 
-          fn model() -> Part {
+          fn model() -> Solid {
               include!(concat!(env!("GITHUB_WORKSPACE"), "/examples/csg-cube/vcad/model.rs"))
           }
 
@@ -126,18 +126,30 @@ jobs:
               let model = model();
               let output = std::env::var("VCAD_OUTPUT").unwrap();
               fs::create_dir_all(&output).unwrap();
-              model.write_stl(format!("{output}/model.stl")).unwrap();
+
+              let wrong_geometry = model.wrong_geometry_events().count();
+              let degradations = model.degradations().len();
+              let why_not_brep = model.why_not_brep();
               let (min, max) = model.bounding_box();
               let measurements = serde_json::json!({
                   "bbox": {"min": min, "max": max},
                   "volume_mm3": model.volume(),
-                  "triangles": model.num_triangles()
+                  "triangles": model.num_triangles(),
+                  "degradations": degradations,
+                  "wrong_geometry_events": wrong_geometry,
+                  "why_not_brep": why_not_brep
               });
+
               fs::write(
                   format!("{output}/measurements.json"),
                   serde_json::to_vec_pretty(&measurements).unwrap()
               ).unwrap();
               println!("{}", serde_json::to_string_pretty(&measurements).unwrap());
+
+              assert_eq!(wrong_geometry, 0, "vcad-kernel reported wrong geometry");
+              assert_eq!(degradations, 0, "vcad-kernel degraded from analytic BRep");
+              assert!(why_not_brep.is_none(), "vcad-kernel result is not analytic BRep");
+              model.to_step(format!("{output}/model.step")).unwrap();
           }
           RS
           GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
@@ -150,7 +162,11 @@ jobs:
           assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
           assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
           assert 34000 < m["volume_mm3"] < 39000, m
+          assert m["degradations"] == 0, m
+          assert m["wrong_geometry_events"] == 0, m
+          assert m["why_not_brep"] is None, m
           PY
+          test -s output/examples/csg-cube/vcad/model.step
       - uses: actions/upload-artifact@v4
         with:
           name: csg-cube-vcad
