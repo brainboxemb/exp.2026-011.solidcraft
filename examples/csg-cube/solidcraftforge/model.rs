@@ -1,10 +1,7 @@
-
 pub struct CsgCube;
 
 impl CsgCube {
-    pub fn new(size: Length) -> Shape {
-        let size = ParamLength::new("size", size);
-
+    pub fn new(size: f64) -> Shape {
         let body = Sphere::new(size / 1.5) & Cube::new(size);
         let holes = Cylinder::new(size, size / 1.5).orient([X, Y, Z]);
 
@@ -12,4 +9,4 @@ impl CsgCube {
     }
 }
 
-CsgCube::new(50.mm())
+CsgCube::new(50.0)
