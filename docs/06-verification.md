@@ -21,6 +21,16 @@ failed because the first assembled tree omitted `rust-facade/Cargo.toml`
 qualified commit above. This was a repository assembly issue rather than
 a SolidCraft geometry failure.
 
+## Follow-up offline run after adding typed lengths and µcad references
+
+[Successful push CI run](https://github.com/brainboxemb/exp.2026-011.solidcraft/actions/runs/42659957864)
+on `da67439824ecb8ec955e6e986d754b0ae2f2bd0d` verifies
+**8 Rust tests** and **8 Python tests** passing, including the new
+explicit millimeter/inch conversion checks. Rust script generation and
+JSON syntax verification also passed.
+
+This is still a **source/command-fixture qualification only**.
+
 ## Not yet tested
 
 - Running `solidcraft-cli run output/cad-plate.json --out output/cad-plate.step`
