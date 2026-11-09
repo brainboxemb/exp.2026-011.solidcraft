@@ -1,18 +1,14 @@
 {
   "commands": [
     {
-      "command": "parameters.add",
-      "params": {
-        "name": "size",
-        "expression": "50",
-        "unit": "mm"
-      }
-    },
-    {
       "command": "solid.sphere",
       "params": {
-        "radius": "size / 1.5",
-        "center": [0, 0, 0],
+        "radius": 33.333333333333336,
+        "center": [
+          0,
+          0,
+          0
+        ],
         "operation": "new",
         "body_name": "CsgCube"
       }
@@ -20,45 +16,69 @@
     {
       "command": "solid.box",
       "params": {
-        "length": "size",
-        "width": "size",
-        "height": "size",
-        "center": [0, 0, 0],
+        "length": 50,
+        "width": 50,
+        "height": 50,
+        "center": [
+          0,
+          0,
+          0
+        ],
         "operation": "intersect",
-        "targets": ["CsgCube"]
+        "targets": [
+          "CsgCube"
+        ]
       }
     },
     {
       "command": "solid.cylinder",
       "params": {
-        "height": "size",
-        "diameter": "size / 1.5",
-        "base": ["-(size) / 2", 0, 0],
+        "height": 50,
+        "diameter": 33.333333333333336,
+        "base": [
+          -25,
+          0,
+          0
+        ],
         "axis": "X",
         "operation": "cut",
-        "targets": ["CsgCube"]
+        "targets": [
+          "CsgCube"
+        ]
       }
     },
     {
       "command": "solid.cylinder",
       "params": {
-        "height": "size",
-        "diameter": "size / 1.5",
-        "base": [0, "-(size) / 2", 0],
+        "height": 50,
+        "diameter": 33.333333333333336,
+        "base": [
+          0,
+          -25,
+          0
+        ],
         "axis": "Y",
         "operation": "cut",
-        "targets": ["CsgCube"]
+        "targets": [
+          "CsgCube"
+        ]
       }
     },
     {
       "command": "solid.cylinder",
       "params": {
-        "height": "size",
-        "diameter": "size / 1.5",
-        "base": [0, 0, "-(size) / 2"],
+        "height": 50,
+        "diameter": 33.333333333333336,
+        "base": [
+          0,
+          0,
+          -25
+        ],
         "axis": "Z",
         "operation": "cut",
-        "targets": ["CsgCube"]
+        "targets": [
+          "CsgCube"
+        ]
       }
     }
   ]
