@@ -4,7 +4,7 @@
 
 Build a semantic **Rust CAD API** for SolidCraft. The user describes a part in CAD terms; the adapter decides how to construct it in SolidCraft.
 
-CadQuery, vcad and µcad are interface-design references only.
+CadQuery, vcad, µcad and PythonSCAD are interface-design references only. We compare five implementations: SolidCraftForge, CadQuery, µcad, vcad and PythonSCAD.
 
 ## Architecture
 
@@ -36,3 +36,42 @@ CAD domain → SolidCraft adapter → script / GUI / MCP → SolidCraft engine
 | API-08 | same CAD domain can later use GUI or MCP transport |
 
 Do not implement a second geometry engine or claim general topology selection before runtime qualification.
+
+## Generated model evidence
+
+The source branch keeps the example scripts and reviewed SolidCraft command
+fixtures. Generated binary geometry is not committed alongside source.
+
+After **all five** implementations have qualified for each comparison example,
+publish the results together to a separate orphan branch named
+`generated-examples`. Do not create or update that branch from an incomplete
+or failing comparison run. Do not use a branch named `output`.
+
+Expected directory layout:
+
+```text
+generated-examples (orphan branch)
+├── plate/
+│   ├── solidcraftforge/
+│   ├── cadquery/
+│   ├── microcad/
+│   ├── vcad/
+│   └── pythonscad/
+└── csg-cube/
+    ├── solidcraftforge/
+    ├── cadquery/
+    ├── microcad/
+    ├── vcad/
+    └── pythonscad/
+```
+
+Each implementation directory retains generated geometry in its actually
+supported format (STEP, STL, and native `.sc` where available), a preview
+when rendering succeeds, measurements and relevant diagnostics. Do not invent
+STEP files for mesh-only results. In particular, vcad's CSG cube currently
+falls back to a mesh after some boolean operations; the geometry and the
+loss of BRep must both be recorded, not silently treated as a STEP success.
+
+GitHub Pages can then present these same results for visual inspection.
+The page must make unavailable previews and missing formats explicit.
+Workflow artifacts remain useful as temporary evidence before publication.
