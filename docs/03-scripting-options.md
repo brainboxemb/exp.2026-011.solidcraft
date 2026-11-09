@@ -13,10 +13,28 @@ desktop control port, and via MCP.
 | Python with `scraftpybind` | Existing unofficial bindings | Interactive GUI control, inspection, return values and headless sessions |
 | Python with our own tiny JSON/MCP client | Yes, modest effort | Only if the upstream binding has important compatibility problems |
 | Lua invoking JSON/CLI | A custom wrapper | Possible, but no apparent native Lua scripting runtime in SolidCraft |
-| Rust calling CLI/JSON API | A custom wrapper | Good for a compiled long-lived integration, not simplest for first experiments |
-| Rust directly using internal crates | Substantial Rust integration | Core development; internal API stability is a separate concern |
+| Rust calling CLI/JSON API | A small wrapper, just as in Python | Good if the controlling application is already written in Rust; more build overhead for tiny scripts |
+| Rust directly using SolidCraft internal crates | A Rust crate dependency rather than a command wrapper | Potentially powerful, but in-process integration is not a stable public scripting interface by default |
 
 **Native plugins are not a ready route:** [the SolidCraft plugin RFC](https://github.com/tangency-labs/solidcraft/blob/main/docs/rfcs/0002-plugins.md) proposes WebAssembly components, with Rust as the first language. It explicitly says the plugin host and executable plugins are not implemented yet. That RFC is not evidence of supported Lua or stable Rust plugin scripting today.
+
+## Important distinction: language versus CAD engine
+
+"Python is easier than Rust" was too general. Python is a low-friction way to
+automate **the already installed SolidCraft desktop program** (JSON, CLI,
+control port, MCP). Rust can send exactly the same commands; neither language
+has a fundamental capability advantage at this boundary. For a short local
+experiment, Python is convenient because it runs without a Cargo project and
+recompilation. For a reusable, typed application or a native Rust CAD crate,
+Rust may be the simpler design.
+
+[`vcad`](https://docs.rs/vcad/latest/vcad/) is an important counterexample:
+it provides *direct Rust CAD methods*, not just a wrapper around another
+program's command API. See [vcad alternative](04-vcad-rust-alternative.md).
+That is a comparison of **two CAD systems/engines**, not just two scripting
+languages. A `vcad` model does not automatically become an editable
+SolidCraft feature timeline; exchanging STEP/STL normally exchanges resulting
+geometry, not all original modeling operations.
 
 ## Try both small Python paths
 
