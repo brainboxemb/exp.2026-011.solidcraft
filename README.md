@@ -28,19 +28,25 @@ SolidCraft
 The user-facing Plate script is
 [`examples/plate/solidcraftforge/model.rs`](examples/plate/solidcraftforge/model.rs):
 
-```rust
+\`\`\`rust
 pub struct Plate;
 
 impl Plate {
-    pub fn new(length: Length, width: Length, thickness: Length) -> Result<Part, DesignError> {
-        // build the semantic Plate object
+    pub fn new(length: f64, width: f64, thickness: f64) -> Model {
+        let cylinders = Cylinder::new(thickness, 8.0)
+            .rectangular_pattern(70.0, 30.0);
+
+        Model::box3d(length, width, thickness)
+            .named("Plate")
+            .fillet(Edges::OuterVertical, 2.0)
+            .subtract(cylinders)
     }
 }
 
-Plate::new(100.mm(), 60.mm(), 10.mm())?
+Plate::new(100.0, 60.0, 10.0)
 ```
 
-There is no `main()`, `show()`, `build!()` or transport code in that file.
+There is no `use`, `Result`, `?`, `main()`, `show()`, `build!()` or transport code in that file. Common CAD types are implicitly imported by the runner.
 
 The Cargo examples under `solidcraftforge/examples/` are only test harnesses
 that compile these expression-based scripts and compare the generated native
@@ -100,3 +106,8 @@ This automated gate checks expected cases, basic volume ranges, non-empty
 CAD exports and diagnostics for vcad's mesh fallback. It is **not** a
 substitute for the full CI checks or visual inspection.
 See [the experiment plan](docs/00-plan.md#generated-model-evidence).
+
+The generated SolidCraftForge command JSON is retained on the `bld` orphan
+branch after successful offline CI; native SolidCraft verification outputs are
+retained on `vrf` after successful native CI. The future
+`generated-examples` branch will hold all five comparison variants together.
