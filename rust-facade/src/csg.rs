@@ -82,6 +82,14 @@ impl From<ParamLength> for DimExpr {
     }
 }
 
+impl From<ParamLength> for crate::cad::LengthExpr {
+    fn from(value: ParamLength) -> Self {
+        crate::cad::LengthExpr::Parameter(
+            LengthParam::new(value.name, value.default).expect("valid CAD parameter"),
+        )
+    }
+}
+
 impl Div<f64> for ParamLength {
     type Output = DimExpr;
 
@@ -272,6 +280,15 @@ impl Shape {
 
 #[macro_export]
 macro_rules! part {
+    ($name:ident($($param:ident : Length),* $(,)?) -> Part $body:block) => {
+        #[allow(non_snake_case)]
+        pub fn $name(
+            $($param: $crate::cad::Length),*
+        ) -> Result<$crate::cad::Part, $crate::cad::DesignError> {
+            $(let $param = $crate::csg::ParamLength::new(stringify!($param), $param);)*
+            $body
+        }
+    };
     ($name:ident($($param:ident : Length),* $(,)?) $body:block) => {
         #[allow(non_snake_case)]
         pub fn $name($($param: $crate::cad::Length),*) -> $crate::csg::Shape {
@@ -281,14 +298,6 @@ macro_rules! part {
     };
 }
 
-#[macro_export]
-macro_rules! build {
-    ($expr:expr) => {
-        pub fn model() -> $crate::csg::Shape {
-            $expr
-        }
-    };
-}
 
 #[cfg(test)]
 mod tests {

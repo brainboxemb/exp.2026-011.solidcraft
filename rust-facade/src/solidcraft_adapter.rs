@@ -7,6 +7,7 @@
 
 use crate::cad::{Edges, Faces, Feature, LengthExpr, Part};
 use crate::csg::{Axis, Shape};
+use crate::script::BuiltModel;
 use crate::{CadError, CommandTransport};
 use serde_json::json;
 

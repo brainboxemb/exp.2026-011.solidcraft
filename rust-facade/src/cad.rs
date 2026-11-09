@@ -168,8 +168,11 @@ pub struct SelectedEdges {
 }
 
 impl SelectedEdges {
-    pub fn fillet(mut self, radius: f64) -> Result<Part, DesignError> {
-        let radius = positive(radius, "fillet radius")?;
+    pub fn fillet<R>(mut self, radius: R) -> Result<Part, DesignError>
+    where
+        R: Into<LengthExpr>,
+    {
+        let radius = positive(radius.into().value_mm(), "fillet radius")?;
         if radius * 2.0 >= self.part.base.length.value_mm().min(self.part.base.width.value_mm()) {
             return Err(DesignError::FilletOutsideBox);
         }
