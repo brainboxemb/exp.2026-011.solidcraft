@@ -1,0 +1,158 @@
+name: CSG comparison examples
+
+on:
+  push:
+    branches:
+      - main
+      - feature/issue-1-python-interface
+  workflow_dispatch: {}
+
+jobs:
+  cadquery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install CadQuery 2.8.0
+        run: python -m pip install --upgrade pip cadquery==2.8.0
+      - name: Execute clean CadQuery model and export geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/csg-cube/cadquery
+          python - <<'PY'
+          import json
+          import runpy
+          import cadquery as cq
+
+          ns = runpy.run_path("examples/csg-cube/cadquery/model.py")
+          result = ns["result"]
+          solid = result.val()
+          bb = solid.BoundingBox()
+          measurements = {
+              "bbox": {
+                  "min": [bb.xmin, bb.ymin, bb.zmin],
+                  "max": [bb.xmax, bb.ymax, bb.zmax],
+              },
+              "volume_mm3": solid.Volume(),
+          }
+          cq.exporters.export(result, "output/examples/csg-cube/cadquery/model.step")
+          cq.exporters.export(result, "output/examples/csg-cube/cadquery/model.stl")
+          with open("output/examples/csg-cube/cadquery/measurements.json", "w") as f:
+              json.dump(measurements, f, indent=2)
+
+          assert all(abs(v + 25.0) < 1e-6 for v in measurements["bbox"]["min"])
+          assert all(abs(v - 25.0) < 1e-6 for v in measurements["bbox"]["max"])
+          assert 35000 < measurements["volume_mm3"] < 38000
+          print(json.dumps(measurements, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-cadquery
+          path: output/examples/csg-cube/cadquery/
+
+  microcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install µcad 0.5.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          cargo install microcad --version 0.5.1 --locked
+          microcad --version
+          microcad install std
+      - name: Evaluate and export µcad model
+        shell: bash
+        run: |
+          set -euo pipefail
+          microcad eval examples/csg-cube/microcad/model.µcad
+          microcad export examples/csg-cube/microcad/model.µcad
+          mkdir -p output/examples/csg-cube/microcad
+          cp examples/csg-cube/microcad/model.stl output/examples/csg-cube/microcad/model.stl
+          python scripts/measure_stl.py output/examples/csg-cube/microcad/model.stl \
+            > output/examples/csg-cube/microcad/measurements.json
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/microcad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-microcad
+          path: output/examples/csg-cube/microcad/
+
+  vcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Compile and execute vcad 0.10.0 model
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/vcad-runner/src" output/examples/csg-cube/vcad
+          cat > "$RUNNER_TEMP/vcad-runner/Cargo.toml" <<'TOML'
+          [package]
+          name = "csg-cube-vcad-runner"
+          version = "0.0.0"
+          edition = "2021"
+          publish = false
+
+          [dependencies]
+          vcad = "=0.10.0"
+          serde_json = "1"
+          TOML
+          cat > "$RUNNER_TEMP/vcad-runner/src/main.rs" <<'RS'
+          use std::fs;
+          use vcad::{centered_cube, centered_cylinder, Part};
+
+          fn model() -> Part {
+              include!(concat!(env!("GITHUB_WORKSPACE"), "/examples/csg-cube/vcad/model.rs"))
+          }
+
+          fn main() {
+              let model = model();
+              let output = std::env::var("VCAD_OUTPUT").unwrap();
+              fs::create_dir_all(&output).unwrap();
+              model.write_stl(format!("{output}/model.stl")).unwrap();
+              let (min, max) = model.bounding_box();
+              let measurements = serde_json::json!({
+                  "bbox": {"min": min, "max": max},
+                  "volume_mm3": model.volume(),
+                  "triangles": model.num_triangles()
+              });
+              fs::write(
+                  format!("{output}/measurements.json"),
+                  serde_json::to_vec_pretty(&measurements).unwrap()
+              ).unwrap();
+              println!("{}", serde_json::to_string_pretty(&measurements).unwrap());
+          }
+          RS
+          GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+          VCAD_OUTPUT="$GITHUB_WORKSPACE/output/examples/csg-cube/vcad" \
+            cargo run --manifest-path "$RUNNER_TEMP/vcad-runner/Cargo.toml" --release
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/vcad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-vcad
+          path: output/examples/csg-cube/vcad/

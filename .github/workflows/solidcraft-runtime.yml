@@ -153,6 +153,12 @@ jobs:
             .body_count == 1
             and .bodies[0].name == "CsgCube"
             and .bodies[0].closed == true
+            and .bodies[0].faces == 13
+            and .bodies[0].face_types.plane == 6
+            and .bodies[0].face_types.cylinder == 6
+            and .bodies[0].face_types.sphere == 1
+            and .total.volume_mm3 > 36624
+            and .total.volume_mm3 < 36627
             and .bodies[0].bbox.min[0] > -25.0001
             and .bodies[0].bbox.min[0] < -24.9999
             and .bodies[0].bbox.max[0] > 24.9999
