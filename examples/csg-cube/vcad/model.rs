@@ -3,8 +3,11 @@
     let segments = 64;
     let half = size / 2.0;
 
-    let body = Solid::sphere(size / 1.5, segments)
-        & Solid::cube(size, size, size).translate(-half, -half, -half);
+    let sphere = Solid::sphere(size / 1.5, segments);
+    let cube = Solid::cube(size, size, size).translate(-half, -half, -half);
+    let body = sphere
+        .try_intersection(&cube)
+        .expect("sphere/cube intersection");
 
     let radius = size / 1.5 / 2.0;
     let cutter_length = size * 1.2;
@@ -19,5 +22,7 @@
     let hole_z = Solid::cylinder(radius, cutter_length, segments)
         .translate(0.0, 0.0, -cutter_half);
 
-    body - hole_x - hole_y - hole_z
+    let body = body.try_difference(&hole_x).expect("X cylinder cut");
+    let body = body.try_difference(&hole_y).expect("Y cylinder cut");
+    body.try_difference(&hole_z).expect("Z cylinder cut")
 }

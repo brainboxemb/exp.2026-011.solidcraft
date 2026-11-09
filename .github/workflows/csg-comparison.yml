@@ -122,33 +122,73 @@ jobs:
               include!(concat!(env!("GITHUB_WORKSPACE"), "/examples/csg-cube/vcad/model.rs"))
           }
 
+          fn stage(name: &str, solid: &Solid) -> serde_json::Value {
+              let (min, max) = solid.bounding_box();
+              serde_json::json!({
+                  "name": name,
+                  "bbox": {"min": min, "max": max},
+                  "volume_mm3": solid.volume(),
+                  "triangles": solid.num_triangles(),
+                  "degradations": solid.degradations().len(),
+                  "wrong_geometry_events": solid.wrong_geometry_events().count(),
+                  "why_not_brep": solid.why_not_brep()
+              })
+          }
+
+          fn diagnostic_stages() -> Vec<serde_json::Value> {
+              let size = 50.0;
+              let segments = 64;
+              let half = size / 2.0;
+              let sphere = Solid::sphere(size / 1.5, segments);
+              let cube = Solid::cube(size, size, size).translate(-half, -half, -half);
+              let body = sphere.try_intersection(&cube).expect("sphere/cube intersection");
+
+              let radius = size / 1.5 / 2.0;
+              let cutter_length = size * 1.2;
+              let cutter_half = cutter_length / 2.0;
+              let hole_x = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half)
+                  .rotate(0.0, 90.0, 0.0);
+              let hole_y = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half)
+                  .rotate(90.0, 0.0, 0.0);
+              let hole_z = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half);
+
+              let after_x = body.try_difference(&hole_x).expect("X cylinder cut");
+              let after_y = after_x.try_difference(&hole_y).expect("Y cylinder cut");
+              let after_z = after_y.try_difference(&hole_z).expect("Z cylinder cut");
+
+              vec![
+                  stage("sphere_intersect_cube", &body),
+                  stage("after_x_cut", &after_x),
+                  stage("after_y_cut", &after_y),
+                  stage("after_z_cut", &after_z),
+              ]
+          }
+
           fn main() {
               let model = model();
               let output = std::env::var("VCAD_OUTPUT").unwrap();
               fs::create_dir_all(&output).unwrap();
 
-              let wrong_geometry = model.wrong_geometry_events().count();
-              let degradations = model.degradations().len();
-              let why_not_brep = model.why_not_brep();
-              let (min, max) = model.bounding_box();
-              let measurements = serde_json::json!({
-                  "bbox": {"min": min, "max": max},
-                  "volume_mm3": model.volume(),
-                  "triangles": model.num_triangles(),
-                  "degradations": degradations,
-                  "wrong_geometry_events": wrong_geometry,
-                  "why_not_brep": why_not_brep
-              });
-
+              let measurements = stage("final_model", &model);
+              let stages = diagnostic_stages();
               fs::write(
                   format!("{output}/measurements.json"),
                   serde_json::to_vec_pretty(&measurements).unwrap()
               ).unwrap();
+              fs::write(
+                  format!("{output}/stages.json"),
+                  serde_json::to_vec_pretty(&stages).unwrap()
+              ).unwrap();
+
+              println!("{}", serde_json::to_string_pretty(&stages).unwrap());
               println!("{}", serde_json::to_string_pretty(&measurements).unwrap());
 
-              assert_eq!(wrong_geometry, 0, "vcad-kernel reported wrong geometry");
-              assert_eq!(degradations, 0, "vcad-kernel degraded from analytic BRep");
-              assert!(why_not_brep.is_none(), "vcad-kernel result is not analytic BRep");
+              assert_eq!(measurements["wrong_geometry_events"], 0);
+              assert_eq!(measurements["degradations"], 0);
+              assert!(measurements["why_not_brep"].is_null());
               model.to_step(format!("{output}/model.step")).unwrap();
           }
           RS
