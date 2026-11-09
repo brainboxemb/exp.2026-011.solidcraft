@@ -1,10 +1,8 @@
-name: CAD API / Rust PoP (offline)
+name: CAD API / Rust (offline)
 
 on:
   push:
-    branches:
-      - main
-      - feature/issue-1-python-interface
+    branches: [main, feature/issue-1-python-interface]
   pull_request:
   workflow_dispatch:
 
@@ -14,13 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Rust domain and command-adapter tests (no SolidCraft runtime)
+      - name: Rust CAD domain and adapter tests
         run: cargo test --manifest-path rust-facade/Cargo.toml --all-targets
-      - name: Build a semantic CAD script without SolidCraft
+      - name: Generate semantic CAD script
         run: cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
-      - name: Inspect generated commands as JSON
-        run: python3 -m json.tool output/cad-plate.json > /dev/null
-      - name: Check generated CAD plan matches committed fixture
-        run: python3 -c "import json; assert json.load(open('output/cad-plate.json')) == json.load(open('fixtures/plate-top-face.json'))"
-      - name: Python fixture tests (no SolidCraft runtime)
-        run: python3 -m unittest discover -s tests -v
+      - name: Validate generated JSON
+        run: jq empty output/cad-plate.json
+      - name: Compare generated CAD plan with fixture
+        run: diff -u <(jq -S . fixtures/plate-top-face.json) <(jq -S . output/cad-plate.json)

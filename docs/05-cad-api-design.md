@@ -8,19 +8,11 @@ but it did not let the user focus on **what the part is**.
 
 We want the same difference seen between these two levels:
 
-### Lower level: direct SolidCraft commands (existing Python scraftpybind)
+### Lower level: native SolidCraft commands
 
-```python
-solidcraft.sketch.create(plane="XY", name="Plate")
-outline = solidcraft.sketch.rectangle_center(center=(0, 0), corner=(50, 30))
-solidcraft.sketch.circle_center(center=(0, 0), diameter=20)
-solidcraft.sketch.finish()
-solidcraft.solid.extrude(
-    distance=10, profiles=[{"curves": outline["curves"]}], body_name="Plate"
-)
-```
-
-Source: [scraftcnc Python example](https://github.com/waynegramlich/scraftcnc/blob/main/scraftcnc/pybind/examples/plate_with_holes.py).
+A lower-level implementation deals with operations such as `sketch.create`,
+`sketch.finish` and `solid.extrude`. Those belong inside the SolidCraft
+adapter, not in normal model code.
 
 ### Higher level: the kind of design code we want
 

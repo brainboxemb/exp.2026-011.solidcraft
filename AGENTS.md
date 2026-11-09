@@ -1,9 +1,7 @@
 # Experiment 011 — agent guidance
 
-Start with [README.md](README.md), then [docs/00-plan.md](docs/00-plan.md) and [docs/01-windows-setup.md](docs/01-windows-setup.md).
+Start with [README.md](README.md) and [docs/00-plan.md](docs/00-plan.md).
 
-For shared engineering and Git conventions use [brainboxemb.meta/AGENTS.md](https://github.com/brainboxemb/brainboxemb.meta/blob/main/AGENTS.md). Do not duplicate portfolio-wide guidance here.
+Keep the public Rust CAD domain independent from SolidCraft command names and transport details. The adapter may translate one semantic feature into several SolidCraft commands. SolidCraft remains the only geometry engine.
 
-Scope: small, repeatable Python/SolidCraft fixtures and clear retained evidence. Keep external `scraftcnc` source under ignored `ext/`, pinned to the recorded revision. Do not modify the OpenSCAD archive or shared CAD tooling from this experiment.
-
-Do not report GUI, CLI, or Docker integration as verified until it has been run against a named SolidCraft version. Keep PartCAD interoperability in a separate experiment.
+Do not claim working CAD until it has been run against a named SolidCraft version. Keep PartCAD, OpenSCAD migration and shared production tooling outside this experiment.

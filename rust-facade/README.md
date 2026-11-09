@@ -8,7 +8,7 @@ The experimental crate has **three layers**:
 | **SolidCraft adapter** | [`src/solidcraft_adapter.rs`](src/solidcraft_adapter.rs) | Turns one semantic feature into the required sequence of SolidCraft sketches, extrusion/cut and fillet |
 | **Command/transport** | [`src/lib.rs`](src/lib.rs) | Native command objects, `CommandTransport`, `ScriptTransport`; later GUI and MCP |
 
-`vcad` and `CadQuery` are **API design references**, not dependencies
+`vcad`, `CadQuery` and `µcad` are **API design references**, not dependencies
 and not alternative modeling engines. No geometry kernel is implemented here.
 
 ## Readable model code
@@ -67,7 +67,7 @@ cargo run --manifest-path rust-facade/Cargo.toml --bin solidcraft-facade-poc
   selections and better parametric updating need a live GUI/MCP backend.
 - A generated STEP model is not evidence of editable SolidCraft native
   feature history. Native save/reopen qualification is separate.
-- **Offline CI verifies the Rust and Python fixtures, not actual CAD geometry.**
+- **Offline CI verifies the Rust CAD API and command fixture, not actual CAD geometry.**
   The SolidCraft runtime, STEP output and GUI/MCP integration are unqualified.
 
 See [the experiment plan](../docs/00-plan.md) for qualification cases.

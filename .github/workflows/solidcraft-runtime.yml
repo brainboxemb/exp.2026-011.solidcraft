@@ -50,8 +50,8 @@ jobs:
             --save output/native/plate.sc \
             --out output/native/plate.step
           solidcraft-cli eval output/native/plate.sc --json-out output/native/plate-measurements.json
-          python3 -m json.tool output/native/plate-results.json >/dev/null
-          python3 -m json.tool output/native/plate-measurements.json >/dev/null
+          jq empty output/native/plate-results.json
+          jq empty output/native/plate-measurements.json
           test -s output/native/plate.sc
           test -s output/native/plate.step
           cat output/native/plate-measurements.json

@@ -1,12 +1,7 @@
-# Generated external checkout (pinned by bootstrap.ps1)
-ext/
-# CAD export and local results
+# Generated CAD exports and local evidence
 output/
 *.step
 *.stp
-__pycache__/
-.pytest_cache/
-.venv/
 
-# Rust build outputs
+# Rust build output
 rust-facade/target/
