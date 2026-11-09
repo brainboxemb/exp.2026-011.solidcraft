@@ -1,4 +1,4 @@
-# 05 — Designing a real CAD API (CadQuery + vcad as references)
+# 05 — Designing a real CAD API (CadQuery, vcad and µcad as references)
 
 ## Why we are doing this
 
@@ -123,6 +123,14 @@ SolidCraft engine (only actual model geometry & history)
 
 `vcad`'s Rust library is likewise a reference for **fluent API shape**,
 **not** a second engine. `CadQuery` itself is not a dependency.
+
+## µcad: declarative definitions and explicit units
+
+The [µcad](https://codeberg.org/microcad/microcad/) project provides
+another **API design reference**: named parts/sketches, semantic operations,
+typed physical quantities and a separate definition/evaluation pipeline.
+We are not adopting its parser or geometry engine. See
+[µcad inspiration](07-microcad-inspiration.md).
 
 ## Scope of this first implementation
 

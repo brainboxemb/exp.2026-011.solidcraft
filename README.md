@@ -57,7 +57,7 @@ The first command only writes `output/bracket.json`; the second asks SolidCraft 
 
 ## Semantic CAD API proof of principle
 
-The [Rust experiment](rust-facade/) now has **two distinct layers**: an engine-independent `cad::Part` domain API and a SolidCraft-specific adapter that turns **one CAD feature into multiple SolidCraft operations**. The earlier 1:1 command facade is retained as a low-level comparison, **not** the target user-facing API. [CadQuery](https://cadquery.readthedocs.io/en/stable/workplane.html) and [vcad](https://docs.rs/vcad/latest/vcad/) are API design references only.
+The [Rust experiment](rust-facade/) now has **two distinct layers**: an engine-independent `cad::Part` domain API and a SolidCraft-specific adapter that turns **one CAD feature into multiple SolidCraft operations**. The earlier 1:1 command facade is retained as a low-level comparison, **not** the target user-facing API. [CadQuery](https://cadquery.readthedocs.io/en/stable/workplane.html) , [vcad](https://docs.rs/vcad/latest/vcad/) and [µcad](https://codeberg.org/microcad/microcad/) are API design references only.
 
 ```powershell
 cd rust-facade
@@ -77,7 +77,7 @@ cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [offline verification](docs/06-verification.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [µcad API inspiration](docs/07-microcad-inspiration.md), [offline verification](docs/06-verification.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 

@@ -31,6 +31,17 @@ fn positive(value: f64, label: &'static str) -> Result<f64, DesignError> {
     }
 }
 
+/// A physical length, normalized to millimeters at the domain boundary.
+/// The same type also represents signed coordinates (not only positive sizes).
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Length(f64);
+
+impl Length {
+    pub fn mm(value: f64) -> Self { Self(value) }
+    pub fn inches(value: f64) -> Self { Self(value * 25.4) }
+    pub fn to_mm(self) -> f64 { self.0 }
+}
+
 /// Only a centered box is supported as the first experiment's base shape.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Box3D {
@@ -53,6 +64,11 @@ impl Hole {
             return Err(DesignError::InvalidPosition);
         }
         Ok(Self { x, y, diameter: positive(diameter, "hole diameter")? })
+    }
+
+    /// Supply explicit physical units (negative x/y offsets are valid).
+    pub fn with_units(x: Length, y: Length, diameter: Length) -> Result<Self, DesignError> {
+        Self::at(x.to_mm(), y.to_mm(), diameter.to_mm())
     }
 }
 
@@ -147,6 +163,11 @@ impl Part {
         Ok(self)
     }
 
+    /// Length-typed constructor. The legacy box3d(f64,..) remains mm shorthand.
+    pub fn box_with_units(length: Length, width: Length, height: Length) -> Result<Self, DesignError> {
+        Self::box3d(length.to_mm(), width.to_mm(), height.to_mm())
+    }
+
     pub fn dimensions(&self) -> (f64, f64, f64) {
         (self.base.length, self.base.width, self.base.height)
     }
@@ -188,6 +209,22 @@ mod tests {
         assert!(Hole::at(f64::INFINITY, 0.0, 1.0).is_err());
         assert!(Part::box3d(20.0, 10.0, 1.0).unwrap()
             .edges(Edges::OuterVertical).fillet(5.0).is_err());
+    }
+
+    #[test]
+    fn unit_typed_constructors_convert_to_mm() {
+        let part = Part::box_with_units(
+            Length::mm(100.0), Length::inches(2.0), Length::mm(10.0)
+        ).unwrap();
+        assert_eq!(part.dimensions(), (100.0, 50.8, 10.0));
+        let hole = Hole::with_units(
+            Length::inches(-1.0), Length::mm(0.0), Length::mm(8.0)
+        ).unwrap();
+        assert_eq!(hole.x, -25.4);
+        assert_eq!(hole.diameter, 8.0);
+        assert!(Part::box_with_units(
+            Length::mm(f64::NAN), Length::mm(10.0), Length::mm(2.0)
+        ).is_err());
     }
 
     #[test]
