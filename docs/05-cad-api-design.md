@@ -168,3 +168,17 @@ First verify the fixture works in the installed SolidCraft version.
 Then add a face selector and a local workplane: this is where CadQuery's
 design adds the most value, but it must be backed by genuine SolidCraft
 topology operations rather than guessed XYZ points.
+
+
+## Script interface (current experiment)
+
+All SolidCraftForge scripts return the **same** script-facing `Shape` type,
+whether they describe a feature-based part or a CSG boolean model. The wrapper
+automatically imports the standard CAD prelude; no `use` statements, explicit
+`Result`, or `?` are needed in the example file. Plain numeric dimensions
+are in millimetres.
+
+The lower-level `Part`, `LengthParam`, `DesignError`, and CSG AST remain
+implementation details used by the runner/adapter. Box dimensions become
+named parameters in SolidCraft automatically; generic CSG parameters are not
+yet inferred from Rust variables.
