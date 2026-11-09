@@ -31,10 +31,41 @@ impl CsgCube {
 CsgCube::new(50.mm())
 ```
 
-The Plate example uses `mm(2)` instead of the Rust extension syntax `2.mm()`.\nA centered four-hole layout is expressed as\n`.rectangular_pattern(mm(70), mm(30))?.holes(mm(8))?`, where the two\nspacings are distances **between hole centres**. The pattern is resolved in\nthe selected top-face workplane, with points at (±35, ±15). This is a\nSolidCraftForge CAD-domain abstraction; the adapter still creates native\nSolidCraft circles and a through-cut.\n\nThe Cargo files under `solidcraftforge/examples/` are test harnesses only.
+The Plate model uses ordinary numbers in millimetres, creates a set of
+cylindrical cutters, and subtracts them from the solid. The error-aware
+builder is internal to SolidCraftForge:
+
+```rust
+pub struct Plate;
+
+impl Plate {
+    pub fn new(length: f64, width: f64, thickness: f64) -> Model {
+        let cylinders = Cylinder::new(thickness, 8.0)
+            .rectangular_pattern(70.0, 30.0);
+
+        Model::box3d(length, width, thickness)
+            .named("Plate")
+            .fillet(Edges::OuterVertical, 2.0)
+            .subtract(cylinders)
+    }
+}
+
+Plate::new(100.0, 60.0, 10.0)
+```
+
+The external runner automatically imports common SolidCraftForge types.
+No `use`, `Result`, `?`, `main`, or output plumbing is required in the
+model file. The adapter still preserves SolidCraft's native sketch/history.
+
+The Cargo files under `solidcraftforge/examples/` are test harnesses only.
 They are not part of the model syntax.
 
-Ordinary `Length` arguments passed to `Part::box3d()` automatically become\neditable SolidCraft dimensions (`length`, `width`, `thickness`). The script\ndoes not construct `LengthParam` objects. Explicit `LengthParam` is retained\nfor advanced domain callers; plain numeric shorthand remains fixed.\n\nThe build-time wrapper also no longer needs to know whether a model returns
+Ordinary `Length` arguments passed to `Part::box3d()` automatically become
+editable SolidCraft dimensions (`length`, `width`, `thickness`). The script
+does not construct `LengthParam` objects. Explicit `LengthParam` is retained
+for advanced domain callers; plain numeric shorthand remains fixed.
+
+The build-time wrapper also no longer needs to know whether a model returns
 `Shape` or `Part`. Both are converted outside the user script through
 `IntoScriptModel`. This keeps the special-case runner plumbing out of
 `model.rs`.
@@ -73,3 +104,17 @@ Second compiles the expression-based Plate script and generates ignored `output/
   parametric rebuild. GUI/MCP transports remain unqualified.
 
 See [the experiment plan](../docs/00-plan.md) for qualification cases.
+
+## Build and verification results
+
+A successful offline SolidCraftForge workflow publishes its generated JSON
+command plans to an orphan `bld` branch (and retains an Actions artifact).
+Successful native SolidCraft qualification publishes STEP, native `.sc`,
+previews when available, and verification JSON to an orphan `vrf` branch.
+Both branches are workflow outputs, not source branches; they are created
+only when the corresponding GitHub Actions job succeeds. No branch creation
+is implied by a local compilation.
+
+The agreed `generated-examples` orphan branch remains a **separate**
+publication gate: it will contain **all five** implementations together,
+only after their comparative geometry is checked.
