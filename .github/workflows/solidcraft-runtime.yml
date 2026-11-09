@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output/native
-          solidcraft-cli run fixtures/plate-top-face.json \
+          solidcraft-cli run examples/plate/ours/solidcraft.json \
             --param-check strict \
             --results \
             --json-out output/native/plate-results.json \

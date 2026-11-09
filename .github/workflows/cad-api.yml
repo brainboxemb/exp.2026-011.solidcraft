@@ -18,14 +18,14 @@ jobs:
       - name: Generate semantic CAD script
         run: cargo run --manifest-path rust-facade/Cargo.toml --example plate
       - name: Validate generated JSON
-        run: jq empty output/cad-plate.json
+        run: jq empty output/examples/plate/ours/solidcraft.json
       - name: Fixture matches generated CAD plan
         shell: bash
         run: |
           set -euo pipefail
           jq -e -s '.[0] == .[1]' \
-            fixtures/plate-top-face.json \
-            output/cad-plate.json >/dev/null
+            examples/plate/ours/solidcraft.json \
+            output/examples/plate/ours/solidcraft.json >/dev/null
 
       - name: Generate CSG cube script from clean Rust model
         run: cargo run --manifest-path rust-facade/Cargo.toml --example csg_cube
