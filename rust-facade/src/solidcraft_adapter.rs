@@ -5,7 +5,7 @@
 //! Current supported subset: box, its *original* outside vertical-edge fillet,
 //! and circular through-holes along Z.
 
-use crate::cad::{Edges, Feature, Part};
+use crate::cad::{Edges, Faces, Feature, Part};
 use crate::{CadError, CommandTransport};
 use serde_json::json;
 
@@ -61,15 +61,20 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
                         json!({"edges": edges, "radius": radius, "body": name}),
                     )?;
                 }
-                Feature::ThroughHoles(holes) => {
-                    // A semantic list of holes becomes a new sketch,
-                    // N circles, a finished profile, and a subtractive feature.
+                Feature::ThroughHoles { on: Faces::Top, holes } => {
+                    // A semantic face selection becomes a native SolidCraft
+                    // face attachment. The on-face point is the center of this
+                    // known base box's top face, BEFORE any subtractive cuts.
+                    // The runtime owns face resolution, and saves attachment
+                    // information in the native feature history.
                     self.transport.execute(
                         "sketch.create",
                         json!({
-                            "plane": "XY",
-                            "offset": base.height,
-                            "name": format!("{name} through-holes")
+                            "plane": {
+                                "face": [0.0, 0.0, base.height],
+                                "body": name
+                            },
+                            "name": format!("{name} top-face holes")
                         }),
                     )?;
                     for hole in holes {
@@ -125,6 +130,8 @@ mod tests {
         assert_eq!(commands[4]["command"], "solid.fillet");
         assert_eq!(commands[4]["params"]["edges"].as_array().unwrap().len(), 4);
         assert_eq!(commands[5]["command"], "sketch.create");
+        assert_eq!(commands[5]["params"]["plane"]["face"], json!([0.0, 0.0, 10.0]));
+        assert_eq!(commands[5]["params"]["plane"]["body"], "Plate");
         assert_eq!(commands[6]["command"], "sketch.circle.center");
         assert_eq!(commands[7]["command"], "sketch.circle.center");
         assert_eq!(commands[8]["command"], "sketch.finish");
@@ -146,6 +153,27 @@ mod tests {
                 Ok(serde_json::Value::Null)
             }
         }
+    }
+
+    #[test]
+    fn face_workplane_expands_to_native_attached_sketch() {
+        let model = Part::box3d(80.0, 40.0, 5.0).unwrap()
+            .named("Workplane sample")
+            .faces(Faces::Top).workplane()
+            .circle(-15.0, 0.0, 4.0).unwrap()
+            .circle(15.0, 0.0, 4.0).unwrap()
+            .cut_through().unwrap();
+        let mut adapter = SolidCraftAdapter::new(ScriptTransport::default());
+        adapter.build(&model).unwrap();
+        let script = adapter.into_transport().document();
+        let commands = script["commands"].as_array().unwrap();
+        assert_eq!(commands[4]["command"], "sketch.create");
+        assert_eq!(commands[4]["params"]["plane"]["face"], json!([0.0, 0.0, 5.0]));
+        assert_eq!(commands[4]["params"]["plane"]["body"], "Workplane sample");
+        assert_eq!(commands[5]["command"], "sketch.circle.center");
+        assert_eq!(commands[6]["command"], "sketch.circle.center");
+        assert_eq!(commands[8]["command"], "solid.extrude");
+        assert_eq!(commands[8]["params"]["direction"], "negative");
     }
 
     #[test]

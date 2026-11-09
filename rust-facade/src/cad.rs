@@ -14,6 +14,7 @@ pub enum DesignError {
     IntersectingHoles,
     EmptyHoles,
     FilletOutsideBox,
+    UnsupportedFeatureOrder,
 }
 
 impl fmt::Display for DesignError {
@@ -80,10 +81,17 @@ pub enum Edges {
     OuterVertical,
 }
 
+/// Semantic selection of a face. The first PoP supports the top of a base box;
+/// no caller needs to specify a world-space XYZ point or a SolidCraft face ID.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Faces {
+    Top,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Feature {
     EdgeFillet { selection: Edges, radius: f64 },
-    ThroughHoles(Vec<Hole>),
+    ThroughHoles { on: Faces, holes: Vec<Hole> },
 }
 
 /// Engine-independent design intent, retained until an adapter builds it.
@@ -114,6 +122,45 @@ impl SelectedEdges {
     }
 }
 
+/// A face selected by its meaning rather than by native topology identifiers.
+pub struct SelectedFace {
+    part: Part,
+    face: Faces,
+}
+
+impl SelectedFace {
+    /// Starts a 2D design-intent context. This is NOT `sketch.create`;
+    /// no SolidCraft transport is used until a part is compiled by the adapter.
+    pub fn workplane(self) -> Workplane {
+        Workplane { part: self.part, face: self.face, circles: vec![] }
+    }
+}
+
+/// Simple sketch feature builder on a semantic face.
+pub struct Workplane {
+    part: Part,
+    face: Faces,
+    circles: Vec<Hole>,
+}
+
+impl Workplane {
+    pub fn circle(mut self, x: f64, y: f64, diameter: f64) -> Result<Self, DesignError> {
+        self.circles.push(Hole::at(x, y, diameter)?);
+        Ok(self)
+    }
+
+    pub fn circles(mut self, holes: &[Hole]) -> Result<Self, DesignError> {
+        self.circles.extend_from_slice(holes);
+        Ok(self)
+    }
+
+    /// A feature in CAD terms. Adapter handles plane attachment, sketch,
+    /// circles, finish, and the subtractive extrusion.
+    pub fn cut_through(self) -> Result<Part, DesignError> {
+        self.part.through_holes_on(self.face, &self.circles)
+    }
+}
+
 impl Part {
     /// A box centered around X/Y=(0,0), with its underside at Z=0.
     pub fn box3d(length: f64, width: f64, height: f64) -> Result<Self, DesignError> {
@@ -139,9 +186,24 @@ impl Part {
         SelectedEdges { part: self, selection }
     }
 
+    /// Select a face by a CAD concept, then describe a workplane operation.
+    /// For now this is limited to the upper face of an original base box.
+    pub fn faces(self, face: Faces) -> SelectedFace {
+        SelectedFace { part: self, face }
+    }
+
     /// Through-holes run from the top to the underside of the base box.
     /// This does not expose sketches, cuts, planes, or SolidCraft command IDs.
-    pub fn through_holes(mut self, holes: &[Hole]) -> Result<Self, DesignError> {
+    pub fn through_holes(self, holes: &[Hole]) -> Result<Self, DesignError> {
+        self.through_holes_on(Faces::Top, holes)
+    }
+
+    fn through_holes_on(mut self, face: Faces, holes: &[Hole]) -> Result<Self, DesignError> {
+        // The face-pick point is guaranteed only before another cut changes
+        // the base's upper face. Reject rather than silently picking a void.
+        if self.features.iter().any(|f| matches!(f, Feature::ThroughHoles { .. })) {
+            return Err(DesignError::UnsupportedFeatureOrder);
+        }
         if holes.is_empty() {
             return Err(DesignError::EmptyHoles);
         }
@@ -159,7 +221,7 @@ impl Part {
                 }
             }
         }
-        self.features.push(Feature::ThroughHoles(holes.to_vec()));
+        self.features.push(Feature::ThroughHoles { on: face, holes: holes.to_vec() });
         Ok(self)
     }
 
@@ -199,7 +261,7 @@ mod tests {
         assert_eq!(part.dimensions(), (100.0, 60.0, 10.0));
         assert_eq!(part.feature_count(), 2);
         assert!(matches!(part.features[0], Feature::EdgeFillet { .. }));
-        assert!(matches!(part.features[1], Feature::ThroughHoles(_)));
+        assert!(matches!(part.features[1], Feature::ThroughHoles { on: Faces::Top, .. }));
     }
 
     #[test]
@@ -225,6 +287,37 @@ mod tests {
         assert!(Part::box_with_units(
             Length::mm(f64::NAN), Length::mm(10.0), Length::mm(2.0)
         ).is_err());
+    }
+
+    #[test]
+    fn selected_top_face_workplane_is_semantic() {
+        let part = Part::box3d(100.0, 60.0, 10.0).unwrap()
+            .named("Plate")
+            .faces(Faces::Top).workplane()
+            .circle(-35.0, -15.0, 8.0).unwrap()
+            .circle(35.0, 15.0, 8.0).unwrap()
+            .cut_through().unwrap();
+
+        assert!(matches!(
+            &part.features[0],
+            Feature::ThroughHoles { on: Faces::Top, holes } if holes.len() == 2
+        ));
+        assert_eq!(part.name(), "Plate");
+        assert_eq!(part.feature_count(), 1);
+    }
+
+    #[test]
+    fn unsupported_second_face_cut_is_rejected() {
+        let part = Part::box3d(100.0, 60.0, 10.0).unwrap()
+            .faces(Faces::Top).workplane()
+            .circle(0.0, 0.0, 8.0).unwrap()
+            .cut_through().unwrap();
+
+        assert!(matches!(
+            part.faces(Faces::Top).workplane()
+                .circle(10.0, 10.0, 3.0).unwrap().cut_through(),
+            Err(DesignError::UnsupportedFeatureOrder)
+        ));
     }
 
     #[test]
