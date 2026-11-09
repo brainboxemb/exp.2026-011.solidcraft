@@ -68,6 +68,10 @@ impl DimExpr {
     }
 }
 
+impl From<f64> for DimExpr {
+    fn from(value: f64) -> Self { Self::fixed(Length::mm(value)) }
+}
+
 impl From<Length> for DimExpr {
     fn from(value: Length) -> Self { Self::fixed(value) }
 }
