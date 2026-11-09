@@ -36,7 +36,13 @@ try {
 python .\examples\plate.py --target headless --out .\output\plate.step
 ```
 
-To draw the same model in a running GUI, launch `solidcraft --control 8080` first and use `--target 8080` in another PowerShell window where `PYTHONPATH` is also set.
+For the GUI, **start SolidCraft normally** and use `--target 0` to discover its default control port (or explicitly start `solidcraft --control 8080` and use `--target 8080`). The example sets the correct Windows token folder automatically; a second PowerShell window still needs `PYTHONPATH`.
+
+Run the independent fixture tests at any time, even without SolidCraft:
+
+```powershell
+python -m unittest discover -s tests -v
+```
 
 The example is **not yet live-tested** on SolidCraft 0.30.1.
 
@@ -48,7 +54,7 @@ The example is **not yet live-tested** on SolidCraft 0.30.1.
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 

@@ -59,6 +59,20 @@ Offline transport tests do not require SolidCraft. Some upstream tests also run 
 python .\examples\plate.py --target headless --out .\output\plate.step
 ```
 
-For interactive inspection, open the SolidCraft GUI with `--control 8080`, then run the same script using `--target 8080` in another PowerShell window. The environment variable `PYTHONPATH` is per-session: set it in that second window too.
+For interactive inspection, open the SolidCraft GUI normally (its control port is enabled by default unless disabled in Preferences). In another PowerShell window set `PYTHONPATH` again, then run:
+
+```powershell
+python .\examples\plate.py --target 0 --out .\output\plate-gui.step
+```
+
+The `0` asks the upstream binding to discover the GUI's port from `current.port`. The experiment example sets `SOLIDCRAFT_CONTROL_DIR` to `$env:LOCALAPPDATA\SolidCraft\control` on Windows, which is necessary because upstream `scraftpybind` 0.2.0 otherwise looks for Linux's token directory. You may instead explicitly launch the GUI with `--control 8080` and run `--target 8080`.
+
+The GUI token is private. Do not paste its contents in logs or commit it to Git.
+
+Run **our fixture's** offline tests without the external dependency or SolidCraft:
+
+```powershell
+python -m unittest discover -s tests -v
+```
 
 Record the installed SolidCraft version and result in the experiment evidence. Do not label this workflow qualified before running it locally.
