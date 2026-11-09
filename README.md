@@ -67,7 +67,7 @@ cargo run --bin cad_plate -- --run    # also ask SolidCraft CLI to export STEP
 cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 ```
 
-`cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. **Offline CI passes:** 7 Rust tests, 8 Python fixture tests, and generated JSON syntax verification. Actual SolidCraft CLI/GUI execution remains **unverified**.
+`cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. **Offline CI passes:** 8 Rust tests, 8 Python fixture tests, and generated JSON syntax verification. Actual SolidCraft CLI/GUI execution remains **unverified**.
 
 ## Qualification
 
