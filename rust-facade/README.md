@@ -13,7 +13,7 @@ and not alternative modeling engines. No geometry kernel is implemented here.
 
 ## Readable model code
 
-The actual example is [`src/bin/cad_plate.rs`](src/bin/cad_plate.rs):
+The actual example is [`examples/plate.rs`](examples/plate.rs):
 
 ```rust
 let plate = Part::box3d(
@@ -42,8 +42,8 @@ From the repository root:
 
 ```powershell
 cargo test --manifest-path rust-facade/Cargo.toml
-cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
-cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate -- --run
+cargo run --manifest-path rust-facade/Cargo.toml --example plate
+cargo run --manifest-path rust-facade/Cargo.toml --example plate -- --run
 ```
 
 First command tests CAD semantics and translation without SolidCraft.
