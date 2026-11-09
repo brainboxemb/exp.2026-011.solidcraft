@@ -1,0 +1,9 @@
+# Generated external checkout (pinned by bootstrap.ps1)
+ext/
+# CAD export and local results
+output/
+*.step
+*.stp
+__pycache__/
+.pytest_cache/
+.venv/
