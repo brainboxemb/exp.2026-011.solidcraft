@@ -17,14 +17,14 @@ pub struct SolidCraftAdapter<T: CommandTransport> {
 
 fn command_length(value: &LengthExpr) -> serde_json::Value {
     match value {
-        LengthExpr::Fixed(value) => json!(value.to_mm()),
+        LengthExpr::Fixed(value) | LengthExpr::Auto(value) => json!(value.to_mm()),
         LengthExpr::Parameter(param) => json!(param.name()),
     }
 }
 
 fn half_coordinate(value: &LengthExpr, negative: bool) -> serde_json::Value {
     match value {
-        LengthExpr::Fixed(value) => {
+        LengthExpr::Fixed(value) | LengthExpr::Auto(value) => {
             let half = value.to_mm() / 2.0;
             json!(if negative { -half } else { half })
         }
