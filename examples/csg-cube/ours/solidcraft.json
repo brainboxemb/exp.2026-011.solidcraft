@@ -1,0 +1,29 @@
+{
+  "_status": "design target",
+  "_note": "Raw SolidCraft translation to qualify when CSG primitives and booleans are implemented.",
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "size",
+        "expression": "50",
+        "unit": "mm"
+      }
+    },
+    {
+      "_intent": "Create a centered sphere with diameter derived from size / 1.5."
+    },
+    {
+      "_intent": "Create a centered cube with side length size."
+    },
+    {
+      "_intent": "Intersect sphere and cube into body."
+    },
+    {
+      "_intent": "Create three cylinders of height size and diameter size / 1.5, oriented along X, Y and Z."
+    },
+    {
+      "_intent": "Subtract the three cylinders from body."
+    }
+  ]
+}
