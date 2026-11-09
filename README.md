@@ -1,6 +1,6 @@
 # Experiment 011 — semantic CAD API for SolidCraft
 
-**Status: active Rust proof of principle.**
+**Status: active Rust proof of principle; the first native SolidCraft 0.30.1 fixture now executes successfully.**
 
 The goal is a readable **CAD interface** in Rust: model code describes parts, holes, faces, workplanes and fillets. A SolidCraft adapter translates that intent into native SolidCraft operations. **SolidCraft remains the only geometry engine.**
 

@@ -54,7 +54,35 @@ jobs:
           jq empty output/native/plate-measurements.json
           test -s output/native/plate.sc
           test -s output/native/plate.step
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "Plate"
+            and .bodies[0].closed == true
+            and .bodies[0].face_types.cylinder == 8
+            and .bodies[0].face_types.plane == 6
+            and .bodies[0].bbox.min[0] > -50.0001 and .bodies[0].bbox.min[0] < -49.9999
+            and .bodies[0].bbox.max[0] > 49.9999 and .bodies[0].bbox.max[0] < 50.0001
+            and .bodies[0].bbox.min[1] > -30.0001 and .bodies[0].bbox.min[1] < -29.9999
+            and .bodies[0].bbox.max[1] > 29.9999 and .bodies[0].bbox.max[1] < 30.0001
+            and .bodies[0].bbox.min[2] > -0.0001 and .bodies[0].bbox.min[2] < 0.0001
+            and .bodies[0].bbox.max[2] > 9.9999 and .bodies[0].bbox.max[2] < 10.0001
+            and .total.volume_mm3 > 57954 and .total.volume_mm3 < 57956
+            and (.timeline | all(.error == null))
+          ' output/native/plate-measurements.json
           cat output/native/plate-measurements.json
+      - name: Rebuild from saved native design history
+        shell: bash
+        run: |
+          set -euo pipefail
+          solidcraft-cli script output/native/plate.sc --out output/native/plate-repro.json
+          solidcraft-cli eval output/native/plate-repro.json --json-out output/native/plate-repro-measurements.json
+          jq empty output/native/plate-repro.json
+          jq empty output/native/plate-repro-measurements.json
+          jq -e -s '
+            .[0].body_count == .[1].body_count
+            and .[0].total.volume_mm3 == .[1].total.volume_mm3
+            and .[0].bodies[0].bbox == .[1].bodies[0].bbox
+          ' output/native/plate-measurements.json output/native/plate-repro-measurements.json
       - name: Render preview via SolidCraft CLI (CPU renderer)
         shell: bash
         continue-on-error: true

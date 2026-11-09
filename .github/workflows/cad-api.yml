@@ -19,4 +19,4 @@ jobs:
       - name: Validate generated JSON
         run: jq empty output/cad-plate.json
       - name: Compare generated CAD plan with fixture
-        run: diff -u <(jq -S . fixtures/plate-top-face.json) <(jq -S . output/cad-plate.json)
+        run: jq -e -s '.[0] == .[1]' fixtures/plate-top-face.json output/cad-plate.json
