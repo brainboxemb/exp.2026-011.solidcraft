@@ -3,7 +3,6 @@ name: CAD API / Rust (offline)
 on:
   push:
     branches: [main, feature/issue-1-python-interface]
-  pull_request:
   workflow_dispatch:
 
 jobs:

@@ -20,9 +20,12 @@ Observed native model:
 - timeline contains Sketch → Extrude → Fillet → Sketch → Extrude;
 - every timeline feature reports `error: null`;
 - STEP and native `.sc` export succeeded;
-- a 1280 × 800 preview was rendered by SolidCraft's CPU renderer.
+- the native `.sc` stores the hole sketch as a real **face attachment** to `Plate`'s extrude cap;
+- the saved workplane axes are X=(1,0,0), Y=(0,1,0), so its local coordinates align with the intended XY coordinates;
+- the four saved circle centres are exactly (-35,-15), (35,-15), (35,15), (-35,15);
+- a 1280 × 800 preview visibly shows four through-holes and rounded vertical outside corners.
 
-The current runtime workflow also checks those basic measurements automatically and rebuilds a script from the saved native `.sc` history, then compares its evaluated body count, volume and bounding box with the saved design.
+The runtime workflow checks those measurements and the native face-attachment metadata automatically. It also rebuilds a script from the saved `.sc` history, then compares body count, volume and bounding box with the saved design.
 
 This is strong evidence that the high-level box/fillet/top-face-holes example actually executes in SolidCraft 0.30.1. It is **not yet** proof of arbitrary topology selection or robust parametric editing.
 

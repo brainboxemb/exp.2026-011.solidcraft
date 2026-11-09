@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - feature/issue-1-python-interface
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -70,6 +69,24 @@ jobs:
             and (.timeline | all(.error == null))
           ' output/native/plate-measurements.json
           cat output/native/plate-measurements.json
+      - name: Inspect native face attachment and hole coordinates
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -p output/native/plate.sc document.json > output/native/plate-document.json
+          jq -e '
+            .features[3].type == "sketch"
+            and .features[3].plane.type == "face"
+            and .features[3].plane.anchor.target.body == "Plate"
+            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
+            and .features[3].plane.plane.origin == [0.0, 0.0, 10.0]
+            and .features[3].plane.plane.x_dir == [1.0, 0.0, 0.0]
+            and .features[3].plane.plane.y_dir == [0.0, 1.0, 0.0]
+            and ([.features[3].sketch.points[]
+                  | select(.id == "c1.center" or .id == "c2.center" or .id == "c3.center" or .id == "c4.center")
+                  | .pos]
+                 == [[-35.0,-15.0],[35.0,-15.0],[35.0,15.0],[-35.0,15.0]])
+          ' output/native/plate-document.json
       - name: Rebuild from saved native design history
         shell: bash
         run: |
