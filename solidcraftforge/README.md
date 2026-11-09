@@ -1,14 +1,15 @@
 # SolidCraftForge
 
-The experimental crate has **three layers**, but only one public modeling direction:
+The experimental crate has **four technical layers**, but only one public modeling direction:
 
 | Layer | Location | Responsibility |
 |---|---|---|
-| **CAD domain** | [`src/cad.rs`](src/cad.rs) | `Part`, `Hole`, `Edges`, `fillet`, `through_holes`; no JSON or SolidCraft terms in the public modeling calls |
-| **SolidCraft adapter** | [`src/solidcraft_adapter.rs`](src/solidcraft_adapter.rs) | Turns one semantic feature into the required sequence of SolidCraft sketches, extrusion/cut and fillet |
-| **Command/transport** | [`src/lib.rs`](src/lib.rs) | Native command objects, `CommandTransport`, `ScriptTransport`; later GUI and MCP |
+| **CAD domain** | [`src/cad.rs`](src/cad.rs) | `Part`, `Hole`, `Edges`, `fillet`, `through_holes`; no JSON or SolidCraft terms in public modeling calls |
+| **CSG domain** | [`src/csg.rs`](src/csg.rs) | primitive solids and boolean expressions |
+| **Script boundary** | [`src/script.rs`](src/script.rs) | technical conversion of a script's final Rust object into one common runner model |
+| **SolidCraft adapter / transport** | [`src/solidcraft_adapter.rs`](src/solidcraft_adapter.rs), [`src/lib.rs`](src/lib.rs) | translate the model to native SolidCraft operations and carry those operations to SolidCraft |
 
-`vcad`, `CadQuery` and `µcad` are **API design references**, not dependencies
+`vcad`, `CadQuery`, `µcad` and PythonSCAD are **API design references**, not dependencies
 and not alternative modeling engines. No geometry kernel is implemented here.
 
 ## Readable model code
@@ -32,6 +33,11 @@ CsgCube::new(50.mm())
 
 The Cargo files under `solidcraftforge/examples/` are test harnesses only.
 They are not part of the model syntax.
+
+The build-time wrapper also no longer needs to know whether a model returns
+`Shape` or `Part`. Both are converted outside the user script through
+`IntoScriptModel`. This keeps the special-case runner plumbing out of
+`model.rs`.
 
 ## Running
 
