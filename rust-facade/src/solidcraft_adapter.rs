@@ -5,13 +5,36 @@
 //! Current supported subset: box, its *original* outside vertical-edge fillet,
 //! and circular through-holes along Z.
 
-use crate::cad::{Edges, Faces, Feature, Part};
+use crate::cad::{Edges, Faces, Feature, LengthExpr, Part};
 use crate::{CadError, CommandTransport};
 use serde_json::json;
 
 /// Same high-level model can be translated by different command transports.
 pub struct SolidCraftAdapter<T: CommandTransport> {
     transport: T,
+}
+
+fn command_length(value: &LengthExpr) -> serde_json::Value {
+    match value {
+        LengthExpr::Fixed(value) => json!(value.to_mm()),
+        LengthExpr::Parameter(param) => json!(param.name()),
+    }
+}
+
+fn half_coordinate(value: &LengthExpr, negative: bool) -> serde_json::Value {
+    match value {
+        LengthExpr::Fixed(value) => {
+            let half = value.to_mm() / 2.0;
+            json!(if negative { -half } else { half })
+        }
+        LengthExpr::Parameter(param) => {
+            if negative {
+                json!(format!("-{} / 2", param.name()))
+            } else {
+                json!(format!("{} / 2", param.name()))
+            }
+        }
+    }
 }
 
 impl<T: CommandTransport> SolidCraftAdapter<T> {
@@ -26,22 +49,45 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
     pub fn build(&mut self, part: &Part) -> Result<(), CadError> {
         let base = &part.base;
         let name = &part.name;
-        let hx = base.length / 2.0;
-        let hy = base.width / 2.0;
+        let hx = base.length.value_mm() / 2.0;
+        let hy = base.width.value_mm() / 2.0;
 
-        // One semantic Box3D becomes four SolidCraft commands.
+        // Named CAD dimensions become native design parameters before any
+        // feature refers to them. The public CAD API does not expose this command.
+        for dimension in [&base.length, &base.width, &base.height] {
+            if let Some(param) = dimension.parameter() {
+                self.transport.execute(
+                    "parameters.change",
+                    json!({
+                        "name": param.name(),
+                        "expression": format!("{} mm", param.default_value().to_mm())
+                    }),
+                )?;
+            }
+        }
+
+        // One semantic Box3D becomes four SolidCraft feature commands.
         self.transport.execute(
             "sketch.create",
             json!({"plane": "XY", "name": format!("{name} footprint")}),
         )?;
         self.transport.execute(
             "sketch.rectangle.two_point",
-            json!({"p0": [-hx, -hy], "p1": [hx, hy]}),
+            json!({
+                "p0": [
+                    half_coordinate(&base.length, true),
+                    half_coordinate(&base.width, true)
+                ],
+                "p1": [
+                    half_coordinate(&base.length, false),
+                    half_coordinate(&base.width, false)
+                ]
+            }),
         )?;
         self.transport.execute("sketch.finish", json!({}))?;
         self.transport.execute(
             "solid.extrude",
-            json!({"distance": base.height, "body_name": name}),
+            json!({"distance": command_length(&base.height), "body_name": name}),
         )?;
 
         // Each geometric feature may require one or many SolidCraft steps.
@@ -73,7 +119,7 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
                         "sketch.create",
                         json!({
                             "plane": {
-                                "face": [0.0, 0.0, base.height]
+                                "face": [0.0, 0.0, base.height.value_mm()]
                             },
                             "name": format!("{name} top-face holes")
                         }),
@@ -91,7 +137,7 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
                     self.transport.execute(
                         "solid.extrude",
                         json!({
-                            "distance": base.height,
+                            "distance": command_length(&base.height),
                             "direction": "negative",
                             "operation": "cut",
                             "targets": [name]
@@ -173,6 +219,25 @@ mod tests {
         assert_eq!(commands[6]["command"], "sketch.circle.center");
         assert_eq!(commands[8]["command"], "solid.extrude");
         assert_eq!(commands[8]["params"]["direction"], "negative");
+    }
+
+    #[test]
+    fn named_box_dimensions_emit_parameters_and_expressions() {
+        use crate::cad::{Length, LengthParam};
+        let model = Part::box3d(
+            LengthParam::new("plate_length", Length::mm(100.0)).unwrap(),
+            LengthParam::new("plate_width", Length::mm(60.0)).unwrap(),
+            LengthParam::new("thickness", Length::mm(10.0)).unwrap(),
+        ).unwrap();
+        let mut adapter = SolidCraftAdapter::new(ScriptTransport::default());
+        adapter.build(&model).unwrap();
+        let script = adapter.into_transport().document();
+        let commands = script["commands"].as_array().unwrap();
+        assert_eq!(commands[0]["command"], "parameters.change");
+        assert_eq!(commands[0]["params"]["name"], "plate_length");
+        assert_eq!(commands[3]["command"], "sketch.create");
+        assert_eq!(commands[4]["params"]["p0"], json!(["-plate_length / 2", "-plate_width / 2"]));
+        assert_eq!(commands[6]["params"]["distance"], "thickness");
     }
 
     #[test]

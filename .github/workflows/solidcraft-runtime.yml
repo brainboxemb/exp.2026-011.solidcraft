@@ -100,6 +100,37 @@ jobs:
             and .[0].total.volume_mm3 == .[1].total.volume_mm3
             and .[0].bodies[0].bbox == .[1].bodies[0].bbox
           ' output/native/plate-measurements.json output/native/plate-repro-measurements.json
+      - name: Change thickness parameter and verify associative rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > output/native/change-thickness.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{"name":"thickness","expression":"15 mm"}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/change-thickness.json \
+            --in output/native/plate.sc \
+            --param-check strict \
+            --save output/native/plate-thick.sc \
+            --out output/native/plate-thick.step
+          solidcraft-cli eval output/native/plate-thick.sc --json-out output/native/plate-thick-measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.max[2] > 14.9999
+            and .bodies[0].bbox.max[2] < 15.0001
+            and .total.volume_mm3 > 86931
+            and .total.volume_mm3 < 86934
+            and (.timeline | all(.error == null))
+          ' output/native/plate-thick-measurements.json
+          unzip -p output/native/plate-thick.sc document.json > output/native/plate-thick-document.json
+          jq -e '
+            (.params | any(.name == "thickness" and (.expression == "15 mm" or .expr == "15 mm")))
+            and .features[3].plane.type == "face"
+            and .features[3].plane.plane.origin[2] > 14.9999
+            and .features[3].plane.plane.origin[2] < 15.0001
+            and .features[4].extent.distance == "thickness"
+          ' output/native/plate-thick-document.json
       - name: Render preview via SolidCraft CLI (CPU renderer)
         shell: bash
         continue-on-error: true

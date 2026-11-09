@@ -15,6 +15,7 @@ pub enum DesignError {
     EmptyHoles,
     FilletOutsideBox,
     UnsupportedFeatureOrder,
+    InvalidParameterName,
 }
 
 impl fmt::Display for DesignError {
@@ -43,12 +44,70 @@ impl Length {
     pub fn to_mm(self) -> f64 { self.0 }
 }
 
+/// A named CAD length parameter with an initial value.
+/// This is design intent; the SolidCraft adapter decides how it is emitted.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LengthParam {
+    name: String,
+    default: Length,
+}
+
+impl LengthParam {
+    pub fn new(name: &str, default: Length) -> Result<Self, DesignError> {
+        let mut chars = name.chars();
+        let first_ok = chars.next().is_some_and(|c| c.is_ascii_alphabetic() || c == '_');
+        if !first_ok || !chars.all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            return Err(DesignError::InvalidParameterName);
+        }
+        positive(default.to_mm(), "parameter default")?;
+        Ok(Self { name: name.to_owned(), default })
+    }
+
+    pub fn name(&self) -> &str { &self.name }
+    pub fn default_value(&self) -> Length { self.default }
+}
+
+/// A length used by a CAD feature: either a fixed value or a named parameter.
+#[derive(Debug, Clone, PartialEq)]
+pub enum LengthExpr {
+    Fixed(Length),
+    Parameter(LengthParam),
+}
+
+impl LengthExpr {
+    pub fn value_mm(&self) -> f64 {
+        match self {
+            Self::Fixed(value) => value.to_mm(),
+            Self::Parameter(param) => param.default_value().to_mm(),
+        }
+    }
+
+    pub fn parameter(&self) -> Option<&LengthParam> {
+        match self {
+            Self::Fixed(_) => None,
+            Self::Parameter(param) => Some(param),
+        }
+    }
+}
+
+impl From<f64> for LengthExpr {
+    fn from(value: f64) -> Self { Self::Fixed(Length::mm(value)) }
+}
+
+impl From<Length> for LengthExpr {
+    fn from(value: Length) -> Self { Self::Fixed(value) }
+}
+
+impl From<LengthParam> for LengthExpr {
+    fn from(value: LengthParam) -> Self { Self::Parameter(value) }
+}
+
 /// Only a centered box is supported as the first experiment's base shape.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Box3D {
-    pub length: f64,
-    pub width: f64,
-    pub height: f64,
+    pub length: LengthExpr,
+    pub width: LengthExpr,
+    pub height: LengthExpr,
 }
 
 /// A through-hole described by its XY center and diameter, in millimeters.
@@ -111,7 +170,7 @@ pub struct SelectedEdges {
 impl SelectedEdges {
     pub fn fillet(mut self, radius: f64) -> Result<Part, DesignError> {
         let radius = positive(radius, "fillet radius")?;
-        if radius * 2.0 >= self.part.base.length.min(self.part.base.width) {
+        if radius * 2.0 >= self.part.base.length.value_mm().min(self.part.base.width.value_mm()) {
             return Err(DesignError::FilletOutsideBox);
         }
         self.part.features.push(Feature::EdgeFillet {
@@ -163,13 +222,20 @@ impl Workplane {
 
 impl Part {
     /// A box centered around X/Y=(0,0), with its underside at Z=0.
-    pub fn box3d(length: f64, width: f64, height: f64) -> Result<Self, DesignError> {
+    pub fn box3d<L, W, H>(length: L, width: W, height: H) -> Result<Self, DesignError>
+    where
+        L: Into<LengthExpr>,
+        W: Into<LengthExpr>,
+        H: Into<LengthExpr>,
+    {
+        let length = length.into();
+        let width = width.into();
+        let height = height.into();
+        positive(length.value_mm(), "length")?;
+        positive(width.value_mm(), "width")?;
+        positive(height.value_mm(), "height")?;
         Ok(Self {
-            base: Box3D {
-                length: positive(length, "length")?,
-                width: positive(width, "width")?,
-                height: positive(height, "height")?,
-            },
+            base: Box3D { length, width, height },
             name: "Part".into(),
             features: vec![],
         })
@@ -209,8 +275,8 @@ impl Part {
         }
         for (i, hole) in holes.iter().enumerate() {
             let radius = hole.diameter / 2.0;
-            if hole.x.abs() + radius >= self.base.length / 2.0
-                || hole.y.abs() + radius >= self.base.width / 2.0
+            if hole.x.abs() + radius >= self.base.length.value_mm() / 2.0
+                || hole.y.abs() + radius >= self.base.width.value_mm() / 2.0
             {
                 return Err(DesignError::HoleOutsideBase);
             }
@@ -227,11 +293,11 @@ impl Part {
 
     /// Length-typed constructor. The legacy box3d(f64,..) remains mm shorthand.
     pub fn box_with_units(length: Length, width: Length, height: Length) -> Result<Self, DesignError> {
-        Self::box3d(length.to_mm(), width.to_mm(), height.to_mm())
+        Self::box3d(length, width, height)
     }
 
     pub fn dimensions(&self) -> (f64, f64, f64) {
-        (self.base.length, self.base.width, self.base.height)
+        (self.base.length.value_mm(), self.base.width.value_mm(), self.base.height.value_mm())
     }
 
     pub fn name(&self) -> &str {
@@ -318,6 +384,18 @@ mod tests {
                 .circle(10.0, 10.0, 3.0).unwrap().cut_through(),
             Err(DesignError::UnsupportedFeatureOrder)
         ));
+    }
+
+    #[test]
+    fn named_box_dimensions_remain_domain_parameters() {
+        let length = LengthParam::new("plate_length", Length::mm(100.0)).unwrap();
+        let width = LengthParam::new("plate_width", Length::mm(60.0)).unwrap();
+        let thickness = LengthParam::new("thickness", Length::mm(10.0)).unwrap();
+        let part = Part::box3d(length, width, thickness).unwrap();
+        assert_eq!(part.dimensions(), (100.0, 60.0, 10.0));
+        assert_eq!(part.base.length.parameter().unwrap().name(), "plate_length");
+        assert_eq!(part.base.height.parameter().unwrap().name(), "thickness");
+        assert!(LengthParam::new("not a parameter", Length::mm(1.0)).is_err());
     }
 
     #[test]

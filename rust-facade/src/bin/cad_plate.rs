@@ -1,6 +1,6 @@
 //! Demonstrates a real CAD-intent API, not a SolidCraft command wrapper.
 //! Without --run it generates only the native SolidCraft command script.
-use solidcraft_facade_poc::cad::{Edges, Faces, Hole, Part};
+use solidcraft_facade_poc::cad::{Edges, Faces, Hole, Length, LengthParam, Part};
 use solidcraft_facade_poc::solidcraft_adapter::SolidCraftAdapter;
 use solidcraft_facade_poc::ScriptTransport;
 use std::error::Error;
@@ -15,7 +15,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         Hole::at(35.0, 15.0, 8.0)?,
         Hole::at(-35.0, 15.0, 8.0)?,
     ];
-    let plate = Part::box3d(100.0, 60.0, 10.0)?
+    let plate = Part::box3d(
+        LengthParam::new("plate_length", Length::mm(100.0))?,
+        LengthParam::new("plate_width", Length::mm(60.0))?,
+        LengthParam::new("thickness", Length::mm(10.0))?,
+    )?
         .named("Plate")
         .edges(Edges::OuterVertical).fillet(2.0)?
         .faces(Faces::Top).workplane().circles(&holes)?.cut_through()?;

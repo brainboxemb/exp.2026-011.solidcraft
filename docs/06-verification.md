@@ -35,3 +35,15 @@ This is strong evidence that the high-level box/fillet/top-face-holes example ac
 - change a named design parameter after save/reopen and confirm downstream rebuild;
 - implement more general face/edge selectors without hard-coded base-box assumptions;
 - GUI and MCP transports.
+
+
+## Parametric edit qualification
+
+The current fixture promotes `plate_length`, `plate_width` and `thickness`
+to named CAD-domain parameters. The SolidCraft adapter translates these to native
+design parameters and uses their names in the base sketch and extrusion distances.
+
+The runtime workflow changes `thickness` from **10 mm to 15 mm** in the saved
+native design and verifies that the body height, attached top-face workplane and
+through-hole cut rebuild associatively. This specifically tests that the Rust CAD
+abstraction produces an editable SolidCraft design rather than only a one-shot solid.

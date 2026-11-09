@@ -16,7 +16,11 @@ and not alternative modeling engines. No geometry kernel is implemented here.
 The actual example is [`src/bin/cad_plate.rs`](src/bin/cad_plate.rs):
 
 ```rust
-let plate = Part::box3d(100.0, 60.0, 10.0)?
+let plate = Part::box3d(
+    LengthParam::new("plate_length", Length::mm(100.0))?,
+    LengthParam::new("plate_width", Length::mm(60.0))?,
+    LengthParam::new("thickness", Length::mm(10.0))?,
+)?
     .named("Plate")
     .edges(Edges::OuterVertical).fillet(2.0)?
     .faces(Faces::Top).workplane().circles(&holes)?.cut_through()?;
@@ -24,6 +28,8 @@ let plate = Part::box3d(100.0, 60.0, 10.0)?
 let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
 cad.build(&plate)?;
 ```
+
+The box dimensions above are **CAD-domain parameters**. The adapter emits the native parameter definitions and uses their expressions in the sketch/extrusions; the user does not call `parameters.change`.
 
 **Only the adapter knows about SolidCraft command IDs.** This is not a
 one-function-per-SolidCraft-command wrapper. One `Part::box3d` emits

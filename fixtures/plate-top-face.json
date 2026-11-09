@@ -1,6 +1,27 @@
 {
   "commands": [
     {
+      "command": "parameters.change",
+      "params": {
+        "name": "plate_length",
+        "expression": "100 mm"
+      }
+    },
+    {
+      "command": "parameters.change",
+      "params": {
+        "name": "plate_width",
+        "expression": "60 mm"
+      }
+    },
+    {
+      "command": "parameters.change",
+      "params": {
+        "name": "thickness",
+        "expression": "10 mm"
+      }
+    },
+    {
       "command": "sketch.create",
       "params": {
         "plane": "XY",
@@ -11,12 +32,12 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          -50,
-          -30
+          "-plate_length / 2",
+          "-plate_width / 2"
         ],
         "p1": [
-          50,
-          30
+          "plate_length / 2",
+          "plate_width / 2"
         ]
       }
     },
@@ -27,7 +48,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 10,
+        "distance": "thickness",
         "body_name": "Plate"
       }
     },
@@ -120,7 +141,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 10,
+        "distance": "thickness",
         "direction": "negative",
         "operation": "cut",
         "targets": [
