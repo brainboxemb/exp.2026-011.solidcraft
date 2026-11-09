@@ -44,6 +44,9 @@ impl Length {
     pub fn to_mm(self) -> f64 { self.0 }
 }
 
+/// Concise script-facing millimetre constructor: `mm(2)` instead of `2.mm()`.
+pub fn mm(value: f64) -> Length { Length::mm(value) }
+
 /// A named CAD length parameter with an initial value.
 /// This is design intent; the SolidCraft adapter decides how it is emitted.
 #[derive(Debug, Clone, PartialEq)]
@@ -218,10 +221,42 @@ impl Workplane {
         Ok(self)
     }
 
+    /// Four positions of a centered rectangular pattern on this workplane.
+    /// Spacings are the distances between hole centres, not edge margins.
+    pub fn rectangular_pattern(
+        self,
+        spacing_x: Length,
+        spacing_y: Length,
+    ) -> Result<RectangularPattern, DesignError> {
+        let sx = positive(spacing_x.to_mm(), "pattern x spacing")?;
+        let sy = positive(spacing_y.to_mm(), "pattern y spacing")?;
+        Ok(RectangularPattern { workplane: self, spacing_x: sx, spacing_y: sy })
+    }
+
     /// A feature in CAD terms. Adapter handles plane attachment, sketch,
     /// circles, finish, and the subtractive extrusion.
     pub fn cut_through(self) -> Result<Part, DesignError> {
         self.part.through_holes_on(self.face, &self.circles)
+    }
+}
+
+/// A symmetric four-point pattern. Its locations remain local to the
+/// selected face workplane; the adapter generates the native circles.
+pub struct RectangularPattern {
+    workplane: Workplane,
+    spacing_x: f64,
+    spacing_y: f64,
+}
+
+impl RectangularPattern {
+    pub fn holes(mut self, diameter: Length) -> Result<Workplane, DesignError> {
+        let diameter = positive(diameter.to_mm(), "hole diameter")?;
+        let hx = self.spacing_x / 2.0;
+        let hy = self.spacing_y / 2.0;
+        for (x, y) in [(-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy)] {
+            self.workplane.circles.push(Hole::at(x, y, diameter)?);
+        }
+        Ok(self.workplane)
     }
 }
 
@@ -367,6 +402,24 @@ mod tests {
         assert!(Part::box_with_units(
             Length::mm(f64::NAN), Length::mm(10.0), Length::mm(2.0)
         ).is_err());
+    }
+
+    #[test]
+    fn rectangular_hole_pattern_uses_local_symmetric_positions() {
+        let part = Part::box3d(mm(100), mm(60), mm(10)).unwrap()
+            .faces(Faces::Top).workplane()
+            .rectangular_pattern(mm(70), mm(30)).unwrap()
+            .holes(mm(8)).unwrap()
+            .cut_through().unwrap();
+        assert!(matches!(
+            &part.features[0],
+            Feature::ThroughHoles { holes, .. }
+                if holes.iter().map(|h| (h.x, h.y)).collect::<Vec<_>>()
+                    == vec![(-35.0, -15.0), (35.0, -15.0), (35.0, 15.0), (-35.0, 15.0)]
+        ));
+        assert!(Part::box3d(mm(100), mm(60), mm(10)).unwrap()
+            .faces(Faces::Top).workplane()
+            .rectangular_pattern(mm(0), mm(30)).is_err());
     }
 
     #[test]
