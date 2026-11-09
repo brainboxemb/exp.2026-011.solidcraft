@@ -401,6 +401,22 @@ mod tests {
     }
 
     #[test]
+    fn plain_length_values_auto_name_editable_box_dimensions() {
+        let part = Part::box3d(
+            Length::mm(100.0),
+            Length::mm(60.0),
+            Length::mm(10.0),
+        ).unwrap();
+        assert_eq!(part.base.length.parameter().unwrap().name(), "length");
+        assert_eq!(part.base.width.parameter().unwrap().name(), "width");
+        assert_eq!(part.base.height.parameter().unwrap().name(), "thickness");
+
+        // Numeric shorthand remains a fixed value.
+        let fixed = Part::box3d(100.0, 60.0, 10.0).unwrap();
+        assert!(fixed.base.length.parameter().is_none());
+    }
+
+    #[test]
     fn named_box_dimensions_remain_domain_parameters() {
         let length = LengthParam::new("plate_length", Length::mm(100.0)).unwrap();
         let width = LengthParam::new("plate_width", Length::mm(60.0)).unwrap();
