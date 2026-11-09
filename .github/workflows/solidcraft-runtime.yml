@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   native-solidcraft:
@@ -198,3 +198,13 @@ jobs:
           path: output/native/
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Publish qualified native SolidCraft evidence to orphan vrf branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface' && success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: vrf
+          publish_dir: ./output/native
+          force_orphan: true
+          commit_message: "SolidCraft native qualification evidence from ${{ github.sha }}"
