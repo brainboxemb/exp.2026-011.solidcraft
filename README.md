@@ -4,7 +4,7 @@
 
 The goal is a readable **CAD interface** in Rust: model code describes parts, holes, faces, workplanes and fillets. A SolidCraft adapter translates that intent into native SolidCraft operations. **SolidCraft remains the only geometry engine.**
 
-CadQuery, vcad, µcad and PythonSCAD are references for API design only.
+The comparison covers **five implementations**: SolidCraftForge, CadQuery, vcad, µcad and PythonSCAD. The other four are API-design references, not SolidCraftForge geometry backends.
 
 The user-facing scripts contain no `main()`, runner calls or output plumbing.
 They define ordinary Rust object types and end with the object expression to build.
@@ -79,3 +79,24 @@ Or compile the Rust model first:
 ```
 
 See [plan](docs/00-plan.md), [Windows setup](docs/01-windows-setup.md), [CAD API design](docs/05-cad-api-design.md), [verification](docs/06-verification.md), [µcad inspiration](docs/07-microcad-inspiration.md), and [face/workplane design](docs/08-face-workplanes.md).
+
+## Generated comparison results
+
+Comparison workflows produce CAD exports and measurements for both
+`plate` and `csg-cube`. The agreed publication target is an **orphan
+`generated-examples` branch** containing all five implementations for both
+examples, with a GitHub Pages overview. It is not created until all five
+results qualify; current outputs remain GitHub Actions artifacts.
+
+Before publication, collect the results under
+`output/staging/{plate,csg-cube}/{solidcraftforge,cadquery,microcad,vcad,pythonscad}/`
+and run:
+
+```powershell
+python scripts/check-generated-examples.py output/staging
+```
+
+This automated gate checks expected cases, basic volume ranges, non-empty
+CAD exports and diagnostics for vcad's mesh fallback. It is **not** a
+substitute for the full CI checks or visual inspection.
+See [the experiment plan](docs/00-plan.md#generated-model-evidence).
