@@ -6,6 +6,7 @@
 //! and circular through-holes along Z.
 
 use crate::cad::{Edges, Faces, Feature, LengthExpr, Part};
+use crate::csg::{Axis, Shape};
 use crate::{CadError, CommandTransport};
 use serde_json::json;
 
@@ -44,6 +45,113 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
 
     pub fn into_transport(self) -> T {
         self.transport
+    }
+
+    pub fn build_csg(&mut self, shape: &Shape, name: &str) -> Result<(), CadError> {
+        shape.validate().map_err(|_| CadError::InvalidInput("invalid CSG model"))?;
+
+        let mut parameters = vec![];
+        shape.collect_parameters(&mut parameters);
+        for parameter in parameters {
+            self.transport.execute(
+                "parameters.add",
+                json!({
+                    "name": parameter.name(),
+                    "expression": format!("{}", parameter.default_value().to_mm()),
+                    "unit": "mm"
+                }),
+            )?;
+        }
+
+        self.emit_csg_new(shape, name)
+    }
+
+    fn emit_csg_new(&mut self, shape: &Shape, target: &str) -> Result<(), CadError> {
+        match shape {
+            Shape::Cube { .. } | Shape::Sphere { .. } | Shape::Cylinder { .. } => {
+                self.emit_csg_primitive(shape, target, "new")
+            }
+            Shape::Intersection(left, right) => {
+                self.emit_csg_new(left, target)?;
+                self.emit_csg_apply(right, target, "intersect")
+            }
+            Shape::Difference(left, right) => {
+                self.emit_csg_new(left, target)?;
+                self.emit_csg_apply(right, target, "cut")
+            }
+            Shape::Union(items) => {
+                let (first, rest) = items.split_first()
+                    .ok_or(CadError::InvalidInput("empty CSG union"))?;
+                self.emit_csg_new(first, target)?;
+                for item in rest {
+                    self.emit_csg_apply(item, target, "join")?;
+                }
+                Ok(())
+            }
+        }
+    }
+
+    fn emit_csg_apply(&mut self, shape: &Shape, target: &str, operation: &str) -> Result<(), CadError> {
+        match shape {
+            Shape::Cube { .. } | Shape::Sphere { .. } | Shape::Cylinder { .. } => {
+                self.emit_csg_primitive(shape, target, operation)
+            }
+            Shape::Union(items) if operation == "cut" || operation == "join" => {
+                for item in items {
+                    self.emit_csg_apply(item, target, operation)?;
+                }
+                Ok(())
+            }
+            _ => Err(CadError::InvalidInput("unsupported nested CSG expression")),
+        }
+    }
+
+    fn emit_csg_primitive(&mut self, shape: &Shape, target: &str, operation: &str) -> Result<(), CadError> {
+        let mut params = match shape {
+            Shape::Cube { size } => json!({
+                "length": size.command_value(),
+                "width": size.command_value(),
+                "height": size.command_value(),
+                "center": [0, 0, 0],
+                "operation": operation
+            }),
+            Shape::Sphere { radius } => json!({
+                "radius": radius.command_value(),
+                "center": [0, 0, 0],
+                "operation": operation
+            }),
+            Shape::Cylinder { height, diameter, axis } => {
+                let half = height.negative_half_value();
+                let base = match axis {
+                    Axis::X => json!([half, 0, 0]),
+                    Axis::Y => json!([0, half, 0]),
+                    Axis::Z => json!([0, 0, half]),
+                };
+                json!({
+                    "height": height.command_value(),
+                    "diameter": diameter.command_value(),
+                    "base": base,
+                    "axis": axis.as_str(),
+                    "operation": operation
+                })
+            }
+            _ => return Err(CadError::InvalidInput("expected CSG primitive")),
+        };
+
+        if operation == "new" {
+            params["body_name"] = json!(target);
+        } else {
+            params["targets"] = json!([target]);
+        }
+
+        let command = match shape {
+            Shape::Cube { .. } => "solid.box",
+            Shape::Sphere { .. } => "solid.sphere",
+            Shape::Cylinder { .. } => "solid.cylinder",
+            _ => unreachable!(),
+        };
+        self.transport.execute(command, params)?;
+        Ok(())
     }
 
     pub fn build(&mut self, part: &Part) -> Result<(), CadError> {
@@ -240,6 +348,30 @@ mod tests {
         assert_eq!(commands[3]["command"], "sketch.create");
         assert_eq!(commands[4]["params"]["p0"], json!(["-plate_length / 2", "-plate_width / 2"]));
         assert_eq!(commands[6]["params"]["distance"], "thickness");
+    }
+
+    #[test]
+    fn csg_cube_compiles_to_native_primitives_without_temporary_combine_bodies() {
+        use crate::csg::{parameter, Cube, Cylinder, LengthUnits, Sphere, X, Y, Z};
+
+        let size = parameter("size", 50.mm()).unwrap();
+        let model = (Sphere::new(size.clone() / 1.5) & Cube::new(size.clone()))
+            - Cylinder::new(size.clone(), size / 1.5).orient([X, Y, Z]);
+
+        let mut adapter = SolidCraftAdapter::new(ScriptTransport::default());
+        adapter.build_csg(&model, "CsgCube").unwrap();
+        let script = adapter.into_transport().document();
+        let commands = script["commands"].as_array().unwrap();
+
+        assert_eq!(commands.len(), 6);
+        assert_eq!(commands[0]["command"], "parameters.add");
+        assert_eq!(commands[1]["command"], "solid.sphere");
+        assert_eq!(commands[2]["command"], "solid.box");
+        assert_eq!(commands[2]["params"]["operation"], "intersect");
+        assert_eq!(commands[3]["params"]["axis"], "X");
+        assert_eq!(commands[4]["params"]["axis"], "Y");
+        assert_eq!(commands[5]["params"]["axis"], "Z");
+        assert!(commands.iter().all(|c| c["command"] != "solid.combine"));
     }
 
     #[test]

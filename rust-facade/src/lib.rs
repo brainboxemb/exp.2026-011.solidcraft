@@ -5,6 +5,7 @@
 //! the same CommandTransport trait and return actual engine results.
 
 pub mod cad;
+pub mod csg;
 pub mod solidcraft_adapter;
 
 use serde_json::{json, Value};
