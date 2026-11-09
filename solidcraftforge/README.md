@@ -34,7 +34,7 @@ CsgCube::new(50.mm())
 The Cargo files under `solidcraftforge/examples/` are test harnesses only.
 They are not part of the model syntax.
 
-The build-time wrapper also no longer needs to know whether a model returns
+Ordinary `Length` arguments passed to `Part::box3d()` automatically become\neditable SolidCraft dimensions (`length`, `width`, `thickness`). The script\ndoes not construct `LengthParam` objects. Explicit `LengthParam` is retained\nfor advanced domain callers; plain numeric shorthand remains fixed.\n\nThe build-time wrapper also no longer needs to know whether a model returns
 `Shape` or `Part`. Both are converted outside the user script through
 `IntoScriptModel`. This keeps the special-case runner plumbing out of
 `model.rs`.
