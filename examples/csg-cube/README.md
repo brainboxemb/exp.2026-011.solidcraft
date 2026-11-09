@@ -23,3 +23,11 @@ uses SolidCraft as its geometry engine.
 
 The files under the comparison implementations contain only the modeling code.
 Execution/export plumbing belongs in CI runners, not in the model itself.
+
+## Tested versions
+
+- Experiment 011: current branch implementation
+- SolidCraft: 0.30.1
+- µcad: 0.6.0
+- vcad-kernel: 0.11.0
+- CadQuery: 2.8.0

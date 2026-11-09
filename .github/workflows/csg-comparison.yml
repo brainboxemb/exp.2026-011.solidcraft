@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Compile and execute vcad-kernel 0.10.0 BRep model
+      - name: Compile and execute vcad-kernel 0.11.0 BRep model
         shell: bash
         run: |
           set -euo pipefail
@@ -111,7 +111,7 @@ jobs:
           publish = false
 
           [dependencies]
-          vcad-kernel = { version = "=0.10.0", default-features = false }
+          vcad-kernel = { version = "=0.11.0", default-features = false }
           serde_json = "1"
           TOML
           cat > "$RUNNER_TEMP/vcad-runner/src/main.rs" <<'RS'
