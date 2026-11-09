@@ -1,7 +1,7 @@
 //! Script-facing CAD syntax. The runner imports the prelude, collects errors,
 //! and compiles the final Shape; model.rs contains no plumbing.
 
-use crate::cad::{CylinderCut, DesignError, Edges, Part};
+use crate::cad::{CylinderCut, DesignError, Edges, LengthExpr, Part};
 use crate::csg::{self, Axis};
 use crate::solidcraft_adapter::SolidCraftAdapter;
 use crate::{CadError, CommandTransport};
@@ -9,6 +9,7 @@ use std::ops::{Add, BitAnd, BitOr, Sub};
 
 pub mod prelude {
     pub use super::{Cube, Cylinder, Shape, Sphere};
+    pub use solidcraftforge_macros::cad;
     pub use crate::cad::Edges;
     pub use crate::csg::{X, Y, Z};
 }
@@ -34,7 +35,9 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn box3d(length: f64, width: f64, thickness: f64) -> Self {
+    pub fn box3d<L, W, H>(length: L, width: W, thickness: H) -> Self
+    where L: Into<LengthExpr>, W: Into<LengthExpr>, H: Into<LengthExpr>
+    {
         Self { state: ShapeState::Part(Part::box3d(length, width, thickness)) }
     }
 
@@ -99,17 +102,17 @@ impl Sub for Shape {
 /// CSG primitives that return the same public Shape as feature CAD modeling.
 pub struct Cube;
 impl Cube {
-    pub fn new(size: f64) -> Shape { Shape::csg(csg::Cube::new(size)) }
+    pub fn new(size: impl Into<csg::DimExpr>) -> Shape { Shape::csg(csg::Cube::new(size)) }
 }
 
 pub struct Sphere;
 impl Sphere {
-    pub fn new(radius: f64) -> Shape { Shape::csg(csg::Sphere::new(radius)) }
+    pub fn new(radius: impl Into<csg::DimExpr>) -> Shape { Shape::csg(csg::Sphere::new(radius)) }
 }
 
 pub struct Cylinder(csg::Cylinder);
 impl Cylinder {
-    pub fn new(height: f64, diameter: f64) -> Self {
+    pub fn new(height: impl Into<csg::DimExpr>, diameter: impl Into<csg::DimExpr>) -> Self {
         Self(csg::Cylinder::new(height, diameter))
     }
 
