@@ -20,5 +20,7 @@ jobs:
         run: cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
       - name: Inspect generated commands as JSON
         run: python3 -m json.tool output/cad-plate.json > /dev/null
+      - name: Check generated CAD plan matches committed fixture
+        run: python3 -c "import json; assert json.load(open('output/cad-plate.json')) == json.load(open('fixtures/plate-top-face.json'))"
       - name: Python fixture tests (no SolidCraft runtime)
         run: python3 -m unittest discover -s tests -v

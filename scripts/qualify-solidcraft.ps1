@@ -39,9 +39,15 @@ function Invoke-Checked([string]$Label, [scriptblock]$Action) {
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 Write-Host "SolidCraft CLI: $CliPath"
 Invoke-Checked 'SolidCraft version' { & $CliPath --version }
-if (-not $SkipBuild) {
+if ($SkipBuild) {
+    $fixture = Join-Path $root 'fixtures\plate-top-face.json'
+    if (-not (Test-Path -LiteralPath $fixture)) { throw "Missing committed fixture: $fixture" }
+    Copy-Item -LiteralPath $fixture -Destination $scriptFile -Force
+    Write-Host 'Using the committed CAD fixture (no Rust required).'
+}
+else {
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
-        throw 'Rust cargo is not on PATH. Install Rust or use -SkipBuild with an existing output/cad-plate.json.'
+        throw 'Rust cargo is not on PATH. Install Rust or use -SkipBuild with the committed fixture.'
     }
     Invoke-Checked 'Rust domain / adapter tests' {
         & cargo test --manifest-path (Join-Path $root 'rust-facade\Cargo.toml') --all-targets
