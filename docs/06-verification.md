@@ -48,3 +48,17 @@ The runtime workflow changes `thickness` from **10 mm to 15 mm** in the saved
 native design and verifies that the body height, attached top-face workplane and
 through-hole cut rebuild associatively. This specifically tests that the Rust CAD
 abstraction produces an editable SolidCraft design rather than only a one-shot solid.
+
+
+## SolidCraft face attachment after a parameter change
+
+The saved `.sc` keeps the sketch plane's **authoring snapshot** at its original
+Z=10 mm, but also stores a certified face anchor to the high cap of the base
+extrusion. After changing `thickness` to 15 mm, the evaluated body is exactly
+15 mm high and its volume changes from 57955.24872694561 to
+86932.87309041845 mm³, while the model still reports 8 cylindrical faces and
+6 planar faces.
+
+So qualification must test the **topological anchor plus resulting geometry**,
+not require the serialized authoring-plane coordinates themselves to be
+rewritten. The runtime workflow now checks exactly that.

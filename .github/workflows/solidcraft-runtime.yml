@@ -127,11 +127,13 @@ jobs:
           jq -e '
             (.params | any(
               .name == "thickness"
-              and ((.expression == "15" and .unit == "mm") or .expression == "15 mm")
+              and .expr == "15 mm"
+              and .unit == "mm"
             ))
             and .features[3].plane.type == "face"
-            and .features[3].plane.plane.origin[2] > 14.9999
-            and .features[3].plane.plane.origin[2] < 15.0001
+            and .features[3].plane.anchor.target.body == "Plate"
+            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
+            and .features[3].plane.anchor.target.certificate.high == true
             and .features[4].extent.distance == "thickness"
           ' output/native/plate-thick-document.json
       - name: Render preview via SolidCraft CLI (CPU renderer)

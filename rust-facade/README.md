@@ -65,9 +65,11 @@ it requires a current SolidCraft installation.
 - A limited `.faces(Faces::Top).workplane()` is now implemented, attached to a real SolidCraft source face; arbitrary faces, local-coordinate transforms and stable general topology references are **not** yet supported. See [workplane notes](../docs/08-face-workplanes.md).
 - `ScriptTransport` cannot return generated curve/feature IDs. Dynamic
   selections and better parametric updating need a live GUI/MCP backend.
-- A generated STEP model is not evidence of editable SolidCraft native
-  feature history. Native save/reopen qualification is separate.
-- **Offline CI verifies the Rust CAD API and command fixture, not actual CAD geometry.**
-  The SolidCraft runtime, STEP output and GUI/MCP integration are unqualified.
+- Basic native save/reopen and parameter-driven rebuild are now qualified for
+  the plate fixture. This does not yet establish robust editing for arbitrary
+  topology or feature combinations.
+- Offline CI verifies the Rust API and command fixture; a separate pinned
+  SolidCraft 0.30.1 runtime workflow verifies the plate geometry and basic
+  parametric rebuild. GUI/MCP transports remain unqualified.
 
 See [the experiment plan](../docs/00-plan.md) for qualification cases.
