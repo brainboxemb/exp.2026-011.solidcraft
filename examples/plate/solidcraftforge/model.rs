@@ -1,4 +1,4 @@
-use solidcraftforge::cad::{DesignError, Edges, Faces, Hole, Length, LengthParam, Part};
+use solidcraftforge::cad::{DesignError, Edges, Faces, Hole, Length, Part};
 use solidcraftforge::csg::LengthUnits;
 
 pub struct Plate;
@@ -12,11 +12,7 @@ impl Plate {
             Hole::with_units((-35).mm(),  15.mm(), 8.mm())?,
         ];
 
-        Part::box3d(
-            LengthParam::new("length", length)?,
-            LengthParam::new("width", width)?,
-            LengthParam::new("thickness", thickness)?,
-        )?
+        Part::box3d(length, width, thickness)?
             .named("Plate")
             .edges(Edges::OuterVertical)
             .fillet(2.mm())?
