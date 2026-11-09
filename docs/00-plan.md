@@ -2,7 +2,7 @@
 
 ## Problem
 
-We want a readable Python interface for SolidCraft that can:
+We want a **readable, preferably typed scripting facade** for SolidCraft (Python or Rust) that can:
 - drive models in the interactive GUI, where we can watch each operation;
 - run the same design headless for reproducible automated checks;
 - create and modify parametric designs rather than only export static solids.
@@ -17,7 +17,7 @@ It provides:
 - `PyBind` — Python methods matching SolidCraft command namespaces;
 - `scraftpybind_generate.py` — code generation from SolidCraft command metadata.
 
-First compare the **simpler Python-generated JSON script** against the existing Python binding; the script requires no bindings and is a useful baseline. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
+Compare the **simpler Python-generated JSON script** and existing Python binding against a **small Rust facade** using the same SolidCraft commands. `vcad` is an inspiration for the **public API style only**; we are not evaluating or integrating its CAD engine. The JSON script is a transport baseline, not the desired final abstraction. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
 
 Upstream baseline when this experiment was opened:
 `waynegramlich/scraftcnc@eef7b7c96e2c829f82271827c7c16fb7ad95668b` (8 November 2026).
@@ -32,10 +32,12 @@ The upstream generator's cached command contract is SolidCraft 0.20.0; first tar
 | PY-03 | Headless MCP modeling and STEP export | script output and exported STEP |
 | PY-04 | Native design parameter change and reopen | initial/final values, saved native design |
 | PY-05 | Version compatibility and error behavior | exact version, expected and actual behavior |
+| API-01 | Compact Rust facade produces the expected SolidCraft command IDs and parameters | offline Rust tests and generated JSON |
+| API-02 | A facade model can switch from script transport to a live transport without rewriting the geometry calls | identical model logic, command/result evidence |
 
 ## Decisions
 
-- Start with Python and native Windows execution.
+- Start with native Windows execution; treat **Python and Rust as candidate client languages**, not competing CAD engines.
 - Only introduce a local Dockerfile for a concrete reproducibility need.
 - Keep PartCAD exploration in a different experiment, proposed `exp.2026-012.partcad-solidcraft`.
 - Never substitute STEP geometry for proof that a SolidCraft *design history* remains editable.
