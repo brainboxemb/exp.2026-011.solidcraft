@@ -57,10 +57,11 @@ impl<T: CommandTransport> SolidCraftAdapter<T> {
         for dimension in [&base.length, &base.width, &base.height] {
             if let Some(param) = dimension.parameter() {
                 self.transport.execute(
-                    "parameters.change",
+                    "parameters.add",
                     json!({
                         "name": param.name(),
-                        "expression": format!("{} mm", param.default_value().to_mm())
+                        "expression": format!("{}", param.default_value().to_mm()),
+                        "unit": "mm"
                     }),
                 )?;
             }
@@ -233,8 +234,9 @@ mod tests {
         adapter.build(&model).unwrap();
         let script = adapter.into_transport().document();
         let commands = script["commands"].as_array().unwrap();
-        assert_eq!(commands[0]["command"], "parameters.change");
+        assert_eq!(commands[0]["command"], "parameters.add");
         assert_eq!(commands[0]["params"]["name"], "plate_length");
+        assert_eq!(commands[0]["params"]["unit"], "mm");
         assert_eq!(commands[3]["command"], "sketch.create");
         assert_eq!(commands[4]["params"]["p0"], json!(["-plate_length / 2", "-plate_width / 2"]));
         assert_eq!(commands[6]["params"]["distance"], "thickness");

@@ -125,7 +125,10 @@ jobs:
           ' output/native/plate-thick-measurements.json
           unzip -p output/native/plate-thick.sc document.json > output/native/plate-thick-document.json
           jq -e '
-            (.params | any(.name == "thickness" and (.expression == "15 mm" or .expr == "15 mm")))
+            (.params | any(
+              .name == "thickness"
+              and ((.expression == "15" and .unit == "mm") or .expression == "15 mm")
+            ))
             and .features[3].plane.type == "face"
             and .features[3].plane.plane.origin[2] > 14.9999
             and .features[3].plane.plane.origin[2] < 15.0001

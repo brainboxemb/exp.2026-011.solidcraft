@@ -40,8 +40,9 @@ This is strong evidence that the high-level box/fillet/top-face-holes example ac
 ## Parametric edit qualification
 
 The current fixture promotes `plate_length`, `plate_width` and `thickness`
-to named CAD-domain parameters. The SolidCraft adapter translates these to native
-design parameters and uses their names in the base sketch and extrusion distances.
+to named CAD-domain parameters. The SolidCraft adapter creates them with native `parameters.add` (explicit `mm` unit)
+and uses their names in the base sketch and extrusion distances. Later edits use
+`parameters.change` on those existing parameters.
 
 The runtime workflow changes `thickness` from **10 mm to 15 mm** in the saved
 native design and verifies that the body height, attached top-face workplane and

@@ -1,24 +1,27 @@
 {
   "commands": [
     {
-      "command": "parameters.change",
+      "command": "parameters.add",
       "params": {
         "name": "plate_length",
-        "expression": "100 mm"
+        "expression": "100",
+        "unit": "mm"
       }
     },
     {
-      "command": "parameters.change",
+      "command": "parameters.add",
       "params": {
         "name": "plate_width",
-        "expression": "60 mm"
+        "expression": "60",
+        "unit": "mm"
       }
     },
     {
-      "command": "parameters.change",
+      "command": "parameters.add",
       "params": {
         "name": "thickness",
-        "expression": "10 mm"
+        "expression": "10",
+        "unit": "mm"
       }
     },
     {
