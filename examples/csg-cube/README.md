@@ -49,3 +49,12 @@ small `build!` macro marks the top-level instance without introducing a
 - vcad-kernel: 0.11.0 development tree, pinned by Git commit in CI
 - CadQuery: 2.8.0
 - PythonSCAD: 1.1.2
+
+## Representation note
+
+With the pinned vcad 0.11.0 development kernel, the CSG geometry is correct
+(~36,622 mm³) but the second and third cylinder differences currently fall
+back from analytic BRep to a watertight mesh. CI treats this as a valid
+geometry result while preserving `degradations`, `why_not_brep` and the
+stage-by-stage volumes as evidence. The vcad output is therefore STL for this
+case unless a later pinned kernel retains BRep and can also emit STEP.
