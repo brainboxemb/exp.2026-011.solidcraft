@@ -16,19 +16,28 @@ adapter, not in normal model code.
 
 ### Higher level: the kind of design code we want
 
-```rust
-let plate = Part::box3d(100.0, 60.0, 10.0)?
-    .named("Plate")
-    .edges(Edges::OuterVertical).fillet(2.0)?
-    .through_holes(&holes)?;
+SolidCraftForge scripts are ordinary Rust object definitions. A script ends
+with the object expression to build:
 
-solidcraft.build(&plate)?;
+```rust
+pub struct Plate;
+
+impl Plate {
+    pub fn new(length: Length, width: Length, thickness: Length)
+        -> Result<Part, DesignError>
+    {
+        // semantic CAD construction
+    }
+}
+
+Plate::new(100.mm(), 60.mm(), 10.mm())?
 ```
 
-This second example corresponds to **real code in**
-[`rust-facade/examples/plate.rs`](../rust-facade/examples/plate.rs),
-using the `SolidCraftAdapter` under the variable name `solidcraft`
-for illustration. The linked file gives its precise imports and setup.
+There is deliberately no `main()`, `show()`, `part!()` or `build!()`
+in the model script. The technical Cargo harness lives outside the script.
+
+See the real example:
+[`examples/plate/solidcraftforge/model.rs`](../examples/plate/solidcraftforge/model.rs).
 
 ## What CadQuery teaches us
 
@@ -113,7 +122,7 @@ The user does not have to know or manage these intermediate steps.
 ## Four separate responsibilities
 
 ```text
-Rust CAD domain (Part, Hole, Edges, ordered features)
+SolidCraftForge domain (Part, Hole, Edges, ordered features)
    │  independent of SolidCraft/serde/JSON
    ▼
 SolidCraft adapter (translate CAD intent into operations)

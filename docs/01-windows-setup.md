@@ -18,7 +18,7 @@ This uses the committed CAD fixture, so Rust is not required.
 To compile the Rust API first:
 
 ```powershell
-cargo test --manifest-path rust-facade/Cargo.toml --all-targets
+cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
 .\scripts\qualify-solidcraft.ps1 -Snapshot
 ```
 

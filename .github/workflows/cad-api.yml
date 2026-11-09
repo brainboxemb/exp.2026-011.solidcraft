@@ -1,4 +1,4 @@
-name: Rust CAD API offline
+name: SolidCraftForge offline
 
 on:
   push:

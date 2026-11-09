@@ -37,7 +37,7 @@ never `sketch.finish` or command IDs.
 has a deliberately minimal domain type:
 
 ```rust
-use solidcraft_facade_poc::cad::{Length, Part, Hole};
+use solidcraftforge::cad::{Length, Part, Hole};
 
 let part = Part::box_with_units(
     Length::mm(100.0), Length::inches(2.0), Length::mm(10.0)
@@ -85,15 +85,16 @@ This makes unit tests and readable model composition possible with
 no SolidCraft installation. It does not prove a real solid is generated
 correctly.
 
-## CadQuery, vcad and µcad have complementary roles
+## CadQuery, vcad, µcad and PythonSCAD have complementary roles
 
 | Design reference | Useful idea for our SolidCraft CAD API |
 |---|---|
 | [CadQuery](https://cadquery.readthedocs.io/en/latest/examples.html) | Context-aware face/edge selection, workplanes, construction geometry |
 | [vcad](https://docs.rs/vcad/latest/vcad/) | Compact fluent Rust model construction |
 | [µcad](https://codeberg.org/microcad/microcad/) | Declarative named parts/sketches/operations and typed units |
+| PythonSCAD | Lightweight object-style scripting and direct CSG operators |
 
-All three are **interface inspirations only**. None of their geometry
+All four are **interface inspirations only**. None of their geometry
 engines is in our implementation.
 
 ## Validation and next step

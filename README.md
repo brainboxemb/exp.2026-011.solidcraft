@@ -1,4 +1,4 @@
-# Experiment 011 — SolidCraftForge — Rust modeling and automation for SolidCraft
+# Experiment 011 — SolidCraftForge
 
 **Status: active Rust proof of principle; the first native SolidCraft 0.30.1 fixture now executes successfully.**
 
@@ -12,42 +12,49 @@ They define ordinary Rust object types and end with the object expression to bui
 ## Architecture
 
 ```text
-Rust CAD domain
-  Part / Hole / Face / Workplane / Fillet
+SolidCraftForge script
+  ordinary Rust objects + final model expression
                  ↓
-SolidCraft adapter
-  CAD feature → one or more native operations
+SolidCraftForge domain / adapter
                  ↓
-Transport
-  JSON script now; GUI / MCP later
+native SolidCraft operations
                  ↓
 SolidCraft
   geometry + native feature history
 ```
 
-Example:
+## Example
+
+The user-facing Plate script is
+[`examples/plate/solidcraftforge/model.rs`](examples/plate/solidcraftforge/model.rs):
 
 ```rust
-let plate = Part::box3d(100.0, 60.0, 10.0)?
-    .named("Plate")
-    .edges(Edges::OuterVertical).fillet(2.0)?
-    .faces(Faces::Top).workplane()
-    .circles(&holes)?
-    .cut_through()?;
+pub struct Plate;
 
-let mut solidcraft = SolidCraftAdapter::new(ScriptTransport::default());
-solidcraft.build(&plate)?;
+impl Plate {
+    pub fn new(length: Length, width: Length, thickness: Length) -> Result<Part, DesignError> {
+        // build the semantic Plate object
+    }
+}
+
+Plate::new(100.mm(), 60.mm(), 10.mm())?
 ```
+
+There is no `main()`, `show()`, `build!()` or transport code in that file.
+
+The Cargo examples under `solidcraftforge/examples/` are only test harnesses
+that compile these expression-based scripts and compare the generated native
+SolidCraft command plan.
 
 ## Example
 
-The complete user-facing example is [`solidcraftforge/examples/plate.rs`](solidcraftforge/examples/plate.rs).
+The executable Cargo harness is `solidcraftforge/examples/plate.rs`; it is not part of the script syntax.
 
 ```powershell
 cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
 ```
 
-It creates the plate through the semantic CAD API and writes `output/cad-plate.json`.
+It compiles the script and writes `output/examples/plate/solidcraftforge/solidcraft.json`.
 
 ## Rust tests
 

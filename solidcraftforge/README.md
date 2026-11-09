@@ -40,13 +40,10 @@ From the repository root:
 ```powershell
 cargo test --manifest-path solidcraftforge/Cargo.toml
 cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
-cargo run --manifest-path solidcraftforge/Cargo.toml --example plate -- --run
 ```
 
 First command tests CAD semantics and translation without SolidCraft.
-Second generates ignored `output/cad-plate.json` without installing
-SolidCraft. Third also invokes `solidcraft-cli` to request a STEP export;
-it requires a current SolidCraft installation.
+Second compiles the expression-based Plate script and generates ignored `output/examples/plate/solidcraftforge/solidcraft.json`. Native SolidCraft execution is qualified separately by CI and `scripts/qualify-solidcraft.ps1`.
 
 ## Explicit limitations
 
