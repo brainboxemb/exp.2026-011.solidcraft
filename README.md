@@ -28,7 +28,7 @@ SolidCraft
 The user-facing Plate script is
 [`examples/plate/solidcraftforge/model.rs`](examples/plate/solidcraftforge/model.rs):
 
-\`\`\`rust
+```rust
 pub struct Plate;
 
 impl Plate {
