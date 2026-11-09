@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let model = script::load()?;
 
     let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
-    cad.build_csg(&model, "CsgCube")?;
+    model.compile(&mut cad)?;
 
     let output = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../output/examples/csg-cube/solidcraftforge");
