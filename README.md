@@ -36,11 +36,22 @@ let mut solidcraft = SolidCraftAdapter::new(ScriptTransport::default());
 solidcraft.build(&plate)?;
 ```
 
+## Example
+
+The complete user-facing example is [`rust-facade/examples/plate.rs`](rust-facade/examples/plate.rs).
+
+```powershell
+cargo run --manifest-path rust-facade/Cargo.toml --example plate
+```
+
+It creates the plate through the semantic CAD API and writes `output/cad-plate.json`.
+
 ## Rust tests
+
 
 ```powershell
 cargo test --manifest-path rust-facade/Cargo.toml --all-targets
-cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
+cargo run --manifest-path rust-facade/Cargo.toml --example plate
 ```
 
 ## Test against SolidCraft on Windows
