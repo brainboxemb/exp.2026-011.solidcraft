@@ -20,7 +20,9 @@ geometry such as hulls, Minkowski operations or cutters.
 - `vcad/model.rs` — native BRep selective edge blend using a direction query.
 - `pythonscad/model.py` — PythonSCAD's native mesh fillet with an edge-selection mask.
 - `microcad/model.mu` — µcad 0.6.0 has no native 3D fillet operation. It uses
-  a rounded 2D rectangle followed by extrusion, which is geometrically
-  equivalent for this particular plate but is **not** a general fillet feature.
+  an explicitly constructed rounded 2D footprint followed by extrusion, which
+  is geometrically equivalent for this particular plate but is **not** a general
+  fillet feature. The 0.6.0 `RoundedRect` builtin parses but does not export
+  successfully, so the example uses rectangles plus corner circles.
 
 Execution and export plumbing stays outside these model files.

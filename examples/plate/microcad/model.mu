@@ -2,10 +2,21 @@ use std::geo2d::*;
 use std::ops::*;
 
 part Plate(length: Length, width: Length, thickness: Length) {
-    // µcad 0.6.0 has no native 3D fillet feature. A rounded 2D footprint
-    // extruded through the thickness is geometrically equivalent here.
-    body = RoundedRect(width = length, height = width, radius = 2mm)
-        .extrude(thickness);
+    // µcad 0.6.0 has no native 3D fillet feature. Build the equivalent
+    // R2 rounded footprint explicitly, then extrude it.
+    r = 2mm;
+    corner_x = length / 2 - r;
+    corner_y = width / 2 - r;
+
+    rounded_footprint =
+        Rect(width = length - 2 * r, height = width)
+        | Rect(width = length, height = width - 2 * r)
+        | Circle(r = r).translate(x = -corner_x, y = -corner_y)
+        | Circle(r = r).translate(x =  corner_x, y = -corner_y)
+        | Circle(r = r).translate(x =  corner_x, y =  corner_y)
+        | Circle(r = r).translate(x = -corner_x, y =  corner_y);
+
+    body = rounded_footprint.extrude(thickness);
 
     holes = (
         Circle(d = 8mm).translate(x = -35mm, y = -15mm)
