@@ -13,28 +13,25 @@ and not alternative modeling engines. No geometry kernel is implemented here.
 
 ## Readable model code
 
-The actual example is [`examples/plate.rs`](examples/plate.rs):
+The user-facing examples live under `examples/*/solidcraftforge/model.rs`.
+They are scripts rather than Cargo programs: no `main()`, no `show()`, no
+`build!()`. A reusable Rust type is defined and the final expression creates
+the model, for example:
 
 ```rust
-let plate = Part::box3d(
-    LengthParam::new("plate_length", Length::mm(100.0))?,
-    LengthParam::new("plate_width", Length::mm(60.0))?,
-    LengthParam::new("thickness", Length::mm(10.0))?,
-)?
-    .named("Plate")
-    .edges(Edges::OuterVertical).fillet(2.0)?
-    .faces(Faces::Top).workplane().circles(&holes)?.cut_through()?;
+pub struct CsgCube;
 
-let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
-cad.build(&plate)?;
+impl CsgCube {
+    pub fn new(size: Length) -> Shape {
+        // construct the CAD object
+    }
+}
+
+CsgCube::new(50.mm())
 ```
 
-The box dimensions above are **CAD-domain parameters**. The adapter emits the native parameter definitions and uses their expressions in the sketch/extrusions; the user does not call `parameters.change`.
-
-**Only the adapter knows about SolidCraft command IDs.** This is not a
-one-function-per-SolidCraft-command wrapper. One `Part::box3d` emits
-sketch-create, rectangle, finish and extrude; one `through_holes`
-emits a top-face sketch, N circles, sketch-finish and a cut.
+The Cargo files under `solidcraftforge/examples/` are test harnesses only.
+They are not part of the model syntax.
 
 ## Running
 

@@ -1,18 +1,17 @@
-use solidcraftforge::csg::LengthUnits;
 use solidcraftforge::solidcraft_adapter::SolidCraftAdapter;
 use solidcraftforge::ScriptTransport;
 use std::error::Error;
 use std::path::PathBuf;
 
-mod cad_model {
-    include!("../../examples/csg-cube/solidcraftforge/model.rs");
+mod script {
+    include!(concat!(env!("OUT_DIR"), "/csg_cube_script.rs"));
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let model = cad_model::CsgCube::new(50.mm());
+    let model = script::load()?;
 
     let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
-    cad.build_csg(model.shape(), "CsgCube")?;
+    cad.build_csg(&model, "CsgCube")?;
 
     let output = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../output/examples/csg-cube/solidcraftforge");

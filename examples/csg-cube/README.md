@@ -12,13 +12,11 @@ All variants describe the same intent:
 
 ## Variants
 
-- `ours/model.rs` — Experiment 011's actual Rust CAD scripting style. A named
-  `part!(...)` defines a reusable CAD part and `build!(...)` selects the
-  top-level instance. There is no CLI, JSON, transport or SolidCraft setup in
-  the model file.
-- `ours/solidcraft.json` — the reviewed raw SolidCraft command sequence
-  generated from our Rust model. This stays beside the model so command quality
-  can be inspected as well as final geometry.
+- `solidcraftforge/model.rs` — the SolidCraftForge Rust script. It defines
+  the reusable `CsgCube` type and ends with `CsgCube::new(50.mm())`.
+  There is no `main()`, `show()`, `build!()` or transport code in the script.
+- `solidcraftforge/solidcraft.json` — the reviewed raw SolidCraft command
+  sequence generated from that script.
 - `microcad/model.mu` — µcad reference. µcad is its own Rust-inspired CAD
   language; this file is **not Rust**.
 - `vcad/model.rs` — vcad's Rust BRep-kernel API.
@@ -33,13 +31,11 @@ uses SolidCraft as its geometry engine.
 Execution, export and measurement plumbing belongs in CI runners, not in the
 model files.
 
-## Why `part!` and `build!`?
+## Script shape
 
-The model should have a named, reusable top-level CAD concept rather than being
-an anonymous Rust block. `part!` gives the model a name and typed parameters.
-Plain Rust cannot execute `CsgCube(50.mm())` directly at module scope, so the
-small `build!` macro marks the top-level instance without introducing a
-`main()` function into the CAD source.
+SolidCraftForge scripts use ordinary Rust types. The final expression is the
+object to build. The Cargo example harness wraps that expression outside the
+script only so normal Rust can compile and test it.
 
 ## Tested versions
 

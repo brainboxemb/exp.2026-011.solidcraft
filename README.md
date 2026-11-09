@@ -1,10 +1,13 @@
-# Experiment 011 — semantic CAD API for SolidCraft
+# Experiment 011 — SolidCraftForge — Rust modeling and automation for SolidCraft
 
 **Status: active Rust proof of principle; the first native SolidCraft 0.30.1 fixture now executes successfully.**
 
 The goal is a readable **CAD interface** in Rust: model code describes parts, holes, faces, workplanes and fillets. A SolidCraft adapter translates that intent into native SolidCraft operations. **SolidCraft remains the only geometry engine.**
 
-CadQuery, vcad and µcad are references for API design only.
+CadQuery, vcad, µcad and PythonSCAD are references for API design only.
+
+The user-facing scripts contain no `main()`, runner calls or output plumbing.
+They define ordinary Rust object types and end with the object expression to build.
 
 ## Architecture
 
@@ -38,10 +41,10 @@ solidcraft.build(&plate)?;
 
 ## Example
 
-The complete user-facing example is [`rust-facade/examples/plate.rs`](rust-facade/examples/plate.rs).
+The complete user-facing example is [`solidcraftforge/examples/plate.rs`](solidcraftforge/examples/plate.rs).
 
 ```powershell
-cargo run --manifest-path rust-facade/Cargo.toml --example plate
+cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
 ```
 
 It creates the plate through the semantic CAD API and writes `output/cad-plate.json`.
@@ -50,8 +53,8 @@ It creates the plate through the semantic CAD API and writes `output/cad-plate.j
 
 
 ```powershell
-cargo test --manifest-path rust-facade/Cargo.toml --all-targets
-cargo run --manifest-path rust-facade/Cargo.toml --example plate
+cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
+cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
 ```
 
 ## Test against SolidCraft on Windows

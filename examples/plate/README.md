@@ -14,8 +14,8 @@ geometry such as hulls, Minkowski operations or cutters.
 
 ## Variants
 
-- `ours/model.rs` — named Rust `part!` with semantic edge and face selection.
-- `ours/solidcraft.json` — reviewed native SolidCraft command sequence.
+- `solidcraftforge/model.rs` — ordinary Rust `Plate` type; the script ends with `Plate::new(...)`.
+- `solidcraftforge/solidcraft.json` — reviewed native SolidCraft command sequence.
 - `cadquery/model.py` — native BRep edge fillet via `.edges("|Z").fillet(2)`.
 - `vcad/model.rs` — native BRep selective edge blend using a direction query.
 - `pythonscad/model.py` — PythonSCAD's native mesh fillet with an edge-selection mask.

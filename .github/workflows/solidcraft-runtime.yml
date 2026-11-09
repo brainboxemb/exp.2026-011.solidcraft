@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output/native
-          solidcraft-cli run examples/plate/ours/solidcraft.json \
+          solidcraft-cli run examples/plate/solidcraftforge/solidcraft.json \
             --param-check strict \
             --results \
             --json-out output/native/plate-results.json \
@@ -141,7 +141,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output/native/csg-cube
-          solidcraft-cli run examples/csg-cube/ours/solidcraft.json \
+          solidcraft-cli run examples/csg-cube/solidcraftforge/solidcraft.json \
             --param-check strict \
             --results \
             --json-out output/native/csg-cube/results.json \

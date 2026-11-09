@@ -14,24 +14,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust CAD domain and adapter tests
-        run: cargo test --manifest-path rust-facade/Cargo.toml --all-targets
+        run: cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
       - name: Generate semantic CAD script
-        run: cargo run --manifest-path rust-facade/Cargo.toml --example plate
+        run: cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
       - name: Validate generated JSON
-        run: jq empty output/examples/plate/ours/solidcraft.json
+        run: jq empty output/examples/plate/solidcraftforge/solidcraft.json
       - name: Fixture matches generated CAD plan
         shell: bash
         run: |
           set -euo pipefail
           jq -e -s '.[0] == .[1]' \
-            examples/plate/ours/solidcraft.json \
-            output/examples/plate/ours/solidcraft.json >/dev/null
+            examples/plate/solidcraftforge/solidcraft.json \
+            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
 
       - name: Generate CSG cube script from clean Rust model
-        run: cargo run --manifest-path rust-facade/Cargo.toml --example csg_cube
+        run: cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
       - name: CSG cube output is valid and matches reviewed SolidCraft plan
         shell: bash
         run: |
           set -euo pipefail
-          jq empty output/examples/csg-cube/ours/solidcraft.json
-          jq -e -s '.[0] == .[1]'             examples/csg-cube/ours/solidcraft.json             output/examples/csg-cube/ours/solidcraft.json >/dev/null
+          jq empty output/examples/csg-cube/solidcraftforge/solidcraft.json
+          jq -e -s '.[0] == .[1]'             examples/csg-cube/solidcraftforge/solidcraft.json             output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
