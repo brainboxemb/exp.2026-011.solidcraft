@@ -1,0 +1,36 @@
+# 06 — Verification and evidence
+
+## Offline PoP, 9 November 2026
+
+**Exact change:** `cf40297f9446767218f5e58020c4e312c7a63527` on
+`feature/issue-1-python-interface`.
+
+GitHub Actions workflow:
+[CAD API / Rust PoP — successful push run](https://github.com/brainboxemb/exp.2026-011.solidcraft/actions/runs/42658989559).
+
+| Check | Result | What it actually establishes |
+|---|---|---|
+| `cargo test --manifest-path rust-facade/Cargo.toml --all-targets` | **7 passed** | Rust source compiles; domain selection/validation and command-adapter unit assertions pass |
+| `cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate` | **Passed** | The semantic API can generate a SolidCraft JSON script |
+| `python3 -m json.tool output/cad-plate.json` | **Passed** | Generated file is syntactically valid JSON |
+| `python3 -m unittest discover -s tests -v` | **8 passed** | Existing Python fixture command-shape tests pass |
+
+The earlier CI run on commit `78e6827f1394fd02f14ca927f8f0d2782843e00d`
+failed because the first assembled tree omitted `rust-facade/Cargo.toml`
+(and the original `src/main.rs`). Both files were restored in the
+qualified commit above. This was a repository assembly issue rather than
+a SolidCraft geometry failure.
+
+## Not yet tested
+
+- Running `solidcraft-cli run output/cad-plate.json --out output/cad-plate.step`
+  on SolidCraft **0.30.1**.
+- STEP file existence, size, bounding box, hole diameters and edge fillets.
+- Whether SolidCraft accepts all adapter command arguments as expected.
+- Editable native SolidCraft design/history and named parameters after save/reopen.
+- GUI control port and headless MCP transports.
+- General topology-based CadQuery-style `faces`/`edges` selectors.
+
+**Important:** A green offline run is **not** evidence that a real
+SolidCraft CAD model was constructed correctly. This remains a draft
+experiment until these runtime checks are performed.

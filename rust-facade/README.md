@@ -68,8 +68,7 @@ cargo run --manifest-path rust-facade/Cargo.toml --bin solidcraft-facade-poc
   selections and better parametric updating need a live GUI/MCP backend.
 - A generated STEP model is not evidence of editable SolidCraft native
   feature history. Native save/reopen qualification is separate.
-- **No Rust compiler or SolidCraft runtime has yet been executed in
-  the connected authoring environment.** Source changes are not
-  proof of actual CAD results.
+- **Offline CI verifies the Rust and Python fixtures, not actual CAD geometry.**
+  The SolidCraft runtime, STEP output and GUI/MCP integration are unqualified.
 
 See [the experiment plan](../docs/00-plan.md) for qualification cases.

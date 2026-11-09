@@ -67,7 +67,7 @@ cargo run --bin cad_plate -- --run    # also ask SolidCraft CLI to export STEP
 cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 ```
 
-`cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. Compilation and actual SolidCraft execution have **not yet been verified** here.
+`cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. **Offline CI passes:** 7 Rust tests, 8 Python fixture tests, and generated JSON syntax verification. Actual SolidCraft CLI/GUI execution remains **unverified**.
 
 ## Qualification
 
@@ -77,7 +77,7 @@ cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [offline verification](docs/06-verification.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 

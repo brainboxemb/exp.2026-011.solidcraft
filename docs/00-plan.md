@@ -57,6 +57,10 @@ subset is a centered box, four original outside vertical-edge fillets, and
 through-holes along Z. Do not claim general topology selection or editable
 parameter propagation before qualifying it.
 
+## Evidence
+
+[Offline CI results](06-verification.md) demonstrate source compilation, unit tests and JSON generation only; neither a SolidCraft CAD export nor GUI integration has been qualified yet.
+
 ## Decisions
 
 - Start with native Windows execution; treat **Python and Rust as candidate client languages**, not competing CAD engines.
