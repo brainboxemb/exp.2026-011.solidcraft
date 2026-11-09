@@ -19,7 +19,7 @@ The actual example is [`src/bin/cad_plate.rs`](src/bin/cad_plate.rs):
 let plate = Part::box3d(100.0, 60.0, 10.0)?
     .named("Plate")
     .edges(Edges::OuterVertical).fillet(2.0)?
-    .through_holes(&holes)?;
+    .faces(Faces::Top).workplane().circles(&holes)?.cut_through()?;
 
 let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
 cad.build(&plate)?;
@@ -62,8 +62,7 @@ cargo run --manifest-path rust-facade/Cargo.toml --bin solidcraft-facade-poc
   geometry API before further selectors are added.
 - Features are applied in the caller's order. The example fillets the
   outer upright edges **before** drilling holes.
-- No named workplanes or topological tags yet; investigate the approach
-  from CadQuery in [design notes](../docs/05-cad-api-design.md).
+- A limited `.faces(Faces::Top).workplane()` is now implemented, attached to a real SolidCraft source face; arbitrary faces, local-coordinate transforms and stable general topology references are **not** yet supported. See [workplane notes](../docs/08-face-workplanes.md).
 - `ScriptTransport` cannot return generated curve/feature IDs. Dynamic
   selections and better parametric updating need a live GUI/MCP backend.
 - A generated STEP model is not evidence of editable SolidCraft native

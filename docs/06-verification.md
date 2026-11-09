@@ -31,6 +31,14 @@ JSON syntax verification also passed.
 
 This is still a **source/command-fixture qualification only**.
 
+## Face-attached workplane milestone
+
+[CAD domain / SolidCraft adapter update](https://github.com/brainboxemb/exp.2026-011.solidcraft/commit/676a56d87bdf096e2632d94f2eac1028a2d221d1)
+passed [offline CI](https://github.com/brainboxemb/exp.2026-011.solidcraft/actions/runs/42667955909).
+The semantic `Faces::Top` feature now maps to a **native SolidCraft face source** on `sketch.create`, rather than the previous global XY plane. Offline tests verify the command plan; the actual face's local axes and model output remain unverified.
+
+A [Windows qualification script](../scripts/qualify-solidcraft.ps1) can run the experiment against an installed SolidCraft CLI; it has not been executed on the user's computer.
+
 ## Not yet tested
 
 - Running `solidcraft-cli run output/cad-plate.json --out output/cad-plate.step`

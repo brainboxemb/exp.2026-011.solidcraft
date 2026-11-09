@@ -75,7 +75,19 @@ plate = (cq.Workplane("XY").box(100, 60, 10)
     .vertices().hole(8))
 ```
 
-An eventual Rust API could look like (proposed; **not implemented**):
+A limited **working Rust domain API** can select the top face of the original box and describe a cut without native commands:
+
+```rust
+let plate = Part::box3d(100.0, 60.0, 10.0)?
+    .faces(Faces::Top).workplane()
+    .circle(-35.0, -15.0, 8.0)?
+    .circle( 35.0,  15.0, 8.0)?
+    .cut_through()?;
+```
+
+The adapter resolves `Faces::Top` through SolidCraft's documented face attachment. See [face/workplane qualification](08-face-workplanes.md).
+
+A more general API could look like (proposed; **not implemented**):
 
 ```rust
 part.on(Faces::Top)?
@@ -137,7 +149,7 @@ We are not adopting its parser or geometry engine. See
 **Implemented at source level:**
 - `Part::box3d(length, width, height)`, centered about XY;
 - `.named(...)`, `.edges(Edges::OuterVertical).fillet(radius)`;
-- `.through_holes(&[Hole::at(x, y, diameter)?])`;
+- `.through_holes(&[Hole::at(x, y, diameter)?])` or `.faces(Faces::Top).workplane().circles(&holes)?.cut_through()?`; 
 - dimensions validation, feature ordering, and domain tests;
 - SolidCraft adapter tests checking expansion into multiple commands.
 

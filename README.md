@@ -57,7 +57,7 @@ The first command only writes `output/bracket.json`; the second asks SolidCraft 
 
 ## Semantic CAD API proof of principle
 
-The [Rust experiment](rust-facade/) now has **two distinct layers**: an engine-independent `cad::Part` domain API and a SolidCraft-specific adapter that turns **one CAD feature into multiple SolidCraft operations**. The earlier 1:1 command facade is retained as a low-level comparison, **not** the target user-facing API. [CadQuery](https://cadquery.readthedocs.io/en/stable/workplane.html) , [vcad](https://docs.rs/vcad/latest/vcad/) and [µcad](https://codeberg.org/microcad/microcad/) are API design references only.
+The [Rust experiment](rust-facade/) now has **two distinct layers**: an engine-independent `cad::Part` domain API and a SolidCraft-specific adapter that turns **one CAD feature into multiple SolidCraft operations**. The current API now supports `.faces(Faces::Top).workplane().circles(&holes)?.cut_through()?`: the adapter creates a **face-attached sketch**, instead of placing a sketch on a floating global XY plane. The earlier 1:1 command facade is retained as a low-level comparison, **not** the target user-facing API. [CadQuery](https://cadquery.readthedocs.io/en/stable/workplane.html) , [vcad](https://docs.rs/vcad/latest/vcad/) and [µcad](https://codeberg.org/microcad/microcad/) are API design references only.
 
 ```powershell
 cd rust-facade
@@ -69,6 +69,18 @@ cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 
 `cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. **Offline CI passes:** 8 Rust tests, 8 Python fixture tests, and generated JSON syntax verification. Actual SolidCraft CLI/GUI execution remains **unverified**.
 
+## Windows runtime qualification
+
+After installing official SolidCraft, run this from the repository root:
+
+```powershell
+.\scripts\qualify-solidcraft.ps1 -Snapshot
+```
+
+The [qualification script](scripts/qualify-solidcraft.ps1) finds the installed CLI (normally `C:\Program Files\SolidCraft\solidcraft-cli.exe`), tests the Rust code, builds the semantic CAD script, and asks the actual SolidCraft CLI to export **STEP** and a native **.sc design** with strict parameter checking. Raw measurements/results stay under ignored `output/`. This has **not yet been run against the user's Windows installation**.
+
+See [face selection/workplane notes](docs/08-face-workplanes.md).
+
 ## Qualification
 
 - **PY-01** — offline Python transport tests and pinned bootstrap.
@@ -77,7 +89,7 @@ cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [µcad API inspiration](docs/07-microcad-inspiration.md), [offline verification](docs/06-verification.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [face workplanes](docs/08-face-workplanes.md), [µcad API inspiration](docs/07-microcad-inspiration.md), [offline verification](docs/06-verification.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 

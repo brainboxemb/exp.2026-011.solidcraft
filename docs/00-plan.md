@@ -19,7 +19,7 @@ It provides:
 - `PyBind` — Python methods matching SolidCraft command namespaces;
 - `scraftpybind_generate.py` — code generation from SolidCraft command metadata.
 
-Compare the **simpler Python-generated JSON script** and existing Python bindings against a **semantic Rust CAD API** whose SolidCraft adapter generates the right sequence of native commands. `vcad` and **CadQuery** and **µcad** are inspirations for public API ergonomics only; we are not evaluating or integrating their engines. The JSON script is a transport baseline, not the desired final abstraction. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
+Compare the **simpler Python-generated JSON script** and existing Python bindings against a **semantic Rust CAD API** whose SolidCraft adapter generates the right sequence of native commands. `vcad`, **CadQuery**, and **µcad** are inspirations for public API ergonomics only; we are not evaluating or integrating their engines. The JSON script is a transport baseline, not the desired final abstraction. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
 
 Upstream baseline when this experiment was opened:
 `waynegramlich/scraftcnc@eef7b7c96e2c829f82271827c7c16fb7ad95668b` (8 November 2026).
@@ -41,6 +41,7 @@ The upstream generator's cached command contract is SolidCraft 0.20.0; first tar
 | API-05 | Face/edge selection, workplane placement and feature IDs remain stable after model changes | live SolidCraft topology/feature tests before promoting selectors |
 | API-06 | Typed physical dimensions prevent confusion between mm and inches | Rust unit conversion / input-validation tests |
 | API-07 | Reusable, named part and sketch definitions can map to native SolidCraft features | design now, runtime and history qualification later |
+| API-08 | `Faces::Top` and a CAD workplane become a native face-attached SolidCraft sketch | offline adapter tests, then Windows native geometry/history qualification |
 
 ## Architecture decision
 
