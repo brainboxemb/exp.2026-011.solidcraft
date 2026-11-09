@@ -136,6 +136,47 @@ jobs:
             and .features[3].plane.anchor.target.certificate.high == true
             and .features[4].extent.distance == "thickness"
           ' output/native/plate-thick-document.json
+      - name: Evaluate CSG cube through native SolidCraft
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/csg-cube
+          solidcraft-cli run examples/csg-cube/ours/solidcraft.json \
+            --param-check strict \
+            --results \
+            --json-out output/native/csg-cube/results.json \
+            --save output/native/csg-cube/model.sc \
+            --out output/native/csg-cube/model.step
+          solidcraft-cli eval output/native/csg-cube/model.sc \
+            --json-out output/native/csg-cube/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "CsgCube"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min[0] > -25.0001
+            and .bodies[0].bbox.min[0] < -24.9999
+            and .bodies[0].bbox.max[0] > 24.9999
+            and .bodies[0].bbox.max[0] < 25.0001
+            and .bodies[0].bbox.min[1] > -25.0001
+            and .bodies[0].bbox.min[1] < -24.9999
+            and .bodies[0].bbox.max[1] > 24.9999
+            and .bodies[0].bbox.max[1] < 25.0001
+            and .bodies[0].bbox.min[2] > -25.0001
+            and .bodies[0].bbox.min[2] < -24.9999
+            and .bodies[0].bbox.max[2] > 24.9999
+            and .bodies[0].bbox.max[2] < 25.0001
+            and (.timeline | all(.error == null))
+          ' output/native/csg-cube/measurements.json
+          test -s output/native/csg-cube/model.sc
+          test -s output/native/csg-cube/model.step
+          cat output/native/csg-cube/measurements.json
+      - name: Render CSG cube preview
+        shell: bash
+        continue-on-error: true
+        run: |
+          solidcraft-cli snapshot output/native/csg-cube/model.sc \
+            --out output/native/csg-cube/model.png \
+            --no-grid --no-axes
       - name: Render preview via SolidCraft CLI (CPU renderer)
         shell: bash
         continue-on-error: true

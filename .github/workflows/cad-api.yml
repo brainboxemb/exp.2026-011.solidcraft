@@ -26,3 +26,12 @@ jobs:
           jq -e -s '.[0] == .[1]' \
             fixtures/plate-top-face.json \
             output/cad-plate.json >/dev/null
+
+      - name: Generate CSG cube script from clean Rust model
+        run: cargo run --manifest-path rust-facade/Cargo.toml --example csg_cube
+      - name: CSG cube output is valid and matches reviewed SolidCraft plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq empty output/examples/csg-cube/ours/solidcraft.json
+          jq -e -s '.[0] == .[1]'             examples/csg-cube/ours/solidcraft.json             output/examples/csg-cube/ours/solidcraft.json >/dev/null
