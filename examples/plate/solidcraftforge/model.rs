@@ -1,19 +1,19 @@
-use solidcraftforge::cad::{mm, DesignError, Edges, Faces, Length, Part};
+use solidcraftforge::cad::{DesignError, Edges, Part};
+use solidcraftforge::csg::Cylinder;
 
 pub struct Plate;
 
 impl Plate {
-    pub fn new(length: Length, width: Length, thickness: Length) -> Result<Part, DesignError> {
+    pub fn new(length: f64, width: f64, thickness: f64) -> Result<Part, DesignError> {
+        let cylinders = Cylinder::new(thickness, 8.0)
+            .rectangular_pattern(70.0, 30.0)?;
+
         Part::box3d(length, width, thickness)?
             .named("Plate")
             .edges(Edges::OuterVertical)
-            .fillet(mm(2))?
-            .faces(Faces::Top)
-            .workplane()
-            .rectangular_pattern(mm(70), mm(30))?
-            .holes(mm(8))?
-            .cut_through()
+            .fillet(2.0)?
+            .subtract(cylinders)
     }
 }
 
-Plate::new(mm(100), mm(60), mm(10))?
+Plate::new(100.0, 60.0, 10.0)?
