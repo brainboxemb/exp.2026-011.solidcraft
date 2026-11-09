@@ -17,7 +17,7 @@ It provides:
 - `PyBind` — Python methods matching SolidCraft command namespaces;
 - `scraftpybind_generate.py` — code generation from SolidCraft command metadata.
 
-Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
+First compare the **simpler Python-generated JSON script** against the existing Python binding; the script requires no bindings and is a useful baseline. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
 
 Upstream baseline when this experiment was opened:
 `waynegramlich/scraftcnc@eef7b7c96e2c829f82271827c7c16fb7ad95668b` (8 November 2026).

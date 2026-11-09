@@ -46,6 +46,15 @@ python -m unittest discover -s tests -v
 
 The example is **not yet live-tested** on SolidCraft 0.30.1.
 
+For the simplest alternative, requiring **no Python binding at all**, generate a native JSON script with:
+
+```powershell
+python .\\examples\\python_cli_script.py
+python .\\examples\\python_cli_script.py --run
+```
+
+The first command only writes `output/bracket.json`; the second asks SolidCraft CLI to export `output/bracket.step`.
+
 ## Qualification
 
 - **PY-01** — offline Python transport tests and pinned bootstrap.
@@ -54,7 +63,7 @@ The example is **not yet live-tested** on SolidCraft 0.30.1.
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [scripting alternatives](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 
