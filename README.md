@@ -31,8 +31,13 @@ The user-facing Plate script is
 ```rust
 pub struct Plate;
 
+#[cad]
 impl Plate {
-    pub fn new(length: f64, width: f64, thickness: f64) -> Shape {
+    pub fn new(
+        #[parameter] length: f64,
+        #[parameter] width: f64,
+        #[parameter] thickness: f64,
+    ) -> Shape {
         let cylinders = Cylinder::new(thickness, 8.0)
             .rectangular_pattern(70.0, 30.0);
 
@@ -46,7 +51,7 @@ impl Plate {
 Plate::new(100.0, 60.0, 10.0)
 ```
 
-There is no `use`, `Result`, `?`, `main()`, `show()`, `build!()` or transport code in that file. Common CAD types are implicitly imported by the runner.
+The `#[cad]` macro processes `#[parameter]` arguments into editable SolidCraft dimensions. There is no `use`, `Result`, `?`, `main()`, `show()`, `build!()` or transport code in that file. Common CAD types are implicitly imported by the runner.
 
 The Cargo examples under `solidcraftforge/examples/` are only test harnesses
 that compile these expression-based scripts and compare the generated native
@@ -87,6 +92,8 @@ Or compile the Rust model first:
 See [plan](docs/00-plan.md), [Windows setup](docs/01-windows-setup.md), [CAD API design](docs/05-cad-api-design.md), [verification](docs/06-verification.md), [µcad inspiration](docs/07-microcad-inspiration.md), and [face/workplane design](docs/08-face-workplanes.md).
 
 ## Generated comparison results
+
+The offline build publishes generated command JSON to `bld` after success; native qualification publishes its SolidCraft outputs (including command JSON, STEP, `.sc` and measurements) to `vrf` after success. Both branches are CI-owned, and their existence is contingent on a successful run.
 
 Comparison workflows produce CAD exports and measurements for both
 `plate` and `csg-cube`. The agreed publication target is an **orphan
