@@ -71,20 +71,22 @@ impl LengthParam {
 #[derive(Debug, Clone, PartialEq)]
 pub enum LengthExpr {
     Fixed(Length),
+    /// Script-provided dimension: named by the receiving CAD feature.
+    Auto(Length),
     Parameter(LengthParam),
 }
 
 impl LengthExpr {
     pub fn value_mm(&self) -> f64 {
         match self {
-            Self::Fixed(value) => value.to_mm(),
+            Self::Fixed(value) | Self::Auto(value) => value.to_mm(),
             Self::Parameter(param) => param.default_value().to_mm(),
         }
     }
 
     pub fn parameter(&self) -> Option<&LengthParam> {
         match self {
-            Self::Fixed(_) => None,
+            Self::Fixed(_) | Self::Auto(_) => None,
             Self::Parameter(param) => Some(param),
         }
     }
@@ -95,7 +97,7 @@ impl From<f64> for LengthExpr {
 }
 
 impl From<Length> for LengthExpr {
-    fn from(value: Length) -> Self { Self::Fixed(value) }
+    fn from(value: Length) -> Self { Self::Auto(value) }
 }
 
 impl From<LengthParam> for LengthExpr {
@@ -231,9 +233,18 @@ impl Part {
         W: Into<LengthExpr>,
         H: Into<LengthExpr>,
     {
-        let length = length.into();
-        let width = width.into();
-        let height = height.into();
+        // Ordinary script Length values become editable SolidCraft dimensions.
+        // Explicit LengthParam values retain their chosen names, while numeric
+        // shorthand (f64) remains a fixed dimension for existing CAD callers.
+        fn named(value: LengthExpr, name: &str) -> Result<LengthExpr, DesignError> {
+            match value {
+                LengthExpr::Auto(length) => Ok(LengthExpr::Parameter(LengthParam::new(name, length)?)),
+                other => Ok(other),
+            }
+        }
+        let length = named(length.into(), "length")?;
+        let width = named(width.into(), "width")?;
+        let height = named(height.into(), "thickness")?;
         positive(length.value_mm(), "length")?;
         positive(width.value_mm(), "width")?;
         positive(height.value_mm(), "height")?;
