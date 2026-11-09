@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let model = script::load()?;
 
     let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
-    cad.build(&model)?;
+    model.compile(&mut cad)?;
 
     let output = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../output/examples/plate/solidcraftforge");
