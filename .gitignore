@@ -7,3 +7,6 @@ output/
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Rust build outputs
+rust-facade/target/

@@ -1,8 +1,8 @@
-# Experiment 011 — SolidCraft scripting API
+# Experiment 011 — semantic CAD API, powered by SolidCraft
 
 **Status: active — first Proof of Principle; no live qualification yet.**
 
-Can we build a **small, readable typed facade** that sends the right commands to SolidCraft, for GUI and headless use? Python and Rust are implementation candidates; **SolidCraft remains the only CAD engine** in this experiment.
+Can we describe parts as **CAD objects and features** (box, edges, fillet, holes, workplanes), while an adapter compiles that design into the correct SolidCraft operations? The user's modeling code should not expose `sketch.create`, JSON parameters or transport. **SolidCraft remains the only CAD engine.**
 
 This experiment is isolated from the OpenSCAD model archive and production CAD tooling.
 
@@ -55,18 +55,19 @@ python .\\examples\\python_cli_script.py --run
 
 The first command only writes `output/bracket.json`; the second asks SolidCraft CLI to export `output/bracket.step`.
 
-## Rust interface proof of principle
+## Semantic CAD API proof of principle
 
-The [Rust facade example](rust-facade/) is a second **client-side API** for the same SolidCraft commands. It uses a small transport trait and currently writes a native command script; it **does not** use vcad as an engine.
+The [Rust experiment](rust-facade/) now has **two distinct layers**: an engine-independent `cad::Part` domain API and a SolidCraft-specific adapter that turns **one CAD feature into multiple SolidCraft operations**. The earlier 1:1 command facade is retained as a low-level comparison, **not** the target user-facing API. [CadQuery](https://cadquery.readthedocs.io/en/stable/workplane.html) and [vcad](https://docs.rs/vcad/latest/vcad/) are API design references only.
 
 ```powershell
 cd rust-facade
 cargo test
-cargo run
-cargo run -- --run
+cargo run --bin cad_plate             # semantic CAD API -> SolidCraft script
+cargo run --bin cad_plate -- --run    # also ask SolidCraft CLI to export STEP
+cargo run --bin solidcraft-facade-poc # previous low-level command wrapper
 ```
 
-`cargo run` generates `../output/rust-bracket.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/rust-bracket.step`. Compilation and actual SolidCraft execution have **not yet been verified** here.
+`cad_plate` generates `../output/cad-plate.json`; `--run` additionally invokes the installed `solidcraft-cli` to export `../output/cad-plate.step`. The old `solidcraft-facade-poc` binary generates `rust-bracket.json`. Compilation and actual SolidCraft execution have **not yet been verified** here.
 
 ## Qualification
 
@@ -76,7 +77,7 @@ cargo run -- --run
 - **PY-04** — save/reopen a native design and change a named parameter.
 - **PY-05** — document version and error compatibility, then decide whether a small adapter is needed.
 
-See [plan](docs/00-plan.md), [scripting options](docs/03-scripting-options.md), [Rust facade concept](docs/04-rust-command-facade.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
+See [plan](docs/00-plan.md), [semantic CAD API and CadQuery ideas](docs/05-cad-api-design.md), [low-level Rust command facade](docs/04-rust-command-facade.md), [scripting options](docs/03-scripting-options.md), [first findings](docs/02-first-findings.md) and [tracking issue #1](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/1).
 
 ## Docker and production boundary
 

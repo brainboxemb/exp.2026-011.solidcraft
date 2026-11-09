@@ -1,0 +1,24 @@
+name: CAD API / Rust PoP (offline)
+
+on:
+  push:
+    branches:
+      - main
+      - feature/issue-1-python-interface
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify-rust-cad-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust domain and command-adapter tests (no SolidCraft runtime)
+        run: cargo test --manifest-path rust-facade/Cargo.toml --all-targets
+      - name: Build a semantic CAD script without SolidCraft
+        run: cargo run --manifest-path rust-facade/Cargo.toml --bin cad_plate
+      - name: Inspect generated commands as JSON
+        run: python3 -m json.tool output/cad-plate.json > /dev/null
+      - name: Python fixture tests (no SolidCraft runtime)
+        run: python3 -m unittest discover -s tests -v

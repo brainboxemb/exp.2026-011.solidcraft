@@ -1,3 +1,8 @@
+> **Historical / low-level boundary:** This page documents the first Rust
+> implementation, a one-to-one SolidCraft command wrapper. It is **not**
+> the intended high-level CAD API. See [Semantic CAD API and CadQuery
+> design](05-cad-api-design.md) and the [domain model and adapter](../rust-facade/).
+>
 # 04 — Rust facade inspired by vcad's API design
 
 **Scope clarification:** [`vcad`](https://docs.rs/vcad/latest/vcad/)
@@ -68,6 +73,14 @@ The **design** separates the public API from how commands are delivered.
 The ScriptTransport can emit native JSON without an installed
 SolidCraft binary. The API also validates basic inputs and propagates
 errors rather than hiding failures.
+
+### What changed
+
+A separate **semantic CAD module** is now implemented for a small subset.
+It owns Part/holes/edge selections, while a SolidCraft-specific adapter emits
+multiple command steps per feature. The old wrapper on this page is retained
+as a transport/command-layer reference and should not be extended as the
+public CAD API.
 
 ### What still needs implementing and testing
 

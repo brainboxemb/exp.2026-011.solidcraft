@@ -1,111 +1,70 @@
-# 03 — Choosing the language for a SolidCraft API facade
+# 03 — Choosing a scripting interface
 
-## What we actually want to build
+SolidCraft already has a language-independent **engine command API**.
+The same commands are accessible as JSON scripts, through its CLI, over the
+desktop control port, and via MCP.
 
-**Not a new CAD engine.** The only modeling engine is SolidCraft.
+## Our options (in increasing integration complexity)
 
-We want an ergonomic API — similar in **shape and naming** to
-[`vcad`'s Rust API](https://docs.rs/vcad/latest/vcad/) — that converts
-high-level calls into SolidCraft commands.
-
-For example, a user-facing Rust API could eventually look like:
-
-```rust
-let mut cad = SolidCraft::connect(...)?;
-cad.sketch("XZ", "Profile")?
-   .polygon(&points)?
-   .finish()?;
-cad.extrude("60 mm")?;
-```
-
-This is **illustrative API design**, not the API of SolidCraft and not
-a claim that this exact code compiles. Below that facade, each action
-maps to an existing SolidCraft command:
-
-```text
-Rust or Python facade
-       |
-       v
-SolidCraft command objects / responses (JSON)
-       |
-       +--> CLI script for batch model creation
-       +--> GUI control channel for interactive modeling
-       +--> MCP headless session for automation
-       |
-       v
-SolidCraft application / modeling engine
-```
-
-The facade must **not** implement CSG, extrusion, geometry kernels,
-mesh conversion or independent model history. SolidCraft owns all of that.
-
-## Python versus Rust for *this exact task*
-
-| Criterion | Python facade | Rust facade |
+| Option | Requires custom bindings? | Best suited to |
 |---|---|---|
-| Calling CLI, JSON, GUI control or MCP | Straightforward | Straightforward |
-| Rapidly testing command signatures | Faster iteration, no compilation | Build cycle |
-| Typed public API (arguments, units, enums, errors) | Possible with type hints | Strong compiler-enforced types |
-| Handling response IDs and feature handles | Ordinary Python objects | Rust types and ownership |
-| Distributing a small script | Simple with Python available | Binary build and packaging |
-| Reusable library with strong interface contract | Possible | **Compelling choice** |
-| Native Rust SolidCraft internals | Not relevant | **Also not required** for external scripting |
+| JSON command script | No | First CLI smoke test and reference fixture |
+| Python -> JSON -> `solidcraft-cli run` | No | Small reproducible parametric generators with a short Python script |
+| Python with `scraftpybind` | Existing unofficial bindings | Interactive GUI control, inspection, return values and headless sessions |
+| Python with our own tiny JSON/MCP client | Yes, modest effort | Only if the upstream binding has important compatibility problems |
+| Lua invoking JSON/CLI | A custom wrapper | Possible, but no apparent native Lua scripting runtime in SolidCraft |
+| Rust calling CLI/JSON API | A small wrapper, just as in Python | Good if the controlling application is already written in Rust; more build overhead for tiny scripts |
+| Rust directly using SolidCraft internal crates | A Rust crate dependency rather than a command wrapper | Potentially powerful, but in-process integration is not a stable public scripting interface by default |
 
-So Python is only **faster to prototype** here. Rust is a perfectly
-reasonable — perhaps preferable — choice if the goal is a carefully
-defined reusable API rather than an ad-hoc script.
+**Native plugins are not a ready route:** [the SolidCraft plugin RFC](https://github.com/tangency-labs/solidcraft/blob/main/docs/rfcs/0002-plugins.md) proposes WebAssembly components, with Rust as the first language. It explicitly says the plugin host and executable plugins are not implemented yet. That RFC is not evidence of supported Lua or stable Rust plugin scripting today.
 
-Lua could also send the command protocol, but it has no native advantage
-for this task. The [SolidCraft plugin RFC](https://github.com/tangency-labs/solidcraft/blob/main/docs/rfcs/0002-plugins.md)
-is still a separate, unfinished feature; we do not need plugins or
-WebAssembly for an external wrapper.
+## Important distinction: language versus CAD engine
 
-## The interface boundary matters more than the language
+"Python is easier than Rust" was too general. Python is a low-friction way to
+automate **the already installed SolidCraft desktop program** (JSON, CLI,
+control port, MCP). Rust can send exactly the same commands; neither language
+has a fundamental capability advantage at this boundary. For a short local
+experiment, Python is convenient because it runs without a Cargo project and
+recompilation. For a reusable, typed application or a native Rust CAD crate,
+Rust may be the simpler design.
 
-Keep four components distinct:
+[`vcad`](https://docs.rs/vcad/latest/vcad/) is an important counterexample:
+it provides *direct Rust CAD methods*, not just a wrapper around another
+program's command API. See [vcad alternative](04-vcad-rust-alternative.md).
+That is a comparison of **two CAD systems/engines**, not just two scripting
+languages. A `vcad` model does not automatically become an editable
+SolidCraft feature timeline; exchanging STEP/STL normally exchanges resulting
+geometry, not all original modeling operations.
 
-1. **Facade**: names such as `sketch`, `extrude`, `fillet`,
-   validation and unit-friendly parameter types.
-2. **Command mapping**: exact SolidCraft command ID and argument JSON.
-3. **Transport**: batch script, persistent GUI port or headless MCP;
-   execute commands and pass errors/results back.
-4. **SolidCraft runtime**: applies commands, creates actual geometry
-   and preserves feature history.
+## Try both small Python paths
 
-Avoid conflating the source-language API with SolidCraft's engine.
+### A. No bindings; Python emits a script
 
-The existing `scraftpybind` is a useful Python implementation of layers
-2 and 3. Our potential Rust facade would be an alternative implementation
-of those same boundaries, not a Rust CAD kernel.
+```powershell
+python .\examples\python_cli_script.py
+python .\examples\python_cli_script.py --run
+```
 
-## What to test
+The first command writes `output/bracket.json` without SolidCraft installed.
+The second invokes `solidcraft-cli run output/bracket.json --out output/bracket.step`.
+It follows the published [SolidCraft script format](https://github.com/tangency-labs/solidcraft/blob/main/docs/scripts.md) and the command structure of the upstream [bracket example](https://github.com/tangency-labs/solidcraft/blob/main/examples/bracket.json).
 
-- Can a typed API produce the exact same commands as SolidCraft's
-  published `examples/bracket.json`?
-- Does the same API work with a static script transport and a live
-  transport, without rewriting model logic?
-- Are generated feature/sketch IDs correctly returned and reused?
-- Can command failures be surfaced with useful typed errors?
-- Can parameter expressions and native design history survive
-  save/reopen in SolidCraft?
-- What changes between SolidCraft CLI 0.20.0 and 0.30.1?
+This fixture defines cross-section dimensions in Python and uses the native SolidCraft `width` parameter for extrusion. This does **not** prove all dimensions persist as editable native CAD parameters; that is a separate qualification case.
 
-A [minimal Rust facade](../rust-facade/) now covers the **command
-mapping / script transport boundary**; GUI and MCP transport support
-remain separate qualification work.
+### B. Existing bindings; Python calls CAD methods
 
-## Existing Python baselines
+`examples/plate.py` calls the existing `PyBind` command methods, using a
+headless MCP session or the visible GUI. This path additionally processes
+command responses and retains a live session.
 
-- [Python to native JSON script](../examples/python_cli_script.py):
-  no bindings; useful command reference.
-- [`scraftpybind` Python experiment](../examples/plate.py):
-  existing generated methods and live transports.
-
-Both ultimately send SolidCraft commands.
+Do **not** duplicate `scraftpybind` without a measured requirement.
 
 ## Recommendation
 
-Develop the **API shape independently of the transport**, prototype
-a few functions in Rust and Python, then judge the *clarity of the
-interface*, not an assumed language ranking. Rust is absolutely viable
-for a small typed command abstraction.
+Start with the smallest Python-to-JSON script to confirm what SolidCraft
+does, then evaluate `scraftpybind` for a live interactive Python session.
+If command compatibility proves unreliable, compare against a **tiny local
+Python transport** instead of taking on a new scripting language.
+
+We are **not yet qualifying** these examples as successful runs with
+SolidCraft 0.30.1. Installation and runtime checks remain outstanding.

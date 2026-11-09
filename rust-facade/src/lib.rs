@@ -4,6 +4,9 @@
 //! The first backend is a command script; future GUI/MCP backends implement
 //! the same CommandTransport trait and return actual engine results.
 
+pub mod cad;
+pub mod solidcraft_adapter;
+
 use serde_json::{json, Value};
 use std::fmt;
 use std::fs;

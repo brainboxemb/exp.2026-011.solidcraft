@@ -2,7 +2,9 @@
 
 ## Problem
 
-We want a **readable, preferably typed scripting facade** for SolidCraft (Python or Rust) that can:
+We want a **semantic CAD API**, with a typed Rust proof of principle (Python still a useful reference), that can:
+- describe geometry and modifications as CAD concepts (Part, Hole, EdgeSelector, Fillet) **without SolidCraft-specific commands**;
+- map each high-level feature to one or many SolidCraft operations in an adapter;
 - drive models in the interactive GUI, where we can watch each operation;
 - run the same design headless for reproducible automated checks;
 - create and modify parametric designs rather than only export static solids.
@@ -17,7 +19,7 @@ It provides:
 - `PyBind` — Python methods matching SolidCraft command namespaces;
 - `scraftpybind_generate.py` — code generation from SolidCraft command metadata.
 
-Compare the **simpler Python-generated JSON script** and existing Python binding against a **small Rust facade** using the same SolidCraft commands. `vcad` is an inspiration for the **public API style only**; we are not evaluating or integrating its CAD engine. The JSON script is a transport baseline, not the desired final abstraction. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
+Compare the **simpler Python-generated JSON script** and existing Python bindings against a **semantic Rust CAD API** whose SolidCraft adapter generates the right sequence of native commands. `vcad` and **CadQuery** are inspirations for public API ergonomics only; we are not evaluating or integrating their engines. The JSON script is a transport baseline, not the desired final abstraction. Do not copy generated bindings prematurely. Pin upstream, execute examples, and identify version or Python-API gaps.
 
 Upstream baseline when this experiment was opened:
 `waynegramlich/scraftcnc@eef7b7c96e2c829f82271827c7c16fb7ad95668b` (8 November 2026).
@@ -33,7 +35,27 @@ The upstream generator's cached command contract is SolidCraft 0.20.0; first tar
 | PY-04 | Native design parameter change and reopen | initial/final values, saved native design |
 | PY-05 | Version compatibility and error behavior | exact version, expected and actual behavior |
 | API-01 | Compact Rust facade produces the expected SolidCraft command IDs and parameters | offline Rust tests and generated JSON |
-| API-02 | A facade model can switch from script transport to a live transport without rewriting the geometry calls | identical model logic, command/result evidence |
+| API-02 | The same semantic model can switch from script transport to a live transport without rewriting CAD calls | identical model logic, command/result evidence |
+| API-03 | Domain-level `Part`, `Hole`, `Edges`, and feature order are independent of SolidCraft | Rust domain unit tests; no JSON imports in domain module |
+| API-04 | One CAD operation maps to multiple SolidCraft commands | adapter tests: box, rounded outer vertical edges, through-holes |
+| API-05 | Face/edge selection, workplane placement and feature IDs remain stable after model changes | live SolidCraft topology/feature tests before promoting selectors |
+
+## Architecture decision
+
+Keep **four separate responsibilities**:
+
+```text
+CAD intent API (Part, geometry, selectors)
+             -> SolidCraft adapter (feature planning and topology mapping)
+             -> command transport (script / GUI / MCP)
+             -> SolidCraft engine (the only source of actual geometry)
+```
+
+The prior 1:1 Rust method-to-command wrapper is only the lower-level baseline.
+See [CAD API concepts](05-cad-api-design.md). The first implemented semantic
+subset is a centered box, four original outside vertical-edge fillets, and
+through-holes along Z. Do not claim general topology selection or editable
+parameter propagation before qualifying it.
 
 ## Decisions
 
