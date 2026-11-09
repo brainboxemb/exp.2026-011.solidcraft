@@ -19,6 +19,23 @@ jobs:
     steps:
       - name: Check out experiment
         uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build actual Rust scripts and compare reviewed command plans
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
+          cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+          cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
+          jq -e -s '.[0] == .[1]' \
+            examples/plate/solidcraftforge/solidcraft.json \
+            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            examples/csg-cube/solidcraftforge/solidcraft.json \
+            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+          mkdir -p output/native/command-plans
+          cp output/examples/plate/solidcraftforge/solidcraft.json output/native/command-plans/plate.json
+          cp output/examples/csg-cube/solidcraftforge/solidcraft.json output/native/command-plans/csg-cube.json
       - name: Fetch and verify official Linux SolidCraft release
         shell: bash
         run: |
@@ -42,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output/native
-          solidcraft-cli run examples/plate/solidcraftforge/solidcraft.json \
+          solidcraft-cli run output/native/command-plans/plate.json \
             --param-check strict \
             --results \
             --json-out output/native/plate-results.json \
@@ -141,7 +158,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output/native/csg-cube
-          solidcraft-cli run examples/csg-cube/solidcraftforge/solidcraft.json \
+          solidcraft-cli run output/native/command-plans/csg-cube.json \
             --param-check strict \
             --results \
             --json-out output/native/csg-cube/results.json \
