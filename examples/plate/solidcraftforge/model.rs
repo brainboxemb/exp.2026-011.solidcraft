@@ -1,7 +1,12 @@
 pub struct Plate;
 
+#[cad]
 impl Plate {
-    pub fn new(length: f64, width: f64, thickness: f64) -> Shape {
+    pub fn new(
+        #[parameter] length: f64,
+        #[parameter] width: f64,
+        #[parameter] thickness: f64,
+    ) -> Shape {
         let cylinders = Cylinder::new(thickness, 8.0)
             .rectangular_pattern(70.0, 30.0);
 
