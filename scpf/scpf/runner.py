@@ -100,7 +100,6 @@ def run_script(path: str | Path) -> dict:
         "__file__": str(path.resolve()),
         "dataclass": dataclass,
         "Box": core.Box,
-        "Cube": core.Cube,
         "Cylinder": core.Cylinder,
         "Hole": core.Hole,
         "Depth": core.Depth,
