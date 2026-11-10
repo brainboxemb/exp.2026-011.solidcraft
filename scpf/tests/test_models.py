@@ -543,6 +543,66 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
+    def test_plastic_enclosure_pi_matches_the_reference_feature_sequence(self):
+        commands = run_script(
+            ROOT / "examples/plastic-enclosure-pi/scpf/model.py"
+        )["commands"]
+
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "parameters.add"],
+            ["width", "depth", "height", "wall"],
+        )
+
+        feature_commands = [
+            c for c in commands if c["command"] != "parameters.add"
+        ]
+        self.assertEqual(
+            [c["command"] for c in feature_commands],
+            [
+                "sketch.create",
+                "sketch.rectangle.two_point",
+                "sketch.finish",
+                "solid.extrude",
+                "solid.fillet",
+                "solid.shell",
+                "sketch.create",
+                "sketch.rectangle.two_point",
+                "sketch.finish",
+                "solid.extrude",
+                "plastic.boss",
+                "plastic.boss",
+                "plastic.boss",
+                "plastic.boss",
+            ],
+        )
+
+        usb_sketch = feature_commands[6]
+        usb_rectangle = feature_commands[7]
+        usb_cut = feature_commands[9]
+        self.assertEqual(
+            usb_sketch["params"],
+            {"plane": "YZ", "name": "USB port"},
+        )
+        self.assertEqual(usb_rectangle["params"]["p0"], [-6.0, 8.5])
+        self.assertEqual(usb_rectangle["params"]["p1"], [6.0, 15.5])
+        self.assertTrue(usb_cut["params"]["through_all"])
+        self.assertEqual(usb_cut["params"]["operation"], "cut")
+
+        bosses = [
+            c["params"]["position"] for c in feature_commands
+            if c["command"] == "plastic.boss"
+        ]
+        self.assertEqual(
+            bosses,
+            [
+                [-30.0, -20.0, 2.0],
+                [30.0, -20.0, 2.0],
+                [30.0, 20.0, 2.0],
+                [-30.0, 20.0, 2.0],
+            ],
+        )
+
     def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
             ROOT / "examples/history-policy/scpf/model.py"
