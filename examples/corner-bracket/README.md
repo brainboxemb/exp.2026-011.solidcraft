@@ -4,6 +4,8 @@ SCPF port of the production OpenSCAD corner bracket in
 `brainboxemb/2026-011-01.cad.model-archive`,
 `models/corner_bracket/v0.1/scad/corner_bracket.scad`.
 
+Reference commit: `bcb31e89cd6a0d185a99222d958e0dbe2b7b7a63`.
+
 This is deliberately a **design port**, not a line-for-line translation of
 OpenSCAD helper geometry.
 
