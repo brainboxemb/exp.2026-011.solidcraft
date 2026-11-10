@@ -374,6 +374,48 @@ jobs:
             --no-grid --no-axes
           test -s output/native/plastic-enclosure/model.png
           cat output/native/plastic-enclosure/measurements.json
+      - name: Qualify history policy and explicit Sketch experiment
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/history-policy
+          python -m scpf examples/history-policy/scpf/model.py \
+            --out output/native/history-policy/commands.json
+          jq -e '
+            [.commands[] | select(.command == "plastic.boss")] | length == 1
+            and [.commands[] | select(.command == "sketch.create") | .params.name]
+              == ["HistoryPolicyBoss footprint", "Boss", "Boss hole", "Explicit pad"]
+            and [.commands[] | select(.command == "solid.extrude")] | length == 4
+          ' output/native/history-policy/commands.json
+          solidcraft-cli run output/native/history-policy/commands.json \
+            --param-check strict --results \
+            --json-out output/native/history-policy/results.json \
+            --save output/native/history-policy/model.sc \
+            --out output/native/history-policy/model.step
+          solidcraft-cli eval output/native/history-policy/model.sc \
+            --json-out output/native/history-policy/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "HistoryPolicyBoss"
+            and .bodies[0].closed == true
+            and (.sketches | length) == 4
+            and (.timeline | all(.error == null))
+          ' output/native/history-policy/measurements.json
+          unzip -p output/native/history-policy/model.sc document.json \
+            > output/native/history-policy/document.json
+          jq -e '
+            [.features[].type] ==
+              ["sketch", "extrude", "boss",
+               "sketch", "extrude", "sketch", "extrude",
+               "sketch", "extrude"]
+            and [.features[] | select(.type == "sketch") | .name]
+              == ["HistoryPolicyBoss footprint", "Boss", "Boss hole", "Explicit pad"]
+          ' output/native/history-policy/document.json
+          test -s output/native/history-policy/model.sc
+          test -s output/native/history-policy/model.step
+
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
