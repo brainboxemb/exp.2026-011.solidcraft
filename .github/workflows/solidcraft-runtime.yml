@@ -450,6 +450,49 @@ jobs:
               and .params.direction == "symmetric"
             )] | length) == 1
           ' output/native/corner-bracket/commands.json
+          # Temporary isolation of the first vertical-arm countersink:
+          # the source sequence currently fails on native step 36.
+          # Test minimal variants against the same 34-feature foundation.
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base = Path("output/native/corner-bracket")
+          commands = json.loads((base/"commands.json").read_text())["commands"]
+          variants = {}
+          def staged(name, n, operation=None):
+              seq = commands[:n]
+              if operation is not None:
+                  seq = seq + [operation]
+              variants[name] = {"commands": seq}
+          staged("before_vertical", 34)
+          staged("vertical_recess", 35)
+          simple = dict(commands[35])
+          simple["params"] = {k:v for k,v in commands[35]["params"].items()
+                               if k not in ("type","cs_diameter","cs_angle")}
+          staged("simple_after_recess", 35, simple)
+          staged("countersink_without_recess", 34, commands[35])
+          outside = dict(commands[35])
+          outside["params"] = dict(commands[35]["params"], position=commands[34]["params"]["position"])
+          staged("countersink_on_outer_face", 35, outside)
+          no_direction = dict(commands[35])
+          no_direction["params"] = dict(commands[35]["params"])
+          no_direction["params"].pop("direction")
+          staged("countersink_auto_direction", 35, no_direction)
+          for name, data in variants.items():
+              (base/f"test-{name}.json").write_text(json.dumps(data))
+          PY
+          for variant in before_vertical vertical_recess simple_after_recess \
+            countersink_without_recess countersink_on_outer_face countersink_auto_direction; do
+            if solidcraft-cli run "output/native/corner-bracket/test-$variant.json" \
+              --param-check strict \
+              --save "output/native/corner-bracket/test-$variant.sc" \
+              > "output/native/corner-bracket/test-$variant.log" 2>&1; then
+              echo "VARIANT $variant: PASS"
+            else
+              echo "VARIANT $variant: FAIL"
+              tail -n 5 "output/native/corner-bracket/test-$variant.log"
+            fi
+          done
           solidcraft-cli run output/native/corner-bracket/commands.json \
             --param-check strict --results \
             --json-out output/native/corner-bracket/results.json \
