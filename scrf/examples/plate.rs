@@ -1,0 +1,21 @@
+use scrf::solidcraft_adapter::SolidCraftAdapter;
+use scrf::ScriptTransport;
+use std::error::Error;
+use std::path::PathBuf;
+
+mod script {
+    include!(concat!(env!("OUT_DIR"), "/plate_script.rs"));
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let model = script::load()?;
+
+    let mut cad = SolidCraftAdapter::new(ScriptTransport::default());
+    model.compile(&mut cad)?;
+
+    let output = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../output/examples/plate/scrf");
+    std::fs::create_dir_all(&output)?;
+    cad.into_transport().write(output.join("solidcraft.json"))?;
+    Ok(())
+}
