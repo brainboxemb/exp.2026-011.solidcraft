@@ -95,24 +95,6 @@
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50,
-              0,
-              10
-            ],
-            "distance": "(length / 2) + (-35 mm)"
-          },
-          {
-            "edge": [
-              0,
-              -30,
-              10
-            ],
-            "distance": "(width / 2) + (-15 mm)"
-          }
         ]
       }
     },
@@ -127,24 +109,6 @@
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50,
-              0,
-              10
-            ],
-            "distance": "(length / 2) + (35 mm)"
-          },
-          {
-            "edge": [
-              0,
-              -30,
-              10
-            ],
-            "distance": "(width / 2) + (-15 mm)"
-          }
         ]
       }
     },
@@ -159,24 +123,6 @@
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50,
-              0,
-              10
-            ],
-            "distance": "(length / 2) + (35 mm)"
-          },
-          {
-            "edge": [
-              0,
-              -30,
-              10
-            ],
-            "distance": "(width / 2) + (15 mm)"
-          }
         ]
       }
     },
@@ -191,24 +137,6 @@
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50,
-              0,
-              10
-            ],
-            "distance": "(length / 2) + (-35 mm)"
-          },
-          {
-            "edge": [
-              0,
-              -30,
-              10
-            ],
-            "distance": "(width / 2) + (15 mm)"
-          }
         ]
       }
     }
