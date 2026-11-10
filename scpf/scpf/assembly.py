@@ -6,7 +6,7 @@ from .model_objects import Assembly, ModelInstance
 from .compiler import compile_model
 
 
-_IDENTIFIER = re.compile(r"\\b[A-Za-z_][A-Za-z0-9_]*\\b")
+_IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
 
 
 def _command(command_name, **params):
@@ -92,7 +92,10 @@ def compile_assembly(value, name):
         definition = instances[0].definition
         component_name = names[key]
 
-        compiled = compile_model(definition.shape, component_name)["commands"]
+        compiled = compile_model(
+            definition.shape,
+            _component_slug(component_name),
+        )["commands"]
         compiled = _namespace_commands(compiled, component_name)
         parameter_commands = [
             command for command in compiled
