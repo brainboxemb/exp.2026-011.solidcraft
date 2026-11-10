@@ -15,14 +15,6 @@ class SCPFExamples(unittest.TestCase):
     def test_csg_cube_matches_reviewed_native_commands(self):
         generated = run_script(ROOT / "examples/csg-cube/scpf/model.py")
         expected = json.loads((ROOT / "examples/csg-cube/scpf/reference.json").read_text())
-        if generated != expected:
-            import difflib
-            import json
-            print("\\n".join(difflib.unified_diff(
-                json.dumps(expected, indent=2).splitlines(),
-                json.dumps(generated, indent=2).splitlines(),
-                fromfile="expected", tofile="generated",
-            )))
         self.assertEqual(generated, expected)
         self.assertEqual(generated["commands"][0]["params"]["name"], "size")
         self.assertEqual(generated["commands"][1]["params"]["radius"], "size / 1.5")
@@ -52,6 +44,13 @@ class SCPFExamples(unittest.TestCase):
         expected = json.loads(
             (ROOT / "examples/bracket/scpf/solidcraft.json").read_text()
         )
+        if generated != expected:
+            import difflib
+            print("\\n".join(difflib.unified_diff(
+                json.dumps(expected, indent=2).splitlines(),
+                json.dumps(generated, indent=2).splitlines(),
+                fromfile="expected", tofile="generated",
+            )))
         self.assertEqual(generated, expected)
 
         original = json.loads(
