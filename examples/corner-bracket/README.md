@@ -37,6 +37,20 @@ continuous elephant-foot side relief
 final bracket
 ```
 
+## Coordinate convention
+
+The production OpenSCAD bracket is defined in **world X/Z**, with the
+horizontal arm extending toward **+X** and the vertical arm toward **−Z**.
+SolidCraft 0.30.1's named `XZ` sketch maps the sketch's second coordinate
+to **world −Z** (right-handed plane orientation). The Python model therefore
+negates that sketch coordinate when creating `Polygon2D`. This keeps all
+feature picks, bolt directions, and the expected
+`[-12, -12, -60] → [60, 12, 12]` bounding box in **world coordinates**.
+
+This matters: using the OpenSCAD X/Z points unchanged in a SolidCraft `XZ`
+sketch mirrored the bracket and caused the first native chamfer to pick an
+ambiguous vertex rather than the intended outer edge.
+
 ## SCPF history
 
 SCPF keeps the same manufacturing intent but uses native CAD features where
