@@ -60,11 +60,11 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
             file.write_text(
-                "def CsgCube(size=50.0):\\n"
-                "    body = Sphere(size / 1.5) & Cube(size)\\n"
-                "    holes = Cylinder(size, size / 1.5).orient(X, Y, Z)\\n"
-                "    return (body - holes).move(x=10, y=20, z=30)\\n"
-                "CsgCube()\\n"
+                "def CsgCube(size=50.0):\n"
+                "    body = Sphere(size / 1.5) & Cube(size)\n"
+                "    holes = Cylinder(size, size / 1.5).orient(X, Y, Z)\n"
+                "    return (body - holes).move(x=10, y=20, z=30)\n"
+                "CsgCube()\n"
             )
             document = run_script(file)
         commands = document["commands"]
@@ -78,9 +78,9 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
             file.write_text(
-                "def Cuboid(size=50):\\n"
-                "    return Cube(size).move(x=float('nan'))\\n"
-                "Cuboid()\\n"
+                "def Cuboid(size=50):\n"
+                "    return Cube(size).move(x=float('nan'))\n"
+                "Cuboid()\n"
             )
             with self.assertRaises(ValueError):
                 run_script(file)
