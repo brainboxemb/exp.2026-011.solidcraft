@@ -13,18 +13,24 @@ Start with the [SCPF guide](scpf/README.md) and its two minimal scripts:
 [CsgCube](examples/csg-cube/scpf/model.py).
 
 ```python
-def Plate(length=100.0, width=60.0, thickness=10.0):
-    body = Box(length, width, thickness).fillet(2.0, edges="vertical")
-    holes = Cylinder(thickness, 8.0).pattern(x=70.0, y=30.0)
-    return body - holes
+@dataclass
+class Plate:
+    length: float = 100
+    width: float = 60
+    thickness: float = 10
+
+    def build(self):
+        body = Box(self.length, self.width, self.thickness).fillet(2)
+        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        body - holes
 
 Plate()
 ```
 
-No import statements, decorators, macros, `main` function, or explicit
-parameter wrappers are required in SCPF scripts. The Python runner derives
-named parameters from the model function's signature, then generates native
-SolidCraft command JSON.
+Model scripts need no import statements, `main()`, `show()` or explicit
+`return`. The injected `@dataclass` decorator declares reusable Python CAD
+objects. SCPF invokes `build()` automatically and derives named parameters
+from the object's fields before generating native SolidCraft command JSON.
 
 Run the independent SCPF tests with `PYTHONPATH=scpf`:
 
