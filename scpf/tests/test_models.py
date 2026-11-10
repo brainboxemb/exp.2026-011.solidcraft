@@ -316,17 +316,44 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][0]["params"]["expression"], "60")
         self.assertEqual(generated["commands"][1]["params"]["radius"], "size / 1.5")
 
-    def test_invalid_plate_cutter_is_reported(self):
-        with tempfile.TemporaryDirectory() as directory:
-            file = Path(directory) / "model.py"
-            file.write_text(
-                "def Plate(length=100, width=60, thickness=10):\n"
-                "    body = Box(length, width, thickness).fillet(2)\n"
-                "    return body - Cylinder(d=8, h=3).pattern(x=70, y=30)\n"
-                "Plate()\n"
-            )
-            with self.assertRaises(ModelError):
-                run_script(file)
+    def test_pattern_requires_explicit_axes_and_valid_count(self):
+        from scpf.core import Axis, Cylinder, Hole
+        with self.assertRaises(TypeError):
+            Hole(d=8).pattern(x=70, y=30)
+        with self.assertRaises(ValueError):
+            Cylinder(d=8, h=3).pattern(count=0, spacing=40, axis=Axis.X)
+        with self.assertRaises(ValueError):
+            Hole(d=8).pattern(count=2, spacing=40, axis=Axis.Z)
+
+    def test_same_hole_feature_compiles_for_box_rectangle_and_polygon(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Rectangle2D, Polygon2D, Direction, Hole, Anchor
+        box = Box(80, 50, 8)
+        rectangle = Rectangle2D(80, 50).extrude(8)
+        polygon = Polygon2D([(0, 0), (40, 0), (40, 6), (0, 6)],
+                            plane="XZ").extrude(50, direction=Direction.NEGATIVE)
+        models = (
+            box + Hole(d=6).on(box, Anchor.TOP),
+            rectangle + Hole(d=6).on(rectangle, Anchor.TOP),
+            polygon + Hole(d=6).at(20, -25, 0),
+        )
+        for i, model in enumerate(models):
+            with self.subTest(base=i):
+                commands = compile_model(model, "Widget")["commands"]
+                holes = [c for c in commands if c["command"] == "solid.hole"]
+                self.assertEqual(len(holes), 1)
+                self.assertEqual(holes[0]["params"]["diameter"], 6)
+                self.assertEqual(holes[0]["params"]["targets"], ["Widget"])
+                self.assertEqual(commands[-1], holes[0])
+
+    def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Circle2D
+        commands = compile_model(Circle2D(d=12).extrude(8), "Pin")["commands"]
+        self.assertEqual([c["command"] for c in commands],
+                         ["sketch.create", "sketch.circle.center",
+                          "sketch.finish", "solid.extrude"])
+        self.assertEqual(commands[1]["params"]["diameter"], 12)
 
     def test_move_translates_a_csg_composite_without_changing_sizes(self):
         with tempfile.TemporaryDirectory() as directory:
