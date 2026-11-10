@@ -1,0 +1,156 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "expression": "100",
+        "name": "length",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "expression": "60",
+        "name": "width",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "expression": "10",
+        "name": "thickness",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "name": "Plate footprint",
+        "plane": "XY"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-length / 2",
+          "-width / 2"
+        ],
+        "p1": [
+          "length / 2",
+          "width / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "body_name": "Plate",
+        "distance": "thickness"
+      }
+    },
+    {
+      "command": "solid.fillet",
+      "params": {
+        "body": "Plate",
+        "edges": [
+          [
+            -50.0,
+            -30.0,
+            5.0
+          ],
+          [
+            50.0,
+            -30.0,
+            5.0
+          ],
+          [
+            50.0,
+            30.0,
+            5.0
+          ],
+          [
+            -50.0,
+            30.0,
+            5.0
+          ]
+        ],
+        "radius": 2.0
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "name": "Plate top-face holes",
+        "plane": {
+          "face": [
+            0.0,
+            0.0,
+            10.0
+          ]
+        }
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          -35.0,
+          -15.0
+        ],
+        "diameter": 8.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          35.0,
+          -15.0
+        ],
+        "diameter": 8.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          35.0,
+          15.0
+        ],
+        "diameter": 8.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          -35.0,
+          15.0
+        ],
+        "diameter": 8.0
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "direction": "negative",
+        "distance": "thickness",
+        "operation": "cut",
+        "targets": [
+          "Plate"
+        ]
+      }
+    }
+  ]
+}

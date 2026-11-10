@@ -1,0 +1,10 @@
+{
+  "source_commit": "a67e2bba6074fd027e660cefa8f7019337675d7e",
+  "workflow_run": "42795125951",
+  "artifacts": [
+    "plate/scrf/solidcraft.json",
+    "csg-cube/scrf/solidcraft.json",
+    "plate/scpf/solidcraft.json",
+    "csg-cube/scpf/solidcraft.json"
+  ]
+}

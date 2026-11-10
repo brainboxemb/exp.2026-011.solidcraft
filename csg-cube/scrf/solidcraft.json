@@ -1,0 +1,93 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "expression": "50",
+        "name": "size",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "solid.sphere",
+      "params": {
+        "body_name": "CsgCube",
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "operation": "new",
+        "radius": "size / 1.5"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "height": "size",
+        "length": "size",
+        "operation": "intersect",
+        "targets": [
+          "CsgCube"
+        ],
+        "width": "size"
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "axis": "X",
+        "base": [
+          "-(size) / 2",
+          0,
+          0
+        ],
+        "diameter": "size / 1.5",
+        "height": "size",
+        "operation": "cut",
+        "targets": [
+          "CsgCube"
+        ]
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "axis": "Y",
+        "base": [
+          0,
+          "-(size) / 2",
+          0
+        ],
+        "diameter": "size / 1.5",
+        "height": "size",
+        "operation": "cut",
+        "targets": [
+          "CsgCube"
+        ]
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "axis": "Z",
+        "base": [
+          0,
+          0,
+          "-(size) / 2"
+        ],
+        "diameter": "size / 1.5",
+        "height": "size",
+        "operation": "cut",
+        "targets": [
+          "CsgCube"
+        ]
+      }
+    }
+  ]
+}
