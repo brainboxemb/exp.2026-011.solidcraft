@@ -71,7 +71,7 @@ SolidCraft
 ## Example
 
 The user-facing Plate script is
-[`examples/plate/solidcraftforge/model.rs`](examples/plate/solidcraftforge/model.rs):
+[`examples/plate/scrf/model.rs`](examples/plate/scrf/model.rs):
 
 ```rust
 pub struct Plate;
@@ -98,26 +98,26 @@ Plate::new(100.0, 60.0, 10.0)
 
 The `#[cad]` macro processes `#[parameter]` arguments into editable SolidCraft dimensions. There is no `use`, `Result`, `?`, `main()`, `show()`, `build!()` or transport code in that file. Common CAD types are implicitly imported by the runner.
 
-The Cargo examples under `solidcraftforge/examples/` are only test harnesses
+The Cargo examples under `scrf/examples/` are only test harnesses
 that compile these expression-based scripts and compare the generated native
 SolidCraft command plan.
 
 ## Example
 
-The executable Cargo harness is `solidcraftforge/examples/plate.rs`; it is not part of the script syntax.
+The executable Cargo harness is `scrf/examples/plate.rs`; it is not part of the script syntax.
 
 ```powershell
-cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+cargo run --manifest-path scrf/Cargo.toml --example plate
 ```
 
-It compiles the script and writes `output/examples/plate/solidcraftforge/solidcraft.json`.
+It compiles the script and writes `output/examples/plate/scrf/solidcraft.json`.
 
 ## Rust tests
 
 
 ```powershell
-cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
-cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+cargo test --manifest-path scrf/Cargo.toml --all-targets
+cargo run --manifest-path scrf/Cargo.toml --example plate
 ```
 
 ## Test against SolidCraft on Windows
@@ -147,7 +147,7 @@ examples, with a GitHub Pages overview. It is not created until all five
 results qualify; current outputs remain GitHub Actions artifacts.
 
 Before publication, collect the results under
-`output/staging/{plate,csg-cube}/{solidcraftforge,cadquery,microcad,vcad,pythonscad}/`
+`output/staging/{plate,csg-cube}/{scrf,cadquery,microcad,vcad,pythonscad}/`
 and run:
 
 ```powershell
