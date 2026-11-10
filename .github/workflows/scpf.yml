@@ -13,7 +13,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   models:
@@ -49,3 +49,21 @@ jobs:
           name: scpf-native-command-plans
           path: output/examples/*/scpf/solidcraft.json
           if-no-files-found: error
+
+      - name: Record SCPF build provenance
+        if: success()
+        shell: bash
+        run: |
+          jq -n --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
+            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube"]}' \
+            > output/examples/scpf-build.json
+      - name: Publish SCPF JSON to orphan bld branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/scpf-python' && success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: bld
+          publish_dir: ./output/examples
+          keep_files: true
+          force_orphan: true
+          commit_message: "SCPF generated command plans from ${{ github.sha }}"
