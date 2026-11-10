@@ -19,19 +19,22 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][0]["params"]["name"], "size")
         self.assertEqual(generated["commands"][1]["params"]["radius"], "size / 1.5")
 
-    def test_plate_matches_reviewed_native_commands(self):
-        generated = run_script(ROOT / "examples/plate/scpf/model.py")
-        expected = json.loads((ROOT / "examples/plate/scpf/reference.json").read_text())
-        self.assertEqual(generated, expected)
-        self.assertEqual([c["params"]["name"] for c in generated["commands"][:3]],
+    def test_plate_uses_generic_box_and_native_holes(self):
+        commands = run_script(ROOT / "examples/plate/scpf/model.py")["commands"]
+        self.assertEqual([c["params"]["name"] for c in commands[:3]],
                          ["length", "width", "thickness"])
-        centers = [
-            c["params"]["center"]
-            for c in generated["commands"]
-            if c["command"] == "sketch.circle.center"
-        ]
-        self.assertEqual(centers, [[-35, -15], [35, -15], [35, 15], [-35, 15]])
-
+        self.assertEqual([c["params"]["name"] for c in commands
+                          if c["command"] == "sketch.create"], ["Plate footprint"])
+        holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
+        self.assertEqual(len(holes), 4)
+        self.assertEqual([c["position"] for c in holes],
+                         [[-35, -15, 10], [35, -15, 10],
+                          [35, 15, 10], [-35, 15, 10]])
+        self.assertTrue(all(c["diameter"] == 8 for c in holes))
+        self.assertTrue(all(c["targets"] == ["Plate"] for c in holes))
+        self.assertTrue(all(len(c["references"]) == 2 for c in holes))
+        self.assertFalse(any(c["command"] == "solid.cylinder" for c in commands))
+        self.assertEqual([c["command"] for c in commands].count("solid.fillet"), 1)
 
     def test_bracket_matches_corrected_native_commands(self):
         generated = run_script(ROOT / "examples/bracket/scpf/model.py")
@@ -43,13 +46,19 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The source used parameters.change for an existing design.
-        # Our standalone plan uses parameters.add on a clean design.
-        # All actual sketch, fillet and extrusion commands must match.
-        self.assertNotEqual(generated["commands"][:2], original["commands"][:2])
-        self.assertEqual(generated["commands"][2:], original["commands"][2:])
-        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -30, -6]])
-        self.assertEqual(generated["commands"][-1]["params"]["direction"], "negative")
+        # The input source used sketch + cut. SCPF now emits native Hole
+        # features for the same two entry points; the base and fillet match.
+        self.assertEqual(generated["commands"][2:7], original["commands"][2:7])
+        self.assertEqual([c["command"] for c in generated["commands"][7:]],
+                         ["solid.hole", "solid.hole"])
+        self.assertEqual([c["params"]["position"]
+                          for c in generated["commands"][7:]],
+                         [[25, -15, 0], [25, -45, 0]])
+        self.assertEqual([c["params"]["depth"]
+                          for c in generated["commands"][7:]],
+                         ["thickness", "thickness"])
+        self.assertEqual(generated["commands"][6]["params"]["edges"],
+                         [[40, -30, -6]])
 
     def test_bracket_width_and_thickness_override(self):
         with tempfile.TemporaryDirectory() as directory:
