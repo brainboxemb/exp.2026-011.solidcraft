@@ -57,8 +57,8 @@ class CornerBracketFast:
             (0, 0),
         ]
         # Sketch IDs identify the edge that STARTS at each profile point.
-        # They document the shape; 3D chamfer picks still use coordinates
-        # until SCPF can resolve profile IDs to solid edges.
+        # Chamfer selection below refers to these IDs, not to hand-written
+        # midpoint coordinates. SCPF resolves them for SolidCraft.
         segment_ids = [
             "tip_horizontal_relief",
             "outer_horizontal_end",
@@ -81,20 +81,10 @@ class CornerBracketFast:
         body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 
         y0 = self.bracket_width / 2
-        # SolidCraft's chamfer command currently selects an edge by a
-        # point on it. Derive those points from the sketch path instead
-        # of duplicating seven coordinate formulas in the model.
-        outer_edges = [
-            ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
-            for a, b in zip(outer_path_xz, outer_path_xz[1:])
-        ]
+        # SCPF resolves named sketch segments into native SolidCraft edges.
         body = body.chamfer(
             self.side_edge_chamfer,
-            edges=[
-                (x, side * y0, z)
-                for side in (-1, 1)
-                for x, z in outer_edges
-            ],
+            edges=Edges.from_profile("outer_*", sides="both"),
         )
         body = body.chamfer(
             self.elephant_foot_relief,

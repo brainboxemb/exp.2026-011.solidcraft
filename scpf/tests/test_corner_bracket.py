@@ -61,6 +61,33 @@ class CornerBracketTests(unittest.TestCase):
                 self.assertAlmostEqual(y, side)
                 self.assertAlmostEqual(z, expected_z)
 
+    def test_missing_profile_edge_name_is_rejected(self):
+        from scpf.core import Polygon2D, Direction, Edges
+        from scpf.features import compile_features
+        from scpf.compiler import ModelError
+
+        shape = Polygon2D(
+            [(0, 0), (10, 0), (10, 10), (0, 10)],
+            plane="XZ",
+            ids=["bottom", "right", "top", "left"],
+        ).extrude(10, direction=Direction.SYMMETRIC)
+        shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
+        with self.assertRaisesRegex(ModelError, "no polygon segment matches"):
+            compile_features(shape, "Square")
+
+    def test_named_profile_selection_requires_segment_ids(self):
+        from scpf.core import Polygon2D, Direction, Edges
+        from scpf.features import compile_features
+        from scpf.compiler import ModelError
+
+        shape = Polygon2D(
+            [(0, 0), (10, 0), (10, 10), (0, 10)],
+            plane="XZ",
+        ).extrude(10, direction=Direction.SYMMETRIC)
+        shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
+        with self.assertRaisesRegex(ModelError, "must define ids"):
+            compile_features(shape, "Square")
+
     def test_original_reference_kept_separate(self):
         commands = run_script(EXAMPLE / "model_reference.py")["commands"]
         holes = [c for c in commands if c["command"] == "solid.hole"]

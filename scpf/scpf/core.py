@@ -48,6 +48,27 @@ class Edges(Enum):
     """
     VERTICAL = "vertical"
 
+    @staticmethod
+    def from_profile(*segment_ids, sides="both"):
+        """Select named 2D sketch segments on the broad faces of an extrusion.
+
+        IDs are defined by Polygon2D(ids=...). At compilation time SCPF
+        resolves them into points accepted by SolidCraft's fillet/chamfer API.
+        Wildcards (e.g. "outer_*") match sketch IDs, not 3D edge names.
+        """
+        if not segment_ids or any(not isinstance(name, str) or not name
+                                  for name in segment_ids):
+            raise ValueError("provide one or more profile segment IDs or patterns")
+        if sides != "both":
+            raise ValueError("profile-edge selection currently supports sides='both'")
+        return _ProfileEdgeSelection(tuple(segment_ids), sides)
+
+
+@dataclass(frozen=True)
+class _ProfileEdgeSelection:
+    patterns: tuple[str, ...]
+    sides: str
+
 
 class Faces(Enum):
     """Named planar face selections for feature operations."""
@@ -275,7 +296,7 @@ class Shape:
         return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges=Edges.VERTICAL):
-        if edges is not Edges.VERTICAL:
+        if edges is not Edges.VERTICAL and not isinstance(edges, _ProfileEdgeSelection):
             if not isinstance(edges, (list, tuple)) or not edges:
                 raise ValueError("fillet edges must be Edges.VERTICAL or 3D edge points")
             for point in edges:
@@ -286,6 +307,8 @@ class Shape:
     def chamfer(self, distance, *, edges):
         """Chamfer explicitly selected solid edges by an equal distance."""
         value_of(distance)
+        if isinstance(edges, _ProfileEdgeSelection):
+            return Shape("chamfer", (self, distance, edges))
         if not isinstance(edges, (list, tuple)) or not edges:
             raise ValueError("chamfer edges must be a non-empty sequence of 3D edge points")
         for point in edges:

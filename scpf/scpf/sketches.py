@@ -115,7 +115,8 @@ def compile_base(shape, name):
             _command("solid.extrude", distance=command_value(distance),
                      direction=direction, body_name=name),
         ], {"profile": "polygon", "sketch_plane": plane,
-            "thickness": distance}
+            "thickness": distance, "extrusion_direction": direction,
+            "profile_points": points, "profile_ids": segment_ids}
 
     if profile.kind in ("circle", "positioned"):
         try:
