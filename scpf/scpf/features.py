@@ -20,7 +20,7 @@ def _is_feature_tree(shape):
         if profile.kind == "positioned":
             profile = profile.data[0]
         return profile.kind in ("rectangle", "circle", "polygon")
-    if shape.kind in ("fillet", "shell", "union", "difference"):
+    if shape.kind in ("fillet", "chamfer", "shell", "union", "difference"):
         return _is_feature_tree(shape.data[0])
     return False
 
@@ -28,13 +28,30 @@ def _is_feature_tree(shape):
 def _hole_command(feature, position, name, refs=None):
     if feature.kind != "hole":
         raise ModelError("native hole operation requires Hole")
-    diameter, depth = feature.data
+    diameter, depth, direction, countersink_d, countersink_angle = feature.data
     _require_positive(diameter, "hole diameter")
-    params = dict(position=[value_of(v) for v in position],
-                  diameter=command_value(diameter), targets=[name])
+    params = dict(
+        position=[value_of(v) for v in position],
+        diameter=command_value(diameter),
+        targets=[name],
+    )
     if depth is not Depth.THROUGH_ALL:
         _require_positive(depth, "hole depth")
         params["depth"] = command_value(depth)
+    if direction is not None:
+        params["direction"] = _vector(direction, "hole direction")
+    if countersink_d is not None:
+        _require_positive(countersink_d, "countersink diameter")
+        if value_of(countersink_d) <= value_of(diameter):
+            raise ModelError("countersink diameter must exceed hole diameter")
+        angle = value_of(countersink_angle)
+        if not isfinite(angle) or angle <= 0 or angle >= 180:
+            raise ModelError("countersink angle must be between 0 and 180 degrees")
+        params.update(
+            type="countersink",
+            cs_diameter=command_value(countersink_d),
+            cs_angle=command_value(countersink_angle),
+        )
     if refs:
         params["references"] = refs
     return _command("solid.hole", **params)
@@ -58,6 +75,19 @@ def _fillet_command(base, radius, edges, name):
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
     return _command("solid.fillet", edges=picks, radius=r)
+
+
+def _chamfer_command(distance, edges, name):
+    _require_positive(distance, "chamfer distance")
+    picks = [[value_of(v) for v in point] for point in edges]
+    if not all(isfinite(v) for point in picks for v in point):
+        raise ModelError("chamfer edge selection must be finite")
+    return _command(
+        "solid.chamfer",
+        edges=picks,
+        distance=command_value(distance),
+        body=name,
+    )
 
 
 def _face_point(base, face):
@@ -187,8 +217,12 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     if parent_anchor is not Anchor.TOP:
         raise ModelError("Hole.attach() currently starts drilling from Anchor.TOP")
 
-    diameter, depth = feature.data
+    diameter, depth, hole_direction, countersink_d, countersink_angle = feature.data
     _require_positive(diameter, "hole diameter")
+    if hole_direction is not None or countersink_d is not None:
+        raise ModelError(
+            "directional or countersunk Hole currently requires explicit .at() placement"
+        )
     (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
     base_top = thickness if value_of(origin_z) == 0 else _combine(origin_z, thickness)
     entry_z = base_top
@@ -239,7 +273,7 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
 
     operations = [_command("sketch.create", **plane)]
     for primitive, position, _refs in resolved:
-        hole_diameter, _ = primitive.data
+        hole_diameter = primitive.data[0]
         operations.append(_command(
             "sketch.circle.center",
             center=position[:2],
@@ -369,6 +403,10 @@ def _to_commands(shape, name):
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
         return steps + [_fillet_command(base, radius, edges, name)], base
+    if shape.kind == "chamfer":
+        original, distance, edges = shape.data
+        steps, base = _to_commands(original, name)
+        return steps + [_chamfer_command(distance, edges, name)], base
     if shape.kind in ("union", "difference"):
         original, added = shape.data
         steps, base = _to_commands(original, name)
@@ -427,7 +465,7 @@ def compile_features(shape, name):
     # dimension of the feature. Keep it before coordinates of its profile.
     # XY rectangular footprints instead list their plan dimensions first.
     root = shape
-    while root.kind in ("fillet", "shell", "union", "difference"):
+    while root.kind in ("fillet", "chamfer", "shell", "union", "difference"):
         root = root.data[0]
     if root.kind == "extrusion" and root.data[0].kind == "polygon":
         parameters = _collect((root.data[1], shape))
