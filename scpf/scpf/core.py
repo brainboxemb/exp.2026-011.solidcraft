@@ -177,8 +177,8 @@ class Shape:
         offsets = (value_of(x), value_of(y), value_of(z))
         if not all(isfinite(v) for v in offsets):
             raise ValueError("move() requires finite coordinates")
-        if self.kind in ("box", "fillet", "pattern"):
-            raise ValueError("move() currently supports only CSG shapes")
+        if self.kind in ("fillet", "pattern"):
+            raise ValueError("move() currently supports only primitive and CSG shapes")
         return Shape("translated", (self, offsets))
 
     def extrude(self, distance, *, direction=Direction.POSITIVE):
@@ -309,10 +309,6 @@ def Polygon2D(points, *, plane="XY"):
 
 def Box(length, width, thickness):
     return Shape("box", (length, width, thickness))
-
-
-def Cube(size):
-    return Shape("cube", (size,))
 
 
 def Sphere(radius):
