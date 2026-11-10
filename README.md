@@ -1,4 +1,49 @@
-# Experiment 011 — SolidCraftForge
+# Experiment 011 — SCPF (Python interface to SolidCraft)
+
+**Current direction: Python SCPF.** The earlier Rust SolidCraftForge
+prototype remains in this repository as a preserved reference, not as the
+intended user-facing scripting language.
+
+SCPF aims to make CAD scripts easier to read and more expressive than
+OpenSCAD while delegating **all geometry** to the existing SolidCraft engine.
+SolidCraft's own MCP and RPC controls already exist and are outside SCPF's scope.
+
+Start with the [SCPF guide](scpf/README.md) and its two minimal scripts:
+[Plate](examples/plate/scpf/model.py) and
+[CsgCube](examples/csg-cube/scpf/model.py).
+
+```python
+def Plate(length=100.0, width=60.0, thickness=10.0):
+    body = Box(length, width, thickness).fillet(2.0, edges="vertical")
+    holes = Cylinder(thickness, 8.0).pattern(x=70.0, y=30.0)
+    return body - holes
+
+Plate()
+```
+
+No import statements, decorators, macros, `main` function, or explicit
+parameter wrappers are required in SCPF scripts. The Python runner derives
+named parameters from the model function's signature, then generates native
+SolidCraft command JSON.
+
+Run the independent SCPF tests with `PYTHONPATH=scpf`:
+
+```powershell
+$env:PYTHONPATH = "scpf"
+python -m unittest discover -s scpf/tests -v
+python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
+```
+
+The SCPF CI workflow retains generated JSON as GitHub Actions artifacts.
+The integrated `bld` workflow retains both Rust and Python output JSON
+only after successful checks; `vrf` retains native geometry evidence.
+The separate `generated-examples` orphan branch remains reserved for
+qualified comparisons.
+
+---
+
+# Archived Rust prototype — SolidCraftForge
+
 
 **Status: active Rust proof of principle; the first native SolidCraft 0.30.1 fixture now executes successfully.**
 
