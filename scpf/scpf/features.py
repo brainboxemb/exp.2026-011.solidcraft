@@ -60,34 +60,6 @@ def _fillet_command(base, radius, edges, name):
     return _command("solid.fillet", edges=picks, radius=r)
 
 
-def _native_box_commands(shape, name):
-    """Build a Box as one native feature while preserving SCPF Box placement."""
-    length, width, height = shape.data
-    _require_positive(length, "box length")
-    _require_positive(width, "box width")
-    _require_positive(height, "box height")
-    (_, _), (x, y, z), _ = _base_rectangle(shape)
-    steps = [
-        _command(
-            "solid.box",
-            length=command_value(length),
-            width=command_value(width),
-            height=command_value(height),
-            corner=[command_value(x), command_value(y), command_value(z)],
-            operation="new",
-            body_name=name,
-        )
-    ]
-    base = {
-        "profile": "rectangle",
-        "width": length,
-        "depth": width,
-        "thickness": height,
-        "origin": (x, y, z),
-    }
-    return steps, base
-
-
 def _face_point(base, face):
     """Return a stable authoring pick on a named face of a rectangular base."""
     if base.get("profile") != "rectangle":
