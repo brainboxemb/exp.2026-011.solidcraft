@@ -517,7 +517,7 @@ jobs:
               ("04-first-side-hole", 38),
           ):
               (root / f"{label}.json").write_text(
-                  json.dumps({"commands": commands[:count]}, indent=2) + "\\n"
+                  json.dumps({"commands": commands[:count]}, indent=2)
               )
           PY
           for stage in 01-profile 02-fillets-chamfers 03-horizontal-holes 04-first-side-hole; do
