@@ -543,7 +543,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
-    def test_plastic_enclosure_pi_video_through_shell(self):
+    def test_plastic_enclosure_pi_video_feature_sequence(self):
         commands = run_script(
             ROOT / "examples/plastic-enclosure-pi/scpf/model.py"
         )["commands"]
@@ -556,10 +556,37 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(
             [c["command"] for c in features],
             ["sketch.create", "sketch.rectangle.two_point", "sketch.finish",
-             "solid.extrude", "solid.fillet", "solid.shell"],
+             "solid.extrude", "solid.fillet", "solid.shell", "solid.fillet",
+             "plastic.boss", "plastic.boss", "plastic.boss", "plastic.boss",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude"],
         )
         self.assertEqual(features[4]["params"]["radius"], 5.0)
-        self.assertEqual(features[5]["params"]["thickness"], "wall")
+        self.assertEqual(features[6]["params"]["radius"], 1.0)
+        bosses = [c["params"] for c in features if c["command"] == "plastic.boss"]
+        self.assertEqual(
+            [p["position"] for p in bosses],
+            [[-39, -24.5, 2], [19, -24.5, 2],
+             [-39, 24.5, 2], [19, 24.5, 2]],
+        )
+        self.assertTrue(all(p["hole_diameter"] == 2.5 for p in bosses))
+        self.assertEqual(
+            [c["params"]["name"] for c in features
+             if c["command"] == "sketch.create"],
+            ["PlasticEnclosurePi footprint", "Pi ports",
+             "USB and Ethernet", "Floor vents"],
+        )
+        cuts = [c for c in features if c["command"] == "solid.extrude"
+                and c["params"].get("operation") == "cut"]
+        self.assertEqual(len(cuts), 3)
+        self.assertTrue(all(c["params"]["direction"] == "negative" for c in cuts))
 
     def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
