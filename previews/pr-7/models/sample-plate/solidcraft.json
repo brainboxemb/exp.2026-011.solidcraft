@@ -133,14 +133,32 @@
         "height": 14,
         "diameter": 24,
         "base": [
-          "(width / 2)",
-          "(depth / 2)",
-          "(thickness)"
+          40.0,
+          25.0,
+          8
         ],
         "axis": "Z",
         "operation": "join",
         "targets": [
           "SamplePlate"
+        ],
+        "references": [
+          {
+            "edge": [
+              0.0,
+              25.0,
+              8
+            ],
+            "distance": "(width / 2)"
+          },
+          {
+            "edge": [
+              40.0,
+              0.0,
+              8
+            ],
+            "distance": "(depth / 2)"
+          }
         ]
       }
     },
@@ -150,14 +168,32 @@
         "height": "thickness + 14 mm",
         "diameter": 12,
         "base": [
-          "(width / 2)",
-          "(depth / 2)",
-          0
+          40.0,
+          25.0,
+          0.0
         ],
         "axis": "Z",
         "operation": "cut",
         "targets": [
           "SamplePlate"
+        ],
+        "references": [
+          {
+            "edge": [
+              0.0,
+              25.0,
+              0.0
+            ],
+            "distance": "(width / 2)"
+          },
+          {
+            "edge": [
+              40.0,
+              0.0,
+              0.0
+            ],
+            "distance": "(depth / 2)"
+          }
         ]
       }
     }
