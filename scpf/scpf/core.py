@@ -39,6 +39,9 @@ class Parameter:
 
     __rmul__ = __mul__
 
+    def __neg__(self):
+        return Expression(-self.value, f"-({self.name})", (self,))
+
 
 @dataclass(frozen=True)
 class Expression:
@@ -50,6 +53,9 @@ class Expression:
         if not isinstance(other, (float, int)) or other == 0:
             return NotImplemented
         return Expression(self.value / other, f"({self.expression}) / {number_text(other)}", self.parameters)
+
+    def __neg__(self):
+        return Expression(-self.value, f"-({self.expression})", self.parameters)
 
 
 def value_of(dim) -> float:
