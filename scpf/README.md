@@ -91,8 +91,10 @@ python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/sc
 On Windows, use the project-local Python executable if preferred.
 Alternatively, install the package with `python -m pip install -e ./scpf`.
 
+The Rust predecessor is **SCRF** (SolidCraft Rust Forge); SCPF is the Python successor. The previous `solidcraftforge/` directories remain historical test fixtures.
+
 The tests compare each generated command document with the
-reviewed SolidCraftForge reference JSON. CI keeps the two SCPF JSON
+reviewed SCRF reference JSON. CI keeps the two SCPF JSON
 documents as artifacts; the integrated build workflow also includes them
 in the orphan `bld` branch after all build checks pass. The native
 qualification pipeline keeps verified SolidCraft outputs in `vrf`.
