@@ -124,8 +124,12 @@ class CornerBracket:
 
         # Two matching holes through the vertical arm.
         for z in vertical_z:
+            # Use explicit over-through depth for the horizontal bore.
+            # The native through-all countersink can fail after the 1 mm
+            # vertical-face counterbore; overrun avoids a coplanar exit.
             hole = Hole(
                 d=through_d,
+                depth=w + 1.0,
                 countersink_d=head_d,
                 countersink_angle=90,
                 countersink_recess=self.head_recess,
