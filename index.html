@@ -8,7 +8,7 @@
 <p>Explore six small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
-<p><span class="badge">6 models</span> <span class="badge verified">6 matching native screenshots</span></p></section>
+<p><span class="badge">7 models</span> <span class="badge verified">6 matching native screenshots</span></p></section>
 <div class="grid"><article class="card"><div class="picture"><img src="models/plate/native.png" alt="SolidCraft model render"></div>
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/plate/">Plate</a></h3><p>A rounded plate with four holes</p>
@@ -25,7 +25,11 @@
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/bracket/">Bracket</a></h3><p>An L-shaped extrusion with two mounting holes</p>
 <p class="small muted">60 mm wide; 6 mm wall; two Ø8 mm holes</p>
-<a class="btn" href="models/bracket/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/plastic-enclosure-pi/native.png" alt="SolidCraft model render"></div>
+<a class="btn" href="models/bracket/">Explore model →</a></div></article><article class="card"><div class="picture"><svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg"><path d="M104 195 104 34 145 34 145 163 388 163 388 207 104 207Z" fill="#b4cde9" stroke="#285785" stroke-width="5"/><path d="M145 163 174 188 407 188 388 163 M388 207 407 188" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="230" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/><ellipse cx="330" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/></svg></div>
+<div class="inside"><span class="badge pending">Command plan available</span>
+<h3><a href="models/corner-bracket/">CornerBracket</a></h3><p>24 mm plywood corner bracket with four countersunk mounting holes</p>
+<p class="small muted">24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes</p>
+<a class="btn" href="models/corner-bracket/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/plastic-enclosure-pi/native.png" alt="SolidCraft model render"></div>
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/plastic-enclosure-pi/">Plastic Enclosure Pi</a></h3><p>Raspberry Pi 4 case with connectors, vents and engraving</p>
 <p class="small muted">95 × 66 × 24 mm; R5; PETG; 4 × M2.5 standoffs</p>
@@ -38,5 +42,5 @@
 <h3>2 · Compile commands</h3><p>SCPF outputs native SolidCraft commands, with named parameters and a sequence of CAD operations.</p></section>
 <section class="panel"><h3>3 · Execute in SolidCraft</h3><p>The SolidCraft engine creates editable geometry, and CI validates its results. CAD and verification assets are only published when they match the source revision.</p>
 <h3>4 · Inspect the result</h3><p>Review the command timeline, native measurements and optional rendered preview. An unverified model is labelled as such.</p></section></div>
-<p class="small muted">Source revision: <code>ab90b844a4dd8c96dd0bd90288133e1d2bf81468</code></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
+<p class="small muted">Source revision: <code>4b94b32c4e5a91aa3d4270f809d500f8e64f6c56</code></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
 </body></html>
