@@ -32,8 +32,8 @@ MODELS = {
     },
     "sample-plate": {
         "title": "SamplePlate",
-        "tagline": "Rounded plate with two holes, boss and through-bore",
-        "description": "Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.",
+        "tagline": "Original four-sketch history: Base, Holes, Boss, Bore",
+        "description": "Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. A separate native-holes.py example produces the same geometry using SolidCraft Hole features (only two sketches).",
         "parameters": "80 × 50 × 8 mm; R6; Ø24 × 14 boss",
         "diagram": "sample",
         "stages": ["Sketch XY rectangle (80 × 50)", "Extrude base by 8 mm",
@@ -44,7 +44,7 @@ MODELS = {
     },
     "bracket": {
         "title": "Bracket", "tagline": "An L-shaped extrusion with two mounting holes",
-        "description": "An XZ polygon extruded along Y, with an edge fillet and an XY sketch for the two mounting holes.",
+        "description": "An XZ polygon extruded along Y with an edge fillet and two native SolidCraft Hole features.",
         "parameters": "60 mm wide; 6 mm wall; two Ø8 mm holes",
         "diagram": "bracket",
         "stages": ["Draw the L profile", "Extrude its width",
