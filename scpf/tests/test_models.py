@@ -543,6 +543,74 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
+    def test_history_policy_can_lower_boss_to_sketches(self):
+        commands = run_script(
+            ROOT / "examples/history-policy/scpf/model.py"
+        )["commands"]
+        feature_commands = [
+            c for c in commands if c["command"] != "parameters.add"
+        ]
+        self.assertEqual(
+            [c["command"] for c in feature_commands],
+            [
+                "sketch.create",
+                "sketch.rectangle.two_point",
+                "sketch.finish",
+                "solid.extrude",
+                "plastic.boss",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
+            ],
+        )
+        self.assertEqual(
+            [c["params"].get("name") for c in feature_commands
+             if c["command"] == "sketch.create"],
+            [
+                "HistoryPolicyBoss footprint",
+                "Boss",
+                "Boss hole",
+                "Explicit pad",
+            ],
+        )
+
+    def test_explicit_sketch_scope_requires_profiles_and_closes_before_extrude(self):
+        from scpf.core import Box, Circle2D
+        from scpf.explicit_sketch import Sketch
+
+        body = Box(40, 30, 6)
+        with self.assertRaisesRegex(ValueError, "at least one profile"):
+            with Sketch(name="Empty", on=body):
+                pass
+
+        sketch = Sketch(name="Pad", on=body)
+        with sketch:
+            sketch.add(Circle2D(d=10))
+            with self.assertRaisesRegex(ValueError, "before extruding"):
+                sketch.extrude(5)
+
+        self.assertEqual(sketch.extrude(5).kind, "explicit_sketch_extrusion")
+
+    def test_history_policy_scope_does_not_leak(self):
+        from scpf.core import Boss
+        from scpf.history import History, behavior
+
+        with behavior(history=History.SKETCH):
+            inside = Boss(d=12, h=10)
+        outside = Boss(d=12, h=10)
+
+        self.assertIs(inside.history, History.SKETCH)
+        self.assertIsNone(outside.history)
+
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
         from scpf.core import Circle2D
