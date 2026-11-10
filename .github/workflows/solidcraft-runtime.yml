@@ -199,6 +199,59 @@ jobs:
             and .features[3].plane.anchor.target.certificate.high == true
             and .features[4].extent.distance == "thickness"
           ' output/native/plate-thick-document.json
+      - name: Verify native Hole references and parameter changes
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/anchored-holes
+          python -m scpf examples/anchored-holes/scpf/model.py \
+            --out output/native/anchored-holes/commands.json
+          jq -e '
+            [.commands[] | select(.command == "solid.hole")] | length == 2
+          ' output/native/anchored-holes/commands.json
+          solidcraft-cli run output/native/anchored-holes/commands.json \
+            --param-check strict --results \
+            --json-out output/native/anchored-holes/results.json \
+            --save output/native/anchored-holes/model.sc \
+            --out output/native/anchored-holes/model.step
+          solidcraft-cli eval output/native/anchored-holes/model.sc \
+            --json-out output/native/anchored-holes/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.max[0] > 99.9999
+            and .bodies[0].bbox.max[1] > 59.9999
+            and .bodies[0].bbox.max[2] > 9.9999
+            and .total.volume_mm3 > 58993
+            and .total.volume_mm3 < 58996
+            and (.timeline | all(.error == null))
+          ' output/native/anchored-holes/measurements.json
+          unzip -p output/native/anchored-holes/model.sc document.json \
+            > output/native/anchored-holes/document.json
+          jq -e '
+            [.features[] | select(.type == "hole")] | length == 2
+          ' output/native/anchored-holes/document.json
+          cat > output/native/anchored-holes/edit.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change",
+             "params":{"name":"width","expression":"120 mm"}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/anchored-holes/edit.json \
+            --in output/native/anchored-holes/model.sc \
+            --param-check strict \
+            --save output/native/anchored-holes/wider.sc
+          solidcraft-cli eval output/native/anchored-holes/wider.sc \
+            --json-out output/native/anchored-holes/wider.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.max[0] > 119.9999
+            and .total.volume_mm3 > 78993
+            and .total.volume_mm3 < 78996
+            and (.timeline | all(.error == null))
+          ' output/native/anchored-holes/wider.json
       - name: Evaluate CSG cube through native SolidCraft
         shell: bash
         run: |
