@@ -55,7 +55,7 @@ class SCPFExamples(unittest.TestCase):
             generated = run_script(file)
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
-        self.assertEqual(generated["commands"][4]["params"]["points"][2], [40, 8])
+        self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, 8]])
 
     def test_arguments_are_editable_without_decorators(self):
