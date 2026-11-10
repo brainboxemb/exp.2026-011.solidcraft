@@ -62,69 +62,40 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
-    def test_sample_plate_preserves_original_four_sketches_and_nine_features(self):
-        source = json.loads(
-            (ROOT / "examples/sample-plate/source/Sample Plate.json").read_text()
-        )
+    def test_sample_plate_native_holes_and_boss_history(self):
+        """A native Hole feature needs no explicit sketch in the script."""
         commands = run_script(ROOT / "examples/sample-plate/scpf/model.py")["commands"]
-        original_sketch_names = [feature["name"] for feature in source["features"]
-                                 if feature["type"] == "sketch"]
-        sketch_names = [step["params"]["name"] for step in commands
-                        if step["command"] == "sketch.create"]
-        self.assertEqual(sketch_names, original_sketch_names)
-        self.assertEqual(sketch_names, ["Base", "Holes", "Boss", "Bore"])
-        self.assertEqual(len([step for step in commands
-                              if step["command"] == "sketch.finish"]), 4)
-        self.assertEqual(len([step for step in commands
-                              if step["command"] == "solid.extrude"]), 4)
-        self.assertEqual(len([step for step in commands
-                              if step["command"] == "solid.fillet"]), 1)
-        self.assertFalse(any(step["command"] == "solid.cylinder"
-                             for step in commands))
-        self.assertEqual(
-            [step["params"]["diameter"] for step in commands
-             if step["command"] == "sketch.circle.center"],
-            [8, 8, 24, 12],
-        )
-        extrusions = [step["params"] for step in commands
-                      if step["command"] == "solid.extrude"]
-        self.assertEqual(
-            [feature.get("operation", "new_body") for feature in extrusions],
-            ["new_body", "cut", "join", "cut"])
-        self.assertEqual(
-            [feature["direction"] for feature in extrusions],
-            ["positive", "positive", "positive", "negative"])
-        self.assertEqual(extrusions[2]["distance"], 14)
-        self.assertEqual(extrusions[3]["distance"], "thickness + 14 mm")
-        sketch_creates = [step["params"] for step in commands
-                          if step["command"] == "sketch.create"]
-        self.assertEqual(sketch_creates[2]["offset"], "thickness")
-        self.assertEqual(sketch_creates[3]["offset"], "thickness + 14 mm")
-        self.assertEqual(
-            [step["params"]["expression"] for step in commands[:3]],
-            ["80", "50", "8"],
-        )
+        sketches = [c["params"]["name"] for c in commands
+                    if c["command"] == "sketch.create"]
+        self.assertEqual(sketches, ["Base", "Boss"])
+        self.assertEqual([c["command"] for c in commands
+                          if c["command"] in ("solid.hole", "solid.cylinder")],
+                         ["solid.hole", "solid.hole", "solid.hole"])
+        holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
+        self.assertEqual([h["diameter"] for h in holes], [8, 8, 12])
+        self.assertEqual([h["position"] for h in holes],
+                         [[12, 25, 8], [68, 25, 8], [40, 25, 22]])
+        self.assertEqual([c["params"]["operation"] for c in commands
+                          if c["command"] == "solid.extrude" and
+                          "operation" in c["params"]], ["join"])
+        self.assertEqual([c["params"]["offset"] for c in commands
+                          if c["command"] == "sketch.create" and
+                          "offset" in c["params"]], ["thickness"])
 
-    def test_sample_plate_parameter_override_updates_native_commands(self):
+    def test_sample_plate_parameter_override_updates_native_holes(self):
         with tempfile.TemporaryDirectory() as directory:
             source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
             script = Path(directory) / "model.py"
-            script.write_text(
-                source.replace("SamplePlate()",
-                               "SamplePlate(width=100, depth=60, thickness=10)")
-            )
+            script.write_text(source.replace(
+                "SamplePlate()", "SamplePlate(width=100, depth=60, thickness=10)"))
             commands = run_script(script)["commands"]
         self.assertEqual([c["params"]["expression"] for c in commands[:3]],
                          ["100", "60", "10"])
-        rectangle = next(c for c in commands
-                         if c["command"] == "sketch.rectangle.two_point")
-        self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
-        sketches = [c["params"] for c in commands if c["command"] == "sketch.create"]
-        self.assertEqual(sketches[2]["offset"], "thickness")
-        self.assertEqual(sketches[3]["offset"], "thickness + 14 mm")
-        centers = [c["params"]["center"] for c in commands
-                   if c["command"] == "sketch.circle.center"]
-        self.assertEqual(centers[-2:], [[50, 30], [50, 30]])
+        holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
+        self.assertEqual([h["position"] for h in holes],
+                         [[12, 30, 10], [88, 30, 10], [50, 30, 24]])
+        self.assertTrue(all("references" in h for h in holes[:2]))
+        self.assertNotIn("references", holes[2])
         self.assertFalse(any(c["command"] == "solid.cylinder" for c in commands))
 
     def test_named_edge_selection_and_explicit_edge_points(self):
