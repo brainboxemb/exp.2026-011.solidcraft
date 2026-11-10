@@ -462,6 +462,27 @@ jobs:
                "boss", "boss", "boss", "boss",
                "sketch", "extrude", "sketch", "extrude", "sketch", "extrude"]
           ' output/native/plastic-enclosure-pi/document.json
+          # Last step of the upstream video: edit height 24 -> 32 mm.
+          cat > output/native/plastic-enclosure-pi/change-height.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{"name":"height","expression":"32 mm"}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/plastic-enclosure-pi/change-height.json \
+            --in output/native/plastic-enclosure-pi/model.sc \
+            --param-check strict \
+            --save output/native/plastic-enclosure-pi/model-height-32.sc
+          solidcraft-cli eval output/native/plastic-enclosure-pi/model-height-32.sc \
+            --json-out output/native/plastic-enclosure-pi/measurements-height-32.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.max[2] == 32
+            and (.timeline | all(.error == null))
+          ' output/native/plastic-enclosure-pi/measurements-height-32.json
+          solidcraft-cli snapshot output/native/plastic-enclosure-pi/model-height-32.sc \
+            --out output/native/plastic-enclosure-pi/model-height-32.png \
+            --no-grid --no-axes
+          test -s output/native/plastic-enclosure-pi/model-height-32.png
           solidcraft-cli snapshot output/native/plastic-enclosure-pi/model.sc \
             --out output/native/plastic-enclosure-pi/model.png \
             --no-grid --no-axes
