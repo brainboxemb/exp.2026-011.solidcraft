@@ -37,9 +37,9 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # SolidCraft's XZ sketch local vertical axis points toward world -Z.
-        outline_xz = [
-            (h - ef, 0),
+        # Consecutive points describe the seven outer edges to bevel.
+        # These are also used by the sketch: one source of geometry.
+        outer_path_xz = [
             (h, ef),
             (h, w - end),
             (h - end, w),
@@ -48,6 +48,11 @@ class CornerBracketFast:
             (-w, -v + end),
             (-w + end, -v),
             (-ef, -v),
+        ]
+        # SolidCraft's XZ sketch local vertical axis points toward world -Z.
+        outline_xz = [
+            (h - ef, 0),
+            *outer_path_xz,
             (0, -v + ef),
             (0, 0),
         ]
@@ -56,14 +61,12 @@ class CornerBracketFast:
         body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 
         y0 = self.bracket_width / 2
+        # SolidCraft's chamfer command currently selects an edge by a
+        # point on it. Derive those points from the sketch path instead
+        # of duplicating seven coordinate formulas in the model.
         outer_edges = [
-            (h, (ef + w - end) / 2),
-            (h - end / 2, w - end / 2),
-            ((h - end - w + outer) / 2, w),
-            (-w + outer / 2, w - outer / 2),
-            (-w, (w - outer - v + end) / 2),
-            (-w + end / 2, -v + end / 2),
-            ((-w + end - ef) / 2, -v),
+            ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+            for a, b in zip(outer_path_xz, outer_path_xz[1:])
         ]
         body = body.chamfer(
             self.side_edge_chamfer,
