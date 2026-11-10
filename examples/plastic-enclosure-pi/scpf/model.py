@@ -55,14 +55,14 @@ class PlasticEnclosurePi:
             self.wall, direction=Direction.NEGATIVE
         )
 
-        # Five patterned vent slots, spaced 7 mm along X, through the floor.
+        # Five separate slots, spaced 7 mm along X, through the floor.
         with Sketch(
             name="Floor vents", on=enclosure, plane="XY",
             origin=(0, 0, self.wall),
         ) as vents:
             for i in range(5):
                 vents.add(
-                    Rectangle2D(28.0, 5.0),
+                    Rectangle2D(5.0, 28.0),
                     offset=(-22.0 + i * 7.0, -16.5),
                 )
         enclosure = enclosure - vents.extrude(
