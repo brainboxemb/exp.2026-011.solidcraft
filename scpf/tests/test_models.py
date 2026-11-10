@@ -51,7 +51,7 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             source = (ROOT / "examples/bracket/scpf/model.py").read_text()
             file = Path(directory) / "model.py"
-            file.write_text(source.replace("Bracket()\\n", "Bracket(70, 8)\\n"))
+            file.write_text(source.replace("Bracket()", "Bracket(70, 8)"))
             generated = run_script(file)
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
