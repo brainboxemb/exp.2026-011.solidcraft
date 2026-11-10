@@ -1,0 +1,51 @@
+name: SCPF Python model qualification
+
+on:
+  push:
+    branches:
+      - feature/scpf-python
+  pull_request:
+    paths:
+      - "scpf/**"
+      - "examples/**/scpf/**"
+      - "examples/**/solidcraftforge/solidcraft.json"
+      - ".github/workflows/scpf.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test Python model API against both native command fixtures
+        env:
+          PYTHONPATH: scpf
+        run: python -m unittest discover -s scpf/tests -v
+      - name: Generate Plate and CSG cube commands
+        env:
+          PYTHONPATH: scpf
+        run: |
+          python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
+      - name: Validate and compare command documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          for model in plate csg-cube; do
+            jq empty "output/examples/$model/scpf/solidcraft.json"
+            jq -e -s '.[0] == .[1]' \
+              "examples/$model/solidcraftforge/solidcraft.json" \
+              "output/examples/$model/scpf/solidcraft.json" >/dev/null
+          done
+      - name: Retain generated SCPF commands
+        uses: actions/upload-artifact@v4
+        with:
+          name: scpf-native-command-plans
+          path: output/examples/*/scpf/solidcraft.json
+          if-no-files-found: error
