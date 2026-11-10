@@ -5,44 +5,48 @@ geometry engine.
 
 ## User-facing model
 
+The default Sample Plate reproduces the four original sketch-based features:
+
 ```python
-@dataclass
-class SamplePlate:
-    width: float = 80
-    depth: float = 50
-    thickness: float = 8
+plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
+plate = plate.fillet(6, edges=Edges.VERTICAL)
+holes = Circle2D(d=8).at(12, self.depth / 2) + Circle2D(d=8).at(
+    self.width - 12, self.depth / 2)
+plate = plate.cut(holes.extrude(self.thickness), name="Holes")
+boss = Circle2D(d=24).at(self.width / 2, self.depth / 2, self.thickness)
+plate = plate.add(boss.extrude(14), name="Boss")
+bore = Circle2D(d=12).at(
+    self.width / 2, self.depth / 2, self.thickness + 14)
+plate.cut(bore.extrude(self.thickness + 14, direction=Direction.NEGATIVE),
+          name="Bore")
+```
 
-    def build(self):
-        plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
-        plate = plate.fillet(6, edges=Edges.VERTICAL)
+The alternative native Hole version is shorter:
 
-        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
-            count=2, spacing=self.width - 24, axis=Axis.X
-        ).on(plate, Anchor.TOP)
-        plate = plate + holes
-
-        boss = Cylinder(d=24, h=14).attach(
-            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
-        plate = plate + boss
-
-        bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(plate, Anchor.TOP)
-        plate + bore
-
-SamplePlate()
+```python
+plate = plate.add(
+    Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+        count=2, spacing=self.width - 24, axis=Axis.X),
+    on=Anchor.TOP)
+plate = plate.add(Cylinder(d=24, h=14), on=Anchor.TOP)
+plate = plate.add(Hole(d=12, depth=Depth.THROUGH_ALL), on=Anchor.TOP)
 ```
 
 ## Semantics
 
-- `Cylinder` represents 3D material or a Boolean cutter.
-- `Hole` is a native CAD feature. `plate + hole` means add the feature;
-  native `solid.hole` removes material.
-- `.attach()` aligns parent and child anchors; `.on()` places an object
-  on a face. Supported placements are intentionally limited.
-- `Rectangle2D(...).extrude()` and attached `Cylinder` may generate
-  internal sketch and extrusion commands. Python does not require an
-  explicit `Sketch` object.
-- The resulting SolidCraft history can differ from the original sample's
-  sketch-based history while representing equivalent design intent.
+- `part.add(feature, on=Anchor.TOP)`: position and apply the feature in one
+  operation; the target is not repeated in the script.
+- `part.add(feature, at=(x, y, z))`: place it at an explicit world point.
+- `part.cut(cutter, name="Bore")`: subtract a sketch-based or solid cutter;
+  the optional name labels the generated feature/sketch where supported.
+- Native `Hole` removes material even though it is added as a CAD feature.
+- `.on()` / `.attach()` and Python `+` / `-` remain available for
+  lower-level composition and compatibility, but are not needed for typical
+  feature additions.
+- A `Circle2D` profile cut creates an editable sketch and cut feature.
+  A native `Hole` creates a Hole feature without a corresponding sketch.
+- The adapter creates all necessary internal sketches. Python scripts do not
+  need an explicit `Sketch` object.
 
 ## Responsibility boundaries
 
