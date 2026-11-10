@@ -58,6 +58,66 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, 8]])
 
+    def test_frozen_dataclass_build_with_implicit_shape(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "@dataclass(frozen=True)\n"
+                "class Cuboid:\n"
+                "    size: float = 50\n"
+                "    def __post_init__(self):\n"
+                "        assert self.size > 0\n"
+                "    def build(self):\n"
+                "        Cube(self.size).move(x=10)\n"
+                "Cuboid(80)\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(generated["commands"][0]["params"]["name"], "size")
+        self.assertEqual(generated["commands"][0]["params"]["expression"], "80")
+        self.assertEqual(generated["commands"][1]["params"]["center"], [10, 0, 0])
+
+    def test_dataclass_constructor_validates_before_symbolic_binding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "@dataclass\n"
+                "class Cuboid:\n"
+                "    size: float = 50\n"
+                "    def __post_init__(self):\n"
+                "        assert self.size > 0\n"
+                "    def build(self):\n"
+                "        Cube(self.size)\n"
+                "Cuboid(-5)\n"
+            )
+            with self.assertRaises(AssertionError):
+                run_script(file)
+
+    def test_dataclass_requires_build_method(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "@dataclass\n"
+                "class Cuboid:\n"
+                "    size: float = 50\n"
+                "Cuboid()\n"
+            )
+            with self.assertRaisesRegex(TypeError, "must define build"):
+                run_script(file)
+
+    def test_dataclass_build_must_finish_with_geometry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "@dataclass\n"
+                "class Cuboid:\n"
+                "    size: float = 50\n"
+                "    def build(self):\n"
+                "        body = Cube(self.size)\n"
+                "Cuboid()\n"
+            )
+            with self.assertRaisesRegex(TypeError, "finish with a Shape"):
+                run_script(file)
+
     def test_arguments_are_editable_without_decorators(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
