@@ -53,10 +53,9 @@ jobs:
           python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate.json
           python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube.json
           python -m scpf examples/bracket/scpf/model.py --out output/native/command-plans/bracket-scpf.json
-          jq -e --slurpfile original examples/bracket/source/bracket.json '
-            (.commands | length) == ($original[0].commands | length)
-            and (.commands[2:] == $original[0].commands[2:])
-          ' output/native/command-plans/bracket-scpf.json
+          jq -e -s '.[0] == .[1]' \
+            examples/bracket/scpf/solidcraft.json \
+            output/native/command-plans/bracket-scpf.json >/dev/null
           jq -e '[.commands[] | select(.command == "solid.hole")] | length == 4' \
             output/native/command-plans/plate.json
           jq -e -s '.[0] == .[1]' \
