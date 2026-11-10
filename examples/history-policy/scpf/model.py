@@ -17,7 +17,13 @@ class HistoryPolicyBoss:
                 parent=Anchor.TOP,
                 offset=(X.MAX - 15.0, Y.CENTER),
             )
-        body + sketched
+        body = body + sketched
+
+        with Sketch(name="Explicit pad", on=body, parent=Anchor.TOP) as sketch:
+            sketch.add(Circle2D(d=10.0), offset=(0.0, -15.0))
+
+        explicit = sketch.extrude(6.0)
+        body + explicit
 
 
 HistoryPolicyBoss()
