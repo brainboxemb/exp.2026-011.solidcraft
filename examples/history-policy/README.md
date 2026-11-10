@@ -69,3 +69,24 @@ SCPF should let the author choose between:
 - an explicitly authored sketch.
 
 See GitHub issue #13 for the open API questions.
+
+
+## Follow-up example: electronics enclosure
+
+`reference/enclosure_steps.json` preserves a supplied SolidCraft/MCP enclosure
+sequence as a second, more realistic history-policy example.
+
+It deliberately mixes:
+
+- an explicit constrained `Outline` sketch and parameter-driven extrusion;
+- fillet + shell;
+- an explicit side sketch for a USB-port cut;
+- four native `plastic.boss` features;
+- a final `width` change from 80 to 100 mm to exercise associative rebuild.
+
+This is useful because not every feature should be forced into the same history
+style. The two authored sketches should stay explicit, while the bosses are a
+good target for comparing `AUTO` with `History.SKETCH`.
+
+Keep this as a follow-up fixture until the minimal history-policy API is agreed;
+do not broaden the first implementation just to reproduce the whole enclosure.
