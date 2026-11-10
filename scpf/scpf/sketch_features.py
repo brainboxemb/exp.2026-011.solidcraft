@@ -5,7 +5,7 @@ additional extruded Circle sketches can be joined (+) or cut (-).
 This module recognizes CAD operations, never example names such as Boss
 or Bore. SolidCraft is the only BRep engine.
 """
-from .core import Parameter, Shape, command_value, value_of
+from .core import Parameter, Shape, Edges, command_value, value_of
 
 
 def _circle_profiles(shape, dx=0, dy=0, z=0):
@@ -72,7 +72,7 @@ def _to_commands(shape, body_name):
     if shape.kind == "fillet":
         original, radius, edges = shape.data
         steps, base = _to_commands(original, body_name)
-        if edges != "vertical":
+        if edges is not Edges.VERTICAL:
             raise ModelError("Rectangular plate supports vertical edges only")
         r = _require_positive(radius, "fillet radius")
         w = value_of(base["width"])

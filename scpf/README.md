@@ -220,3 +220,11 @@ and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
 `pattern()` and `orient()` helpers center generated cutter cylinders on
 their respective axes, preserving the Plate and CsgCube command fixtures.
 The old positional constructor and 3D-suffixed aliases are not supported.
+
+## Edge selection
+
+Use `Edges.VERTICAL` for automatic selection of vertical edges on supported
+rectangular bodies, or supply a list of explicit 3D edge points for a
+specific edge. This is intentionally distinct from the planned object
+attachment anchors (`Anchor.TOP`, etc.). Strings such as
+`edges="vertical"` are no longer part of the SCPF API.
