@@ -94,6 +94,14 @@ class Expression:
     expression: str
     parameters: tuple[Parameter, ...]
 
+    def __mul__(self, other):
+        if not isinstance(other, (float, int)):
+            return NotImplemented
+        return Expression(self.value * other,
+                          f"({self.expression}) * {number_text(other)}", self.parameters)
+
+    __rmul__ = __mul__
+
     def __truediv__(self, other: float):
         if not isinstance(other, (float, int)) or other == 0:
             return NotImplemented
