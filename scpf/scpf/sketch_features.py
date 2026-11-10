@@ -407,7 +407,6 @@ def _has_profile(shape):
 
 
 def compile_polygon_features(shape, name):
-    from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
     """Compile a polygon extrusion and its ordered CAD modifiers.
 
     One closed planar polygon, one extrusion, optional edge fillet and
@@ -415,6 +414,7 @@ def compile_polygon_features(shape, name):
     evaluated at the supplied parameter defaults; general parametric sketch
     constraints are intentionally not claimed.
     """
+    from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
     # Native Hole features added with + are part of the ordered CAD history.
     native_holes = []
     while shape.kind == "union":
