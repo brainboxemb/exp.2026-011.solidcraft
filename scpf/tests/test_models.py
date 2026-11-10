@@ -550,7 +550,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(
             [c["params"]["name"] for c in commands
              if c["command"] == "parameters.add"],
-            ["width", "depth", "height", "wall"],
+            ["board_w", "board_d", "height", "wall"],
         )
         features = [c for c in commands if c["command"] != "parameters.add"]
         self.assertEqual(
@@ -570,6 +570,8 @@ class SCPFExamples(unittest.TestCase):
              "sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
              "material.create", "material.assign"],
         )
+        self.assertIn("board_w", str(features[1]["params"]["p0"][0]))
+        self.assertIn("board_d", str(features[1]["params"]["p1"][1]))
         self.assertEqual(features[4]["params"]["radius"], 5.0)
         self.assertEqual(features[6]["params"]["radius"], 1.0)
         bosses = [c["params"] for c in features if c["command"] == "plastic.boss"]
