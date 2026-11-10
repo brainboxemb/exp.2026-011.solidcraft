@@ -24,30 +24,37 @@ The original SolidCraft history contains **no sketches**.
 [`scpf/model.py`](scpf/model.py) keeps the same object-level meaning:
 
 ```python
-enclosure = Box(self.length, self.width, self.height)
-enclosure = enclosure.shell(self.wall, open=Faces.TOP)
+class Enclosure:
+    length = 80.0
+    width = 50.0
+    height = 30.0
+    wall = 2.0
 
-enclosure = enclosure + Lip(width=1, height=2).attach(
-    enclosure, parent=Anchor.TOP, offset=(...)
-)
-enclosure = enclosure + SnapFit(...).attach(
-    enclosure, parent=Anchor.INNER_BOTTOM, offset=(...)
-)
-enclosure = enclosure + Boss(...).attach(
-    enclosure, parent=Anchor.INNER_BOTTOM, offset=(...)
-)
-enclosure + Rest(...).attach(
-    enclosure, parent=Anchor.INNER_BOTTOM
-)
+    def build(self):
+        enclosure = Box(self.length, self.width, self.height)
+        enclosure = enclosure.shell(self.wall, open=Faces.TOP)
+
+        snap = SnapFit(...).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(Bounds.CENTER, Bounds.MAX - 6),
+        )
+        enclosure = enclosure + snap
+
+        boss = Boss(...).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
+        )
 ```
 
 `Faces.TOP` is a face selector for `shell()`. It is deliberately separate
 from `Anchor.TOP`, which describes relative placement for `attach()`.
 
 SCPF `Box` is centered in X/Y, while the uploaded SolidCraft source uses a
-corner at `[0, 0, 0]`. The feature pick coordinates are therefore translated
-by `[-40, -25, 0]`; the enclosure dimensions and relative feature locations
-remain the same.
+corner at `[0, 0, 0]`. The script does not manually compensate with
+`length / 2` or `width / 2`: `Bounds.MIN/CENTER/MAX` keeps feature
+placement relative to the enclosure bounds.
 
 The uploaded SolidCraft source contains no sketches. SCPF deliberately keeps
 its normal `Box` representation instead: one footprint sketch plus an
