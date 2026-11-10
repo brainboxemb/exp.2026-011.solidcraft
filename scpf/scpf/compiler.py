@@ -70,19 +70,32 @@ def _cylinder_base(height, axis):
     }[axis]
 
 
-def _csg_primitive(shape, body_name, operation, *, axis="Z"):
+def _shift(offset, delta):
+    return tuple(a + b for a, b in zip(offset, delta))
+
+
+def _add_offset(coord, offset):
+    """Offset either a literal coordinate or a SolidCraft expression."""
+    if not offset:
+        return coord
+    if isinstance(coord, str):
+        return f"({coord}) + {number_text(offset)}"
+    return coord + offset
+
+
+def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
     kind, data = shape.kind, shape.data
     if kind == "cube":
         (size,) = data
         _require_positive(size, "cube size")
         params = dict(length=command_value(size), width=command_value(size),
-                      height=command_value(size), center=[0, 0, 0],
+                      height=command_value(size), center=list(offset),
                       operation=operation)
         command = "solid.box"
     elif kind == "sphere":
         (radius,) = data
         _require_positive(radius, "sphere radius")
-        params = dict(radius=command_value(radius), center=[0, 0, 0],
+        params = dict(radius=command_value(radius), center=list(offset),
                       operation=operation)
         command = "solid.sphere"
     elif kind == "cylinder":
@@ -91,7 +104,7 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z"):
         _require_positive(diameter, "cylinder diameter")
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
-                      base=_cylinder_base(height, axis), axis=axis,
+                      base=[_add_offset(coord, delta) for coord, delta in zip(_cylinder_base(height, axis), offset)], axis=axis,
                       operation=operation)
         command = "solid.cylinder"
     else:
@@ -104,33 +117,39 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z"):
     return _command(command, **params)
 
 
-def _csg_apply(shape, name, operation):
+def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
+    if shape.kind == "translated":
+        child, delta = shape.data
+        return _csg_apply(child, name, operation, _shift(offset, delta))
     if shape.kind in ("cube", "sphere", "cylinder"):
-        return [_csg_primitive(shape, name, operation)]
+        return [_csg_primitive(shape, name, operation, offset=offset)]
     if shape.kind == "orient" and operation in ("cut", "join"):
         cylinder, axes = shape.data
         return [
-            _csg_primitive(cylinder, name, operation, axis=axis)
+            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset)
             for axis in axes
         ]
     if shape.kind == "union" and operation in ("cut", "join"):
         left, right = shape.data
-        return _csg_apply(left, name, operation) + _csg_apply(right, name, operation)
+        return _csg_apply(left, name, operation, offset) + _csg_apply(right, name, operation, offset)
     raise ModelError(f"unsupported CSG {operation}: {shape.kind}")
 
 
-def _csg_new(shape, name):
+def _csg_new(shape, name, offset=(0, 0, 0)):
+    if shape.kind == "translated":
+        child, delta = shape.data
+        return _csg_new(child, name, _shift(offset, delta))
     if shape.kind in ("cube", "sphere", "cylinder"):
-        return [_csg_primitive(shape, name, "new")]
+        return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data
-        return _csg_new(left, name) + _csg_apply(right, name, "intersect")
+        return _csg_new(left, name, offset) + _csg_apply(right, name, "intersect", offset)
     if shape.kind == "difference":
         left, right = shape.data
-        return _csg_new(left, name) + _csg_apply(right, name, "cut")
+        return _csg_new(left, name, offset) + _csg_apply(right, name, "cut", offset)
     if shape.kind == "union":
         left, right = shape.data
-        return _csg_new(left, name) + _csg_apply(right, name, "join")
+        return _csg_new(left, name, offset) + _csg_apply(right, name, "join", offset)
     raise ModelError(f"unsupported root CSG shape: {shape.kind}")
 
 
