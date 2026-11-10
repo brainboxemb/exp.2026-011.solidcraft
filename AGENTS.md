@@ -1,7 +1,10 @@
-# Experiment 011 — agent guidance
+# SCPF repository notes
 
-Start with [README.md](README.md) and [docs/00-plan.md](docs/00-plan.md).
+Python SCPF is the only supported scripting frontend. Keep model objects
+and CAD feature intent separate from SolidCraft command JSON and transport.
+The adapter may translate one high-level feature into multiple native commands.
+SolidCraft remains the only engine for BRep geometry and native feature history.
 
-Keep the public Rust CAD domain independent from SolidCraft command names and transport details. The adapter may translate one semantic feature into several SolidCraft commands. SolidCraft remains the only geometry engine.
-
-Do not claim working CAD until it has been run against a named SolidCraft version. Keep PartCAD, OpenSCAD migration and shared production tooling outside this experiment.
+When changing example models, update Python regression tests, generated command
+fixtures where applicable, and native qualification checks. Do not reintroduce
+the retired SCRF Rust scripting layer.

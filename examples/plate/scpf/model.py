@@ -5,11 +5,15 @@ class Plate:
     thickness: float = 10
 
     def build(self):
-        body = Box(self.length, self.width, self.thickness).fillet(
-            2, edges=Edges.VERTICAL
-        )
-        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
-        body - holes
+        body = Box(self.length, self.width, self.thickness)
+        body = body.fillet(2, edges=Edges.VERTICAL)
+
+        # Explicit world positions keep this compact comparison model simple.
+        for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
+            body = body + Hole(
+                d=8, depth=Depth.THROUGH_ALL
+            ).at(x, y, self.thickness)
+        body
 
 
 Plate()

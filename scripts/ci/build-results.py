@@ -23,7 +23,7 @@ MODELS = {
                    "Sketch four hole centres", "Cut the holes"],
     },
     "csg-cube": {
-        "title": "CsgCube", "tagline": "A cube, sphere and three crossing bores",
+        "title": "CsgCube", "tagline": "A box, sphere and three crossing bores",
         "description": "A constructive solid geometry demonstration: intersect a cube with a sphere, then subtract cylinders along three axes.",
         "parameters": "50 mm cube; three crossing cylindrical cuts",
         "diagram": "csg",
@@ -32,19 +32,20 @@ MODELS = {
     },
     "sample-plate": {
         "title": "SamplePlate",
-        "tagline": "Rounded plate with two holes, boss and through-bore",
-        "description": "Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.",
+        "tagline": "Original four-sketch history: Base, Holes, Boss, Bore",
+        "description": "Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. The object-level Hole and Cylinder intent is compiled to the four editable sketches and matching cut/join history.",
         "parameters": "80 × 50 × 8 mm; R6; Ø24 × 14 boss",
         "diagram": "sample",
-        "stages": ["Sketch XY rectangle (80 × 50)", "Extrude base by 8 mm",
-                   "Fillet four vertical corners, R6",
-                   "Cut two mounting holes Ø8",
-                   "Join Ø24 boss above plate, height 14",
-                   "Cut central Ø12 bore through full 22 mm"],
+        "stages": ["Base — sketch XY rectangle (80 × 50)",
+                   "Extrude1 — extrude base by 8 mm",
+                   "Fillet1 — fillet four vertical corners, R6",
+                   "Holes — cut two mounting holes Ø8",
+                   "Boss — join Ø24 boss above plate, height 14",
+                   "Bore — cut central Ø12 bore through full 22 mm"],
     },
     "bracket": {
         "title": "Bracket", "tagline": "An L-shaped extrusion with two mounting holes",
-        "description": "An XZ polygon extruded along Y, with an edge fillet and an XY sketch for the two mounting holes.",
+        "description": "An XZ polygon extruded along Y with an edge fillet and two native SolidCraft Hole features.",
         "parameters": "60 mm wide; 6 mm wall; two Ø8 mm holes",
         "diagram": "bracket",
         "stages": ["Draw the L profile", "Extrude its width",
@@ -95,7 +96,7 @@ def layout(title, body, css_path, home_path):
 <title>{esc(title)} · SolidCraft CAD experiments</title><link rel="stylesheet" href="{esc(css_path)}"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="{esc(home_path)}">SolidCraft · CAD experiments</a>
 <a href="{esc(home_path)}">Models</a><a href="{esc(home_path)}cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
-{body}<footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
+{body}<footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
 </body></html>"""
 
 
@@ -112,6 +113,7 @@ def command_stages(commands):
         "solid.box": "Box primitive",
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",
+        "solid.hole": "Native Hole feature",
     }
     items = []
     for entry in commands:
@@ -122,9 +124,15 @@ def command_stages(commands):
         for key in ("name", "plane", "direction", "operation", "body_name"):
             if key in params:
                 details.append(f"{key}: {params[key]}")
-        items.append(f'<li><strong>{esc(description)}</strong><small>{esc(kind)}'
-                     + (f' · {esc(", ".join(details))}' if details else "")
-                     + '</small></li>')
+        items.append(
+            f'<li><strong>{esc(description)}</strong>'
+            f'<small>{esc(kind)}'
+            + (f' · {esc(", ".join(details))}' if details else "")
+            + '</small>'
+            + '<details><summary>Show exact command and parameters</summary>'
+            + f'<pre><code>{esc(json.dumps(entry, indent=2))}</code></pre>'
+            + '</details></li>'
+        )
     return "\n".join(items)
 
 
@@ -149,8 +157,6 @@ def build(out, commit, native_root=None, generated_root=None, previous_site=None
         commands = read_json(command_file)["commands"]
         copy_if_exists(source, work / "model.py")
         copy_if_exists(command_file, work / "solidcraft.json")
-        if (ROOT / "examples" / slug / "scrf" / "model.rs").exists():
-            copy_if_exists(ROOT / "examples" / slug / "scrf" / "model.rs", work / "model.rs")
         screenshot = screenshot_info(native_root, commit, slug)
         has_native = screenshot is not None
         # A lightweight preview may reuse a published render as an illustration,
@@ -183,7 +189,7 @@ def build(out, commit, native_root=None, generated_root=None, previous_site=None
 <p>{esc(info["description"])}</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
-{'<a class="btn secondary" href="model.rs">SCRF source</a>' if (work / "model.rs").exists() else ''}</div>
+</div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
 <h3>Construction stages</h3><ol>{stage_summary}</ol></section></div>
 <h2>Python model</h2><pre><code>{script}</code></pre>
@@ -201,9 +207,9 @@ Native qualification is reported only when the matching verified image exists.</
 <h3><a href="models/{slug}/">{esc(info["title"])}</a></h3><p>{esc(info["tagline"])}</p>
 <p class="small muted">{esc(info["parameters"])}</p>
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
-    home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SCRF · SolidCraft</div>
+    home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore four small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
+<p>Explore four small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
@@ -240,8 +246,14 @@ def make_cheatsheet(out):
              "Cylinder(d=24, h=14).at(40, 25, 8)"),
             ("Sphere(radius)", "3D sphere centered on the origin.",
              "Sphere(20)"),
-            ("Cube(size)", "A special case of Box with three equal sides, centered on the origin. OpenSCAD also uses cube([x, y, z]) for rectangular boxes.",
-             "Cube(50)"),
+        ]),
+        ("Relative placement · experimental", [
+            ("child.attach(parent, parent=..., child=...)", "Join two anchor positions. Native output is resolved parameter expressions, not a persistent face constraint.",
+             "Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP, child=Anchor.BOTTOM)"),
+            ("child.attach(parent, parent=Anchor.CENTER, child=Anchor.CENTER)", "Align child and parent centers.",
+             "Cylinder(d=8, h=12).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
+            ("cylinder.pattern(count=2, spacing=40, axis=Axis.Y)", "Make symmetric repeated cutters. On a plate center this makes two holes at Y = -20 and +20 relative to its center.",
+             "Cylinder(d=8, h=12).pattern(count=2, spacing=40, axis=Axis.Y).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
         ]),
         ("Operations", [
             ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder; 2D z offsets the sketch plane.",
@@ -255,7 +267,7 @@ def make_cheatsheet(out):
             ("a - b", "Difference/cut. Keep the original left-hand solid.",
              "plate - Cylinder(d=12, h=22).at(40, 25, 0)"),
             ("a & b", "Intersection for supported CSG primitives.",
-             "Sphere(30) & Cube(50)"),
+             "Sphere(30) & Box(50, 50, 50)"),
             ("solid.fillet(radius, edges=Edges.VERTICAL)", "Round vertical edges of a supported 3D body. Explicit 3D edge points are also accepted.",
              "plate.fillet(6, edges=Edges.VERTICAL)"),
         ]),

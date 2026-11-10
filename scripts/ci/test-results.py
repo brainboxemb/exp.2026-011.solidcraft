@@ -32,7 +32,7 @@ def check(site, commit):
     text = homepage.read_text(encoding="utf-8")
     assert commit in text, "site must identify its source commit"
     assert 'href="cheatsheet/"' in text
-    assert "SCPF" in text and "SCRF" in text
+    assert "SCPF" in text and "SCRF" not in text
     for slug in ("plate", "csg-cube", "bracket", "sample-plate"):
         model = site / "models" / slug
         assert (model / "index.html").is_file(), slug
@@ -40,6 +40,8 @@ def check(site, commit):
         assert (model / "solidcraft.json").is_file(), slug
         page = (model / "index.html").read_text(encoding="utf-8")
         assert "Native SolidCraft command sequence" in page
+        assert "Show exact command and parameters" in page
+        assert "&quot;command&quot;" in page and "&quot;params&quot;" in page
         assert "Construction stages" in page
         assert "Native SolidCraft image" not in page or (model / "native.png").is_file()
         assert "Schematic drawing only" not in page or "not a SolidCraft geometry render" in page

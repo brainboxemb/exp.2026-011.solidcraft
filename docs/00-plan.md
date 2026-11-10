@@ -1,77 +1,45 @@
-# 00 — Experiment plan
+# Experiment 011 — Python SCPF plan
 
-## Goal
+## Objective
 
-Build a semantic **Rust CAD API** for SolidCraft. The user describes a part in CAD terms; the adapter decides how to construct it in SolidCraft.
+Write readable, reusable Python CAD objects that translate to native SolidCraft
+commands and editable native history. Do not implement a second geometry engine.
 
-CadQuery, vcad, µcad and PythonSCAD are interface-design references only. We compare five implementations: SCRF, CadQuery, µcad, vcad and PythonSCAD.
+## Model flow
 
-## Architecture
+1. A Python dataclass defines dimensions and a `build()` model.
+2. SCPF resolves symbolic parameters and supported feature intent.
+3. The adapter generates SolidCraft JSON commands.
+4. SolidCraft executes the commands and owns the resulting BRep and feature history.
+5. CI compares reviewed fixtures and verifies native geometry, saved `.sc` history,
+   parameter edits, and optional screenshots.
 
-```text
-CAD domain → SolidCraft adapter → script / GUI / MCP → SolidCraft engine
+## Scope
+
+- 2D `Rectangle2D`, `Circle2D`, `Polygon2D` and extrusions.
+- 3D `Box`, `Cube`, `Sphere`, `Cylinder`.
+- CAD features including `Hole`, `fillet`, anchor placement and patterns.
+- Implicit sketches may be created by the adapter, but users are not required
+  to construct them in Python.
+
+## Examples
+
+`examples/plate/scpf/`, `examples/csg-cube/scpf/`,
+`examples/bracket/scpf/`, `examples/sample-plate/scpf/` and
+`examples/anchored-holes/scpf/`.
+
+## Comparison references
+
+CadQuery, PythonSCAD, µcad and vcad examples remain for syntax and
+representation comparison only; none is a SCPF runtime dependency.
+
+## Validation
+
+From the repository root in PowerShell:
+
+```powershell
+python -m pip install -e ./scpf
+python -m unittest discover -s scpf/tests -v
+python -m scpf examples/sample-plate/scpf/model.py --out output/sample-plate.json
+solidcraft-cli run output/sample-plate.json --param-check strict --save output/sample-plate.sc --out output/sample-plate.step
 ```
-
-## Current scope
-
-- centered box
-- typed lengths
-- outside vertical-edge fillet
-- semantic top-face selection
-- workplane
-- circular through-holes
-- SolidCraft script transport
-
-## Qualification
-
-| Case | Requirement |
-|---|---|
-| API-01 | CAD types remain independent from SolidCraft JSON |
-| API-02 | CAD features expand into the expected native command sequence |
-| API-03 | units and invalid dimensions are checked |
-| API-04 | top-face workplane works in SolidCraft 0.30.1 |
-| API-05 | exported geometry has intended dimensions, holes and fillets |
-| API-06 | native `.sc` history remains editable after save/reopen |
-| API-07 | runtime failures identify the failing native command |
-| API-08 | same CAD domain can later use GUI or MCP transport |
-
-Do not implement a second geometry engine or claim general topology selection before runtime qualification.
-
-## Generated model evidence
-
-The source branch keeps the example scripts and reviewed SolidCraft command
-fixtures. Generated binary geometry is not committed alongside source.
-
-After **all five** implementations have qualified for each comparison example,
-publish the results together to a separate orphan branch named
-`generated-examples`. Do not create or update that branch from an incomplete
-or failing comparison run. Do not use a branch named `output`.
-
-Expected directory layout:
-
-```text
-generated-examples (orphan branch)
-├── plate/
-│   ├── scrf/
-│   ├── cadquery/
-│   ├── microcad/
-│   ├── vcad/
-│   └── pythonscad/
-└── csg-cube/
-    ├── scrf/
-    ├── cadquery/
-    ├── microcad/
-    ├── vcad/
-    └── pythonscad/
-```
-
-Each implementation directory retains generated geometry in its actually
-supported format (STEP, STL, and native `.sc` where available), a preview
-when rendering succeeds, measurements and relevant diagnostics. Do not invent
-STEP files for mesh-only results. In particular, vcad's CSG cube currently
-falls back to a mesh after some boolean operations; the geometry and the
-loss of BRep must both be recorded, not silently treated as a STEP success.
-
-GitHub Pages can then present these same results for visual inspection.
-The page must make unavailable previews and missing formats explicit.
-Workflow artifacts remain useful as temporary evidence before publication.
