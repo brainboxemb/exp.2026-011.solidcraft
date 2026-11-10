@@ -7,7 +7,7 @@ on:
     paths:
       - "scpf/**"
       - "examples/**/scpf/**"
-      - "examples/**/scrf/solidcraft.json"
+      - "examples/**/scpf/reference.json"
       - "scripts/ci/build-results.py"
       - "scripts/ci/test-results.py"
       - "site/**"
