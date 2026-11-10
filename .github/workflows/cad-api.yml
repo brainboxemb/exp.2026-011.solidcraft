@@ -6,6 +6,9 @@ on:
       - main
       - 'feature/issue-1-python-interface'
       - 'feature/scpf-python'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch: {}
 
 permissions:
@@ -38,7 +41,9 @@ jobs:
         run: |
           set -euo pipefail
           jq empty output/examples/csg-cube/solidcraftforge/solidcraft.json
-          jq -e -s '.[0] == .[1]'             examples/csg-cube/solidcraftforge/solidcraft.json             output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            examples/csg-cube/solidcraftforge/solidcraft.json \
+            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
 
       - uses: actions/setup-python@v5
         with:
