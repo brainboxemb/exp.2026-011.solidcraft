@@ -276,7 +276,8 @@ plate - holes
 `attach(target, parent=Anchor.TOP, child=Anchor.BOTTOM)` connects two
 explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
 Currently supported: Box or Rectangle2D extrusion bases; `Anchor.CENTER`,
-`Anchor.TOP`, `Anchor.BOTTOM`; and XY linear patterns of cylinders.
+`Anchor.TOP`, `Anchor.BOTTOM`; `Anchor.INNER_BOTTOM` for the inner floor
+of a shelled rectangular body; and XY linear patterns of cylinders.
 
 For `Anchor.TOP` and `Anchor.BOTTOM`, the native adapter now emits
 `references` with two perpendicular straight edge picks and parametric
