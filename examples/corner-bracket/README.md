@@ -4,7 +4,9 @@ SCPF port of the production OpenSCAD corner bracket in
 `brainboxemb/2026-011-01.cad.model-archive`,
 `models/corner_bracket/v0.1/scad/corner_bracket.scad`.
 
-Reference commit: `bcb31e89cd6a0d185a99222d958e0dbe2b7b7a63`.
+Reference commit: [`bcb31e89cd6a0d185a99222d958e0dbe2b7b7a63`](https://github.com/brainboxemb/2026-011-01.cad.model-archive/blob/bcb31e89cd6a0d185a99222d958e0dbe2b7b7a63/models/corner_bracket/v0.1/scad/corner_bracket.scad).
+
+**Native verification:** [SolidCraft 0.30.1 CI run #42907550659](https://github.com/brainboxemb/exp.2026-011.solidcraft/actions/runs/42907550659) passed. The native body is closed, has the expected 72 × 24 × 72 mm envelope, and rebuilds after changing `horizontal_arm_length` from 60 to 70 mm. The feature history contains 1 sketch, 1 extrusion, 1 fillet, 2 chamfers and 16 hole cuts. A screenshot is available under [PR #19 preview](https://brainboxemb.github.io/exp.2026-011.solidcraft/previews/pr-19/models/corner-bracket/) when the preview publishing job succeeds.
 
 This is deliberately a **design port**, not a line-for-line translation of
 OpenSCAD helper geometry.
@@ -92,6 +94,14 @@ simply.
 ## Countersunk holes
 
 The source has a 1 mm recessed DIN 7991 head, not a flush countersink.
+
+**Native SolidCraft 0.30.1 workaround.** On a side-facing `+X` hole, cutting
+the shallow counterbore **before** the countersink caused a native Boolean
+failure. CI isolated the fault: both standalone cuts work, but their original
+sequence does not. For this orientation, SCPF now cuts the countersink
+first and the shallow head recess second. Both are subtractive operations,
+so the intended final volume is unchanged. A regression test covers this.
+The horizontal-arm `-Z` holes continue to use the intuitive recess-first order.
 
 For each main hole SCPF therefore keeps one semantic `Hole(...)`, while the
 compiler lowers the recessed countersink to two native Hole features:
