@@ -72,8 +72,23 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     _require_positive(diameter, "hole diameter")
     (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
     base_top = _combine(origin_z, thickness)
-    entry_z = resolved[0][1][2]
-    on_base_top = abs(value_of(entry_z) - value_of(base_top)) < 1e-9
+    entry_z = base_top
+    on_base_top = True
+
+    # If the current body ends in a centered Cylinder attached to its top,
+    # the next Hole starts on that boss top. Keep the symbolic height so the
+    # generated Bore sketch remains parametrically tied to the base thickness.
+    if target.kind == "union":
+        previous, attached = target.data
+        if attached.kind == "anchored":
+            boss, boss_parent, boss_parent_anchor, boss_child_anchor, boss_offset = attached.data
+            if (boss.kind == "cylinder" and boss_parent == previous
+                    and boss_parent_anchor is Anchor.TOP
+                    and boss_child_anchor is Anchor.BOTTOM
+                    and all(value_of(v) == 0 for v in boss_offset)):
+                boss_height, _ = boss.data
+                entry_z = _combine(base_top, boss_height)
+                on_base_top = False
 
     if depth is Depth.THROUGH_ALL:
         if on_base_top:
