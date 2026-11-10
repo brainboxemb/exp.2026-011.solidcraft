@@ -411,6 +411,17 @@ class SCPFExamples(unittest.TestCase):
         with self.assertRaises(ValueError):
             Box(80, 50, 30).shell(2, open=Faces.TOP).move(x=10)
 
+    def test_inner_bottom_anchor_requires_shell(self):
+        from scpf.compiler import compile_model, ModelError
+        from scpf.core import Anchor, Boss, Box
+        body = Box(80, 50, 30)
+        boss = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+        )
+        with self.assertRaises(ModelError):
+            compile_model(body + boss, "Enclosure")
+
     def test_plastic_enclosure_compiles_to_sketch_base_and_native_plastic_features(self):
         commands = run_script(
             ROOT / "examples/plastic-enclosure/scpf/model.py"
