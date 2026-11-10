@@ -361,6 +361,39 @@ jobs:
           python scripts/ci/test-results.py output/site "$GITHUB_SHA"
           test -s output/site/models/bracket/native.png
           test -s output/site/models/sample-plate/native.png
+      - name: Find PR number for native preview
+        if: success() && github.event_name == 'pull_request'
+        id: preview_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+      - name: Check out existing Pages without replacing the main site
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published-native-preview
+          persist-credentials: true
+      - name: Publish native-verified PR snapshot only
+        if: success() && github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ steps.preview_pr.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="published-native-preview/previews/pr-${PR_NUMBER}"
+          mkdir -p "$dest"
+          rsync -a --delete --exclude .git output/site/ "$dest/"
+          git -C published-native-preview config user.name "github-actions[bot]"
+          git -C published-native-preview config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C published-native-preview add -A "previews/pr-${PR_NUMBER}"
+          if ! git -C published-native-preview diff --cached --quiet; then
+            git -C published-native-preview commit -m "Verified CAD preview PR #${PR_NUMBER} at ${GITHUB_SHA}"
+            git -C published-native-preview push origin HEAD:gh-pages
+          fi
+          echo "Native-verified preview: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/previews/pr-${PR_NUMBER}/" >> "$GITHUB_STEP_SUMMARY"
       - name: Publish verified results website from main only
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
