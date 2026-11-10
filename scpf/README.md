@@ -260,3 +260,25 @@ save/reopen/parameter-edit qualification is required.
 feature, distinct from a cutting Cylinder. Use it with `on()` and subtract
 it from the parent. `Fillet` remains a modifier method on solids.
 More general attachments remain tracked in issue #5.
+
+## Sketches versus direct features
+
+SCPF currently handles sketches **implicitly**. `Rectangle2D(...).extrude(...)`
+compiles to native `sketch.create`, rectangle curves, `sketch.finish`,
+and `solid.extrude`. Likewise, `Circle2D` profiles in an extruded
+cut create a native sketch and subtractive extrusion. Those sketches
+are preserved in SolidCraft's feature history, where they can be edited.
+
+By contrast, `Hole(...).on(plate, Anchor.TOP)` is a **direct native Hole
+feature** and emits `solid.hole` with two edge references; it does not
+require a sketch. This is useful for one or a few holes positioned by
+reference edges. The `pattern(count=2, spacing=..., axis=...)` form
+currently expands to two individual native Hole features, **not** to one
+constraint-driven point sketch or one native pattern feature.
+
+A named, reusable SCPF `Sketch` object with construction lines,
+constraints, point layouts, and workplanes attached to faces is planned
+in [issue #9](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/9).
+For now, do **not** interpret `Circle2D` as a fully constrained sketch.
+This deliberate distinction keeps the current anchor work separate from
+a larger sketch/solver abstraction.
