@@ -21,8 +21,8 @@ def _require_positive(value, label):
     return num
 
 
-def _command(name, **params):
-    return {"command": name, "params": params}
+def _command(command_name, **params):
+    return {"command": command_name, "params": params}
 
 
 def _param_commands(params):
