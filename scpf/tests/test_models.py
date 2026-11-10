@@ -638,6 +638,103 @@ class SCPFExamples(unittest.TestCase):
             ],
         )
 
+    def test_symmetric_polygon_keeps_symbolic_coordinates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Profile:\n"
+                "    length = 60.0\n"
+                "    wall = 12.0\n"
+                "    width = 24.0\n"
+                "    def build(self):\n"
+                "        Polygon2D([(0, 0), (self.length, 0), "
+                "(self.length, self.wall), (0, self.wall)], plane='XZ')" 
+                ".extrude(self.width, direction=Direction.SYMMETRIC)\n"
+                "Profile()\n"
+            )
+            commands = run_script(file)["commands"]
+
+        line = next(c for c in commands if c["command"] == "sketch.line")
+        extrude = next(c for c in commands if c["command"] == "solid.extrude")
+        self.assertEqual(line["params"]["points"][1][0], "length")
+        self.assertEqual(line["params"]["points"][2], ["length", "wall"])
+        self.assertEqual(extrude["params"]["distance"], "width")
+        self.assertEqual(extrude["params"]["direction"], "symmetric")
+
+    def test_recessed_countersink_preserves_the_recess_floor(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Hole
+
+        body = Box(40, 30, 12)
+        hole = Hole(
+            d=5.4,
+            countersink_d=10.4,
+            countersink_angle=90,
+            countersink_recess=1.0,
+            direction=(0, 0, -1),
+        ).at(10, 0, 12)
+        commands = compile_model(body + hole, "Part")["commands"]
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+
+        self.assertEqual(len(holes), 2)
+        self.assertEqual(holes[0]["params"]["diameter"], 10.4)
+        self.assertEqual(holes[0]["params"]["depth"], 1.0)
+        self.assertEqual(holes[0]["params"]["position"], [10, 0, 12])
+        self.assertEqual(holes[1]["params"]["type"], "countersink")
+        self.assertEqual(holes[1]["params"]["diameter"], 5.4)
+        self.assertEqual(holes[1]["params"]["cs_diameter"], 10.4)
+        self.assertEqual(holes[1]["params"]["cs_angle"], 90)
+        self.assertEqual(holes[1]["params"]["position"], [10.0, 0.0, 11.0])
+
+    def test_production_corner_bracket_compiles_to_native_feature_history(self):
+        commands = run_script(
+            ROOT / "examples/corner-bracket/scpf/model.py"
+        )["commands"]
+        feature_commands = [
+            c for c in commands if c["command"] != "parameters.add"
+        ]
+
+        self.assertEqual(
+            [c["command"] for c in feature_commands[:7]],
+            [
+                "sketch.create",
+                "sketch.line",
+                "sketch.finish",
+                "solid.extrude",
+                "solid.fillet",
+                "solid.chamfer",
+                "solid.chamfer",
+            ],
+        )
+        self.assertEqual(
+            feature_commands[3]["params"]["direction"],
+            "symmetric",
+        )
+        self.assertEqual(
+            feature_commands[3]["params"]["distance"],
+            "bracket_width",
+        )
+        self.assertEqual(
+            feature_commands[4]["params"]["radius"],
+            "inside_corner_radius",
+        )
+        self.assertEqual(
+            [c["params"]["distance"] for c in feature_commands[5:7]],
+            ["side_edge_chamfer", "elephant_foot_relief"],
+        )
+
+        holes = [
+            c for c in feature_commands if c["command"] == "solid.hole"
+        ]
+        self.assertEqual(len(holes), 16)
+        countersinks = [
+            c for c in holes if c["params"].get("type") == "countersink"
+        ]
+        self.assertEqual(len(countersinks), 4)
+        self.assertTrue(all(
+            c["params"]["cs_angle"] == 90 for c in countersinks
+        ))
+
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
         from scpf.core import Circle2D
