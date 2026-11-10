@@ -9,7 +9,7 @@ from .compiler import ModelError, _command, _collect, _param_commands, _require_
 def _has_profile(shape):
     if shape.kind == "polygon":
         return True
-    if shape.kind in ("fillet", "extrusion", "holes", "union"):
+    if shape.kind in ("fillet", "extrusion", "union"):
         return _has_profile(shape.data[0])
     return False
 
@@ -17,8 +17,8 @@ def _has_profile(shape):
 def compile_polygon_features(shape, name):
     """Compile a polygon extrusion and its ordered CAD modifiers.
 
-    Only one closed planar polygon, one extrusion, optional explicit edge
-    fillet and an XY circle sketch are supported here. Coordinates are
+    One closed planar polygon, one extrusion, optional edge fillet and
+    zero or more native Hole features are supported. Coordinates are
     evaluated at the supplied parameter defaults; general parametric sketch
     constraints are intentionally not claimed.
     """
@@ -32,11 +32,6 @@ def compile_polygon_features(shape, name):
         native_holes.append((primitive, x, y, z))
         shape = base
     native_holes.reverse()
-
-    holes = None
-    if shape.kind == "holes":
-        shape, positions, diameter, depth, plane = shape.data
-        holes = (positions, diameter, depth, plane)
 
     fillet = None
     if shape.kind == "fillet":
@@ -91,39 +86,6 @@ def compile_polygon_features(shape, name):
         steps.append(_command("solid.fillet", edges=locations,
                               radius=value_of(radius)))
 
-    if holes is not None:
-        positions, diameter, depth, plane = holes
-        _require_positive(diameter, "hole diameter")
-        _require_positive(depth, "hole cut depth")
-        if plane != "XY":
-            raise ModelError("only XY hole sketches are supported")
-        steps.append(_command("sketch.create", plane=plane, name="Holes"))
-        for point in positions:
-            coords = [value_of(x) for x in point]
-            if not all(isfinite(x) for x in coords):
-                raise ModelError("non-finite hole centre")
-            steps.append(_command("sketch.circle.center",
-                                  center=coords, diameter=value_of(diameter)))
-        # SolidCraft's XZ sketch coordinate v maps to NEGATIVE world Z.
-        # The source Bracket profile uses local v=0..30 and therefore has
-        # world Z=-30..0. An XY sketch at world Z=0 must cut towards -Z.
-        # Do not infer the direction directly from unsigned sketch values.
-        if sketch_plane != "XZ":
-            raise ModelError("automatic XY hole direction requires XZ profile")
-        local_vertical = [point[1] for point in concrete_points]
-        world_z = [-v for v in local_vertical]
-        low, high = min(world_z), max(world_z)
-        if high <= 0 and low < 0:
-            hole_direction = "negative"
-        elif low >= 0 and high > 0:
-            hole_direction = "positive"
-        else:
-            raise ModelError("XY sketch crosses solid on both sides; choose a face-based cutter")
-        steps.extend([
-            _command("sketch.finish"),
-            _command("solid.extrude", distance=command_value(depth),
-                     direction=hole_direction, operation="cut"),
-        ])
     for feature, x, y, z in native_holes:
         diameter, hole_depth = feature.data
         _require_positive(diameter, "hole diameter")
