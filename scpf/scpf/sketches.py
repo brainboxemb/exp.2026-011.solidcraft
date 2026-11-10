@@ -63,8 +63,8 @@ def compile_base(shape, name):
     if shape.kind != "extrusion":
         raise ModelError(f"Expected a solid base, got {shape.kind}")
     profile, distance, direction = shape.data
-    if direction not in ("positive", "negative"):
-        raise ModelError("extrusion direction must be positive or negative")
+    if direction not in ("positive", "negative", "symmetric"):
+        raise ModelError("extrusion direction must be positive, negative or symmetric")
     _require_positive(distance, "extrusion distance")
 
     if profile.kind in ("rectangle", "positioned"):
@@ -98,10 +98,14 @@ def compile_base(shape, name):
             raise ModelError("duplicate polygon vertices")
         if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
             raise ModelError("zero-length polygon edge")
+        symbolic = [
+            [command_value(v) for v in point]
+            for point in points
+        ]
         return [
             _command("sketch.create", plane=plane, name="Profile"),
             _command("sketch.line",
-                     points=[list(p) for p in concrete], closed=True,
+                     points=symbolic, closed=True,
                      ids=[chr(ord("a") + i) for i in range(len(points))]),
             _command("sketch.finish"),
             _command("solid.extrude", distance=command_value(distance),
