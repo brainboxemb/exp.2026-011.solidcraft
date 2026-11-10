@@ -50,6 +50,11 @@ jobs:
           python -m unittest discover -s scpf/tests -v
           python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate-scpf.json
           python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube-scpf.json
+          python -m scpf examples/bracket/scpf/model.py --out output/native/command-plans/bracket-scpf.json
+          jq -e --slurpfile original examples/bracket/source/bracket.json '
+            (.commands | length) == ($original[0].commands | length)
+            and (.commands[2:] == $original[0].commands[2:])
+          ' output/native/command-plans/bracket-scpf.json
           jq -e -s '.[0] == .[1]' \
             output/native/command-plans/plate.json \
             output/native/command-plans/plate-scpf.json >/dev/null
@@ -213,6 +218,42 @@ jobs:
           test -s output/native/csg-cube/model.sc
           test -s output/native/csg-cube/model.step
           cat output/native/csg-cube/measurements.json
+      - name: Evaluate Bracket with native SolidCraft and inspect BRep
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/bracket
+          solidcraft-cli run output/native/command-plans/bracket-scpf.json \
+            --param-check strict \
+            --results \
+            --json-out output/native/bracket/results.json \
+            --save output/native/bracket/model.sc \
+            --out output/native/bracket/model.step
+          solidcraft-cli eval output/native/bracket/model.sc \
+            --json-out output/native/bracket/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "Bracket"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min[0] > -0.0001
+            and .bodies[0].bbox.max[0] < 40.0001
+            and .bodies[0].bbox.min[1] < -59.9999
+            and .bodies[0].bbox.max[1] > -0.0001
+            and .bodies[0].bbox.min[2] < -29.9999
+            and .bodies[0].bbox.max[2] > -0.0001
+            and (.timeline | all(.error == null))
+          ' output/native/bracket/measurements.json
+          test -s output/native/bracket/model.sc
+          test -s output/native/bracket/model.step
+          cat output/native/bracket/measurements.json
+      - name: Render native Bracket reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          solidcraft-cli snapshot output/native/bracket/model.sc \
+            --out output/native/bracket/model.png \
+            --no-grid --no-axes
+          test -s output/native/bracket/model.png
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
