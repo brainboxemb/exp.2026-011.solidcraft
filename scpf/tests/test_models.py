@@ -172,7 +172,7 @@ class SCPFExamples(unittest.TestCase):
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=40, axis=Axis.Y
         ).on(plate, Anchor.TOP)
-        native = compile_model(plate - holes, "Plate")["commands"]
+        native = compile_model(plate + holes, "Plate")["commands"]
         features = [x["params"] for x in native if x["command"] == "solid.hole"]
         self.assertEqual(len(features), 2)
         self.assertEqual([x["position"] for x in features],
@@ -181,12 +181,14 @@ class SCPFExamples(unittest.TestCase):
         self.assertTrue(all("depth" in x["references"][1]["distance"] for x in features))
         self.assertTrue(all("depth" not in x for x in features))
 
-    def test_hole_requires_exterior_face_and_subtractive_operation(self):
+    def test_hole_requires_exterior_face(self):
         from scpf.core import Hole, Anchor, Rectangle2D
         from scpf.compiler import compile_model, ModelError
         plate = Rectangle2D(80, 50).extrude(8)
-        with self.assertRaises(ModelError):
-            compile_model(plate + Hole(d=8).on(plate, Anchor.TOP), "Plate")
+        commands = compile_model(plate + Hole(d=8).on(plate, Anchor.TOP), "Plate")["commands"]
+        self.assertEqual(commands[-1]["command"], "solid.hole")
+        legacy = compile_model(plate - Hole(d=8).on(plate, Anchor.TOP), "Plate")["commands"]
+        self.assertEqual(legacy[-1]["command"], "solid.hole")
         with self.assertRaises(ModelError):
             compile_model(plate - Hole(d=8).on(plate, Anchor.CENTER), "Plate")
         with self.assertRaises(ValueError):
