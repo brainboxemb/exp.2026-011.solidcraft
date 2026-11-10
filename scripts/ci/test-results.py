@@ -42,7 +42,10 @@ def check(site, commit):
         assert "Native SolidCraft command sequence" in page
         assert "Construction stages" in page
         assert "Native SolidCraft image" not in page or (model / "native.png").is_file()
-        assert "Schematic drawing only" not in page or "not a native CAD render" in page
+        assert "Schematic drawing only" not in page or "not a SolidCraft geometry render" in page
+        if "Previously verified render from main" in page:
+            assert (model / "native.png").is_file()
+            assert "not yet native-verified" in page
         parser = Parser()
         parser.feed(page)
         for href in parser.links:

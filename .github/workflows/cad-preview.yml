@@ -28,6 +28,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Check out published site for reference screenshots
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: true
       - name: Compile SCPF and build lightweight preview
         env:
           PYTHONPATH: scpf
@@ -40,6 +46,7 @@ jobs:
           done
           python scripts/ci/build-results.py \
             --generated output/examples \
+            --previous-site published \
             --commit "$GITHUB_SHA" \
             --out output/site
           python scripts/ci/test-results.py output/site "$GITHUB_SHA"
@@ -58,12 +65,6 @@ jobs:
             exit 1
           fi
           echo "number=$number" >> "$GITHUB_OUTPUT"
-      - name: Check out existing Pages branch without deleting its contents
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          path: published
-          persist-credentials: true
       - name: Update only the requested preview subtree
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}

@@ -134,7 +134,7 @@ def copy_if_exists(source, target):
         shutil.copy2(source, target)
 
 
-def build(out, commit, native_root=None, generated_root=None):
+def build(out, commit, native_root=None, generated_root=None, previous_site=None):
     out.mkdir(parents=True, exist_ok=True)
     copy_if_exists(ROOT / "site/results.css", out / "results.css")
     cards = []
@@ -153,13 +153,24 @@ def build(out, commit, native_root=None, generated_root=None):
             copy_if_exists(ROOT / "examples" / slug / "scrf" / "model.rs", work / "model.rs")
         screenshot = screenshot_info(native_root, commit, slug)
         has_native = screenshot is not None
+        # A lightweight preview may reuse a published render as an illustration,
+        # but MUST NOT report that older render as verified for this PR revision.
+        previously_verified = None
+        if not has_native and previous_site is not None and slug != "sample-plate":
+            prior = previous_site / "models" / slug / "native.png"
+            if prior.is_file() and prior.stat().st_size:
+                previously_verified = prior
+        preview_image = screenshot or previously_verified
+        if preview_image is not None:
+            copy_if_exists(preview_image, work / "native.png")
         if has_native:
-            copy_if_exists(screenshot, work / "native.png")
             verified_count += 1
-        photo = ('<img src="native.png" alt="SolidCraft native model render">' if has_native
+        photo = ('<img src="native.png" alt="SolidCraft CAD render">' if preview_image
                  else diagram(slug))
         status = ("Native verified · snapshot from matching run" if has_native
-                  else "Generated command plan · native render not verified for this commit")
+                  else "Previously verified render from main · not verified for this PR"
+                  if previously_verified else
+                  "Generated command plan · native render not verified for this commit")
         badge = "verified" if has_native else "pending"
         stage_summary = "".join(f"<li>{esc(s)}</li>" for s in info["stages"])
         script = esc(source.read_text(encoding="utf-8"))
@@ -168,7 +179,7 @@ def build(out, commit, native_root=None, generated_root=None):
 <main class="wrap"><div class="metadata"><span class="badge {badge}">{esc(status)}</span>
 <span class="badge">{len(commands)} commands</span><span class="badge">{esc(info["parameters"])}</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture">{photo}</div>
-<p class="small muted">{"Native SolidCraft image, matching this source revision." if has_native else "Schematic drawing only; it is not a SolidCraft geometry render."}</p>
+<p class="small muted">{"Native SolidCraft image, matching this source revision." if has_native else "Previously verified SolidCraft render from main; this PR revision is not yet native-verified." if previously_verified else "Schematic drawing only; it is not a SolidCraft geometry render."}</p>
 <p>{esc(info["description"])}</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
@@ -185,8 +196,8 @@ Native qualification is reported only when the matching verified image exists.</
             layout(info["title"], view, "../../results.css", "../../"),
             encoding="utf-8",
         )
-        cards.append(f"""<article class="card"><div class="picture">{f'<img src="models/{slug}/native.png" alt="Native SolidCraft preview">' if has_native else diagram(slug)}</div>
-<div class="inside"><span class="badge {badge}">{'Native verified' if has_native else 'Command plan available'}</span>
+        cards.append(f"""<article class="card"><div class="picture">{f'<img src="models/{slug}/native.png" alt="SolidCraft model render">' if preview_image else diagram(slug)}</div>
+<div class="inside"><span class="badge {badge}">{'Native verified' if has_native else 'Render from main' if previously_verified else 'Command plan available'}</span>
 <h3><a href="models/{slug}/">{esc(info["title"])}</a></h3><p>{esc(info["tagline"])}</p>
 <p class="small muted">{esc(info["parameters"])}</p>
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
@@ -194,7 +205,7 @@ Native qualification is reported only when the matching verified image exists.</
 <h1>CAD models, from readable code to native geometry</h1>
 <p>Explore four small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
-<p>Each model has its Python source, generated command JSON and a readable operation timeline. A rendered preview is shown only after a matching native SolidCraft run.</p>
+<p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
 <div class="grid">{''.join(cards)}</div><h2>How it works</h2>
 <div class="two"><section class="panel"><h3>1 · Write the model</h3><p>Use a Python dataclass and a <code>build()</code> method, without a mandatory <code>show()</code> or explicit <code>return</code>.</p>
@@ -295,10 +306,12 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--native", type=Path)
+    parser.add_argument("--previous-site", type=Path,
+                        help="Published main site renders for non-verified previews")
     parser.add_argument("--generated", type=Path,
                         help="Root of freshly compiled output/examples")
     args = parser.parse_args()
-    build(args.out, args.commit, args.native, args.generated)
+    build(args.out, args.commit, args.native, args.generated, args.previous_site)
 
 
 if __name__ == "__main__":
