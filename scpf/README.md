@@ -9,37 +9,40 @@ The objective is a compact model language with useful CSG and CAD features:
 readability first, fewer nested operations than OpenSCAD, while preserving
 native SolidCraft feature history when possible.
 
-## Two models
+## Model objects
 
-`examples/csg-cube/scpf/model.py`:
-
-```python
-def CsgCube(size=50.0):
-    body = Sphere(size / 1.5) & Cube(size)
-    holes = Cylinder(size, size / 1.5).orient(X, Y, Z)
-    return body - holes
-
-CsgCube()
-```
-
-`examples/plate/scpf/model.py`:
+The preferred SCPF style is a reusable Python dataclass. Numeric fields
+are CAD parameters, and `build()` constructs the model. The last Shape
+expression in `build()` is the result: no `return`, `show()` or `main()`.
 
 ```python
-def Plate(length=100.0, width=60.0, thickness=10.0):
-    body = Box(length, width, thickness).fillet(2.0, edges="vertical")
-    holes = Cylinder(thickness, 8.0).pattern(x=70.0, y=30.0)
-    return body - holes
+@dataclass
+class Plate:
+    length: float = 100
+    width: float = 60
+    thickness: float = 10
+
+    def build(self):
+        body = Box(self.length, self.width, self.thickness).fillet(2)
+        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        body - holes
 
 Plate()
 ```
 
-The four hole centres are (±35, ±15) mm; the pattern values specify
-**centre-to-centre spacing**. The top face's four holes are compiled as a
-native SolidCraft sketch plus a subtractive extrusion, not a mesh.
+SCPF makes `dataclass` available without an import. It constructs the
+Python object normally (including `__post_init__` validation), promotes
+numeric model fields to SolidCraft parameters, and calls `build()`.
+`@dataclass(frozen=True)` is also supported. The last-expression behavior
+is an SCPF convention, not normal Python behavior.
 
-No `import`, `self`, `main()`, `show()`, `Result`, `?`,
-`#[cad]` or `#[parameter]` is required in model files. A SCPF model function may finish with a bare Shape expression instead of Python's `return` (the runner rewrites the final expression to an implicit return). This is an SCPF convention, not standard Python semantics.
+Three CAD examples:
+- [Plate](../examples/plate/scpf/model.py): rounded box with holes.
+- [CsgCube](../examples/csg-cube/scpf/model.py): intersect and cut solids.
+- [Bracket](../examples/bracket/scpf/model.py): polygon extrusion, fillet and holes.
 
+Older function models with an implicit final Shape expression remain
+supported. Ordinary helpers still use standard Python semantics.
 ## Positioning
 
 CSG primitives and complete CSG combinations can be repositioned in mm:
@@ -59,8 +62,8 @@ feature-based Plate bodies is deliberately rejected.
 
 ## Parameters
 
-The runner reads the final model function's Python signature using
-`inspect.signature`. Numerical arguments become named CAD parameters,
+The runner reads the final model class constructor signature using
+`inspect.signature`. Numerical fields become named CAD parameters,
 including arguments explicitly overridden by the final call:
 
 ```python
