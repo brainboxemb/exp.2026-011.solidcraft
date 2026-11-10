@@ -5,7 +5,7 @@ additional extruded Circle sketches can be joined (+) or cut (-).
 This module recognizes CAD operations, never example names such as Boss
 or Bore. SolidCraft is the only BRep engine.
 """
-from .core import Parameter, Shape, Edges, command_value, value_of
+from .core import Parameter, Shape, Edges, Anchor, command_value, value_of
 
 
 def _circle_profiles(shape, dx=0, dy=0, z=0):
@@ -92,6 +92,62 @@ def _to_commands(shape, body_name):
     if shape.kind in ("union", "difference"):
         original, cutter = shape.data
         steps, base = _to_commands(original, body_name)
+        # Attached cylinders are *feature intent*: their sketches are created
+        # by the adapter, not by the user-facing script. Resolve XY to the
+        # centre of the base and Z from the requested face anchors.
+        if cutter.kind == "attached":
+            primitive, attached_to, parent_anchor, child_anchor = cutter.data
+            if attached_to != original:
+                raise ModelError("cylinder must attach to the body being modified")
+            height, diameter = primitive.data
+            h = _require_positive(height, "cylinder height")
+            _require_positive(diameter, "cylinder diameter")
+            x0, y0, z0 = (value_of(v) for v in base["origin"])
+            w, d, t = (value_of(base[k]) for k in ("width", "depth", "thickness"))
+            # Keep XY positioning parametric when the base dimensions change.
+            x = command_value(base["width"] / 2) if isinstance(base["width"], Parameter) else x0 + w / 2
+            y = command_value(base["depth"] / 2) if isinstance(base["depth"], Parameter) else y0 + d / 2
+            if isinstance(base["width"], Parameter) and x0:
+                x = f"({x}) + {x0:g}"
+            if isinstance(base["depth"], Parameter) and y0:
+                y = f"({y}) + {y0:g}"
+            bottom = z0
+            top = base.get("top", z0 + t)
+            parent_z = top if parent_anchor is Anchor.TOP else bottom
+            # Cylinder geometry is defined from its bottom towards +Z.
+            cylinder_bottom = parent_z - (h if child_anchor is Anchor.TOP else 0)
+            cylinder_top = cylinder_bottom + h
+            # Match the native SolidCraft sketch/extrusion sequence: a boss
+            # extrudes upward from its bottom; a bore cuts downward from top.
+            join = shape.kind == "union"
+            sketch_z = cylinder_bottom if join else cylinder_top
+            direction = "positive" if join else "negative"
+            if not join and cylinder_bottom > bottom + 1e-8:
+                raise ModelError("attached cutter does not pass through the plate")
+            name = "Boss" if join else ("Bore" if any(
+                s["command"] == "sketch.create" and s["params"].get("name") == "Boss"
+                for s in steps) else "Holes")
+            plane = {"plane": "XY", "name": name}
+            if abs(sketch_z) > 1e-8:
+                # For the source sample plate, the bore's top offset is its
+                # height expression, so preserve that parametric expression.
+                if not join and child_anchor is Anchor.BOTTOM and parent_anchor is Anchor.BOTTOM:
+                    plane["offset"] = command_value(height)
+                elif join and parent_anchor is Anchor.TOP and child_anchor is Anchor.BOTTOM:
+                    plane["offset"] = command_value(base["thickness"])
+                else:
+                    plane["offset"] = sketch_z
+            steps.extend([
+                _command("sketch.create", **plane),
+                _command("sketch.circle.center", center=[x, y], diameter=command_value(diameter)),
+                _command("sketch.finish"),
+                _command("solid.extrude", distance=command_value(height),
+                         direction=direction, operation="join" if join else "cut",
+                         targets=[body_name]),
+            ])
+            if join:
+                base["top"] = max(top, cylinder_top)
+            return steps, base
         # A native 3D cylinder does not require a 2D sketch or extrusion.
         if cutter.kind in ("cylinder3d", "placed3d"):
             if cutter.kind == "placed3d":
