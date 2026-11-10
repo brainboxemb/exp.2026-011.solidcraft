@@ -266,8 +266,10 @@ changes: only a simple rectangular XY base is supported, and native
 save/reopen/parameter-edit qualification is required.
 
 `Hole(d=8, depth=Depth.THROUGH_ALL)` describes a native `solid.hole`
-feature, distinct from a cutting Cylinder. Use it with `on()` and subtract
-it from the parent. `Fillet` remains a modifier method on solids.
+feature, distinct from a cutting Cylinder. Use it with `on()` and add
+it to the parent as `plate + hole`. The plus adds a CAD feature, not material:
+the native `solid.hole` operation removes material. Older `plate - hole`
+scripts remain supported for compatibility. `Fillet` remains a modifier method on solids.
 More general attachments remain tracked in issue #5.
 
 ## Sketches versus direct features
