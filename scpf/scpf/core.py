@@ -111,7 +111,7 @@ class Expression:
     def __sub__(self, other):
         if isinstance(other, (int, float)):
             return Expression(self.value - other,
-                              f"{self.name} - {number_text(other)} mm", (self,))
+                              f"({self.expression}) - {number_text(other)} mm", self.parameters)
         return NotImplemented
 
     def __neg__(self):
