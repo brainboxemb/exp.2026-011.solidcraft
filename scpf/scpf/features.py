@@ -5,6 +5,7 @@ is compiled from its operation, not from a named example such as Plate.
 """
 from math import isfinite
 from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, value_of, command_value
+from .history import History
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
 from .placement import _anchored_features, _base_rectangle, _combine
 from .sketches import compile_base, _circle_profiles
@@ -257,6 +258,65 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     return operations
 
 
+def _sketch_boss_commands(feature, position, name, *, feature_name=None):
+    """Experimental sketch-based lowering for a semantic Boss object."""
+    diameter, height, hole_diameter, direction = feature.data
+    _require_positive(diameter, "boss diameter")
+    _require_positive(height, "boss height")
+    if direction is not None and [value_of(v) for v in direction] != [0, 0, 1]:
+        raise ModelError("sketch-based Boss prototype currently supports +Z only")
+
+    x, y, z = position
+    label = feature_name or "Boss"
+    plane = dict(plane="XY", name=label)
+    if value_of(z):
+        plane["offset"] = command_value(z)
+
+    commands = [
+        _command("sketch.create", **plane),
+        _command(
+            "sketch.circle.center",
+            center=[command_value(x), command_value(y)],
+            diameter=command_value(diameter),
+        ),
+        _command("sketch.finish"),
+        _command(
+            "solid.extrude",
+            distance=command_value(height),
+            direction="positive",
+            operation="join",
+            targets=[name],
+            name=label,
+        ),
+    ]
+
+    if hole_diameter is not None:
+        _require_positive(hole_diameter, "boss hole diameter")
+        top = _combine(z, height)
+        hole_label = f"{label} hole"
+        hole_plane = dict(plane="XY", name=hole_label)
+        if value_of(top):
+            hole_plane["offset"] = command_value(top)
+        commands.extend([
+            _command("sketch.create", **hole_plane),
+            _command(
+                "sketch.circle.center",
+                center=[command_value(x), command_value(y)],
+                diameter=command_value(hole_diameter),
+            ),
+            _command("sketch.finish"),
+            _command(
+                "solid.extrude",
+                distance=command_value(height),
+                direction="negative",
+                operation="cut",
+                targets=[name],
+                name=hole_label,
+            ),
+        ])
+    return commands
+
+
 def _attached_commands(shape, original, feature, name, *, feature_name=None):
     child, target, parent_anchor, child_anchor, offset = feature.data
     if target != original:
@@ -273,6 +333,21 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
     if attached_primitive.kind in ("lip", "snap_fit", "boss", "rest"):
         if shape.kind != "union":
             raise ModelError("plastic features are added with +")
+        if (
+            attached_primitive.kind == "boss"
+            and attached_primitive.history is History.SKETCH
+        ):
+            operations = []
+            for primitive, position, _refs in resolved:
+                operations.extend(
+                    _sketch_boss_commands(
+                        primitive,
+                        position,
+                        name,
+                        feature_name=feature_name,
+                    )
+                )
+            return operations
         return [
             _plastic_feature_command(primitive, position, name)
             for primitive, position, _refs in resolved
