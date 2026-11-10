@@ -88,8 +88,12 @@ def _hole_commands(feature, position, name, refs=None):
         ))
         length = sum(v * v for v in direction_vector) ** 0.5
         unit = tuple(v / length for v in direction_vector)
+        # A hole only moves along its axis.  Keep the other coordinates
+        # unchanged instead of generating CAD expressions like
+        # "(head_recess * 0)", which are misleading and unnecessary.
         entry = tuple(
-            _combine(point[i], countersink_recess * unit[i])
+            point[i] if abs(unit[i]) < 1e-12
+            else _combine(point[i], countersink_recess * unit[i])
             for i in range(3)
         )
         if depth is not Depth.THROUGH_ALL:
