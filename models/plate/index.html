@@ -2,12 +2,12 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plate · SolidCraft CAD experiments</title><link rel="stylesheet" href="../../results.css"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="../../">SolidCraft · CAD experiments</a>
-<a href="../../">Models</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / plate</div>
 <h1>Plate</h1><p>A rounded plate with four holes</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
 <span class="badge">15 commands</span><span class="badge">100 × 60 × 10 mm; four Ø8 mm holes</span></div>
-<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft native model render"></div>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>A feature-based plate: sketch, extrusion, four vertical fillets and a through-hole sketch.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
@@ -25,7 +25,7 @@ class Plate:
         body = Box(self.length, self.width, self.thickness).fillet(
             2, edges=&quot;vertical&quot;
         )
-        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
         body - holes
 
 

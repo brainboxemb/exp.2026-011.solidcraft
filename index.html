@@ -2,22 +2,26 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Models · SolidCraft CAD experiments</title><link rel="stylesheet" href="results.css"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="./">SolidCraft · CAD experiments</a>
-<a href="./">Models</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<a href="./">Models</a><a href="./cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SCRF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore three small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
-<main class="wrap"><section class="intro"><h2>Model catalog</h2>
-<p>Each model has its Python source, generated command JSON and a readable operation timeline. A rendered preview is shown only after a matching native SolidCraft run.</p>
-<p><span class="badge">3 models</span> <span class="badge verified">3 matching native screenshots</span></p></section>
-<div class="grid"><article class="card"><div class="picture"><img src="models/plate/native.png" alt="Native SolidCraft preview"></div>
+<p>Explore four small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
+<main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
+<p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
+<p><span class="badge">4 models</span> <span class="badge verified">4 matching native screenshots</span></p></section>
+<div class="grid"><article class="card"><div class="picture"><img src="models/plate/native.png" alt="SolidCraft model render"></div>
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/plate/">Plate</a></h3><p>A rounded plate with four holes</p>
 <p class="small muted">100 × 60 × 10 mm; four Ø8 mm holes</p>
-<a class="btn" href="models/plate/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/csg-cube/native.png" alt="Native SolidCraft preview"></div>
+<a class="btn" href="models/plate/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/csg-cube/native.png" alt="SolidCraft model render"></div>
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/csg-cube/">CsgCube</a></h3><p>A cube, sphere and three crossing bores</p>
 <p class="small muted">50 mm cube; three crossing cylindrical cuts</p>
-<a class="btn" href="models/csg-cube/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/bracket/native.png" alt="Native SolidCraft preview"></div>
+<a class="btn" href="models/csg-cube/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/sample-plate/native.png" alt="SolidCraft model render"></div>
+<div class="inside"><span class="badge verified">Native verified</span>
+<h3><a href="models/sample-plate/">SamplePlate</a></h3><p>Rounded plate with two holes, boss and through-bore</p>
+<p class="small muted">80 × 50 × 8 mm; R6; Ø24 × 14 boss</p>
+<a class="btn" href="models/sample-plate/">Explore model →</a></div></article><article class="card"><div class="picture"><img src="models/bracket/native.png" alt="SolidCraft model render"></div>
 <div class="inside"><span class="badge verified">Native verified</span>
 <h3><a href="models/bracket/">Bracket</a></h3><p>An L-shaped extrusion with two mounting holes</p>
 <p class="small muted">60 mm wide; 6 mm wall; two Ø8 mm holes</p>
@@ -26,5 +30,5 @@
 <h3>2 · Compile commands</h3><p>SCPF outputs native SolidCraft commands, with named parameters and a sequence of CAD operations.</p></section>
 <section class="panel"><h3>3 · Execute in SolidCraft</h3><p>The SolidCraft engine creates editable geometry, and CI validates its results. CAD and verification assets are only published when they match the source revision.</p>
 <h3>4 · Inspect the result</h3><p>Review the command timeline, native measurements and optional rendered preview. An unverified model is labelled as such.</p></section></div>
-<p class="small muted">Source revision: <code>5a0754958a2c56fa21fb56bc3c91e673e5000cb7</code></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
+<p class="small muted">Source revision: <code>52d9d908912636e9f48b315d77fb96bf9be1e1e2</code></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
 </body></html>

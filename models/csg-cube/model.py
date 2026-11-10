@@ -4,7 +4,7 @@ class CsgCube:
 
     def build(self):
         body = Sphere(self.size / 1.5) & Cube(self.size)
-        holes = Cylinder(self.size, self.size / 1.5).orient(X, Y, Z)
+        holes = Cylinder(d=self.size / 1.5, h=self.size).orient(X, Y, Z)
         body - holes
 
 
