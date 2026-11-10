@@ -23,6 +23,7 @@ class Anchor(str, Enum):
     CENTER = "center"
     TOP = "top"
     BOTTOM = "bottom"
+    INNER_BOTTOM = "inner_bottom"
 
 
 class Depth(str, Enum):
@@ -264,8 +265,13 @@ class Shape:
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
-        if self.kind not in ("cylinder", "linear_pattern", "hole"):
-            raise ValueError("attach() supports Cylinder, Hole and their linear patterns")
+        if self.kind not in (
+            "cylinder", "linear_pattern", "hole",
+            "lip", "snap_fit", "boss", "rest",
+        ):
+            raise ValueError(
+                "attach() supports Cylinder, Hole, plastic features and their supported patterns"
+            )
         if not isinstance(target, Shape):
             raise TypeError("anchor target must be an existing Shape")
         try:
