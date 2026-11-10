@@ -497,6 +497,42 @@ jobs:
             --no-grid --no-axes
           test -s output/native/corner-bracket/model.png
 
+      - name: Export progressive CornerBracket crash-isolation models
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("output/native/corner-bracket")
+          commands = json.loads((root / "commands.json").read_text())["commands"]
+          # Command slices are exact prefixes of the verified model, not
+          # separately modelled substitutes. Indices are 1-based.
+          for label, count in (
+              ("01-profile", 23),
+              ("02-fillets-chamfers", 26),
+              ("03-horizontal-holes", 34),
+              ("04-first-side-hole", 38),
+          ):
+              (root / f"{label}.json").write_text(
+                  json.dumps({"commands": commands[:count]}, indent=2) + "\\n"
+              )
+          PY
+          for stage in 01-profile 02-fillets-chamfers 03-horizontal-holes 04-first-side-hole; do
+            solidcraft-cli run "output/native/corner-bracket/$stage.json" \
+              --param-check strict \
+              --save "output/native/corner-bracket/$stage.sc" \
+              --out "output/native/corner-bracket/$stage.step"
+            solidcraft-cli snapshot "output/native/corner-bracket/$stage.sc" \
+              --out "output/native/corner-bracket/$stage.png" \
+              --no-grid --no-axes
+            test -s "output/native/corner-bracket/$stage.sc"
+            test -s "output/native/corner-bracket/$stage.png"
+          done
+
+
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
