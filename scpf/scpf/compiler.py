@@ -58,7 +58,7 @@ def compile_model(shape: Shape, name: str) -> dict:
         raise ModelError("the model name must be a valid identifier")
 
     from .sketch_features import _is_rectangular_feature, compile_sketch_features
-    from .polygon_features import _has_profile, compile_polygon_features
+    from .sketch_features import _has_profile, compile_polygon_features
     from .box_features import _is_box_feature, compile_box_features
     from .csg import _csg_new
 
