@@ -369,7 +369,7 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./output/site
           keep_files: true
-          force_orphan: true
+          # Preserve previews/pr-* and the Pages history; do not recreate an orphan branch.
           commit_message: "Verified native CAD website at ${{ github.sha }}"
       - name: Publish qualified native evidence to vrf from main only
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
