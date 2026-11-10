@@ -43,9 +43,13 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        self.assertNotEqual(generated, original)
-        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -30, 6]])
-        self.assertEqual(generated["commands"][-1]["params"]["direction"], "positive")
+        # The source used parameters.change for an existing design.
+        # Our standalone plan uses parameters.add on a clean design.
+        # All actual sketch, fillet and extrusion commands must match.
+        self.assertNotEqual(generated["commands"][:2], original["commands"][:2])
+        self.assertEqual(generated["commands"][2:], original["commands"][2:])
+        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -30, -6]])
+        self.assertEqual(generated["commands"][-1]["params"]["direction"], "negative")
 
     def test_bracket_width_and_thickness_override(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -56,7 +60,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
-        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, 8]])
+        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:
