@@ -40,7 +40,8 @@ def check(site, commit):
         assert (model / "solidcraft.json").is_file(), slug
         page = (model / "index.html").read_text(encoding="utf-8")
         assert "Native SolidCraft command sequence" in page
-        assert "Show exact command and parameters" in page
+        assert "Show exact command and parameters" not in page
+        assert "<details>" not in page
         assert "&quot;command&quot;" in page and "&quot;params&quot;" in page
         assert "Construction stages" in page
         assert "Native SolidCraft image" not in page or (model / "native.png").is_file()
