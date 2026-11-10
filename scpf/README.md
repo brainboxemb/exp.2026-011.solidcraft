@@ -190,3 +190,21 @@ commit; unverified previews are explicitly labelled.
   rotations, face/edge selectors, arbitrary patterns, richer dimensional
   arithmetic and model reuse are future work.
 - SolidCraft, not SCPF, remains responsible for topology, solving and geometry.
+
+## Sample Plate reconstruction
+
+The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
+contains an editable SolidCraft **design history**, not command JSON.
+The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py) uses
+`Rectangle().extrude().fillet().holes().boss().bore()` to describe
+its nine native features. The original saved design is kept unchanged.
+
+```powershell
+$env:PYTHONPATH = "scpf"
+python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
+python -m scpf examples/sample-plate/scpf/model.py --connect
+```
+
+The live command requires a new empty SolidCraft design; the generated
+command plan creates its own parameters. Native validation is required
+before accepting this reconstruction as geometrically equivalent.
