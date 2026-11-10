@@ -1,0 +1,122 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "width",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "thickness",
+        "expression": "6",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XZ",
+        "name": "Profile"
+      }
+    },
+    {
+      "command": "sketch.line",
+      "params": {
+        "points": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            40.0,
+            0.0
+          ],
+          [
+            40.0,
+            6
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            6,
+            30.0
+          ],
+          [
+            0.0,
+            30.0
+          ]
+        ],
+        "closed": true,
+        "ids": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "width",
+        "direction": "negative",
+        "body_name": "Bracket"
+      }
+    },
+    {
+      "command": "solid.fillet",
+      "params": {
+        "edges": [
+          [
+            40.0,
+            -30.0,
+            -6
+          ]
+        ],
+        "radius": 2.0
+      }
+    },
+    {
+      "command": "solid.hole",
+      "params": {
+        "position": [
+          25.0,
+          -15.0,
+          0.0
+        ],
+        "diameter": 8,
+        "targets": [
+          "Bracket"
+        ],
+        "depth": "thickness"
+      }
+    },
+    {
+      "command": "solid.hole",
+      "params": {
+        "position": [
+          25.0,
+          -45.0,
+          0.0
+        ],
+        "diameter": 8,
+        "targets": [
+          "Bracket"
+        ],
+        "depth": "thickness"
+      }
+    }
+  ]
+}
