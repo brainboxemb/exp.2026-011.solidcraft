@@ -402,7 +402,8 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
 
 def _explicit_sketch_commands(shape, original, feature, name):
     """Compile an explicitly authored named sketch and its extrusion."""
-    sketch_name, target, parent_anchor, plane_name, profiles, distance, direction = feature.data
+    sketch_name, target, parent_anchor, plane_info, profiles, distance, direction = feature.data
+    plane_name, sketch_origin = plane_info
     if target != original:
         raise ModelError("explicit Sketch must target the body being modified")
     if shape.kind not in ("union", "difference"):
@@ -413,7 +414,20 @@ def _explicit_sketch_commands(shape, original, feature, name):
         raise ModelError("explicit Sketch requires a rectangular solid")
 
     if plane_name is not None:
-        plane = dict(plane=plane_name, name=sketch_name)
+        if sketch_origin is not None:
+            orientation = {
+                "XY": ([1, 0, 0], [0, 1, 0]),
+                "XZ": ([1, 0, 0], [0, 0, 1]),
+                "YZ": ([0, 1, 0], [0, 0, 1]),
+            }
+            x_dir, y_dir = orientation[plane_name]
+            plane = dict(
+                plane={"origin": [command_value(v) for v in sketch_origin],
+                       "x_dir": x_dir, "y_dir": y_dir},
+                name=sketch_name,
+            )
+        else:
+            plane = dict(plane=plane_name, name=sketch_name)
         relative_origin = (0, 0)
     else:
         if parent_anchor is Anchor.TOP:
