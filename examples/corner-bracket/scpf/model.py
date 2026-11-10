@@ -111,17 +111,16 @@ class CornerBracket:
             ).at(x, self.bolt_y_offset, w)
             body = body + hole
 
-            if self.bolt_hole_edge_relief > 0:
-                body = body + Hole(
-                    d=outside_relief_d,
-                    depth=self.bolt_hole_edge_relief,
-                    direction=(0, 0, -1),
-                ).at(x, self.bolt_y_offset, w)
-                body = body + Hole(
-                    d=inside_relief_d,
-                    depth=self.bolt_hole_edge_relief,
-                    direction=(0, 0, 1),
-                ).at(x, self.bolt_y_offset, 0)
+            body = body + Hole(
+                d=outside_relief_d,
+                depth=self.bolt_hole_edge_relief,
+                direction=(0, 0, -1),
+            ).at(x, self.bolt_y_offset, w)
+            body = body + Hole(
+                d=inside_relief_d,
+                depth=self.bolt_hole_edge_relief,
+                direction=(0, 0, 1),
+            ).at(x, self.bolt_y_offset, 0)
 
         # Two matching holes through the vertical arm.
         for z in vertical_z:
@@ -134,17 +133,16 @@ class CornerBracket:
             ).at(-w, -self.bolt_y_offset, z)
             body = body + hole
 
-            if self.bolt_hole_edge_relief > 0:
-                body = body + Hole(
-                    d=outside_relief_d,
-                    depth=self.bolt_hole_edge_relief,
-                    direction=(1, 0, 0),
-                ).at(-w, -self.bolt_y_offset, z)
-                body = body + Hole(
-                    d=inside_relief_d,
-                    depth=self.bolt_hole_edge_relief,
-                    direction=(-1, 0, 0),
-                ).at(0, -self.bolt_y_offset, z)
+            body = body + Hole(
+                d=outside_relief_d,
+                depth=self.bolt_hole_edge_relief,
+                direction=(1, 0, 0),
+            ).at(-w, -self.bolt_y_offset, z)
+            body = body + Hole(
+                d=inside_relief_d,
+                depth=self.bolt_hole_edge_relief,
+                direction=(-1, 0, 0),
+            ).at(0, -self.bolt_y_offset, z)
 
         body
 
