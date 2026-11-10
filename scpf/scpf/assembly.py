@@ -2,7 +2,7 @@
 import re
 
 from .compiler import ModelError
-from .model_objects import Assembly, ModelInstance
+from .model_objects import Assembly, ModelInstance, _anchor_point
 from .compiler import compile_model
 
 
@@ -83,6 +83,7 @@ def compile_assembly(value, name):
     assembly = _as_assembly(value)
     names = _definition_names(assembly)
     commands = []
+    occurrence_names = {}
 
     by_definition = {}
     for instance in assembly.instances:
@@ -107,27 +108,59 @@ def compile_assembly(value, name):
         ]
 
         commands.extend(parameter_commands)
+        first_is_root = instances[0] is assembly.instances[0]
         commands.append(_command(
             "component.create",
             name=component_name,
-            grounded=False,
+            grounded=first_is_root,
         ))
         commands.extend(geometry_commands)
         commands.append(_command("component.activate", component="root"))
 
         first = instances[0]
+        first_occurrence = f"{component_name}:1"
+        occurrence_names[id(first)] = first_occurrence
         if any(first.translation):
             commands.append(_command(
                 "occurrence.move",
-                occurrence=f"{component_name}:1",
+                occurrence=first_occurrence,
                 translate=list(first.translation),
+                move_grounded=first_is_root,
             ))
 
-        for instance in instances[1:]:
+        for index, instance in enumerate(instances[1:], start=2):
             params = {"component": component_name}
             if any(instance.translation):
                 params["translate"] = list(instance.translation)
             commands.append(_command("occurrence.copy", **params))
+            occurrence_names[id(instance)] = f"{component_name}:{index}"
+
+    for instance in assembly.instances:
+        attachment = instance.attachment
+        if attachment is None:
+            continue
+        child_occurrence = occurrence_names.get(id(instance))
+        parent_occurrence = occurrence_names.get(id(attachment.target))
+        if child_occurrence is None or parent_occurrence is None:
+            raise ModelError("component attach target must be part of the assembly")
+
+        parent_local = _anchor_point(attachment.target, attachment.parent)
+        child_local = _anchor_point(instance, attachment.child)
+        parent_face = [
+            parent_local[i] + attachment.target.translation[i]
+            for i in range(3)
+        ]
+        child_face = [
+            child_local[i] + instance.translation[i]
+            for i in range(3)
+        ]
+        commands.append(_command(
+            "joint.create",
+            type="rigid",
+            name=f"Attach {child_occurrence} to {parent_occurrence}",
+            a={"occurrence": parent_occurrence, "face": parent_face},
+            b={"occurrence": child_occurrence, "face": child_face},
+        ))
 
     if not commands:
         raise ModelError(f"{name} contains no component instances")
