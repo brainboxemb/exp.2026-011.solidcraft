@@ -195,20 +195,18 @@ commit; unverified previews are explicitly labelled.
 
 The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
 contains an editable SolidCraft **design history**, not command JSON.
-The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py)
-now follows the original **four sketches and nine features**:
-`Base` → Extrude → Fillet → `Holes` → Cut → `Boss` → Join →
-`Bore` → Cut. This matters for editable history, not merely matching the
-final shape. The mounting holes use `Circle2D`. The boss and bore use
-`Cylinder(...).attach(plate, parent=..., child=...)` in Python;
-the adapter creates their native circle sketches and extrusions internally,
-with sketch plane offsets linked to `thickness`. No explicit Boss or Bore
-sketch is needed in the Python script. The original saved design is kept unchanged.
+The [SCPF class](../examples/sample-plate/scpf/model.py) describes the base,
+mounting holes, joined boss, and bore with the same object-level operations:
+`Rectangle2D`, `Cylinder`, and the native `Hole` feature. The adapter creates
+a sketch internally for the base and the boss, while all three holes compile
+to native `solid.hole`. A `Hole` is added to the model using `+`, even
+though the resulting CAD feature removes material.
 
-The **separate** [anchored-holes example](../examples/anchored-holes/scpf/model.py)
-demonstrates native `solid.hole` with edge references. That is a different
-feature history by design. The SamplePlate reproduction intentionally uses
-the source's sketch/extrude workflow.
+This intentionally differs from the original saved file's **four sketches and
+nine features**. The source retains its original sketch-based cut history;
+the generated design instead contains `Base`, two mounting Hole features,
+`Boss`, and one bore Hole feature. Geometry and parameter edits must be
+verified independently rather than claiming identical feature histories.
 
 ```powershell
 $env:PYTHONPATH = "scpf"
