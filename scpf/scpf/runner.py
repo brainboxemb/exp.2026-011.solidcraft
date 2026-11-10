@@ -58,6 +58,7 @@ def run_script(path: str | Path) -> dict:
         "Cube": core.Cube,
         "Cylinder": core.Cylinder,
         "Sphere": core.Sphere,
+        "Polygon": core.Polygon,
         "Shape": core.Shape,
         "X": core.X,
         "Y": core.Y,
