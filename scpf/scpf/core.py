@@ -55,6 +55,32 @@ class Faces(Enum):
 
 
 @dataclass(frozen=True)
+class _BoundOffset:
+    """Position relative to one axis of the parent bounds."""
+    reference: str
+    delta: float = 0
+
+    def __add__(self, value):
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            return NotImplemented
+        return _BoundOffset(self.reference, self.delta + value)
+
+    __radd__ = __add__
+
+    def __sub__(self, value):
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            return NotImplemented
+        return _BoundOffset(self.reference, self.delta - value)
+
+
+class Bounds:
+    """Parent-bound positions accepted in attach(offset=(x, y))."""
+    MIN = _BoundOffset("min")
+    CENTER = _BoundOffset("center")
+    MAX = _BoundOffset("max")
+
+
+@dataclass(frozen=True)
 class Parameter:
     name: str
     value: float
@@ -282,7 +308,11 @@ class Shape:
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("offset must be a pair (x, y)")
         for value in offset:
-            value_of(value)
+            if isinstance(value, _BoundOffset):
+                if not isfinite(value.delta):
+                    raise ValueError("bound offset must be finite")
+            else:
+                value_of(value)
         return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
 
     def orient(self, *axes):
