@@ -102,6 +102,36 @@ qualification pipeline keeps verified SolidCraft outputs in `vrf`.
 The previously agreed `generated-examples` branch remains gated by
 verification of the comparison implementations.
 
+## Open generated JSON in the SolidCraft desktop GUI
+
+SCPF generates a **command script**, not an already saved SolidCraft design.
+The GUI's File > Open reads design files (including self-contained design
+JSON), but does not treat a command script as a saved design. Execute the
+commands with the CLI first, then open the resulting native `.sc`:
+
+```powershell
+.\scripts\open-solidcraft-json.ps1 -Script "output/examples/plate/scpf/solidcraft.json"
+```
+
+This helper validates parameters strictly, saves a native `.sc` alongside
+the command JSON and launches SolidCraft. It uses `solidcraft-cli` and
+`solidcraft` from PATH or the default Windows installation directory. If
+necessary pass `-Cli` and `-Gui` with explicit executable paths, or use
+`-NoOpen` for headless execution.
+
+Equivalent manual command:
+
+```powershell
+solidcraft-cli run examples/plate/scrf/solidcraft.json --param-check strict --save plate.sc
+solidcraft plate.sc
+```
+
+The original bracket reference contains `parameters.change` without
+preceding `parameters.add`. It therefore expects an existing SolidCraft
+document with those parameters; use the generated standalone SCPF bracket
+command plan instead. Its corrected fillet and cut direction still require
+native qualification.
+
 ## Current limits
 
 - Supported primitives: box (feature model), cube, sphere, cylinder.
