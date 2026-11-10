@@ -40,11 +40,13 @@ def _add_offset(coord, offset):
 
 def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), centered=False):
     kind, data = shape.kind, shape.data
-    if kind == "cube":
-        (size,) = data
-        _require_positive(size, "cube size")
-        params = dict(length=command_value(size), width=command_value(size),
-                      height=command_value(size), center=list(offset),
+    if kind == "box":
+        length, width, height = data
+        _require_positive(length, "box length")
+        _require_positive(width, "box width")
+        _require_positive(height, "box height")
+        params = dict(length=command_value(length), width=command_value(width),
+                      height=command_value(height), center=list(offset),
                       operation=operation)
         command = "solid.box"
     elif kind == "sphere":
@@ -78,7 +80,7 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_apply(child, name, operation, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder3d"):
+    if shape.kind in ("box", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, operation, offset=offset)]
     if shape.kind == "orient" and operation in ("cut", "join"):
         cylinder, axes = shape.data
@@ -101,7 +103,7 @@ def _csg_new(shape, name, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_new(child, name, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder3d"):
+    if shape.kind in ("box", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data
