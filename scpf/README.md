@@ -196,8 +196,10 @@ commit; unverified previews are explicitly labelled.
 The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
 contains an editable SolidCraft **design history**, not command JSON.
 The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py) uses
-`Rectangle().extrude().fillet().holes().boss().bore()` to describe
-its nine native features. The original saved design is kept unchanged.
+`Rectangle2D`, `Circle2D`, `Cylinder`, extrusion, fillets and boolean
+joins/cuts. Direct cylinders emit native `solid.cylinder` commands rather
+than recreating the source sketch/extrude feature history. The original saved
+design is kept unchanged.
 
 ```powershell
 $env:PYTHONPATH = "scpf"
@@ -211,9 +213,10 @@ before accepting this reconstruction as geometrically equivalent.
 
 ## SCPF API cheatsheet
 
-The generated results site includes a [SCPF cheatsheet](../site/) under
-`/cheatsheet/`. It separates 2D profiles (`Rectangle2D`, `Circle2D`,
-`Polygon2D`) from direct 3D primitives (`Box3D`, `Cylinder3D`, `Sphere3D`),
-and documents operations, run commands and the scope of future anchors.
-Existing shorter names remain compatible. `Cylinder3D` uses a **base**
-placement, while the older `Cylinder` is height-centered.
+The generated results website includes a `/cheatsheet/` page.
+2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
+`Polygon2D`. 3D solids use plain names: `Box`, `Cube`, `Cylinder`
+and `Sphere`. The direct `Cylinder(d=..., h=...)` uses a bottom-face
+origin, while legacy positional `Cylinder(height, diameter)` uses a centered
+height convention. The latter remains in the Plate and CsgCube regression
+examples until their native command fixtures are migrated.
