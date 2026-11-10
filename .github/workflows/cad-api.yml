@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - 'feature/issue-1-python-interface'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch: {}
 
 permissions:
