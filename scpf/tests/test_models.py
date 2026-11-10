@@ -32,6 +32,32 @@ class SCPFExamples(unittest.TestCase):
         ]
         self.assertEqual(centers, [[-35, -15], [35, -15], [35, 15], [-35, 15]])
 
+
+    def test_bracket_matches_corrected_native_commands(self):
+        generated = run_script(ROOT / "examples/bracket/scpf/model.py")
+        expected = json.loads(
+            (ROOT / "examples/bracket/scpf/solidcraft.json").read_text()
+        )
+        self.assertEqual(generated, expected)
+
+        original = json.loads(
+            (ROOT / "examples/bracket/source/bracket.json").read_text()
+        )
+        self.assertNotEqual(generated, original)
+        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -30, 6]])
+        self.assertEqual(generated["commands"][-1]["params"]["direction"], "positive")
+
+    def test_bracket_width_and_thickness_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = (ROOT / "examples/bracket/scpf/model.py").read_text()
+            file = Path(directory) / "model.py"
+            file.write_text(source.replace("Bracket()\\n", "Bracket(70, 8)\\n"))
+            generated = run_script(file)
+        self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
+        self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
+        self.assertEqual(generated["commands"][4]["params"]["points"][2], [40, 8])
+        self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, 8]])
+
     def test_arguments_are_editable_without_decorators(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
