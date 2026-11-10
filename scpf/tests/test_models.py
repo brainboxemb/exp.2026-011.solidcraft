@@ -112,12 +112,12 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             script = Path(directory) / "model.py"
             script.write_text(
-                "@dataclass\\n"
-                "class Pin:\\n"
-                "    diameter: float = 12\\n"
-                "    def build(self):\\n"
-                "        Cylinder3D(d=self.diameter, h=20).at(10, 5, 3)\\n"
-                "Pin()\\n"
+                "@dataclass\n"
+                "class Pin:\n"
+                "    diameter: float = 12\n"
+                "    def build(self):\n"
+                "        Cylinder3D(d=self.diameter, h=20).at(10, 5, 3)\n"
+                "Pin()\n"
             )
             commands = run_script(script)["commands"]
         cylinder = commands[-1]
