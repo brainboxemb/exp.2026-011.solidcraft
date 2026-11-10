@@ -26,9 +26,9 @@ class Plate:
         body = Box(self.length, self.width, self.thickness)
         body = body.fillet(2, edges=Edges.VERTICAL)
         for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
-            body = body.add(
-                Hole(d=8, depth=Depth.THROUGH_ALL),
-                on=Anchor.TOP, offset=(x, y))
+            body = body + Hole(
+                d=8, depth=Depth.THROUGH_ALL
+            ).at(x, y, self.thickness)
         body
 
 Plate()
