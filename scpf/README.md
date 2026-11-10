@@ -87,13 +87,15 @@ trusted model files.
 
 ## Run and inspect the Bracket
 
-Run commands below from the repository root in PowerShell. The Python
-environment must be active, or install the package with
-`python -m pip install -e ./scpf`. Alternatively set the package path:
+Run commands below from the repository root in PowerShell. This is an
+experiment repository, so the normal local-development workflow runs SCPF
+directly from the checkout rather than installing it as a package:
 
 ```powershell
 $env:PYTHONPATH = "scpf"
 ```
+
+An editable pip install is optional and is not required for normal development.
 
 **1. Generate and inspect the native command JSON** (does not open the GUI):
 
