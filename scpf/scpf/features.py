@@ -422,7 +422,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
             }
             x_dir, y_dir = orientation[plane_name]
             plane = dict(
-                plane={"origin": [command_value(v) for v in sketch_origin],
+                plane={"origin": [value_of(v) for v in sketch_origin],
                        "x_dir": x_dir, "y_dir": y_dir},
                 name=sketch_name,
             )
