@@ -121,7 +121,7 @@ def copy_if_exists(source, target):
         shutil.copy2(source, target)
 
 
-def build(out, commit, native_root=None):
+def build(out, commit, native_root=None, generated_root=None):
     out.mkdir(parents=True, exist_ok=True)
     copy_if_exists(ROOT / "site/results.css", out / "results.css")
     cards = []
@@ -130,7 +130,9 @@ def build(out, commit, native_root=None):
         work = out / "models" / slug
         work.mkdir(parents=True, exist_ok=True)
         source = ROOT / "examples" / slug / "scpf" / "model.py"
-        command_file = ROOT / "examples" / slug / "scpf" / "solidcraft.json"
+        command_file = ((generated_root / slug / "scpf" / "solidcraft.json")
+                        if generated_root is not None else
+                        ROOT / "examples" / slug / "scpf" / "solidcraft.json")
         commands = read_json(command_file)["commands"]
         copy_if_exists(source, work / "model.py")
         copy_if_exists(command_file, work / "solidcraft.json")
@@ -199,8 +201,10 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--native", type=Path)
+    parser.add_argument("--generated", type=Path,
+                        help="Root of freshly compiled output/examples")
     args = parser.parse_args()
-    build(args.out, args.commit, args.native)
+    build(args.out, args.commit, args.native, args.generated)
 
 
 if __name__ == "__main__":
