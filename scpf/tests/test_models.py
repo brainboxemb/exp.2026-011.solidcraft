@@ -62,33 +62,47 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
-    def test_sample_plate_uses_generic_2d_and_3d_operations(self):
+    def test_sample_plate_preserves_original_four_sketches_and_nine_features(self):
         source = json.loads(
             (ROOT / "examples/sample-plate/source/Sample Plate.json").read_text()
         )
-        generated = run_script(ROOT / "examples/sample-plate/scpf/model.py")
-        commands = generated["commands"]
-        self.assertEqual(len(source["features"]), 9)
+        commands = run_script(ROOT / "examples/sample-plate/scpf/model.py")["commands"]
+        original_sketch_names = [feature["name"] for feature in source["features"]
+                                 if feature["type"] == "sketch"]
+        sketch_names = [step["params"]["name"] for step in commands
+                        if step["command"] == "sketch.create"]
+        self.assertEqual(sketch_names, original_sketch_names)
+        self.assertEqual(sketch_names, ["Base", "Holes", "Boss", "Bore"])
+        self.assertEqual(len([step for step in commands
+                              if step["command"] == "sketch.finish"]), 4)
+        self.assertEqual(len([step for step in commands
+                              if step["command"] == "solid.extrude"]), 4)
+        self.assertEqual(len([step for step in commands
+                              if step["command"] == "solid.fillet"]), 1)
+        self.assertFalse(any(step["command"] == "solid.cylinder"
+                             for step in commands))
         self.assertEqual(
-            [c["params"]["name"] for c in commands if c["command"] == "sketch.create"],
-            ["Base", "Holes"],
+            [step["params"]["diameter"] for step in commands
+             if step["command"] == "sketch.circle.center"],
+            [8, 8, 24, 12],
         )
+        extrusions = [step["params"] for step in commands
+                      if step["command"] == "solid.extrude"]
         self.assertEqual(
-            [c["params"]["diameter"] for c in commands
-             if c["command"] == "sketch.circle.center"], [8, 8],
-        )
-        cylinders = [c["params"] for c in commands if c["command"] == "solid.cylinder"]
-        self.assertEqual(len(cylinders), 2)
-        self.assertEqual([c["operation"] for c in cylinders], ["join", "cut"])
-        self.assertEqual([c["diameter"] for c in cylinders], [24, 12])
-        self.assertEqual([c["height"] for c in cylinders],
-                         [14, "thickness + 14 mm"])
-        self.assertEqual([c["base"] for c in cylinders],
-                         [[40, 25, 8], [40, 25, 0]])
-        self.assertEqual([c["references"][0]["distance"] for c in cylinders],
-                         ["(width / 2)", "(width / 2)"])
+            [feature.get("operation", "new_body") for feature in extrusions],
+            ["new_body", "cut", "join", "cut"])
         self.assertEqual(
-            [c["params"]["expression"] for c in commands[:3]], ["80", "50", "8"]
+            [feature["direction"] for feature in extrusions],
+            ["positive", "positive", "positive", "negative"])
+        self.assertEqual(extrusions[2]["distance"], 14)
+        self.assertEqual(extrusions[3]["distance"], "thickness + 14 mm")
+        sketch_creates = [step["params"] for step in commands
+                          if step["command"] == "sketch.create"]
+        self.assertEqual(sketch_creates[2]["offset"], "thickness")
+        self.assertEqual(sketch_creates[3]["offset"], "thickness + 14 mm")
+        self.assertEqual(
+            [step["params"]["expression"] for step in commands[:3]],
+            ["80", "50", "8"],
         )
 
     def test_sample_plate_parameter_override_updates_native_commands(self):
@@ -105,10 +119,12 @@ class SCPFExamples(unittest.TestCase):
         rectangle = next(c for c in commands
                          if c["command"] == "sketch.rectangle.two_point")
         self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
-        cylinders = [c["params"] for c in commands
-                     if c["command"] == "solid.cylinder"]
-        self.assertEqual(cylinders[0]["base"], [50, 30, 10])
-        self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
+        sketches = [c["params"] for c in commands if c["command"] == "sketch.create"]
+        self.assertEqual(sketches[2]["offset"], "thickness")
+        self.assertEqual(sketches[3]["offset"], "thickness + 14 mm")
+        centers = [c["params"]["center"] for c in commands
+                   if c["command"] == "sketch.circle.center"]
+        self.assertEqual(centers[-2:], [[50, 30], [50, 30]])
 
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
