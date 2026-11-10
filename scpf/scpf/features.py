@@ -110,6 +110,16 @@ def _hole_commands(feature, position, name, refs=None):
     if recess:
         params.pop("references", None)
     commands.append(_command("solid.hole", **params))
+    # Native SolidCraft 0.30.1 fails to Boolean-cut a +X countersink
+    # if its counterbore has already been cut.  Both subtractive cuts
+    # commute geometrically, so make the countersink first and its
+    # shallow counterbore second.  Other orientations retain the
+    # straightforward counterbore-then-countersink feature sequence.
+    if (recess and direction_vector is not None
+            and direction_vector[0] > 0
+            and direction_vector[1] == 0
+            and direction_vector[2] == 0):
+        return [commands[-1], *commands[:-1]]
     return commands
 
 
