@@ -74,7 +74,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
-    def test_sample_plate_preserves_original_four_sketch_history(self):
+    def test_sample_plate_preserves_original_sketch_and_feature_names(self):
         commands = run_script(ROOT / "examples/sample-plate/scpf/model.py")["commands"]
         self.assertEqual(
             [c["params"]["name"] for c in commands if c["command"] == "sketch.create"],
