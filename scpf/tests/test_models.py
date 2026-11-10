@@ -453,18 +453,18 @@ class SCPFExamples(unittest.TestCase):
 
     def test_bound_relative_offsets_resolve_against_parent_extents(self):
         from scpf.compiler import compile_model
-        from scpf.core import Anchor, Boss, Bounds, Box, Faces
+        from scpf.core import Anchor, Boss, Box, Faces, X, Y
         body = Box(80, 50, 30).shell(2, open=Faces.TOP)
 
         minimum = Boss(d=7, h=12, hole_d=2.5).attach(
             body,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
+            offset=(X.MIN + 10, Y.MIN + 10),
         )
         maximum = Boss(d=7, h=12, hole_d=2.5).attach(
             body,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.MAX - 10, Bounds.MAX - 10),
+            offset=(X.MAX - 10, Y.MAX - 10),
         )
 
         commands = compile_model(body + minimum + maximum, "Enclosure")["commands"]
@@ -473,6 +473,22 @@ class SCPFExamples(unittest.TestCase):
             [boss["params"]["position"] for boss in bosses],
             [[-30, -15, 2], [30, 15, 2]],
         )
+
+    def test_bound_relative_offsets_reject_wrong_axis(self):
+        from scpf.core import Anchor, Boss, Box, Faces, X, Y
+        body = Box(80, 50, 30).shell(2, open=Faces.TOP)
+        with self.assertRaisesRegex(ValueError, "requires X bounds"):
+            Boss(d=7, h=12, hole_d=2.5).attach(
+                body,
+                parent=Anchor.INNER_BOTTOM,
+                offset=(Y.MIN + 10, Y.MIN + 10),
+            )
+        with self.assertRaisesRegex(ValueError, "requires Y bounds"):
+            Boss(d=7, h=12, hole_d=2.5).attach(
+                body,
+                parent=Anchor.INNER_BOTTOM,
+                offset=(X.MIN + 10, X.MIN + 10),
+            )
 
     def test_inner_bottom_anchor_requires_shell(self):
         from scpf.compiler import compile_model, ModelError
