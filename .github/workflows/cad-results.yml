@@ -48,7 +48,7 @@ jobs:
           PYTHONPATH: scpf
         run: |
           python -m unittest discover -s scpf/tests -v
-          for model in plate csg-cube bracket; do
+          for model in plate csg-cube bracket sample-plate; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
             jq empty "output/examples/$model/scpf/solidcraft.json"
