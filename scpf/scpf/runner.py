@@ -105,6 +105,7 @@ def run_script(path: str | Path) -> dict:
         "Sphere": core.Sphere,
         "Polygon": core.Polygon,
         "Rectangle": core.Rectangle,
+        "Circle": core.Circle,
         "Shape": core.Shape,
         "X": core.X,
         "Y": core.Y,
