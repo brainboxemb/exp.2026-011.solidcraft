@@ -191,5 +191,16 @@ def _to_commands(shape, name):
 
 
 def compile_features(shape, name):
+    """Compile native commands with deterministic, source-oriented parameters."""
     steps, _ = _to_commands(shape, name)
-    return _param_commands(_collect(shape)) + steps
+    # On an extruded polygon the sweep distance is the first independent
+    # dimension of the feature. Keep it before coordinates of its profile.
+    # XY rectangular footprints instead list their plan dimensions first.
+    root = shape
+    while root.kind in ("fillet", "union", "difference"):
+        root = root.data[0]
+    if root.kind == "extrusion" and root.data[0].kind == "polygon":
+        parameters = _collect((root.data[1], shape))
+    else:
+        parameters = _collect(shape)
+    return _param_commands(parameters) + steps
