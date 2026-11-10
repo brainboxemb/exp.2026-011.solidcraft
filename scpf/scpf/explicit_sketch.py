@@ -9,7 +9,7 @@ from .core import Anchor, Depth, Direction, Shape, value_of
 class Sketch:
     """Prototype named XY sketch attached to a supported parent face."""
 
-    def __init__(self, *, name, on, parent=Anchor.TOP, plane=None):
+    def __init__(self, *, name, on, parent=Anchor.TOP, plane=None, origin=None):
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Sketch name must be non-empty")
         if not isinstance(on, Shape):
@@ -23,6 +23,14 @@ class Sketch:
         self.name = name
         self.on = on
         self.parent = parent
+        if origin is not None:
+            if plane not in ("XY", "XZ", "YZ"):
+                raise ValueError("Sketch origin requires an explicit XY, XZ or YZ plane")
+            if not isinstance(origin, (list, tuple)) or len(origin) != 3:
+                raise ValueError("Sketch origin must be a 3D coordinate")
+            for coordinate in origin:
+                value_of(coordinate)
+        self.origin = tuple(origin) if origin is not None else None
         self.plane = plane
         self._profiles = []
         self._closed = False
@@ -65,7 +73,7 @@ class Sketch:
                 self.name,
                 self.on,
                 self.parent,
-                self.plane,
+                (self.plane, self.origin),
                 tuple(self._profiles),
                 distance,
                 direction.value,
