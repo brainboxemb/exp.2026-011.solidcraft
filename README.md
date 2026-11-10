@@ -48,7 +48,7 @@ generated JSON. Use `--out` first to inspect the exact sequence.
 - [Bracket](examples/bracket/scpf/model.py): polygon-based angle bracket.
 - [CSG Cube](examples/csg-cube/scpf/model.py): primitive Boolean operations.
 - [Anchored Holes](examples/anchored-holes/scpf/model.py): repeated
-  native holes positioned relative to the plate.
+  Hole intent attached to the plate and compiled as one editable sketch cut.
 
 A `Hole` describes drilling intent. Attach it to the face where drilling
 starts, then add it to the body with `+`. For the Sample Plate, the compiler
