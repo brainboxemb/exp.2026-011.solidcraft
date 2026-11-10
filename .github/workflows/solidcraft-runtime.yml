@@ -233,6 +233,9 @@ jobs:
           jq -e '
             [.features[] | select(.type == "hole")] | length == 2
           ' output/native/anchored-holes/document.json
+          echo "Native Hole feature placement before parameter change:"
+          jq '[.features[] | select(.type == "hole")]' \
+            output/native/anchored-holes/document.json
           cat > output/native/anchored-holes/edit.json <<'JSON'
           {"commands":[
             {"command":"parameters.change",
@@ -245,6 +248,11 @@ jobs:
             --save output/native/anchored-holes/wider.sc
           solidcraft-cli eval output/native/anchored-holes/wider.sc \
             --json-out output/native/anchored-holes/wider.json
+          unzip -p output/native/anchored-holes/wider.sc document.json \
+            > output/native/anchored-holes/wider-document.json
+          echo "Native Hole feature placement after width=120:"
+          jq '[.features[] | select(.type == "hole")]' \
+            output/native/anchored-holes/wider-document.json
           jq -e '
             .body_count == 1
             and .bodies[0].bbox.max[0] > 119.9999
