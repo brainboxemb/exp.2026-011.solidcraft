@@ -37,7 +37,7 @@ There is deliberately no `main()`, `show()`, `part!()` or `build!()`
 in the model script. The technical Cargo harness lives outside the script.
 
 See the real example:
-[`examples/plate/solidcraftforge/model.rs`](../examples/plate/solidcraftforge/model.rs).
+[`examples/plate/scrf/model.rs`](../examples/plate/scrf/model.rs).
 
 ## What CadQuery teaches us
 
