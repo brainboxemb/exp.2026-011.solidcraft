@@ -123,14 +123,14 @@ class Shape:
                     raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
 
-    def holes(self, centers, *, diameter, depth, plane="XY", direction="positive"):
-        """Cut circles drawn in an XY sketch through an extruded profile."""
-        if plane != "XY" or direction not in ("positive", "negative"):
-            raise ValueError("the current holes() compiler supports XY and a signed direction")
+    def holes(self, centers, *, diameter, depth, plane="XY"):
+        """Cut XY sketch circles; infer cut direction from the solid profile."""
+        if plane != "XY":
+            raise ValueError("the current holes() compiler supports only XY")
         positions = tuple(tuple(p) for p in centers)
         if not positions or any(len(p) != 2 for p in positions):
             raise ValueError("holes require at least one (x, y) centre")
-        return Shape("holes", (self, positions, diameter, depth, plane, direction))
+        return Shape("holes", (self, positions, diameter, depth, plane))
 
     def pattern(self, *, x, y):
         if self.kind != "cylinder":
