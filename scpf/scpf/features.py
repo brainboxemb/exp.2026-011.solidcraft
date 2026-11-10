@@ -298,6 +298,13 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
     if attached_primitive.kind == "hole":
         return _attached_hole_commands(
             child, target, parent_anchor, resolved, name)
+    if attached_primitive.kind in ("lip", "snap_fit", "boss", "rest"):
+        if shape.kind != "union":
+            raise ModelError("plastic features are added with +")
+        return [
+            _plastic_feature_command(primitive, position, name)
+            for primitive, position, _refs in resolved
+        ]
 
     operations = []
     for primitive, position, refs in resolved:
@@ -384,10 +391,7 @@ def _to_commands(shape, name):
         return compile_base(shape, name)
     if shape.kind == "shell":
         original, thickness, faces = shape.data
-        if original.kind == "box":
-            steps, base = _native_box_commands(original, name)
-        else:
-            steps, base = _to_commands(original, name)
+        steps, base = _to_commands(original, name)
         return steps + [_shell_command(base, thickness, faces, name)], base
     if shape.kind == "fillet":
         original, radius, edges = shape.data
@@ -417,7 +421,7 @@ def _to_commands(shape, name):
             raise ModelError("Hole must be positioned with .attach() or .at()")
         if added.kind in ("lip", "snap_fit", "boss", "rest"):
             raise ModelError(
-                f"{added.kind} must be positioned with .at()"
+                f"{added.kind} must be positioned with .attach() or .at()"
             )
         if added.kind in ("cylinder", "placed3d"):
             if added.kind == "placed3d":
