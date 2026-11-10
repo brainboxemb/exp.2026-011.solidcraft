@@ -129,9 +129,8 @@ def command_stages(commands):
             f'<small>{esc(kind)}'
             + (f' · {esc(", ".join(details))}' if details else "")
             + '</small>'
-            + '<details><summary>Show exact command and parameters</summary>'
             + f'<pre><code>{esc(json.dumps(entry, indent=2))}</code></pre>'
-            + '</details></li>'
+            + '</li>'
         )
     return "\n".join(items)
 
