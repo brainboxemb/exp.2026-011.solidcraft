@@ -416,6 +416,75 @@ jobs:
             --no-grid --no-axes
           test -s output/native/components/model.png
 
+      - name: Qualify production CornerBracket in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/corner-bracket
+          python -m scpf examples/corner-bracket/scpf/model.py \
+            --out output/native/corner-bracket/commands.json
+          jq -e '
+            ([.commands[] | select(.command == "solid.fillet")] | length) == 1
+            and ([.commands[] | select(.command == "solid.chamfer")] | length) == 2
+            and ([.commands[] | select(.command == "solid.hole")] | length) == 16
+            and ([.commands[] | select(
+              .command == "solid.hole"
+              and .params.type == "countersink"
+            )] | length) == 4
+            and ([.commands[] | select(
+              .command == "solid.extrude"
+              and .params.direction == "symmetric"
+            )] | length) == 1
+          ' output/native/corner-bracket/commands.json
+          solidcraft-cli run output/native/corner-bracket/commands.json \
+            --param-check strict --results \
+            --json-out output/native/corner-bracket/results.json \
+            --save output/native/corner-bracket/model.sc \
+            --out output/native/corner-bracket/model.step
+          solidcraft-cli eval output/native/corner-bracket/model.sc \
+            --json-out output/native/corner-bracket/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "CornerBracket"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min == [-12, -12, -60]
+            and .bodies[0].bbox.max == [60, 12, 12]
+            and (.timeline | all(.error == null))
+          ' output/native/corner-bracket/measurements.json
+          unzip -p output/native/corner-bracket/model.sc document.json \
+            > output/native/corner-bracket/document.json
+          jq -e '
+            ([.features[] | select(.type == "sketch")] | length) == 1
+            and ([.features[] | select(.type == "extrude")] | length) == 1
+            and ([.features[] | select(.type == "fillet")] | length) == 1
+            and ([.features[] | select(.type == "chamfer")] | length) == 2
+            and ([.features[] | select(.type == "hole")] | length) == 16
+          ' output/native/corner-bracket/document.json
+          cat > output/native/corner-bracket/change-arm.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"horizontal_arm_length","expression":"70 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/corner-bracket/change-arm.json \
+            --in output/native/corner-bracket/model.sc \
+            --param-check strict \
+            --save output/native/corner-bracket/model-long.sc
+          solidcraft-cli eval output/native/corner-bracket/model-long.sc \
+            --json-out output/native/corner-bracket/measurements-long.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.max[0] == 70
+            and (.timeline | all(.error == null))
+          ' output/native/corner-bracket/measurements-long.json
+          solidcraft-cli snapshot output/native/corner-bracket/model.sc \
+            --out output/native/corner-bracket/model.png \
+            --no-grid --no-axes
+          test -s output/native/corner-bracket/model.png
+
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
