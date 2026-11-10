@@ -130,7 +130,7 @@ def _anchored_features(shape):
         face_z = _combine(z, thickness / 2)
     if child.kind == "linear_pattern":
         feature, count, spacing, axis = child.data
-        shifts = [((n - (count - 1) / 2) * value_of(spacing), axis)
+        shifts = [((n - (count - 1) / 2) * spacing, axis)
                   for n in range(count)]
     else:
         feature, shifts = child, [(0, None)]
