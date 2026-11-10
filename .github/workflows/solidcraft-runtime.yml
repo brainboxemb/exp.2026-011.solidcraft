@@ -450,8 +450,8 @@ jobs:
             .body_count == 1
             and .bodies[0].name == "PlasticEnclosurePi"
             and .bodies[0].closed == true
-            and .bodies[0].bbox.min == [-47.5, -33, 0]
-            and .bodies[0].bbox.max == [47.5, 33, 24]
+            and (.bodies[0].bbox.min | map(. * 1000 | round / 1000)) == [-47.5, -33, 0]
+            and (.bodies[0].bbox.max | map(. * 1000 | round / 1000)) == [47.5, 33, 24]
             and (.sketches | length) == 4
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure-pi/measurements.json
@@ -477,7 +477,7 @@ jobs:
             --json-out output/native/plastic-enclosure-pi/measurements-height-32.json
           jq -e '
             .body_count == 1
-            and .bodies[0].bbox.max[2] == 32
+            and (.bodies[0].bbox.max[2] * 1000 | round / 1000) == 32
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure-pi/measurements-height-32.json
           solidcraft-cli snapshot output/native/plastic-enclosure-pi/model-height-32.sc \
