@@ -33,8 +33,9 @@ class CornerBracket:
 
         # Same X/Z outline as the OpenSCAD production model. The tiny
         # elephant-foot bevels at the two arm end faces belong to this profile.
-        profile = Polygon2D(
-            [
+        # SolidCraft's XZ sketch maps its second ordinate to world -Z.
+        # Negate it to retain the OpenSCAD X/Z world coordinate convention.
+        outline_xz = [
                 (h - ef, 0),
                 (h, ef),
                 (h, w - end),
@@ -46,9 +47,8 @@ class CornerBracket:
                 (-ef, -v),
                 (0, -v + ef),
                 (0, 0),
-            ],
-            plane="XZ",
-        )
+            ]
+        profile = Polygon2D([(x, -z) for x, z in outline_xz], plane="XZ")
 
         body = profile.extrude(
             self.bracket_width,
