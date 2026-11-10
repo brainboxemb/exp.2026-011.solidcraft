@@ -409,8 +409,12 @@ jobs:
             --out output/native/sample-plate-native-holes/model.png \
             --no-grid --no-axes
           test -s output/native/sample-plate-native-holes/model.png
-          # Both strategies must produce the same final solid, even though
-          # the editable feature histories intentionally differ.
+          # Both strategies should produce the same final solid.
+          # Print the measured values so a mismatch can be investigated.
+          jq -s '[.[] | {volume:.total.volume_mm3, bbox:.bodies[0].bbox,
+                         cylinders:.bodies[0].face_types.cylinder}]' \
+            output/native/sample-plate/measurements.json \
+            output/native/sample-plate-native-holes/measurements.json
           jq -e -s '
             (.[0].total.volume_mm3 - .[1].total.volume_mm3 | abs) < 0.001
             and .[0].bodies[0].bbox == .[1].bodies[0].bbox
