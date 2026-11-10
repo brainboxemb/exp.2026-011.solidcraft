@@ -12,7 +12,7 @@ class AnchoredHoles:
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=self.spacing, axis=Axis.Y
         ).on(plate, Anchor.TOP)
-        plate - holes
+        plate + holes
 
 
 AnchoredHoles()
