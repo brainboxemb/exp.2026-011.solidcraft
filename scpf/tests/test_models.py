@@ -223,7 +223,7 @@ class SCPFExamples(unittest.TestCase):
 
     def test_cylinder_keyword_form_is_direct_3d_primitive(self):
         from scpf.core import Cylinder
-        self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder3d")
+        self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder")
         self.assertEqual(Cylinder(d=24, h=14).at(40, 25, 8).kind, "placed3d")
 
     def test_cylinder_standalone_native_command(self):
