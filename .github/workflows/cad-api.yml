@@ -1,4 +1,4 @@
-name: SolidCraftForge offline
+name: SCRF Rust offline and SCPF comparison
 
 on:
   push:
@@ -79,10 +79,10 @@ jobs:
           jq . output/examples/plate/solidcraftforge/solidcraft.json
           echo "--- CSG cube commands ---"
           jq . output/examples/csg-cube/solidcraftforge/solidcraft.json
-      - name: Retain generated SolidCraftForge JSON as workflow artifact
+      - name: Retain generated SCRF and SCPF JSON as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: solidcraftforge-bld-json
+          name: scrf-scpf-bld-json
           path: |
             output/examples/plate/solidcraftforge/solidcraft.json
             output/examples/csg-cube/solidcraftforge/solidcraft.json
@@ -99,4 +99,4 @@ jobs:
           publish_dir: ./output/examples
           keep_files: true
           force_orphan: true
-          commit_message: "SolidCraftForge generated command plans from ${{ github.sha }}"
+          commit_message: "SCRF and SCPF generated command plans from ${{ github.sha }}"
