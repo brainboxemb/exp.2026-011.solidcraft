@@ -14,6 +14,7 @@ from pathlib import Path
 from . import core
 from .compiler import compile_model
 from .core import Parameter, Shape
+from .history import History, behavior
 
 
 def _symbolic(value, name):
@@ -172,6 +173,8 @@ def run_script(path: str | Path) -> dict:
         "X": core.X,
         "Y": core.Y,
         "Z": core.Z,
+        "History": History,
+        "behavior": behavior,
     }
     if isinstance(definition, ast.FunctionDef):
         _implicit_shape(definition.body)
