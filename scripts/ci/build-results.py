@@ -51,6 +51,19 @@ MODELS = {
         "stages": ["Draw the L profile", "Extrude its width",
                    "Round an exposed edge", "Sketch mounting holes", "Cut through the flange"],
     },
+    "corner-bracket": {
+        "title": "CornerBracket",
+        "tagline": "24 mm plywood corner bracket with four countersunk mounting holes",
+        "description": "The default SCPF model uses one native 90° countersink per hole. The old recessed-hole experiment remains as model_reference.py; this fast variant has a larger tapered opening instead of a flat-bottom head seat. Remaining arm-end points are tracked in issue #20.",
+        "parameters": "24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes",
+        "diagram": "bracket",
+        "stages": ["Profile — 2D L outline with arm-end bevels",
+                   "Extrude — symmetric 24 mm body",
+                   "Fillet — rounded inside corner R4",
+                   "Chamfer — outer edges of both broad faces",
+                   "Chamfer — print-face elephant-foot relief",
+                   "Four countersinks — single hole feature per location"],
+    },
     "plastic-enclosure-pi": {
         "title": "Plastic Enclosure Pi",
         "tagline": "Raspberry Pi 4 case with connectors, vents and engraving",
@@ -112,7 +125,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "corner-bracket": "corner-bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -143,6 +156,7 @@ def command_stages(commands):
         "sketch.finish": "Finish sketch",
         "solid.extrude": "Extrusion / cut",
         "solid.fillet": "Rounded edge",
+        "solid.chamfer": "Chamfered edge",
         "solid.box": "Box primitive",
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",

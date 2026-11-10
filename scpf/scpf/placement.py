@@ -33,7 +33,7 @@ def _base_rectangle(shape):
         if old_height is not None or direction != "positive":
             raise ValueError("anchoring requires one positive XY base extrusion")
         return dimensions, origin, height
-    if shape.kind in ("fillet", "shell"):
+    if shape.kind in ("fillet", "chamfer", "shell"):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])
@@ -44,7 +44,7 @@ def _shell_thickness(shape):
     """Return the active shell wall thickness in a supported feature chain."""
     if shape.kind == "shell":
         return shape.data[1]
-    if shape.kind in ("fillet", "union", "difference"):
+    if shape.kind in ("fillet", "chamfer", "union", "difference"):
         return _shell_thickness(shape.data[0])
     return None
 
@@ -98,6 +98,12 @@ def _anchored_features(shape):
     if shape.kind != "anchored":
         raise ValueError("expected an anchored feature")
     child, target, parent_anchor, child_anchor, offset = shape.data
+    if parent_anchor not in (
+        Anchor.CENTER, Anchor.TOP, Anchor.BOTTOM, Anchor.INNER_BOTTOM
+    ):
+        raise ValueError(
+            "side anchors are currently for reusable component placement only"
+        )
     (width, depth), (x, y, z), thickness = _base_rectangle(target)
     if thickness is None:
         raise ValueError("anchor target must be an extruded Rectangle2D")

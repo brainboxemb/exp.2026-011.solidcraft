@@ -23,24 +23,115 @@ def _is_feature_tree(shape):
         if profile.kind == "positioned":
             profile = profile.data[0]
         return profile.kind in ("rectangle", "circle", "polygon")
-    if shape.kind in ("fillet", "shell", "union", "difference", "material_assignment"):
+    if shape.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
     return False
 
 
-def _hole_command(feature, position, name, refs=None):
+def _hole_commands(feature, position, name, refs=None):
+    """Compile an explicitly positioned Hole to one or more native features."""
     if feature.kind != "hole":
         raise ModelError("native hole operation requires Hole")
-    diameter, depth = feature.data
+    (
+        diameter, depth, direction, countersink_d, countersink_angle,
+        countersink_recess,
+    ) = feature.data
     _require_positive(diameter, "hole diameter")
-    params = dict(position=[value_of(v) for v in position],
-                  diameter=command_value(diameter), targets=[name])
-    if depth is not Depth.THROUGH_ALL:
-        _require_positive(depth, "hole depth")
-        params["depth"] = command_value(depth)
-    if refs:
-        params["references"] = refs
-    return _command("solid.hole", **params)
+
+    point = tuple(position)
+    concrete_point = [value_of(v) for v in point]
+    if not all(isfinite(v) for v in concrete_point):
+        raise ModelError("hole position must be finite")
+
+    direction_vector = (
+        _vector(direction, "hole direction") if direction is not None else None
+    )
+
+    def simple_params(at, hole_diameter, hole_depth):
+        params = dict(
+            position=(
+                [command_value(v) for v in at] if direction_vector is not None
+                else [value_of(v) for v in at]
+            ),
+            diameter=command_value(hole_diameter),
+            targets=[name],
+        )
+        if hole_depth is not Depth.THROUGH_ALL:
+            _require_positive(hole_depth, "hole depth")
+            params["depth"] = command_value(hole_depth)
+        if direction_vector is not None:
+            params["direction"] = direction_vector
+        if refs:
+            params["references"] = refs
+        return params
+
+    if countersink_d is None:
+        return [_command("solid.hole", **simple_params(point, diameter, depth))]
+
+    _require_positive(countersink_d, "countersink diameter")
+    if value_of(countersink_d) <= value_of(diameter):
+        raise ModelError("countersink diameter must exceed hole diameter")
+    angle = value_of(countersink_angle)
+    if not isfinite(angle) or angle <= 0 or angle >= 180:
+        raise ModelError("countersink angle must be between 0 and 180 degrees")
+
+    recess = value_of(countersink_recess)
+    if recess < 0:
+        raise ModelError("countersink recess cannot be negative")
+
+    commands = []
+    entry = point
+    remaining_depth = depth
+
+    if recess:
+        if direction_vector is None:
+            raise ModelError(
+                "a recessed countersink requires an explicit hole direction"
+            )
+        commands.append(_command(
+            "solid.hole",
+            **simple_params(point, countersink_d, countersink_recess),
+        ))
+        length = sum(v * v for v in direction_vector) ** 0.5
+        unit = tuple(v / length for v in direction_vector)
+        # A hole only moves along its axis.  Keep the other coordinates
+        # unchanged instead of generating CAD expressions like
+        # "(head_recess * 0)", which are misleading and unnecessary.
+        entry = tuple(
+            point[i] if abs(unit[i]) < 1e-12
+            else _combine(point[i], countersink_recess * unit[i])
+            for i in range(3)
+        )
+        if depth is not Depth.THROUGH_ALL:
+            remaining_depth = _combine(depth, -countersink_recess)
+            if value_of(remaining_depth) <= 0:
+                raise ModelError(
+                    "hole depth must extend beyond the countersink recess"
+                )
+
+    params = simple_params(entry, diameter, remaining_depth)
+    params.update(
+        type="countersink",
+        cs_diameter=command_value(countersink_d),
+        cs_angle=command_value(countersink_angle),
+    )
+    # References describe the original entry face. They do not apply to the
+    # recessed floor created by the first command.
+    if recess:
+        params.pop("references", None)
+    commands.append(_command("solid.hole", **params))
+    # Native SolidCraft 0.30.1 fails to Boolean-cut a +X countersink
+    # if its counterbore has already been cut.  Both subtractive cuts
+    # commute geometrically, so make the countersink first and its
+    # shallow counterbore second.  Other orientations retain the
+    # straightforward counterbore-then-countersink feature sequence.
+    if (recess and direction_vector is not None
+            and direction_vector[0] > 0
+            and direction_vector[1] == 0
+            and direction_vector[2] == 0):
+        return [commands[-1], *commands[:-1]]
+    return commands
+
 
 
 def _fillet_command(base, radius, edges, name):
@@ -56,11 +147,29 @@ def _fillet_command(base, radius, edges, name):
             raise ModelError("vertical fillet of shifted base not supported")
         picks = [[x + dx, y + dy, h / 2]
                  for dx, dy in ((0, 0), (w, 0), (w, d), (0, d))]
-        return _command("solid.fillet", edges=picks, radius=r, body=name)
+        return _command(
+            "solid.fillet",
+            edges=picks,
+            radius=r,
+            body=name,
+        )
     picks = [[value_of(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
-    return _command("solid.fillet", edges=picks, radius=r)
+    return _command("solid.fillet", edges=picks, radius=r, body=name)
+
+
+def _chamfer_command(distance, edges, name):
+    _require_positive(distance, "chamfer distance")
+    picks = [[value_of(v) for v in point] for point in edges]
+    if not all(isfinite(v) for point in picks for v in point):
+        raise ModelError("chamfer edge selection must be finite")
+    return _command(
+        "solid.chamfer",
+        edges=picks,
+        distance=command_value(distance),
+        body=name,
+    )
 
 
 def _face_point(base, face):
@@ -190,8 +299,16 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     if parent_anchor is not Anchor.TOP:
         raise ModelError("Hole.attach() currently starts drilling from Anchor.TOP")
 
-    diameter, depth = feature.data
+    (
+        diameter, depth, hole_direction, countersink_d, countersink_angle,
+        countersink_recess,
+    ) = feature.data
     _require_positive(diameter, "hole diameter")
+    if (hole_direction is not None or countersink_d is not None
+            or value_of(countersink_recess) != 0):
+        raise ModelError(
+            "directional or countersunk Hole currently requires explicit .at() placement"
+        )
     (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
     base_top = thickness if value_of(origin_z) == 0 else _combine(origin_z, thickness)
     entry_z = base_top
@@ -242,7 +359,7 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
 
     operations = [_command("sketch.create", **plane)]
     for primitive, position, _refs in resolved:
-        hole_diameter, _ = primitive.data
+        hole_diameter = primitive.data[0]
         operations.append(_command(
             "sketch.circle.center",
             center=position[:2],
@@ -569,6 +686,10 @@ def _to_commands(shape, name):
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
         return steps + [_fillet_command(base, radius, edges, name)], base
+    if shape.kind == "chamfer":
+        original, distance, edges = shape.data
+        steps, base = _to_commands(original, name)
+        return steps + [_chamfer_command(distance, edges, name)], base
     if shape.kind in ("union", "difference"):
         original, added = shape.data
         steps, base = _to_commands(original, name)
@@ -592,7 +713,7 @@ def _to_commands(shape, name):
             ], base
         if added.kind == "placed3d" and added.data[0].kind == "hole":
             hole, x, y, z = added.data
-            return steps + [_hole_command(hole, (x, y, z), name)], base
+            return steps + _hole_commands(hole, (x, y, z), name), base
         if added.kind == "hole":
             raise ModelError("Hole must be positioned with .attach() or .at()")
         if added.kind in ("lip", "snap_fit", "boss", "rest"):
@@ -631,7 +752,7 @@ def compile_features(shape, name):
     # dimension of the feature. Keep it before coordinates of its profile.
     # XY rectangular footprints instead list their plan dimensions first.
     root = shape
-    while root.kind in ("fillet", "shell", "union", "difference", "material_assignment"):
+    while root.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         root = root.data[0]
     if root.kind == "extrusion" and root.data[0].kind == "polygon":
         parameters = _collect((root.data[1], shape))

@@ -530,7 +530,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube bracket sample-plate plastic-enclosure plastic-enclosure-pi; do
+          for model in plate csg-cube bracket corner-bracket sample-plate plastic-enclosure plastic-enclosure-pi; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
           done

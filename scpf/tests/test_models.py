@@ -49,9 +49,10 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The input source used sketch + cut. SCPF now emits native Hole
-        # features for the same two entry points; the base and fillet match.
-        self.assertEqual(generated["commands"][2:7], original["commands"][2:7])
+        # The profile/extrusion agree with the source; fillet selection
+        # explicitly names the target body rather than relying on GUI state.
+        self.assertEqual(generated["commands"][2:6], original["commands"][2:6])
+        self.assertEqual(generated["commands"][6]["params"]["body"], "Bracket")
         self.assertEqual([c["command"] for c in generated["commands"][7:]],
                          ["solid.hole", "solid.hole"])
         self.assertEqual([c["params"]["position"]
