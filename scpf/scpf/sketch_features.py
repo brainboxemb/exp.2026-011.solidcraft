@@ -103,8 +103,29 @@ def _anchored_features(shape):
         raise ValueError("anchor target must be an extruded Rectangle2D")
     if value_of(x) != 0 or value_of(y) != 0 or value_of(z) != 0:
         raise ValueError("native reference edges require an unshifted base for now")
+    # The original rectangular base is not necessarily the highest face:
+    # after a joined boss, Anchor.TOP must resolve to that boss's top.
+    # A circular boss has no suitable pair of straight reference edges,
+    # so a native Hole on its top uses a numeric face pick instead.
+    on_boss = False
+    if target.kind == "union":
+        previous, boss = target.data
+        if boss.kind == "anchored":
+            boss_feature, boss_parent, boss_anchor, boss_child, boss_offset = boss.data
+            if (boss_feature.kind == "cylinder3d" and boss_parent == previous
+                    and boss_anchor is Anchor.TOP and boss_child is Anchor.BOTTOM
+                    and all(value_of(v) == 0 for v in boss_offset)):
+                boss_height, boss_diameter = boss_feature.data
+                _require_positive_local = value_of(boss_height) > 0 and value_of(boss_diameter) > 0
+                if not _require_positive_local:
+                    raise ValueError("invalid attached boss")
+                on_boss = True
+            else:
+                raise ValueError("compound top attachment requires a centered joined boss")
+        else:
+            raise ValueError("compound top attachment requires an attached boss")
     if parent_anchor is Anchor.TOP:
-        face_z = thickness
+        face_z = _combine(thickness, boss_height) if on_boss else thickness
     elif parent_anchor is Anchor.BOTTOM:
         face_z = z
     else:
@@ -140,7 +161,7 @@ def _anchored_features(shape):
         yy = _combine(y, depth / 2, offset[1], dy)
         # The edge samples are intentionally strictly within straight segments
         # on filleted rectangular faces (midpoints, not rounded corners).
-        if parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
+        if not on_boss and parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
             refs = [
                 {"edge": [value_of(x), value_of(y) + value_of(depth)/2, value_of(face_z)],
                  "distance": command_value(_combine(width / 2, offset[0], dx))},
