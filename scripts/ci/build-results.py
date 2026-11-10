@@ -256,8 +256,8 @@ def make_cheatsheet(out):
              "plate - Cylinder(d=12, h=22).at(40, 25, 0)"),
             ("a & b", "Intersection for supported CSG primitives.",
              "Sphere(30) & Cube(50)"),
-            ("solid.fillet(radius, edges='vertical')", "Round four vertical edges of an extruded rectangular base.",
-             "plate.fillet(6, edges='vertical')"),
+            ("solid.fillet(radius, edges=Edges.VERTICAL)", "Round vertical edges of a supported 3D body. Explicit 3D edge points are also accepted.",
+             "plate.fillet(6, edges=Edges.VERTICAL)"),
         ]),
         ("Run and inspect", [
             ("python -m scpf model.py --out out.json", "Compile commands without starting SolidCraft.",

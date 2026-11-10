@@ -108,6 +108,15 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
         self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
 
+    def test_named_edge_selection_and_explicit_edge_points(self):
+        from scpf.core import Box, Edges
+        body = Box(80, 50, 8)
+        self.assertIs(body.fillet(6).data[2], Edges.VERTICAL)
+        self.assertIs(body.fillet(6, edges=Edges.VERTICAL).data[2], Edges.VERTICAL)
+        self.assertEqual(body.fillet(6, edges=[(0, 0, 4)]).data[2], [(0, 0, 4)])
+        with self.assertRaises(ValueError):
+            body.fillet(6, edges="vertical")
+
     def test_direction_enum_compiles_to_solidcraft_strings(self):
         from scpf.core import Circle2D, Direction
         from scpf.compiler import compile_model
@@ -128,6 +137,11 @@ class SCPFExamples(unittest.TestCase):
         import scpf
         for name in ("Rectangle", "Circle", "Polygon", "Box3D", "Cylinder3D", "Sphere3D"):
             self.assertFalse(hasattr(scpf, name), name)
+
+    def test_sample_plate_uses_edge_enum(self):
+        source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
+        self.assertIn("edges=Edges.VERTICAL", source)
+        run_script(ROOT / "examples/sample-plate/scpf/model.py")
 
     def test_cylinder_keyword_form_is_direct_3d_primitive(self):
         from scpf.core import Cylinder

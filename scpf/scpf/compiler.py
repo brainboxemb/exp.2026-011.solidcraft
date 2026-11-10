@@ -6,7 +6,7 @@ actual BRep booleans, sketches, fillets and geometric verification.
 from math import isfinite, hypot
 
 from .core import (
-    Shape, Parameter, command_value, number_text, parameters_in, value_of,
+    Shape, Parameter, Edges, command_value, number_text, parameters_in, value_of,
 )
 
 
@@ -168,7 +168,7 @@ def _plate(shape, name):
     if body.kind != "fillet" or cutters.kind != "pattern":
         raise ModelError("feature CAD requires filleted box - cylinder pattern")
     box, fillet_radius, edges = body.data
-    if box.kind != "box" or edges != "vertical":
+    if box.kind != "box" or edges is not Edges.VERTICAL:
         raise ModelError("only vertical fillets on an axis-aligned box are supported")
     length, width, thickness = box.data
     length_mm = _require_positive(length, "length")
@@ -255,7 +255,7 @@ def _profile_features(shape, name):
     fillet = None
     if shape.kind == "fillet":
         shape, radius, edges = shape.data
-        if edges == "vertical":
+        if edges is Edges.VERTICAL:
             raise ModelError("polygon fillet requires explicit 3D edge points")
         fillet = (radius, edges)
 

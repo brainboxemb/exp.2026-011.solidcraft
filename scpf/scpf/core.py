@@ -19,6 +19,14 @@ class Direction(str, Enum):
     NEGATIVE = "negative"
 
 
+class Edges(Enum):
+    """Named edge selections used by feature operations.
+
+    Explicit edges can alternatively be supplied as 3D coordinates.
+    """
+    VERTICAL = "vertical"
+
+
 @dataclass(frozen=True)
 class Parameter:
     name: str
@@ -146,10 +154,10 @@ class Shape:
             raise ValueError("extrude direction must be Direction.POSITIVE or Direction.NEGATIVE") from exc
         return Shape("extrusion", (self, distance, direction.value))
 
-    def fillet(self, radius, *, edges="vertical"):
-        if edges != "vertical":
+    def fillet(self, radius, *, edges=Edges.VERTICAL):
+        if edges is not Edges.VERTICAL:
             if not isinstance(edges, (list, tuple)) or not edges:
-                raise ValueError("fillet edges must be 'vertical' or 3D edge points")
+                raise ValueError("fillet edges must be Edges.VERTICAL or 3D edge points")
             for point in edges:
                 if len(point) != 3:
                     raise ValueError("each fillet edge point must have x, y and z")
