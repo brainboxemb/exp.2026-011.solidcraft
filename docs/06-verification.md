@@ -26,6 +26,8 @@ SolidCraft qualification. Compare exact command types, native geometry,
 and saved feature history; do not claim that a script matches a source
 document's history unless that comparison actually passes.
 
-The saved source of Sample Plate has sketch-based mounting holes and bore;
-our Python model uses native Hole features, so feature counts and types
-intentionally differ. Evaluate geometry and parameter changes separately.
+The default Sample Plate now reproduces the original four sketches
+(`Base`, `Holes`, `Boss`, `Bore`) and their feature operations.
+The alternative `examples/sample-plate/scpf/native-holes.py` uses three
+SolidCraft native Hole features and only two sketches. CI qualifies both
+versions independently. A native Hole intentionally does not create a sketch.
