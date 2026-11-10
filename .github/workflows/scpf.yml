@@ -1,19 +1,24 @@
 name: SCPF Python model qualification
 
 on:
-  push:
-    branches:
-      - feature/scpf-python
   pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "scpf/**"
       - "examples/**/scpf/**"
       - "examples/**/scrf/solidcraft.json"
+      - "scripts/ci/build-results.py"
+      - "scripts/ci/test-results.py"
+      - "site/**"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: scpf-fast-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   models:
@@ -27,13 +32,14 @@ jobs:
         env:
           PYTHONPATH: scpf
         run: python -m unittest discover -s scpf/tests -v
-      - name: Generate Plate, CSG cube and bracket commands
+      - name: Generate SCPF example command plans
         env:
           PYTHONPATH: scpf
         run: |
           python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
           python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
           python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
+          python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
       - name: Validate and compare command documents
         shell: bash
         run: |
@@ -60,15 +66,21 @@ jobs:
         shell: bash
         run: |
           jq -n --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
-            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket"]}' \
+            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket","sample-plate"]}' \
             > output/examples/scpf-build.json
-      - name: Publish SCPF JSON to orphan bld branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/scpf-python' && success()
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Build and smoke-test results pages without publishing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/ci/build-results.py \
+            --generated output/examples \
+            --commit "$GITHUB_SHA" \
+            --out output/site
+          python scripts/ci/test-results.py output/site "$GITHUB_SHA"
+      - name: Retain fast website preview (artifact only)
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: bld
-          publish_dir: ./output/examples
-          keep_files: true
-          force_orphan: true
-          commit_message: "SCPF generated command plans from ${{ github.sha }}"
+          name: scpf-site-preview
+          path: output/site/
+          retention-days: 7
+          if-no-files-found: error

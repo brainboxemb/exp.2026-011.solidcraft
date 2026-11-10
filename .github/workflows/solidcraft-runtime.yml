@@ -15,13 +15,27 @@ on:
   pull_request:
     branches:
       - main
+    types: [ready_for_review, synchronize, reopened]
+    paths:
+      - "scpf/**"
+      - "scrf/**"
+      - "scrf-macros/**"
+      - "examples/**"
+      - "site/**"
+      - "scripts/ci/**"
+      - ".github/workflows/solidcraft-runtime.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+concurrency:
+  group: solidcraft-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   native-solidcraft:
+    # Draft PR commits are never native-qualified; manual dispatch and main are allowed.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

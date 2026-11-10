@@ -1,24 +1,6 @@
 name: CAD results website
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "scpf/**"
-      - "examples/**/scpf/**"
-      - "site/**"
-      - "scripts/ci/build-results.py"
-      - "scripts/ci/test-results.py"
-      - ".github/workflows/cad-results.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "scpf/**"
-      - "examples/**/scpf/**"
-      - "site/**"
-      - "scripts/ci/build-results.py"
-      - "scripts/ci/test-results.py"
-      - ".github/workflows/cad-results.yml"
   workflow_dispatch: {}
 
 permissions:
