@@ -51,9 +51,8 @@ jobs:
         run: |
           set -euo pipefail
           branch="${GITHUB_REF_NAME}"
-          number="$(gh api "repos/${GITHUB_REPOSITORY}/pulls" \
-            -f head="${GITHUB_REPOSITORY_OWNER}:${branch}" \
-            -f state=open --jq '.[0].number // empty')"
+          number="$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "$branch" \
+            --state open --json number --jq '.[0].number // empty')"
           if [[ ! "$number" =~ ^[0-9]+$ ]]; then
             echo "No open PR for branch $branch. A preview needs an open PR." >&2
             exit 1
