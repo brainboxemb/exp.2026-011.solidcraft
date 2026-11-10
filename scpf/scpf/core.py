@@ -266,6 +266,18 @@ class Shape:
             raise ValueError("shell open must be a Faces value or non-empty sequence")
         return Shape("shell", (self, thickness, faces))
 
+    def with_material(self, name, *, density_g_cm3, color=None):
+        """Assign one design-owned physical material to the final body."""
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("material name must be a non-empty string")
+        if not isinstance(density_g_cm3, (int, float)) or not 0 < density_g_cm3 <= 1000:
+            raise ValueError("material density must be in (0, 1000] g/cm3")
+        if color is not None and (not isinstance(color, str) or
+                                  len(color) != 7 or color[0] != "#" or
+                                  any(c not in "0123456789abcdefABCDEF" for c in color[1:])):
+            raise ValueError("material color must be a #RRGGBB hex string")
+        return Shape("material_assignment", (self, name, density_g_cm3, color))
+
     def at(self, x=0, y=0, z=0):
         """Place a supported profile, primitive or feature at world coordinates.
 
