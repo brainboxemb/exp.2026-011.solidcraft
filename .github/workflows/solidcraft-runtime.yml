@@ -255,6 +255,40 @@ jobs:
             --out output/native/bracket/model.png \
             --no-grid --no-axes
           test -s output/native/bracket/model.png
+      - name: Qualify reconstructed SamplePlate in native SolidCraft
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/sample-plate
+          python -m scpf examples/sample-plate/scpf/model.py \
+            --out output/native/command-plans/sample-plate.json
+          solidcraft-cli run output/native/command-plans/sample-plate.json \
+            --param-check strict --results \
+            --json-out output/native/sample-plate/results.json \
+            --save output/native/sample-plate/model.sc \
+            --out output/native/sample-plate/model.step
+          solidcraft-cli eval output/native/sample-plate/model.sc \
+            --json-out output/native/sample-plate/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "SamplePlate"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min[0] > -0.0001
+            and .bodies[0].bbox.max[0] > 79.9999
+            and .bodies[0].bbox.min[1] > -0.0001
+            and .bodies[0].bbox.max[1] > 49.9999
+            and .bodies[0].bbox.min[2] > -0.0001
+            and .bodies[0].bbox.max[2] > 21.9999
+            and .bodies[0].bbox.max[2] < 22.0001
+            and (.timeline | all(.error == null))
+          ' output/native/sample-plate/measurements.json
+          test -s output/native/sample-plate/model.sc
+          test -s output/native/sample-plate/model.step
+          solidcraft-cli snapshot output/native/sample-plate/model.sc \
+            --out output/native/sample-plate/model.png \
+            --no-grid --no-axes
+          test -s output/native/sample-plate/model.png
+          cat output/native/sample-plate/measurements.json
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
@@ -293,7 +327,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube bracket; do
+          for model in plate csg-cube bracket sample-plate; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
           done
@@ -304,6 +338,7 @@ jobs:
             --out output/site
           python scripts/ci/test-results.py output/site "$GITHUB_SHA"
           test -s output/site/models/bracket/native.png
+          test -s output/site/models/sample-plate/native.png
       - name: Publish source-matched native results preview
         if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: peaceiris/actions-gh-pages@v4
