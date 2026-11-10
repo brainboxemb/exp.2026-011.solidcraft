@@ -8,7 +8,7 @@ class Plate:
         body = Box(self.length, self.width, self.thickness).fillet(
             2, edges="vertical"
         )
-        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
         body - holes
 
 

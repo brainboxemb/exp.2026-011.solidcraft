@@ -24,7 +24,7 @@ class Plate:
 
     def build(self):
         body = Box(self.length, self.width, self.thickness).fillet(2)
-        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
         body - holes
 
 Plate()
@@ -216,7 +216,7 @@ before accepting this reconstruction as geometrically equivalent.
 The generated results website includes a `/cheatsheet/` page.
 2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
 `Polygon2D`. 3D solids use plain names: `Box`, `Cube`, `Cylinder`
-and `Sphere`. The direct `Cylinder(d=..., h=...)` uses a bottom-face
-origin, while legacy positional `Cylinder(height, diameter)` uses a centered
-height convention. The latter remains in the Plate and CsgCube regression
-examples until their native command fixtures are migrated.
+and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
+`pattern()` and `orient()` helpers center generated cutter cylinders on
+their respective axes, preserving the Plate and CsgCube command fixtures.
+The old positional constructor and 3D-suffixed aliases are not supported.

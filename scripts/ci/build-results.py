@@ -244,13 +244,13 @@ def make_cheatsheet(out):
              "Cube(50)"),
         ]),
         ("Operations", [
-            ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder3D; 2D z offsets the sketch plane.",
+            ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder; 2D z offsets the sketch plane.",
              "Circle2D(d=8).at(12, 25)"),
             ("profile.extrude(distance)", "Extrude a planar sketch into a 3D solid.",
              "Rectangle2D(80, 50).extrude(8)"),
             ("Direction.POSITIVE / Direction.NEGATIVE", "Named direction enum: positive follows the sketch normal, negative points opposite.",
              "Circle2D(d=8).extrude(8, direction=Direction.NEGATIVE)"),
-            ("a + b", "Union/join. An extruded circular sketch or direct Cylinder3D can join a rectangular base.",
+            ("a + b", "Union/join. An extruded circular sketch or direct Cylinder can join a rectangular base.",
              "plate + Cylinder(d=24, h=14).at(40, 25, 8)"),
             ("a - b", "Difference/cut. Keep the original left-hand solid.",
              "plate - Cylinder(d=12, h=22).at(40, 25, 0)"),
@@ -284,7 +284,7 @@ def make_cheatsheet(out):
         '<h1>SCPF cheatsheet</h1><p>2D sketches, 3D volumes and native SolidCraft operations.</p></div></section>'
         '<main class="wrap"><div class="notice">SCPF is an experimental API: some combinations are not yet supported.'
         ' <code>Cylinder(d=..., h=...)</code> starts at its base;'
-        ' the older positional <code>Cylinder(height, diameter)</code> is centered vertically.'
+        ' Patterned/oriented cutter cylinders are centered along their axes.'
         ' See the examples for supported operations.</div>'
         + "".join(blocks) +
         '<section><h2>Next iteration · not implemented</h2><p>Generic object-relative anchors,'

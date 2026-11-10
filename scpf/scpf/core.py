@@ -175,12 +175,12 @@ class Shape:
         return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
 
     def pattern(self, *, x, y):
-        if self.kind != "cylinder":
+        if self.kind != "cylinder3d":
             raise ValueError("only cylinders support rectangular patterns in this PoP")
         return Shape("pattern", (self, x, y))
 
     def orient(self, *axes):
-        if self.kind != "cylinder":
+        if self.kind != "cylinder3d":
             raise ValueError("only cylinders support orient()")
         if len(axes) == 1 and isinstance(axes[0], (tuple, list)):
             axes = tuple(axes[0])
@@ -195,49 +195,23 @@ def _shape(value):
     return value
 
 
-def Rectangle(width, depth):
-    """Create a parameterized XY rectangle, anchored at the origin."""
+def Rectangle2D(width, depth):
+    """An XY rectangle with its lower-left corner at the origin."""
     return Shape("rectangle", (width, depth))
 
 
-def Circle(*, d=None, r=None):
-    """2D circle specified by diameter (d) or radius (r), as in BOSL2."""
-    if (d is None) == (r is None):
-        raise ValueError("Circle requires exactly one of d= or r=")
-    diameter = d if d is not None else r * 2
-    return Shape("circle", (diameter,))
-
-
-def Rectangle2D(width, depth):
-    return Rectangle(width, depth)
-
-
 def Circle2D(*, d=None, r=None):
-    return Circle(d=d, r=r)
-
-
-def Cylinder3D(*, d, h):
-    """Cylinder with its lower face at z=0; use .at() to place it."""
-    return Cylinder(d=d, h=h)
+    """An XY circle with diameter d or radius r."""
+    if (d is None) == (r is None):
+        raise ValueError("Circle2D requires exactly one of d= or r=")
+    return Shape("circle", (d if d is not None else r * 2,))
 
 
 def Polygon2D(points, *, plane="XY"):
-    return Polygon(points, plane=plane)
-
-
-def Box3D(length, width, height):
-    return Box(length, width, height)
-
-
-def Sphere3D(radius):
-    return Sphere(radius)
-
-
-def Polygon(points, *, plane="XY"):
-    """Create a closed planar profile, extrudable by SolidCraft."""
+    """A closed 2D polygon on XY, XZ or YZ."""
     coordinates = tuple(tuple(p) for p in points)
     if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
-        raise ValueError("Polygon needs at least three (u, v) points")
+        raise ValueError("Polygon2D requires at least three 2D points")
     if plane not in ("XY", "XZ", "YZ"):
         raise ValueError("unsupported sketch plane")
     return Shape("polygon", (coordinates, plane))
@@ -255,19 +229,8 @@ def Sphere(radius):
     return Shape("sphere", (radius,))
 
 
-def Cylinder(*args, d=None, h=None):
-    """Create a cylinder.
-
-    Cylinder(d=24, h=14) uses its base as the origin (like a directly
-    placed SolidCraft cylinder). Older Cylinder(height, diameter) scripts
-    retain the original centered-height convention for compatibility.
-    """
-    if args:
-        if len(args) != 2 or d is not None or h is not None:
-            raise TypeError("Cylinder accepts (height, diameter) or d=, h=")
-        return Shape("cylinder", tuple(args))
-    if d is None or h is None:
-        raise TypeError("Cylinder requires both d= and h=")
+def Cylinder(*, d, h):
+    """A cylinder based at z=0; use .at(x, y, z) for placement."""
     return Shape("cylinder3d", (h, d))
 
 

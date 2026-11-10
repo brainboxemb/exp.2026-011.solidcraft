@@ -83,7 +83,7 @@ def _add_offset(coord, offset):
     return coord + offset
 
 
-def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
+def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), centered=False):
     kind, data = shape.kind, shape.data
     if kind == "cube":
         (size,) = data
@@ -102,18 +102,12 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
         height, diameter = data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
+        base = _cylinder_base(height, axis) if centered else [0, 0, 0]
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
-                      base=list(offset), axis="Z", operation=operation)
-        command = "solid.cylinder"
-    elif kind == "cylinder":
-        height, diameter = data
-        _require_positive(height, "cylinder height")
-        _require_positive(diameter, "cylinder diameter")
-        params = dict(height=command_value(height),
-                      diameter=command_value(diameter),
-                      base=[_add_offset(coord, delta) for coord, delta in zip(_cylinder_base(height, axis), offset)], axis=axis,
-                      operation=operation)
+                      base=[_add_offset(coord, delta)
+                            for coord, delta in zip(base, offset)],
+                      axis=axis, operation=operation)
         command = "solid.cylinder"
     else:
         raise ModelError(f"not a supported CSG primitive: {kind}")
@@ -129,12 +123,12 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_apply(child, name, operation, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder"):
+    if shape.kind in ("cube", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, operation, offset=offset)]
     if shape.kind == "orient" and operation in ("cut", "join"):
         cylinder, axes = shape.data
         return [
-            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset)
+            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset, centered=True)
             for axis in axes
         ]
     if shape.kind == "union" and operation in ("cut", "join"):
@@ -152,7 +146,7 @@ def _csg_new(shape, name, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_new(child, name, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder", "cylinder3d"):
+    if shape.kind in ("cube", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data
@@ -185,7 +179,7 @@ def _plate(shape, name):
         raise ModelError("fillet radius exceeds box width")
 
     cylinder, spacing_x, spacing_y = cutters.data
-    if cylinder.kind != "cylinder":
+    if cylinder.kind != "cylinder3d":
         raise ModelError("pattern requires cylinders")
     cylinder_height, diameter = cylinder.data
     if _require_positive(cylinder_height, "cylinder height") < height_mm:
