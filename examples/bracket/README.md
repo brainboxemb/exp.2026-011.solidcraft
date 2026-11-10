@@ -30,6 +30,20 @@ python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf
 code output/examples/bracket/scpf/solidcraft.json
 ```
 
+To replay the **original command JSON without translating it**:
+
+```powershell
+python -m scpf replay examples/bracket/source/bracket.json
+```
+
+The original file starts with `parameters.change`, so `width` and
+`thickness` must already exist in the current design. In a new empty
+design, replay the standalone SCPF file instead:
+
+```powershell
+python -m scpf replay examples/bracket/scpf/solidcraft.json
+```
+
 To send commands to an **already open SolidCraft** instance, first open a
 new empty design and enable external Assistant control:
 
