@@ -16,7 +16,7 @@ adapter, not in normal model code.
 
 ### Higher level: the kind of design code we want
 
-SolidCraftForge scripts are ordinary Rust object definitions. A script ends
+SCRF scripts are ordinary Rust object definitions. A script ends
 with the object expression to build:
 
 ```rust
@@ -37,7 +37,7 @@ There is deliberately no `main()`, `show()`, `part!()` or `build!()`
 in the model script. The technical Cargo harness lives outside the script.
 
 See the real example:
-[`examples/plate/solidcraftforge/model.rs`](../examples/plate/solidcraftforge/model.rs).
+[`examples/plate/scrf/model.rs`](../examples/plate/scrf/model.rs).
 
 ## What CadQuery teaches us
 
@@ -122,7 +122,7 @@ The user does not have to know or manage these intermediate steps.
 ## Four separate responsibilities
 
 ```text
-SolidCraftForge domain (Part, Hole, Edges, ordered features)
+SCRF domain (Part, Hole, Edges, ordered features)
    │  independent of SolidCraft/serde/JSON
    ▼
 SolidCraft adapter (translate CAD intent into operations)
@@ -172,7 +172,7 @@ topology operations rather than guessed XYZ points.
 
 ## Script interface (current experiment)
 
-All SolidCraftForge scripts return the **same** script-facing `Shape` type,
+All SCRF scripts return the **same** script-facing `Shape` type,
 whether they describe a feature-based part or a CSG boolean model. The wrapper
 automatically imports the standard CAD prelude; no `use` statements, explicit
 `Result`, or `?` are needed in the example file. Plain numeric dimensions
@@ -186,7 +186,7 @@ yet inferred from Rust variables.
 
 ## Annotated CAD parameters
 
-The SolidCraftForge script runner imports `#[cad]` automatically.
+The SCRF script runner imports `#[cad]` automatically.
 Within a marked `impl`, a constructor's `#[parameter] size: f64` argument
 is converted by the procedural macro into an internal named CAD value
 without changing its public `f64` constructor signature. As a result,

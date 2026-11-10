@@ -2,7 +2,7 @@
 
 ## Offline Rust checks
 
-CI compiles the Rust crate, runs all Rust tests, generates the semantic plate command plan and compares it semantically with the reviewed [`examples/plate/solidcraftforge/solidcraft.json`](../examples/plate/solidcraftforge/solidcraft.json).
+CI compiles the Rust crate, runs all Rust tests, generates the semantic plate command plan and compares it semantically with the reviewed [`examples/plate/scrf/solidcraft.json`](../examples/plate/scrf/solidcraft.json).
 
 The fixture comparison deliberately treats JSON numbers such as `10` and `10.0` as equal.
 
@@ -39,7 +39,7 @@ This is strong evidence that the high-level box/fillet/top-face-holes example ac
 
 ## Parametric edit qualification
 
-The current SolidCraftForge Plate script promotes `length`, `width` and `thickness`
+The current SCRF Plate script promotes `length`, `width` and `thickness`
 to named CAD-domain parameters. The SolidCraft adapter creates them with native `parameters.add` (explicit `mm` unit)
 and uses their names in the base sketch and extrusion distances. Later edits use
 `parameters.change` on those existing parameters.

@@ -4,4 +4,36 @@ output/
 *.stp
 
 # Rust build output
-rust-facade/target/
+target/
+scrf/target/
+scrf-macros/target/
+
+# Python caches, builds, local environments
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# VS Code: keep shared project settings, ignore user-specific settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.example.json
+*.code-workspace
+
+# IDE and OS local files
+.idea/
+.DS_Store
+Thumbs.db

@@ -330,7 +330,7 @@ impl Part {
     }
 
     /// Subtract a centered pattern of cylindrical cutters. For the currently
-    /// supported Z-axis through-cut, SolidCraftForge converts these cutters
+    /// supported Z-axis through-cut, SCRF converts these cutters
     /// into an editable top-face sketch with circles and a negative extrusion.
     pub fn subtract(self, cutters: CylinderCut) -> Result<Self, DesignError> {
         if cutters.height < self.base.height.value_mm() {

@@ -4,7 +4,7 @@
 
 Build a semantic **Rust CAD API** for SolidCraft. The user describes a part in CAD terms; the adapter decides how to construct it in SolidCraft.
 
-CadQuery, vcad, µcad and PythonSCAD are interface-design references only. We compare five implementations: SolidCraftForge, CadQuery, µcad, vcad and PythonSCAD.
+CadQuery, vcad, µcad and PythonSCAD are interface-design references only. We compare five implementations: SCRF, CadQuery, µcad, vcad and PythonSCAD.
 
 ## Architecture
 
@@ -52,13 +52,13 @@ Expected directory layout:
 ```text
 generated-examples (orphan branch)
 ├── plate/
-│   ├── solidcraftforge/
+│   ├── scrf/
 │   ├── cadquery/
 │   ├── microcad/
 │   ├── vcad/
 │   └── pythonscad/
 └── csg-cube/
-    ├── solidcraftforge/
+    ├── scrf/
     ├── cadquery/
     ├── microcad/
     ├── vcad/

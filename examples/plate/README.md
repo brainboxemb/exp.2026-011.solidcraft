@@ -14,8 +14,8 @@ geometry such as hulls, Minkowski operations or cutters.
 
 ## Variants
 
-- `solidcraftforge/model.rs` — ordinary Rust `Plate` type; the script ends with `Plate::new(...)`.
-- `solidcraftforge/solidcraft.json` — reviewed native SolidCraft command sequence.
+- `scrf/model.rs` — ordinary Rust `Plate` type; the script ends with `Plate::new(...)`.
+- `scrf/solidcraft.json` — reviewed native SolidCraft command sequence.
 - `cadquery/model.py` — native BRep edge fillet via `.edges("|Z").fillet(2)`.
 - `vcad/model.rs` — native BRep selective edge blend using a direction query.
 - `pythonscad/model.py` — PythonSCAD's native mesh fillet with an edge-selection mask.
@@ -27,4 +27,4 @@ geometry such as hulls, Minkowski operations or cutters.
 
 Execution and export plumbing stays outside these model files.
 
-The SolidCraftForge constructor annotates the three editable box dimensions with `#[parameter]` inside a `#[cad]` impl. Cylinders are specified in a centered four-position pattern, then subtracted. Plain numeric values are millimetres; the runner handles the parameter metadata and native feature history.
+The SCRF constructor annotates the three editable box dimensions with `#[parameter]` inside a `#[cad]` impl. Cylinders are specified in a centered four-position pattern, then subtracted. Plain numeric values are millimetres; the runner handles the parameter metadata and native feature history.

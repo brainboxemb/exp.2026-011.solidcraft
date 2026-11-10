@@ -9,7 +9,7 @@ import argparse
 import json
 from pathlib import Path
 
-IMPLEMENTATIONS = ("solidcraftforge", "cadquery", "microcad", "vcad", "pythonscad")
+IMPLEMENTATIONS = ("scrf", "cadquery", "microcad", "vcad", "pythonscad")
 EXAMPLES = ("plate", "csg-cube")
 
 
@@ -45,7 +45,7 @@ def qualify(root: Path) -> list[str]:
             formats = {p.suffix.lower() for p in directory.iterdir() if p.is_file() and p.stat().st_size > 0}
             if not formats.intersection({".stl", ".step", ".sc"}):
                 problems.append(f"{example}/{implementation}: missing non-empty CAD export")
-            if implementation == "solidcraftforge" and ".sc" not in formats:
+            if implementation == "scrf" and ".sc" not in formats:
                 problems.append(f"{example}/{implementation}: missing native SolidCraft .sc")
             if implementation == "vcad" and example == "csg-cube":
                 # Mesh-only is legitimate for the pinned kernel, but it must

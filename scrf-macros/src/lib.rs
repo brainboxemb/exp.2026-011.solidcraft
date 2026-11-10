@@ -1,4 +1,4 @@
-//! Script-level parameter annotations for SolidCraftForge.
+//! Script-level parameter annotations for SCRF.
 //!
 //! `#[cad]` processes `#[parameter]` on constructor arguments, leaving the
 //! publicly callable signature untouched. Its body receives the same named
@@ -42,9 +42,9 @@ pub fn cad(_args: TokenStream, input: TokenStream) -> TokenStream {
             }
             let name = &ident.ident;
             initializers.push(parse_quote! {
-                let #name = ::solidcraftforge::csg::ParamLength::new(
+                let #name = ::scrf::csg::ParamLength::new(
                     stringify!(#name),
-                    ::solidcraftforge::cad::Length::mm(#name),
+                    ::scrf::cad::Length::mm(#name),
                 );
             });
         }

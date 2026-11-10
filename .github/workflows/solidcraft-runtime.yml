@@ -1,9 +1,11 @@
-name: SolidCraft 0.30.1 native CLI qualification
+name: SolidCraft 0.30.1 native qualification (SCRF and SCPF)
 
 on:
   push:
     branches:
       - feature/issue-1-python-interface
+      - feature/scpf-python
+      - main
   pull_request:
     branches:
       - main
@@ -27,18 +29,39 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
-          cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
-          cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
+          cargo test --manifest-path scrf/Cargo.toml --all-targets
+          cargo run --manifest-path scrf/Cargo.toml --example plate
+          cargo run --manifest-path scrf/Cargo.toml --example csg_cube
           jq -e -s '.[0] == .[1]' \
-            examples/plate/solidcraftforge/solidcraft.json \
-            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
+            examples/plate/scrf/solidcraft.json \
+            output/examples/plate/scrf/solidcraft.json >/dev/null
           jq -e -s '.[0] == .[1]' \
-            examples/csg-cube/solidcraftforge/solidcraft.json \
-            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+            examples/csg-cube/scrf/solidcraft.json \
+            output/examples/csg-cube/scrf/solidcraft.json >/dev/null
           mkdir -p output/native/command-plans
-          cp output/examples/plate/solidcraftforge/solidcraft.json output/native/command-plans/plate.json
-          cp output/examples/csg-cube/solidcraftforge/solidcraft.json output/native/command-plans/csg-cube.json
+          cp output/examples/plate/scrf/solidcraft.json output/native/command-plans/plate.json
+          cp output/examples/csg-cube/scrf/solidcraft.json output/native/command-plans/csg-cube.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python SCPF models to native commands
+        env:
+          PYTHONPATH: scpf
+        run: |
+          python -m unittest discover -s scpf/tests -v
+          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate-scpf.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube-scpf.json
+          python -m scpf examples/bracket/scpf/model.py --out output/native/command-plans/bracket-scpf.json
+          jq -e --slurpfile original examples/bracket/source/bracket.json '
+            (.commands | length) == ($original[0].commands | length)
+            and (.commands[2:] == $original[0].commands[2:])
+          ' output/native/command-plans/bracket-scpf.json
+          jq -e -s '.[0] == .[1]' \
+            output/native/command-plans/plate.json \
+            output/native/command-plans/plate-scpf.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            output/native/command-plans/csg-cube.json \
+            output/native/command-plans/csg-cube-scpf.json >/dev/null
       - name: Fetch and verify official Linux SolidCraft release
         shell: bash
         run: |
@@ -196,6 +219,42 @@ jobs:
           test -s output/native/csg-cube/model.sc
           test -s output/native/csg-cube/model.step
           cat output/native/csg-cube/measurements.json
+      - name: Evaluate Bracket with native SolidCraft and inspect BRep
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/bracket
+          solidcraft-cli run output/native/command-plans/bracket-scpf.json \
+            --param-check strict \
+            --results \
+            --json-out output/native/bracket/results.json \
+            --save output/native/bracket/model.sc \
+            --out output/native/bracket/model.step
+          solidcraft-cli eval output/native/bracket/model.sc \
+            --json-out output/native/bracket/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "Bracket"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min[0] > -0.0001
+            and .bodies[0].bbox.max[0] < 40.0001
+            and .bodies[0].bbox.min[1] < -59.9999
+            and .bodies[0].bbox.max[1] > -0.0001
+            and .bodies[0].bbox.min[2] < -29.9999
+            and .bodies[0].bbox.max[2] > -0.0001
+            and (.timeline | all(.error == null))
+          ' output/native/bracket/measurements.json
+          test -s output/native/bracket/model.sc
+          test -s output/native/bracket/model.step
+          cat output/native/bracket/measurements.json
+      - name: Render native Bracket reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          solidcraft-cli snapshot output/native/bracket/model.sc \
+            --out output/native/bracket/model.png \
+            --no-grid --no-axes
+          test -s output/native/bracket/model.png
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
@@ -227,8 +286,47 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Build results site with native snapshots from this run
+        if: success()
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          for model in plate csg-cube bracket; do
+            python -m scpf "examples/$model/scpf/model.py" \
+              --out "output/examples/$model/scpf/solidcraft.json"
+          done
+          python scripts/ci/build-results.py \
+            --generated output/examples \
+            --native output/native \
+            --commit "$GITHUB_SHA" \
+            --out output/site
+          python scripts/ci/test-results.py output/site "$GITHUB_SHA"
+          test -s output/site/models/bracket/native.png
+      - name: Publish source-matched native results preview
+        if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          destination_dir: previews/pr-${{ github.event.pull_request.number }}
+          keep_files: true
+          force_orphan: true
+          commit_message: "Native CAD previews for PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
+      - name: Publish main site with native screenshots
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          keep_files: true
+          force_orphan: true
+          commit_message: "Verified native CAD website at ${{ github.sha }}"
       - name: Publish qualified native SolidCraft evidence to orphan vrf branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface' && success()
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/feature/issue-1-python-interface' || github.ref == 'refs/heads/feature/scpf-python') && success()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

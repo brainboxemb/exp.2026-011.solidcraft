@@ -9,7 +9,7 @@ use std::ops::{Add, BitAnd, BitOr, Sub};
 
 pub mod prelude {
     pub use super::{Cube, Cylinder, Shape, Sphere};
-    pub use solidcraftforge_macros::cad;
+    pub use scrf_macros::cad;
     pub use crate::cad::Edges;
     pub use crate::csg::{X, Y, Z};
 }
@@ -27,7 +27,7 @@ enum ShapeState {
     Error(DesignError),
 }
 
-/// The single public SolidCraftForge modeling result: features and CSG solids
+/// The single public SCRF modeling result: features and CSG solids
 /// share this type. Internally they retain separate CAD descriptions.
 #[derive(Debug, Clone)]
 pub struct Shape {

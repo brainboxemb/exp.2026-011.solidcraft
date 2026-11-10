@@ -1,10 +1,10 @@
-use solidcraftforge::solidcraft_adapter::SolidCraftAdapter;
-use solidcraftforge::ScriptTransport;
+use scrf::solidcraft_adapter::SolidCraftAdapter;
+use scrf::ScriptTransport;
 use std::error::Error;
 use std::path::PathBuf;
 
 mod script {
-    include!(concat!(env!("OUT_DIR"), "/plate_script.rs"));
+    include!(concat!(env!("OUT_DIR"), "/csg_cube_script.rs"));
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     model.compile(&mut cad)?;
 
     let output = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../output/examples/plate/solidcraftforge");
+        .join("../output/examples/csg-cube/scrf");
     std::fs::create_dir_all(&output)?;
     cad.into_transport().write(output.join("solidcraft.json"))?;
     Ok(())

@@ -78,7 +78,7 @@ From the repository root:
 .\scripts\qualify-solidcraft.ps1 -Snapshot              # additionally compile and test Rust
 ```
 
-Without `-SkipBuild`, this builds/tests the Rust API and generates `output/examples/plate/solidcraftforge/solidcraft.json`; with `-SkipBuild`, it uses the committed and CI-checked SolidCraftForge command plan. It then
+Without `-SkipBuild`, this builds/tests the Rust API and generates `output/examples/plate/scrf/solidcraft.json`; with `-SkipBuild`, it uses the committed and CI-checked SCRF command plan. It then
 uses the real SolidCraft CLI with **strict parameter checking**, exports
 `cad-plate.step` and the native `cad-plate.sc` design, and records
 measurements/results. Output stays in ignored `output/`.

@@ -1,0 +1,74 @@
+name: SCPF Python model qualification
+
+on:
+  push:
+    branches:
+      - feature/scpf-python
+  pull_request:
+    paths:
+      - "scpf/**"
+      - "examples/**/scpf/**"
+      - "examples/**/scrf/solidcraft.json"
+      - ".github/workflows/scpf.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test Python CAD models against reviewed command fixtures
+        env:
+          PYTHONPATH: scpf
+        run: python -m unittest discover -s scpf/tests -v
+      - name: Generate Plate, CSG cube and bracket commands
+        env:
+          PYTHONPATH: scpf
+        run: |
+          python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
+          python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
+      - name: Validate and compare command documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          for model in plate csg-cube; do
+            jq empty "output/examples/$model/scpf/solidcraft.json"
+            jq -e -s '.[0] == .[1]' \
+              "examples/$model/scrf/solidcraft.json" \
+              "output/examples/$model/scpf/solidcraft.json" >/dev/null
+          done
+          jq empty output/examples/bracket/scpf/solidcraft.json
+          jq -e -s '.[0] == .[1]' \
+            examples/bracket/scpf/solidcraft.json \
+            output/examples/bracket/scpf/solidcraft.json >/dev/null
+      - name: Retain generated SCPF commands
+        uses: actions/upload-artifact@v4
+        with:
+          name: scpf-native-command-plans
+          path: output/examples/*/scpf/solidcraft.json
+          if-no-files-found: error
+
+      - name: Record SCPF build provenance
+        if: success()
+        shell: bash
+        run: |
+          jq -n --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
+            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket"]}' \
+            > output/examples/scpf-build.json
+      - name: Publish SCPF JSON to orphan bld branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/scpf-python' && success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: bld
+          publish_dir: ./output/examples
+          keep_files: true
+          force_orphan: true
+          commit_message: "SCPF generated command plans from ${{ github.sha }}"
