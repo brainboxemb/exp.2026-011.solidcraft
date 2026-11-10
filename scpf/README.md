@@ -195,11 +195,18 @@ commit; unverified previews are explicitly labelled.
 
 The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
 contains an editable SolidCraft **design history**, not command JSON.
-The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py) uses
-`Rectangle2D`, `Circle2D`, `Cylinder`, extrusion, fillets and boolean
-joins/cuts. Direct cylinders emit native `solid.cylinder` commands rather
-than recreating the source sketch/extrude feature history. The original saved
-design is kept unchanged.
+The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py)
+now follows the original **four sketches and nine features**:
+`Base` → Extrude → Fillet → `Holes` → Cut → `Boss` → Join →
+`Bore` → Cut. This matters for editable history, not merely matching the
+final shape. The two mounting holes, boss and bore use `Circle2D` sketches;
+the boss and bore sketches keep a symbolic plane offset based on
+`thickness`. The original saved design is kept unchanged.
+
+The **separate** [anchored-holes example](../examples/anchored-holes/scpf/model.py)
+demonstrates native `solid.hole` with edge references. That is a different
+feature history by design. The SamplePlate reproduction intentionally uses
+the source's sketch/extrude workflow.
 
 ```powershell
 $env:PYTHONPATH = "scpf"
