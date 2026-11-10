@@ -20,7 +20,10 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][1]["params"]["radius"], "size / 1.5")
 
     def test_plate_uses_generic_box_and_native_holes(self):
-        commands = run_script(ROOT / "examples/plate/scpf/model.py")["commands"]
+        generated = run_script(ROOT / "examples/plate/scpf/model.py")
+        expected = json.loads((ROOT / "examples/plate/scpf/reference.json").read_text())
+        self.assertEqual(generated, expected)
+        commands = generated["commands"]
         self.assertEqual([c["params"]["name"] for c in commands[:3]],
                          ["length", "width", "thickness"])
         self.assertEqual([c["params"]["name"] for c in commands
