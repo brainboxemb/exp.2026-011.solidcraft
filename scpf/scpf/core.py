@@ -368,6 +368,17 @@ def _shape(value):
     return value
 
 
+def Text2D(text, *, height=6.0, font="DejaVu Sans Bold"):
+    """Editable sketch lettering (height is capital height, in mm)."""
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("Text2D requires non-empty text")
+    if not isinstance(font, str) or not font.strip():
+        raise ValueError("Text2D requires a font family")
+    if value_of(height) <= 0:
+        raise ValueError("Text2D height must be positive")
+    return Shape("text", (text, height, font))
+
+
 def Rectangle2D(width, depth):
     """An XY rectangle with its lower-left corner at the origin."""
     return Shape("rectangle", (width, depth))
