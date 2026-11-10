@@ -51,6 +51,19 @@ MODELS = {
         "stages": ["Draw the L profile", "Extrude its width",
                    "Round an exposed edge", "Sketch mounting holes", "Cut through the flange"],
     },
+    "plastic-enclosure-pi": {
+        "title": "Plastic Enclosure Pi",
+        "tagline": "Rounded open-top enclosure with a USB cutout and four bosses",
+        "description": "Reconstructs the supplied MCP enclosure example with an explicitly named YZ USB sketch and four native screw bosses.",
+        "parameters": "80 × 60 × 30 mm; R6; 2 mm walls; four Ø7 bosses",
+        "diagram": "plastic-enclosure",
+        "stages": ["Outline — centered 80 × 60 mm footprint",
+                   "Extrude — height 30 mm",
+                   "Fillet — four vertical corners R6",
+                   "Shell — open top, 2 mm wall",
+                   "USB port — YZ rectangular sketch and through-all cut",
+                   "Boss × 4 — native screw bosses on the inner floor"],
+    },
     "plastic-enclosure": {
         "title": "Plastic Enclosure",
         "tagline": "A shelled enclosure with native plastic design features",
@@ -94,7 +107,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -228,7 +241,7 @@ Native qualification is reported only when the matching verified image exists.</
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
     home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore five small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
+<p>Explore six small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
