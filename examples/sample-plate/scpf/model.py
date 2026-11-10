@@ -1,25 +1,27 @@
 @dataclass
 class SamplePlate:
-    """80 x 50 x 8 plate, rounded corners, two holes and a raised boss."""
+    """Reconstructed from the saved SolidCraft Sample Plate design."""
 
     width: float = 80
     depth: float = 50
     thickness: float = 8
 
     def build(self):
-        # Source feature 1-3: XY footprint, extrusion, four R6 corners.
+        # Base: one XY rectangle, extruded upward, with four R6 corners.
         plate = Rectangle(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges="vertical")
 
-        # Source features 4-5: two through-holes, each diameter 8.
-        plate = plate.holes([(12, 25), (68, 25)],
-                            diameter=8, depth=self.thickness)
+        # The two mounting holes are ordinary circles on the XY plane.
+        holes = Circle(d=8).at(12, 25) + Circle(d=8).at(68, 25)
+        plate = plate - holes.extrude(self.thickness)
 
-        # Source features 6-7: circular boss starts on top of base.
-        plate = plate.boss(center=(40, 25), diameter=24, height=14)
+        # Another circle, positioned on top of the plate and joined.
+        boss = Circle(d=24).at(40, 25, z=self.thickness)
+        plate = plate + boss.extrude(14)
 
-        # Source features 8-9: bore from boss top through base.
-        plate.bore(center=(40, 25), diameter=12)
+        # A circle on top of the boss, extruded down through both solids.
+        bore = Circle(d=12).at(40, 25, z=self.thickness + 14)
+        plate - bore.extrude(self.thickness + 14, direction="negative")
 
 
 SamplePlate()
