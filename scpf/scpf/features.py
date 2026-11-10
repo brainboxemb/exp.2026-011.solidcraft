@@ -132,7 +132,8 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
                  distance=command_value(distance),
                  direction=direction,
                  operation="cut",
-                 targets=[name]),
+                 targets=[name],
+                 name=label),
     ])
     return operations
 
@@ -190,7 +191,8 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
             _command("solid.extrude", distance=command_value(height),
                      direction=direction,
                      operation="join" if shape.kind == "union" else "cut",
-                     targets=[name]),
+                     targets=[name],
+                     name=label),
         ])
     return operations
 
@@ -224,7 +226,8 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
         _command("solid.extrude", distance=command_value(distance),
                  direction=direction,
                  operation="join" if shape.kind == "union" else "cut",
-                 targets=[name]),
+                 targets=[name],
+                 name=label),
     ])
     return result
 
