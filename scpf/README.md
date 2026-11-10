@@ -11,34 +11,29 @@ native SolidCraft feature history when possible.
 
 ## Model objects
 
-The preferred SCPF style is a reusable Python dataclass. Numeric fields
-are CAD parameters, and `build()` constructs the model. The last Shape
+The preferred SCPF style is a plain Python class. Numeric class fields are
+CAD parameters, and `build()` constructs the model. The last Shape
 expression in `build()` is the result: no `return`, `show()` or `main()`.
 
 ```python
-@dataclass
 class Plate:
-    length: float = 100
-    width: float = 60
-    thickness: float = 10
+    length = 100.0
+    width = 60.0
+    thickness = 10.0
 
     def build(self):
         body = Box(self.length, self.width, self.thickness)
         body = body.fillet(2, edges=Edges.VERTICAL)
-        for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
-            body = body + Hole(
-                d=8, depth=Depth.THROUGH_ALL
-            ).at(x, y, self.thickness)
         body
 
 Plate()
 ```
 
-SCPF makes `dataclass` available without an import. It constructs the
-Python object normally (including `__post_init__` validation), promotes
-numeric model fields to SolidCraft parameters, and calls `build()`.
-`@dataclass(frozen=True)` is also supported. The last-expression behavior
-is an SCPF convention, not normal Python behavior.
+SCPF promotes those numeric class fields to SolidCraft parameters and also
+allows overrides such as `Plate(width=80.0)` without requiring a handwritten
+`__init__`. Existing `@dataclass` models remain supported, including
+`@dataclass(frozen=True)` and `__post_init__` validation. The
+last-expression behavior is an SCPF convention, not normal Python behavior.
 
 Five CAD examples:
 - [Plate](../examples/plate/scpf/model.py): rounded box with holes.
@@ -68,13 +63,15 @@ feature-based Plate bodies is deliberately rejected.
 
 ## Parameters
 
-The runner reads the final model class constructor signature using
-`inspect.signature`. Numerical fields become named CAD parameters,
-including arguments explicitly overridden by the final call:
+For a plain model class, numeric class fields become named CAD parameters in
+declaration order. The final model call may override them by name or position:
 
 ```python
-Plate(120, 80, 12)
+Plate(width=80.0)
+Plate(120.0, 80.0, 12.0)
 ```
+
+Dataclass models continue to use their normal constructor signature.
 
 SCPF preserves symbolic expressions such as `size / 1.5` in emitted JSON.
 For the supported box, parameters `length`, `width` and `thickness`
