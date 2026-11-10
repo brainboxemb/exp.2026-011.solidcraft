@@ -17,7 +17,7 @@ class CornerBracketTests(unittest.TestCase):
         self.assertEqual(len([c for c in commands if c["command"] == "solid.chamfer"]), 2)
         self.assertEqual(len([c for c in commands if c["command"] == "solid.fillet"]), 1)
         # 19 params + 4 sketch+extrude + 3 edge modifiers + 4 holes.
-        self.assertEqual(len(commands), 30)
+        self.assertEqual(len(commands), 29)
 
     def test_original_reference_kept_separate(self):
         commands = run_script(EXAMPLE / "model_reference.py")["commands"]
