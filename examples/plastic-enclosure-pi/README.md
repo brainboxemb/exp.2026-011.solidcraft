@@ -1,57 +1,36 @@
-# Plastic Enclosure Pi
+# Plastic Enclosure Pi — video reconstruction
 
-A separate practical SCPF example based on the supplied SolidCraft/MCP
-electronics-enclosure sequence.
+This is a separate practical SCPF example, independent of the small
+[`history-policy`](../history-policy/) demonstration.
 
-This project is intentionally separate from
-[`history-policy`](../history-policy/): the history-policy example stays small
-and demonstrates compiler behavior in isolation, while this example is a real
-enclosure model that can grow independently.
+## Correct source
 
-## Source
+The supplied [`source/enclosure_steps.json`](source/enclosure_steps.json) describes
+**another** enclosure (80 × 60 × 30 mm, R6, USB port and four bosses). It
+does not describe the Raspberry Pi 4 video. Keep it for comparison, not as the
+implementation target.
 
-[`source/enclosure_steps.json`](source/enclosure_steps.json) is the supplied
-command-by-command SolidCraft reference.
+The Raspberry Pi 4 video is scripted in upstream SolidCraft
+[`examples/demo/enclosure_ui_mcp.py`](https://github.com/tangency-labs/solidcraft/blob/main/examples/demo/enclosure_ui_mcp.py),
+function `run_pi` (`--story pi`).
 
-The reference builds:
+## Implemented video steps
 
-1. user parameters `width`, `depth`, `height`, `wall`;
-2. a centered enclosure footprint;
-3. extrusion by `height`;
-4. 6 mm fillets on the four vertical edges;
-5. an open-top shell with `wall` thickness;
-6. a YZ sketch for the USB opening and a through-all cut;
-7. four native screw bosses;
-8. a final width change from 80 mm to 100 mm as an associative-rebuild demo.
+1. Parameters: `board_w = 85 mm`, `board_d = 56 mm`,
+   `height = 24 mm`, `wall = 2 mm`.
+2. Centered XY rectangle dimensioned as `board_w + 10 mm = 95 mm` by
+   `board_d + 10 mm = 66 mm`.
+3. Extrude to `height = 24 mm`.
+4. Fillet the four vertical edges, **R5 mm**.
+5. Shell from the top face, **2 mm wall**, leaving the top open.
 
-The reference intentionally omits the rim lip because its source notes that it
-waits for upstream SolidCraft issue #29.
+The current Python model deliberately stops after Shell, so the saved geometry
+can be compared with this point in the video before proceeding.
 
-## SCPF model
+## Next steps in the video (not yet implemented)
 
-[`scpf/model.py`](scpf/model.py) expresses the same main design intent:
+The 0.8 video next rounds the upper rim by 1 mm, builds an annular M2.5
+standoff and patterns it over 58 × 49 mm, makes connector and ventilation
+cuts, adds `Pi 4` text and PETG material, then changes height from 24 to 32 mm.
 
-```python
-class PlasticEnclosurePi:
-    width = 80.0
-    depth = 60.0
-    height = 30.0
-    wall = 2.0
-
-    def build(self):
-        enclosure = Box(self.width, self.depth, self.height)
-        enclosure = enclosure.fillet(6.0, edges=Edges.VERTICAL)
-        enclosure = enclosure.shell(self.wall, open=Faces.TOP)
-
-        with Sketch(name="USB port", on=enclosure, plane="YZ") as usb:
-            usb.add(Rectangle2D(12.0, 7.0), offset=(-6.0, 8.5))
-
-        enclosure = enclosure - usb.extrude(Depth.THROUGH_ALL)
-        ...
-```
-
-The four bosses remain semantic `Boss(...)` objects and therefore use native
-SolidCraft plastic-boss features under the normal AUTO history policy.
-
-This example also gives the explicit Sketch API a useful non-XY case:
-`Sketch(..., plane="YZ")` plus a rectangular through-all cut.
+These are **not** the USB sketch or four native bosses from the older JSON.
