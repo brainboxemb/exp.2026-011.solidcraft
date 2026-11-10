@@ -78,6 +78,12 @@ class Parameter:
 
     __radd__ = __add__
 
+    def __sub__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value - other,
+                              f"{self.name} - {number_text(other)} mm", (self,))
+        return NotImplemented
+
     def __neg__(self):
         return Expression(-self.value, f"-({self.name})", (self,))
 
@@ -101,6 +107,12 @@ class Expression:
         return NotImplemented
 
     __radd__ = __add__
+
+    def __sub__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value - other,
+                              f"{self.name} - {number_text(other)} mm", (self,))
+        return NotImplemented
 
     def __neg__(self):
         return Expression(-self.value, f"-({self.expression})", self.parameters)
