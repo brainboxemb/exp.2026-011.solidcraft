@@ -8,7 +8,7 @@ on:
     paths:
       - "scpf/**"
       - "examples/**/scpf/**"
-      - "examples/**/solidcraftforge/solidcraft.json"
+      - "examples/**/scrf/solidcraft.json"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
 
@@ -41,7 +41,7 @@ jobs:
           for model in plate csg-cube; do
             jq empty "output/examples/$model/scpf/solidcraft.json"
             jq -e -s '.[0] == .[1]' \
-              "examples/$model/solidcraftforge/solidcraft.json" \
+              "examples/$model/scrf/solidcraft.json" \
               "output/examples/$model/scpf/solidcraft.json" >/dev/null
           done
           jq empty output/examples/bracket/scpf/solidcraft.json
