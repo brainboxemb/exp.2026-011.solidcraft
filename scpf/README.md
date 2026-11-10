@@ -161,8 +161,6 @@ edge is at `[40, -30, -6]` and the hole cut uses
 `direction: "negative"`. An earlier SCPF version incorrectly used
 positive Z; this has been corrected following a real GUI error.
 
-The Rust predecessor is **SCRF** (SolidCraft Rust Forge), stored under
-`scrf/` and `examples/{plate,csg-cube}/scrf/`.
 
 ## Results website
 
