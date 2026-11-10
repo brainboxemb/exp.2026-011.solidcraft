@@ -5,6 +5,7 @@ on:
     branches:
       - feature/issue-1-python-interface
       - feature/scpf-python
+      - main
   pull_request:
     branches:
       - main
@@ -285,6 +286,45 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Build results site with native snapshots from this run
+        if: success()
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          for model in plate csg-cube bracket; do
+            python -m scpf "examples/$model/scpf/model.py" \
+              --out "output/examples/$model/scpf/solidcraft.json"
+          done
+          python scripts/ci/build-results.py \
+            --generated output/examples \
+            --native output/native \
+            --commit "$GITHUB_SHA" \
+            --out output/site
+          python scripts/ci/test-results.py output/site "$GITHUB_SHA"
+          test -s output/site/models/bracket/native.png
+      - name: Publish source-matched native results preview
+        if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          destination_dir: previews/pr-${{ github.event.pull_request.number }}
+          keep_files: true
+          force_orphan: true
+          commit_message: "Native CAD previews for PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
+      - name: Publish main site with native screenshots
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          keep_files: true
+          force_orphan: true
+          commit_message: "Verified native CAD website at ${{ github.sha }}"
       - name: Publish qualified native SolidCraft evidence to orphan vrf branch
         if: github.event_name == 'push' && (github.ref == 'refs/heads/feature/issue-1-python-interface' || github.ref == 'refs/heads/feature/scpf-python') && success()
         uses: peaceiris/actions-gh-pages@v4
