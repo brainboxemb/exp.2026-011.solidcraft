@@ -127,6 +127,10 @@ class ModelInstance:
         face_offset = tuple(value_of(v) for v in offset)
         if not all(isfinite(v) for v in face_offset):
             raise ValueError("component attach offset must be finite")
+        if any(face_offset):
+            raise ValueError(
+                "component attach offset is not implemented associatively yet"
+            )
 
         target_local = _anchor_point(target, parent)
         child_local = _anchor_point(self, child)
