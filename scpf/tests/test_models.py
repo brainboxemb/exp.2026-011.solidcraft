@@ -388,6 +388,58 @@ class SCPFExamples(unittest.TestCase):
         )["commands"]
         self.assertEqual(commands[-1]["command"], "solid.hole")
 
+    def test_shell_uses_faces_without_reusing_anchor_semantics(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Faces
+        commands = compile_model(
+            Box(80, 50, 30).shell(2, open=Faces.TOP),
+            "Enclosure",
+        )["commands"]
+        self.assertEqual(
+            [c["command"] for c in commands],
+            ["solid.box", "solid.shell"],
+        )
+        self.assertEqual(commands[0]["params"]["corner"], [-40, -25, 0])
+        self.assertEqual(commands[1]["params"]["faces"], [[0, 0, 30]])
+        self.assertEqual(commands[1]["params"]["thickness"], 2)
+        with self.assertRaises(ValueError):
+            Box(80, 50, 30).shell(2, open=Faces.TOP).move(x=10)
+
+    def test_plastic_enclosure_compiles_to_native_plastic_features(self):
+        commands = run_script(
+            ROOT / "examples/plastic-enclosure/scpf/model.py"
+        )["commands"]
+        feature_commands = [c for c in commands
+                            if c["command"] != "parameters.add"]
+        self.assertEqual(
+            [c["command"] for c in feature_commands],
+            [
+                "solid.box",
+                "solid.shell",
+                "plastic.lip",
+                "plastic.snap_fit",
+                "plastic.boss",
+                "plastic.boss",
+                "plastic.rest",
+            ],
+        )
+        self.assertEqual(feature_commands[0]["params"]["body_name"], "Enclosure")
+        self.assertTrue(all(
+            c["params"].get("body") == "Enclosure"
+            for c in feature_commands[1:]
+        ))
+        self.assertEqual(feature_commands[1]["params"]["faces"], [[0, 0, 30]])
+        self.assertEqual(feature_commands[2]["params"]["face"], [-39, 0, 30])
+        self.assertEqual(feature_commands[3]["params"]["position"], [0, 19, 2])
+        self.assertEqual(feature_commands[3]["params"]["hook"], [0, -1, 0])
+        self.assertEqual(
+            [feature_commands[4]["params"]["position"],
+             feature_commands[5]["params"]["position"]],
+            [[-30, -15, 2], [30, 15, 2]],
+        )
+        self.assertEqual(feature_commands[6]["params"]["position"], [0, 0, 2])
+        self.assertEqual(feature_commands[6]["params"]["length"], 24)
+
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
         from scpf.core import Circle2D

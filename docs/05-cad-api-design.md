@@ -30,6 +30,13 @@ plate + bore
 - The adapter decides the native representation. For Sample Plate it creates
   the editable `Holes` and `Bore` sketches and cut extrusions.
 - Python scripts do not need an explicit `Sketch` object.
+- `Faces` selects geometry for operations; `Anchor` describes relative
+  placement. They are intentionally separate concepts.
+- `shell()` is a modifier like `fillet()`: for example
+  `body.shell(2, open=Faces.TOP)`.
+- `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level
+  building blocks, like `Box`, `Cylinder` and `Hole`; the compiler maps
+  them to native SolidCraft plastic features.
 
 ## Responsibility boundaries
 

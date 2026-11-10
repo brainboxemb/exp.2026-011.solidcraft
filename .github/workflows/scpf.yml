@@ -40,11 +40,12 @@ jobs:
           python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
           python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
           python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
+          python -m scpf examples/plastic-enclosure/scpf/model.py --out output/examples/plastic-enclosure/scpf/solidcraft.json
       - name: Validate and compare command documents
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube; do
+          for model in plate csg-cube plastic-enclosure; do
             jq empty "output/examples/$model/scpf/solidcraft.json"
           done
           jq -e -s '.[0] == .[1]' \
@@ -68,7 +69,7 @@ jobs:
         shell: bash
         run: |
           jq -n --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
-            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket","sample-plate"]}' \
+            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket","sample-plate","plastic-enclosure"]}' \
             > output/examples/scpf-build.json
       - name: Build and smoke-test results pages without publishing
         shell: bash

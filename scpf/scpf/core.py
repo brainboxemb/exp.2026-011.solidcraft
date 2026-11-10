@@ -43,6 +43,16 @@ class Edges(Enum):
     VERTICAL = "vertical"
 
 
+class Faces(Enum):
+    """Named planar face selections for feature operations."""
+    TOP = "top"
+    BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
+    FRONT = "front"
+    BACK = "back"
+
+
 @dataclass(frozen=True)
 class Parameter:
     name: str
@@ -177,7 +187,7 @@ class Shape:
         offsets = (value_of(x), value_of(y), value_of(z))
         if not all(isfinite(v) for v in offsets):
             raise ValueError("move() requires finite coordinates")
-        if self.kind in ("fillet", "pattern"):
+        if self.kind in ("fillet", "shell", "pattern"):
             raise ValueError("move() currently supports only primitive and CSG shapes")
         return Shape("translated", (self, offsets))
 
@@ -199,15 +209,38 @@ class Shape:
                     raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
 
-    def at(self, x=0, y=0, z=0):
-        """Place a 2D profile in world coordinates.
+    def shell(self, thickness, *, open=Faces.TOP):
+        """Hollow a solid to an even wall thickness and leave selected faces open."""
+        value_of(thickness)
+        if isinstance(open, Faces):
+            faces = (open,)
+        elif isinstance(open, (list, tuple)) and open:
+            try:
+                faces = tuple(Faces(face) for face in open)
+            except ValueError as exc:
+                raise ValueError("shell open faces must use Faces values") from exc
+        else:
+            raise ValueError("shell open must be a Faces value or non-empty sequence")
+        return Shape("shell", (self, thickness, faces))
 
-        For XY sketches, x and y locate the profile on its sketch plane;
-        z offsets the sketch plane. The profile remains a reusable Shape.
+    def at(self, x=0, y=0, z=0):
+        """Place a supported profile, primitive or feature at world coordinates.
+
+        For XY sketches, x and y locate the profile on its sketch plane and z
+        offsets that plane. For 3D and plastic features the point is the native
+        SolidCraft authoring position.
         """
-        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder", "hole"):
-            raise ValueError("at() currently supports planar profiles")
-        return Shape("placed3d" if self.kind in ("cylinder", "hole") else "positioned", (self, x, y, z))
+        if self.kind not in (
+            "circle", "rectangle", "polygon", "positioned", "cylinder", "hole",
+            "lip", "snap_fit", "boss", "rest",
+        ):
+            raise ValueError("at() does not support this shape")
+        return Shape(
+            "placed3d" if self.kind in (
+                "cylinder", "hole", "lip", "snap_fit", "boss", "rest"
+            ) else "positioned",
+            (self, x, y, z),
+        )
 
     def pattern(self, *, count, spacing, axis):
         """Repeat a Hole or Cylinder at symmetric offsets along an XY axis."""
@@ -309,6 +342,49 @@ def Hole(*, d, depth=Depth.THROUGH_ALL):
     if depth is not Depth.THROUGH_ALL and value_of(depth) <= 0:
         raise ValueError("hole depth must be positive or Depth.THROUGH_ALL")
     return Shape("hole", (d, depth))
+
+
+def Lip(*, width, height):
+    """Plastic enclosure lip placed by a point on a shelled rim face."""
+    return Shape("lip", (width, height))
+
+
+def SnapFit(*, length, thickness, width, catch_depth, catch_length,
+            hook, direction=None):
+    """Cantilever plastic snap fit placed by a point on its supporting face."""
+    hook = tuple(hook)
+    if len(hook) != 3:
+        raise ValueError("SnapFit hook must be a 3D direction")
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("SnapFit direction must be a 3D direction")
+    return Shape(
+        "snap_fit",
+        (length, thickness, width, catch_depth, catch_length, hook, direction),
+    )
+
+
+def Boss(*, d, h, hole_d=None, direction=None):
+    """Plastic screw boss placed by a point on its supporting face."""
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("Boss direction must be a 3D direction")
+    return Shape("boss", (d, h, hole_d, direction))
+
+
+def Rest(*, width, height, length=None, along=None, direction=None):
+    """Plastic support pad placed by its centre point on a supporting face."""
+    if along is not None:
+        along = tuple(along)
+        if len(along) != 3:
+            raise ValueError("Rest along must be a 3D direction")
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("Rest direction must be a 3D direction")
+    return Shape("rest", (width, height, length, along, direction))
 
 
 X, Y, Z = "X", "Y", "Z"

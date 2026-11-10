@@ -6,7 +6,7 @@ It is not a geometry engine: SolidCraft owns actual face identity.
 from .core import Shape, value_of, command_value
 
 def _is_centered_box(shape):
-    while shape.kind in ("fillet", "union", "difference"):
+    while shape.kind in ("fillet", "shell", "union", "difference"):
         shape = shape.data[0]
     return shape.kind == "box"
 
@@ -33,7 +33,7 @@ def _base_rectangle(shape):
         if old_height is not None or direction != "positive":
             raise ValueError("anchoring requires one positive XY base extrusion")
         return dimensions, origin, height
-    if shape.kind == "fillet":
+    if shape.kind in ("fillet", "shell"):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])

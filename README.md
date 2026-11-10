@@ -49,6 +49,8 @@ generated JSON. Use `--out` first to inspect the exact sequence.
 - [CSG Cube](examples/csg-cube/scpf/model.py): primitive Boolean operations.
 - [Anchored Holes](examples/anchored-holes/scpf/model.py): repeated
   Hole intent attached to the plate and compiled as one editable sketch cut.
+- [Plastic Enclosure](examples/plastic-enclosure/scpf/model.py): native
+  Shell, Lip, Snap Fit, Boss and Rest plastic features.
 
 A `Hole` describes drilling intent. Attach it to the face where drilling
 starts, then add it to the body with `+`. For the Sample Plate, the compiler
@@ -62,8 +64,8 @@ the live GUI connection and limitations.
 
 The [results-site generator](scripts/ci/build-results.py) publishes the
 Python model, exact native SolidCraft command JSON, and a command-by-command
-timeline. Expand **Show exact command and parameters** to inspect the actual
-JSON for a step. Native CAD snapshots are verified against the source commit
+timeline. The exact command and parameters are shown directly below every
+step. Native CAD snapshots are verified against the source commit
 before they are marked verified.
 
 The formerly experimental Rust scripting layer (SCRF) has been retired.

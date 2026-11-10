@@ -4,7 +4,7 @@ Works on Box, Rectangle2D/Circle2D/Polygon2D extrusions. Every feature
 is compiled from its operation, not from a named example such as Plate.
 """
 from math import isfinite
-from .core import Shape, Edges, Depth, Anchor, Parameter, value_of, command_value
+from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, value_of, command_value
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
 from .placement import _anchored_features, _base_rectangle, _combine
 from .sketches import compile_base, _circle_profiles
@@ -20,7 +20,7 @@ def _is_feature_tree(shape):
         if profile.kind == "positioned":
             profile = profile.data[0]
         return profile.kind in ("rectangle", "circle", "polygon")
-    if shape.kind in ("fillet", "union", "difference"):
+    if shape.kind in ("fillet", "shell", "union", "difference"):
         return _is_feature_tree(shape.data[0])
     return False
 
@@ -58,6 +58,153 @@ def _fillet_command(base, radius, edges, name):
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
     return _command("solid.fillet", edges=picks, radius=r)
+
+
+def _native_box_commands(shape, name):
+    """Build a Box as one native feature while preserving SCPF Box placement."""
+    length, width, height = shape.data
+    _require_positive(length, "box length")
+    _require_positive(width, "box width")
+    _require_positive(height, "box height")
+    (_, _), (x, y, z), _ = _base_rectangle(shape)
+    steps = [
+        _command(
+            "solid.box",
+            length=command_value(length),
+            width=command_value(width),
+            height=command_value(height),
+            corner=[command_value(x), command_value(y), command_value(z)],
+            operation="new",
+            body_name=name,
+        )
+    ]
+    base = {
+        "profile": "rectangle",
+        "width": length,
+        "depth": width,
+        "thickness": height,
+        "origin": (x, y, z),
+    }
+    return steps, base
+
+
+def _face_point(base, face):
+    """Return a stable authoring pick on a named face of a rectangular base."""
+    if base.get("profile") != "rectangle":
+        raise ModelError("named Faces currently require a rectangular base")
+    x, y, z = (value_of(v) for v in base["origin"])
+    width = value_of(base["width"])
+    depth = value_of(base["depth"])
+    height = value_of(base["thickness"])
+    points = {
+        Faces.TOP: [x + width / 2, y + depth / 2, z + height],
+        Faces.BOTTOM: [x + width / 2, y + depth / 2, z],
+        Faces.LEFT: [x, y + depth / 2, z + height / 2],
+        Faces.RIGHT: [x + width, y + depth / 2, z + height / 2],
+        Faces.FRONT: [x + width / 2, y, z + height / 2],
+        Faces.BACK: [x + width / 2, y + depth, z + height / 2],
+    }
+    return points[face]
+
+
+def _shell_command(base, thickness, faces, name):
+    _require_positive(thickness, "shell thickness")
+    return _command(
+        "solid.shell",
+        faces=[_face_point(base, face) for face in faces],
+        thickness=command_value(thickness),
+        body=name,
+    )
+
+
+def _vector(values, label):
+    concrete = [value_of(v) for v in values]
+    if len(concrete) != 3 or not all(isfinite(v) for v in concrete):
+        raise ModelError(f"{label} must be a finite 3D direction")
+    if concrete == [0, 0, 0]:
+        raise ModelError(f"{label} cannot be the zero vector")
+    return concrete
+
+
+def _plastic_feature_command(feature, position, name):
+    """Compile one native SolidCraft plastic feature at an explicit face pick."""
+    point = [value_of(v) for v in position]
+    if not all(isfinite(v) for v in point):
+        raise ModelError("plastic feature position must be finite")
+
+    if feature.kind == "lip":
+        width, height = feature.data
+        _require_positive(width, "lip width")
+        _require_positive(height, "lip height")
+        return _command(
+            "plastic.lip",
+            face=point,
+            width=command_value(width),
+            height=command_value(height),
+            body=name,
+        )
+
+    if feature.kind == "snap_fit":
+        length, thickness, width, catch_depth, catch_length, hook, direction = feature.data
+        for value, label in (
+            (length, "snap-fit length"),
+            (thickness, "snap-fit thickness"),
+            (width, "snap-fit width"),
+            (catch_depth, "snap-fit catch depth"),
+            (catch_length, "snap-fit catch length"),
+        ):
+            _require_positive(value, label)
+        params = dict(
+            position=point,
+            hook=_vector(hook, "snap-fit hook"),
+            length=command_value(length),
+            thickness=command_value(thickness),
+            width=command_value(width),
+            catch_depth=command_value(catch_depth),
+            catch_length=command_value(catch_length),
+            body=name,
+        )
+        if direction is not None:
+            params["direction"] = _vector(direction, "snap-fit direction")
+        return _command("plastic.snap_fit", **params)
+
+    if feature.kind == "boss":
+        diameter, height, hole_diameter, direction = feature.data
+        _require_positive(diameter, "boss diameter")
+        _require_positive(height, "boss height")
+        params = dict(
+            position=point,
+            diameter=command_value(diameter),
+            height=command_value(height),
+            body=name,
+        )
+        if hole_diameter is not None:
+            _require_positive(hole_diameter, "boss hole diameter")
+            params["hole_diameter"] = command_value(hole_diameter)
+        if direction is not None:
+            params["direction"] = _vector(direction, "boss direction")
+        return _command("plastic.boss", **params)
+
+    if feature.kind == "rest":
+        width, height, length, along, direction = feature.data
+        _require_positive(width, "rest width")
+        _require_positive(height, "rest height")
+        params = dict(
+            position=point,
+            width=command_value(width),
+            height=command_value(height),
+            body=name,
+        )
+        if length is not None:
+            _require_positive(length, "rest length")
+            params["length"] = command_value(length)
+        if along is not None:
+            params["along"] = _vector(along, "rest along")
+        if direction is not None:
+            params["direction"] = _vector(direction, "rest direction")
+        return _command("plastic.rest", **params)
+
+    raise ModelError(f"unsupported plastic feature {feature.kind}")
 
 
 def _attached_hole_commands(child, target, parent_anchor, resolved, name):
@@ -235,6 +382,13 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
 def _to_commands(shape, name):
     if shape.kind in ("box", "extrusion"):
         return compile_base(shape, name)
+    if shape.kind == "shell":
+        original, thickness, faces = shape.data
+        if original.kind == "box":
+            steps, base = _native_box_commands(original, name)
+        else:
+            steps, base = _to_commands(original, name)
+        return steps + [_shell_command(base, thickness, faces, name)], base
     if shape.kind == "fillet":
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
@@ -248,11 +402,23 @@ def _to_commands(shape, name):
         if added.kind == "anchored":
             return steps + _attached_commands(
                 shape, original, added, name, feature_name=feature_name), base
+        if added.kind == "placed3d" and added.data[0].kind in (
+                "lip", "snap_fit", "boss", "rest"):
+            if shape.kind != "union":
+                raise ModelError("plastic features are added with +")
+            feature, x, y, z = added.data
+            return steps + [
+                _plastic_feature_command(feature, (x, y, z), name)
+            ], base
         if added.kind == "placed3d" and added.data[0].kind == "hole":
             hole, x, y, z = added.data
             return steps + [_hole_command(hole, (x, y, z), name)], base
         if added.kind == "hole":
-            raise ModelError("Hole must be positioned with .on() or .at()")
+            raise ModelError("Hole must be positioned with .attach() or .at()")
+        if added.kind in ("lip", "snap_fit", "boss", "rest"):
+            raise ModelError(
+                f"{added.kind} must be positioned with .at()"
+            )
         if added.kind in ("cylinder", "placed3d"):
             if added.kind == "placed3d":
                 primitive, x, y, z = added.data
@@ -285,7 +451,7 @@ def compile_features(shape, name):
     # dimension of the feature. Keep it before coordinates of its profile.
     # XY rectangular footprints instead list their plan dimensions first.
     root = shape
-    while root.kind in ("fillet", "union", "difference"):
+    while root.kind in ("fillet", "shell", "union", "difference"):
         root = root.data[0]
     if root.kind == "extrusion" and root.data[0].kind == "polygon":
         parameters = _collect((root.data[1], shape))
