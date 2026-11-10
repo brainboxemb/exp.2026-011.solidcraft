@@ -445,6 +445,7 @@ jobs:
             --out output/native/plastic-enclosure-pi/model.step
           solidcraft-cli eval output/native/plastic-enclosure-pi/model.sc \
             --json-out output/native/plastic-enclosure-pi/measurements.json
+          cat output/native/plastic-enclosure-pi/measurements.json
           jq -e '
             .body_count == 1
             and .bodies[0].name == "PlasticEnclosurePi"
