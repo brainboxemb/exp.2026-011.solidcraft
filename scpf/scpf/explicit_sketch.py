@@ -48,7 +48,7 @@ class Sketch:
     def add(self, profile, *, offset=(0, 0)):
         if self._closed:
             raise ValueError("cannot add geometry after leaving the Sketch scope")
-        if not isinstance(profile, Shape) or profile.kind not in ("circle", "rectangle"):
+        if not isinstance(profile, Shape) or profile.kind not in ("circle", "rectangle", "text"):
             raise ValueError("Sketch supports Circle2D or Rectangle2D profiles")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("Sketch offset must be an (x, y) pair")
