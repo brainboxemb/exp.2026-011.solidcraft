@@ -83,7 +83,7 @@ def _add_offset(coord, offset):
     return coord + offset
 
 
-def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
+def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), centered=False):
     kind, data = shape.kind, shape.data
     if kind == "cube":
         (size,) = data
@@ -98,14 +98,16 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
         params = dict(radius=command_value(radius), center=list(offset),
                       operation=operation)
         command = "solid.sphere"
-    elif kind == "cylinder":
+    elif kind == "cylinder3d":
         height, diameter = data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
+        base = _cylinder_base(height, axis) if centered else [0, 0, 0]
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
-                      base=[_add_offset(coord, delta) for coord, delta in zip(_cylinder_base(height, axis), offset)], axis=axis,
-                      operation=operation)
+                      base=[_add_offset(coord, delta)
+                            for coord, delta in zip(base, offset)],
+                      axis=axis, operation=operation)
         command = "solid.cylinder"
     else:
         raise ModelError(f"not a supported CSG primitive: {kind}")
@@ -121,12 +123,12 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_apply(child, name, operation, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder"):
+    if shape.kind in ("cube", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, operation, offset=offset)]
     if shape.kind == "orient" and operation in ("cut", "join"):
         cylinder, axes = shape.data
         return [
-            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset)
+            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset, centered=True)
             for axis in axes
         ]
     if shape.kind == "union" and operation in ("cut", "join"):
@@ -136,10 +138,15 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
 
 
 def _csg_new(shape, name, offset=(0, 0, 0)):
+    if shape.kind == "placed3d":
+        child, x, y, z = shape.data
+        if child.kind != "cylinder3d":
+            raise ModelError("Only Cylinder3D is supported by 3D placement")
+        return _csg_new(child, name, (command_value(x), command_value(y), command_value(z)))
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_new(child, name, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder"):
+    if shape.kind in ("cube", "sphere", "cylinder3d"):
         return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data
@@ -172,7 +179,7 @@ def _plate(shape, name):
         raise ModelError("fillet radius exceeds box width")
 
     cylinder, spacing_x, spacing_y = cutters.data
-    if cylinder.kind != "cylinder":
+    if cylinder.kind != "cylinder3d":
         raise ModelError("pattern requires cylinders")
     cylinder_height, diameter = cylinder.data
     if _require_positive(cylinder_height, "cylinder height") < height_mm:
@@ -340,7 +347,10 @@ def compile_model(shape: Shape, name: str) -> dict:
         raise TypeError("the final script expression must produce a Shape")
     if not name or not name.isidentifier():
         raise ModelError("the model name must be a valid identifier")
-    if shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
+    from .sketch_features import _is_rectangular_feature, compile_sketch_features
+    if _is_rectangular_feature(shape):
+        commands = compile_sketch_features(shape, name)
+    elif shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
         commands = _profile_features(shape, name)
     elif shape.kind == "difference" and shape.data[0].kind == "fillet":
         commands = _plate(shape, name)

@@ -4,12 +4,19 @@ All unadorned numerical values are millimetres. Model function arguments
 become named parameters by the runner, not by user-written decorators.
 """
 from dataclasses import dataclass
+from enum import Enum
 from math import isfinite
 from typing import Any
 
 
 def number_text(value: float) -> str:
     return format(value, "g")
+
+
+class Direction(str, Enum):
+    """Extrusion direction relative to the sketch plane normal."""
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
 
 
 @dataclass(frozen=True)
@@ -39,6 +46,14 @@ class Parameter:
 
     __rmul__ = __mul__
 
+    def __add__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value + other,
+                              f"{self.name} + {number_text(other)} mm", (self,))
+        return NotImplemented
+
+    __radd__ = __add__
+
     def __neg__(self):
         return Expression(-self.value, f"-({self.name})", (self,))
 
@@ -53,6 +68,15 @@ class Expression:
         if not isinstance(other, (float, int)) or other == 0:
             return NotImplemented
         return Expression(self.value / other, f"({self.expression}) / {number_text(other)}", self.parameters)
+
+    def __add__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value + other,
+                              f"{self.expression} + {number_text(other)} mm",
+                              self.parameters)
+        return NotImplemented
+
+    __radd__ = __add__
 
     def __neg__(self):
         return Expression(-self.value, f"-({self.expression})", self.parameters)
@@ -113,12 +137,14 @@ class Shape:
             raise ValueError("move() currently supports only CSG shapes")
         return Shape("translated", (self, offsets))
 
-    def extrude(self, distance, *, direction="positive"):
-        if self.kind != "polygon":
-            raise ValueError("extrude() currently requires a Polygon")
-        if direction not in ("positive", "negative"):
-            raise ValueError("extrude direction must be positive or negative")
-        return Shape("extrusion", (self, distance, direction))
+    def extrude(self, distance, *, direction=Direction.POSITIVE):
+        if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
+            raise ValueError("extrude() requires a 2D profile")
+        try:
+            direction = Direction(direction)
+        except ValueError as exc:
+            raise ValueError("extrude direction must be Direction.POSITIVE or Direction.NEGATIVE") from exc
+        return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges="vertical"):
         if edges != "vertical":
@@ -138,13 +164,23 @@ class Shape:
             raise ValueError("holes require at least one (x, y) centre")
         return Shape("holes", (self, positions, diameter, depth, plane))
 
+    def at(self, x=0, y=0, z=0):
+        """Place a 2D profile in world coordinates.
+
+        For XY sketches, x and y locate the profile on its sketch plane;
+        z offsets the sketch plane. The profile remains a reusable Shape.
+        """
+        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d"):
+            raise ValueError("at() currently supports planar profiles")
+        return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
+
     def pattern(self, *, x, y):
-        if self.kind != "cylinder":
+        if self.kind != "cylinder3d":
             raise ValueError("only cylinders support rectangular patterns in this PoP")
         return Shape("pattern", (self, x, y))
 
     def orient(self, *axes):
-        if self.kind != "cylinder":
+        if self.kind != "cylinder3d":
             raise ValueError("only cylinders support orient()")
         if len(axes) == 1 and isinstance(axes[0], (tuple, list)):
             axes = tuple(axes[0])
@@ -159,11 +195,23 @@ def _shape(value):
     return value
 
 
-def Polygon(points, *, plane="XY"):
-    """Create a closed planar profile, extrudable by SolidCraft."""
+def Rectangle2D(width, depth):
+    """An XY rectangle with its lower-left corner at the origin."""
+    return Shape("rectangle", (width, depth))
+
+
+def Circle2D(*, d=None, r=None):
+    """An XY circle with diameter d or radius r."""
+    if (d is None) == (r is None):
+        raise ValueError("Circle2D requires exactly one of d= or r=")
+    return Shape("circle", (d if d is not None else r * 2,))
+
+
+def Polygon2D(points, *, plane="XY"):
+    """A closed 2D polygon on XY, XZ or YZ."""
     coordinates = tuple(tuple(p) for p in points)
     if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
-        raise ValueError("Polygon needs at least three (u, v) points")
+        raise ValueError("Polygon2D requires at least three 2D points")
     if plane not in ("XY", "XZ", "YZ"):
         raise ValueError("unsupported sketch plane")
     return Shape("polygon", (coordinates, plane))
@@ -181,8 +229,9 @@ def Sphere(radius):
     return Shape("sphere", (radius,))
 
 
-def Cylinder(height, diameter):
-    return Shape("cylinder", (height, diameter))
+def Cylinder(*, d, h):
+    """A cylinder based at z=0; use .at(x, y, z) for placement."""
+    return Shape("cylinder3d", (h, d))
 
 
 X, Y, Z = "X", "Y", "Z"

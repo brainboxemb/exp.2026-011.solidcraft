@@ -1,10 +1,6 @@
 name: CSG comparison examples
 
 on:
-  push:
-    branches:
-      - main
-      - feature/issue-1-python-interface
   workflow_dispatch: {}
 
 jobs:

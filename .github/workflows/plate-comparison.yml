@@ -1,10 +1,6 @@
 name: Plate fillet comparison
 
 on:
-  push:
-    branches:
-      - main
-      - feature/issue-1-python-interface
   workflow_dispatch: {}
 
 jobs:

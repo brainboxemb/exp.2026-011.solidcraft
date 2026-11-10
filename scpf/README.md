@@ -24,7 +24,7 @@ class Plate:
 
     def build(self):
         body = Box(self.length, self.width, self.thickness).fillet(2)
-        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
         body - holes
 
 Plate()
@@ -190,3 +190,33 @@ commit; unverified previews are explicitly labelled.
   rotations, face/edge selectors, arbitrary patterns, richer dimensional
   arithmetic and model reuse are future work.
 - SolidCraft, not SCPF, remains responsible for topology, solving and geometry.
+
+## Sample Plate reconstruction
+
+The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
+contains an editable SolidCraft **design history**, not command JSON.
+The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py) uses
+`Rectangle2D`, `Circle2D`, `Cylinder`, extrusion, fillets and boolean
+joins/cuts. Direct cylinders emit native `solid.cylinder` commands rather
+than recreating the source sketch/extrude feature history. The original saved
+design is kept unchanged.
+
+```powershell
+$env:PYTHONPATH = "scpf"
+python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
+python -m scpf examples/sample-plate/scpf/model.py --connect
+```
+
+The live command requires a new empty SolidCraft design; the generated
+command plan creates its own parameters. Native validation is required
+before accepting this reconstruction as geometrically equivalent.
+
+## SCPF API cheatsheet
+
+The generated results website includes a `/cheatsheet/` page.
+2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
+`Polygon2D`. 3D solids use plain names: `Box`, `Cube`, `Cylinder`
+and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
+`pattern()` and `orient()` helpers center generated cutter cylinders on
+their respective axes, preserving the Plate and CsgCube command fixtures.
+The old positional constructor and 3D-suffixed aliases are not supported.

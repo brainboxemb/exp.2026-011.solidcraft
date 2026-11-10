@@ -1,0 +1,9 @@
+Request preview for PR #4 (Sample Plate and SCPF cheatsheet)
+The workflow deliberately runs only when this request marker is changed.
+Refresh after configuring read-only PR lookup and preserving root site.
+
+Refresh preview with previously verified native renders from main.
+
+Refresh: Direction enum cheatsheet update.
+
+Refresh preview after cleanup of 2D/3D naming and Direction documentation.

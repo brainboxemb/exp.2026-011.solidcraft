@@ -23,10 +23,17 @@ def check(site, commit):
     homepage = site / "index.html"
     assert homepage.is_file()
     assert (site / "results.css").is_file()
+    cheatsheet = site / "cheatsheet" / "index.html"
+    assert cheatsheet.is_file()
+    guide = cheatsheet.read_text(encoding="utf-8")
+    for term in ("Rectangle2D", "Circle2D", "Cylinder(d=", "extrude", "issue #5"):
+        assert term in guide, term
+
     text = homepage.read_text(encoding="utf-8")
     assert commit in text, "site must identify its source commit"
+    assert 'href="cheatsheet/"' in text
     assert "SCPF" in text and "SCRF" in text
-    for slug in ("plate", "csg-cube", "bracket"):
+    for slug in ("plate", "csg-cube", "bracket", "sample-plate"):
         model = site / "models" / slug
         assert (model / "index.html").is_file(), slug
         assert (model / "model.py").is_file(), slug
@@ -35,7 +42,10 @@ def check(site, commit):
         assert "Native SolidCraft command sequence" in page
         assert "Construction stages" in page
         assert "Native SolidCraft image" not in page or (model / "native.png").is_file()
-        assert "Schematic drawing only" not in page or "not a native CAD render" in page
+        assert "Schematic drawing only" not in page or "not a SolidCraft geometry render" in page
+        if "Previously verified render from main" in page:
+            assert (model / "native.png").is_file()
+            assert "not yet native-verified" in page
         parser = Parser()
         parser.feed(page)
         for href in parser.links:

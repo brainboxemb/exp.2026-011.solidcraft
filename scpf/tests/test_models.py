@@ -62,6 +62,96 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
+    def test_sample_plate_uses_generic_2d_and_3d_operations(self):
+        source = json.loads(
+            (ROOT / "examples/sample-plate/source/Sample Plate.json").read_text()
+        )
+        generated = run_script(ROOT / "examples/sample-plate/scpf/model.py")
+        commands = generated["commands"]
+        self.assertEqual(len(source["features"]), 9)
+        self.assertEqual(
+            [c["params"]["name"] for c in commands if c["command"] == "sketch.create"],
+            ["Base", "Holes"],
+        )
+        self.assertEqual(
+            [c["params"]["diameter"] for c in commands
+             if c["command"] == "sketch.circle.center"], [8, 8],
+        )
+        cylinders = [c["params"] for c in commands if c["command"] == "solid.cylinder"]
+        self.assertEqual(len(cylinders), 2)
+        self.assertEqual([c["operation"] for c in cylinders], ["join", "cut"])
+        self.assertEqual([c["diameter"] for c in cylinders], [24, 12])
+        self.assertEqual([c["height"] for c in cylinders],
+                         [14, "thickness + 14 mm"])
+        self.assertEqual([c["base"] for c in cylinders],
+                         [[40, 25, "thickness"], [40, 25, 0]])
+        self.assertEqual(
+            [c["params"]["expression"] for c in commands[:3]], ["80", "50", "8"]
+        )
+
+    def test_sample_plate_parameter_override_updates_native_commands(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
+            script = Path(directory) / "model.py"
+            script.write_text(
+                source.replace("SamplePlate()",
+                               "SamplePlate(width=100, depth=60, thickness=10)")
+            )
+            commands = run_script(script)["commands"]
+        self.assertEqual([c["params"]["expression"] for c in commands[:3]],
+                         ["100", "60", "10"])
+        rectangle = next(c for c in commands
+                         if c["command"] == "sketch.rectangle.two_point")
+        self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
+        cylinders = [c["params"] for c in commands
+                     if c["command"] == "solid.cylinder"]
+        self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
+        self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
+
+    def test_direction_enum_compiles_to_solidcraft_strings(self):
+        from scpf.core import Circle2D, Direction
+        from scpf.compiler import compile_model
+        self.assertEqual(Direction.POSITIVE.value, "positive")
+        self.assertEqual(Direction.NEGATIVE.value, "negative")
+        shape = Circle2D(d=8).extrude(8, direction=Direction.NEGATIVE)
+        self.assertEqual(shape.data[2], "negative")
+        self.assertEqual(
+            Circle2D(d=8).extrude(8, direction="negative").data[2], "negative"
+        )
+        self.assertEqual(
+            Circle2D(d=8).extrude(8).data[2], "positive"
+        )
+        with self.assertRaises(ValueError):
+            Circle2D(d=8).extrude(8, direction="sideways")
+
+    def test_removed_aliases_are_not_exposed(self):
+        import scpf
+        for name in ("Rectangle", "Circle", "Polygon", "Box3D", "Cylinder3D", "Sphere3D"):
+            self.assertFalse(hasattr(scpf, name), name)
+
+    def test_cylinder_keyword_form_is_direct_3d_primitive(self):
+        from scpf.core import Cylinder
+        self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder3d")
+        self.assertEqual(Cylinder(d=24, h=14).at(40, 25, 8).kind, "placed3d")
+
+    def test_cylinder_standalone_native_command(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "model.py"
+            script.write_text(
+                "@dataclass\n"
+                "class Pin:\n"
+                "    diameter: float = 12\n"
+                "    def build(self):\n"
+                "        Cylinder(d=self.diameter, h=20).at(10, 5, 3)\n"
+                "Pin()\n"
+            )
+            commands = run_script(script)["commands"]
+        cylinder = commands[-1]
+        self.assertEqual(cylinder["command"], "solid.cylinder")
+        self.assertEqual(cylinder["params"]["base"], [10, 5, 3])
+        self.assertEqual(cylinder["params"]["diameter"], "diameter")
+        self.assertEqual(cylinder["params"]["operation"], "new")
+
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
@@ -140,7 +230,7 @@ class SCPFExamples(unittest.TestCase):
             file.write_text(
                 "def Plate(length=100, width=60, thickness=10):\n"
                 "    body = Box(length, width, thickness).fillet(2)\n"
-                "    return body - Cylinder(3, 8).pattern(x=70, y=30)\n"
+                "    return body - Cylinder(d=8, h=3).pattern(x=70, y=30)\n"
                 "Plate()\n"
             )
             with self.assertRaises(ModelError):
@@ -152,7 +242,7 @@ class SCPFExamples(unittest.TestCase):
             file.write_text(
                 "def CsgCube(size=50.0):\n"
                 "    body = Sphere(size / 1.5) & Cube(size)\n"
-                "    holes = Cylinder(size, size / 1.5).orient(X, Y, Z)\n"
+                "    holes = Cylinder(d=size / 1.5, h=size).orient(X, Y, Z)\n"
                 "    return (body - holes).move(x=10, y=20, z=30)\n"
                 "CsgCube()\n"
             )

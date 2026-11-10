@@ -1,28 +1,10 @@
 name: CAD results website
 
 on:
-  push:
-    branches: [main, feature/scpf-python]
-    paths:
-      - "scpf/**"
-      - "examples/**/scpf/**"
-      - "site/**"
-      - "scripts/ci/build-results.py"
-      - "scripts/ci/test-results.py"
-      - ".github/workflows/cad-results.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "scpf/**"
-      - "examples/**/scpf/**"
-      - "site/**"
-      - "scripts/ci/build-results.py"
-      - "scripts/ci/test-results.py"
-      - ".github/workflows/cad-results.yml"
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: cad-results-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
@@ -48,7 +30,7 @@ jobs:
           PYTHONPATH: scpf
         run: |
           python -m unittest discover -s scpf/tests -v
-          for model in plate csg-cube bracket; do
+          for model in plate csg-cube bracket sample-plate; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
             jq empty "output/examples/$model/scpf/solidcraft.json"
@@ -67,29 +49,7 @@ jobs:
           name: cad-results-site
           path: output/site/
           if-no-files-found: error
-      - name: Publish PR preview
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./output/site
-          destination_dir: previews/pr-${{ github.event.pull_request.number }}
-          keep_files: true
-          force_orphan: true
-          commit_message: "CAD results preview for PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
-      - name: Publish main website
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./output/site
-          keep_files: true
-          force_orphan: true
-          commit_message: "Publish CAD results from ${{ github.sha }}"
-      - name: Add preview link to job summary
-        if: github.event_name == 'pull_request'
+      - name: Explain publication policy
         run: |
-          echo "### CAD results website" >> "$GITHUB_STEP_SUMMARY"
-          echo "Preview: https://brainboxemb.github.io/exp.2026-011.solidcraft/previews/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_STEP_SUMMARY"
+          echo "This workflow validates the website and uploads a preview artifact." >> "$GITHUB_STEP_SUMMARY"
+          echo "Only the native SolidCraft workflow publishes GitHub Pages from main." >> "$GITHUB_STEP_SUMMARY"

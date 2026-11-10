@@ -1,0 +1,87 @@
+name: Publish CAD preview on request
+
+# Deliberately NOT triggered by SCPF changes. A new or edited request marker
+# in .github/preview-requests/ is the explicit preview publish request.
+on:
+  push:
+    branches:
+      - "feature/**"
+    paths:
+      - ".github/preview-requests/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: cad-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out requested feature revision
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check out published site for reference screenshots
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: true
+      - name: Compile SCPF and build lightweight preview
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          for model in plate csg-cube bracket sample-plate; do
+            python -m scpf "examples/$model/scpf/model.py" \
+              --out "output/examples/$model/scpf/solidcraft.json"
+          done
+          python scripts/ci/build-results.py \
+            --generated output/examples \
+            --previous-site published \
+            --commit "$GITHUB_SHA" \
+            --out output/site
+          python scripts/ci/test-results.py output/site "$GITHUB_SHA"
+      - name: Find the open pull request for this branch
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="${GITHUB_REF_NAME}"
+          number="$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "$branch" \
+            --state open --json number --jq '.[0].number // empty')"
+          if [[ ! "$number" =~ ^[0-9]+$ ]]; then
+            echo "No open PR for branch $branch. A preview needs an open PR." >&2
+            exit 1
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+      - name: Update only the requested preview subtree
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="published/previews/pr-${PR_NUMBER}"
+          mkdir -p "$dest"
+          rsync -a --delete --exclude .git output/site/ "$dest/"
+          git -C published config user.name "github-actions[bot]"
+          git -C published config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C published add -A "previews/pr-${PR_NUMBER}"
+          if git -C published diff --cached --quiet; then
+            echo "Preview unchanged."
+          else
+            git -C published commit -m "Update CAD preview PR #${PR_NUMBER} at ${GITHUB_SHA}"
+            git -C published push origin HEAD:gh-pages
+          fi
+          echo "Preview: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/previews/pr-${PR_NUMBER}/" >> "$GITHUB_STEP_SUMMARY"
+          echo "The published root and other PR previews were left unchanged." >> "$GITHUB_STEP_SUMMARY"
