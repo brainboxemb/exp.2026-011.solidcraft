@@ -60,7 +60,7 @@ def _fillet_command(base, radius, edges, name):
     return _command("solid.fillet", edges=picks, radius=r)
 
 
-def _attached_commands(shape, original, feature, name, steps):
+def _attached_commands(shape, original, feature, name, *, feature_name=None):
     child, target, parent_anchor, child_anchor, offset = feature.data
     if target != original:
         raise ModelError("attached feature must target the body being modified")
@@ -98,7 +98,7 @@ def _attached_commands(shape, original, feature, name, steps):
         else:
             raise ModelError("single attached Cylinder requires a bottom-anchored join/cut")
         # Name by CAD feature intent; no example/model-specific switch.
-        label = "Boss" if shape.kind == "union" else "Bore"
+        label = feature_name or ("Boss" if shape.kind == "union" else "Cut")
         plane = dict(plane="XY", name=label)
         if value_of(sketch_z):
             plane["offset"] = command_value(sketch_z)
@@ -115,7 +115,7 @@ def _attached_commands(shape, original, feature, name, steps):
     return operations
 
 
-def _circle_boolean_commands(shape, cutter, name):
+def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
     profiles, distance, direction = cutter.data
     try:
         circles = _circle_profiles(profiles)
@@ -128,7 +128,7 @@ def _circle_boolean_commands(shape, cutter, name):
         raise ModelError("a sketch cannot mix circles on different Z planes")
     if shape.kind == "union" and direction != "positive":
         raise ModelError("joining circles must extrude upward")
-    label = "Boss" if shape.kind == "union" else "Holes"
+    label = feature_name or ("Join" if shape.kind == "union" else "Cut")
     plane = dict(plane="XY", name=label)
     z = circles[0][2]
     if value_of(z):
@@ -159,8 +159,12 @@ def _to_commands(shape, name):
     if shape.kind in ("union", "difference"):
         original, added = shape.data
         steps, base = _to_commands(original, name)
+        feature_name = None
+        if added.kind == "labeled":
+            added, feature_name = added.data
         if added.kind == "anchored":
-            return steps + _attached_commands(shape, original, added, name, steps), base
+            return steps + _attached_commands(
+                shape, original, added, name, feature_name=feature_name), base
         if added.kind == "placed3d" and added.data[0].kind == "hole":
             hole, x, y, z = added.data
             return steps + [_hole_command(hole, (x, y, z), name)], base
@@ -185,7 +189,8 @@ def _to_commands(shape, name):
                          targets=[name]),
             ], base
         if added.kind == "extrusion":
-            return steps + _circle_boolean_commands(shape, added, name), base
+            return steps + _circle_boolean_commands(
+                shape, added, name, feature_name=feature_name), base
         raise ModelError(f"unsupported CAD feature {added.kind}")
     raise ModelError(f"unsupported CAD solid {shape.kind}")
 
