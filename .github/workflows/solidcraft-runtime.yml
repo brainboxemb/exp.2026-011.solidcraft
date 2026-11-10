@@ -387,17 +387,17 @@ jobs:
           ' output/native/sample-plate/measurements.json
           test -s output/native/sample-plate/model.sc
           test -s output/native/sample-plate/model.step
-          # Compare the actual saved feature history, not just bounding box.
+          # Native Hole features replace the original sketch-based cuts.
+          # Verify actual saved CAD feature history, not only the geometry.
           unzip -p output/native/sample-plate/model.sc document.json \
             > output/native/sample-plate/document.json
           jq -e '
             [.features[].type] ==
-              ["sketch", "extrude", "fillet", "sketch", "extrude",
-               "sketch", "extrude", "sketch", "extrude"]
+              ["sketch", "extrude", "fillet", "hole", "hole",
+               "sketch", "extrude", "hole"]
             and [.features[] | select(.type == "sketch") | .name]
-              == ["Base", "Holes", "Boss", "Bore"]
-            and .features[5].plane.type == "offset"
-            and .features[7].plane.type == "offset"
+              == ["Base", "Boss"]
+            and [.features[] | select(.type == "hole")] | length == 3
           ' output/native/sample-plate/document.json
           solidcraft-cli snapshot output/native/sample-plate/model.sc \
             --out output/native/sample-plate/model.png \
