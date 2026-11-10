@@ -1,11 +1,10 @@
-@dataclass
 class Enclosure:
     """Rebuild the SolidCraft plastic enclosure with native plastic features."""
 
-    length: float = 80
-    width: float = 50
-    height: float = 30
-    wall: float = 2
+    length = 80.0
+    width = 50.0
+    height = 30.0
+    wall = 2.0
 
     def build(self):
         enclosure = Box(self.length, self.width, self.height)
@@ -14,7 +13,7 @@ class Enclosure:
         lip = Lip(width=1, height=2).attach(
             enclosure,
             parent=Anchor.TOP,
-            offset=(-(self.length / 2) + 1, 0),
+            offset=(Bounds.MIN + 1, Bounds.CENTER),
         )
         enclosure = enclosure + lip
 
@@ -28,27 +27,21 @@ class Enclosure:
         ).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(0, self.width / 2 - 6),
+            offset=(Bounds.CENTER, Bounds.MAX - 6),
         )
         enclosure = enclosure + snap
 
         boss1 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(
-                -(self.length / 2) + 10,
-                -(self.width / 2) + 10,
-            ),
+            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
         )
         enclosure = enclosure + boss1
 
         boss2 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(
-                self.length / 2 - 10,
-                self.width / 2 - 10,
-            ),
+            offset=(Bounds.MAX - 10, Bounds.MAX - 10),
         )
         enclosure = enclosure + boss2
 
