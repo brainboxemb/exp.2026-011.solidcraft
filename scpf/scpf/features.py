@@ -401,8 +401,8 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
 
 
 def _explicit_sketch_commands(shape, original, feature, name):
-    """Compile the first explicit Sketch prototype to a named native sketch."""
-    sketch_name, target, parent_anchor, profiles, distance, direction = feature.data
+    """Compile an explicitly authored named sketch and its extrusion."""
+    sketch_name, target, parent_anchor, plane_name, profiles, distance, direction = feature.data
     if target != original:
         raise ModelError("explicit Sketch must target the body being modified")
     if shape.kind not in ("union", "difference"):
@@ -410,53 +410,83 @@ def _explicit_sketch_commands(shape, original, feature, name):
 
     (width, depth), (x, y, z), thickness = _base_rectangle(target)
     if thickness is None:
-        raise ModelError("explicit Sketch prototype requires a rectangular solid")
+        raise ModelError("explicit Sketch requires a rectangular solid")
 
-    if parent_anchor is Anchor.TOP:
-        plane_z = _combine(z, thickness)
-    elif parent_anchor is Anchor.BOTTOM:
-        plane_z = z
-    elif parent_anchor is Anchor.INNER_BOTTOM:
-        wall = _shell_thickness(target)
-        if wall is None:
-            raise ModelError("Anchor.INNER_BOTTOM requires a shelled body")
-        plane_z = _combine(z, wall)
-    elif parent_anchor is Anchor.CENTER:
-        plane_z = _combine(z, thickness / 2)
+    if plane_name is not None:
+        plane = dict(plane=plane_name, name=sketch_name)
+        relative_origin = (0, 0)
     else:
-        raise ModelError("unsupported explicit Sketch anchor")
+        if parent_anchor is Anchor.TOP:
+            plane_z = _combine(z, thickness)
+        elif parent_anchor is Anchor.BOTTOM:
+            plane_z = z
+        elif parent_anchor is Anchor.INNER_BOTTOM:
+            wall = _shell_thickness(target)
+            if wall is None:
+                raise ModelError("Anchor.INNER_BOTTOM requires a shelled body")
+            plane_z = _combine(z, wall)
+        elif parent_anchor is Anchor.CENTER:
+            plane_z = _combine(z, thickness / 2)
+        else:
+            raise ModelError("unsupported explicit Sketch anchor")
 
-    plane = dict(plane="XY", name=sketch_name)
-    if value_of(plane_z):
-        plane["offset"] = command_value(plane_z)
+        plane = dict(plane="XY", name=sketch_name)
+        if value_of(plane_z):
+            plane["offset"] = command_value(plane_z)
+        relative_origin = (_combine(x, width / 2), _combine(y, depth / 2))
+
     commands = [_command("sketch.create", **plane)]
 
     for profile, offset in profiles:
-        if profile.kind != "circle":
-            raise ModelError("explicit Sketch prototype supports Circle2D only")
-        diameter = profile.data[0]
-        _require_positive(diameter, "sketch circle diameter")
-        cx = _combine(x, width / 2, offset[0])
-        cy = _combine(y, depth / 2, offset[1])
-        commands.append(
-            _command(
-                "sketch.circle.center",
-                center=[command_value(cx), command_value(cy)],
-                diameter=command_value(diameter),
-            )
-        )
+        ox = _combine(relative_origin[0], offset[0])
+        oy = _combine(relative_origin[1], offset[1])
 
-    commands.extend([
-        _command("sketch.finish"),
-        _command(
-            "solid.extrude",
-            distance=command_value(distance),
-            direction=direction,
-            operation="join" if shape.kind == "union" else "cut",
-            targets=[name],
-            name=sketch_name,
-        ),
-    ])
+        if profile.kind == "circle":
+            diameter = profile.data[0]
+            _require_positive(diameter, "sketch circle diameter")
+            commands.append(
+                _command(
+                    "sketch.circle.center",
+                    center=[command_value(ox), command_value(oy)],
+                    diameter=command_value(diameter),
+                )
+            )
+            continue
+
+        if profile.kind == "rectangle":
+            rectangle_width, rectangle_height = profile.data
+            _require_positive(rectangle_width, "sketch rectangle width")
+            _require_positive(rectangle_height, "sketch rectangle height")
+            commands.append(
+                _command(
+                    "sketch.rectangle.two_point",
+                    p0=[command_value(ox), command_value(oy)],
+                    p1=[
+                        command_value(_combine(ox, rectangle_width)),
+                        command_value(_combine(oy, rectangle_height)),
+                    ],
+                )
+            )
+            continue
+
+        raise ModelError("explicit Sketch supports Circle2D or Rectangle2D")
+
+    commands.append(_command("sketch.finish"))
+
+    extrude = dict(
+        operation="join" if shape.kind == "union" else "cut",
+        targets=[name],
+        name=sketch_name,
+    )
+    if distance is Depth.THROUGH_ALL:
+        if shape.kind != "difference":
+            raise ModelError("Depth.THROUGH_ALL is only supported for Sketch cuts")
+        extrude["through_all"] = True
+    else:
+        extrude["distance"] = command_value(distance)
+        extrude["direction"] = direction
+
+    commands.append(_command("solid.extrude", **extrude))
     return commands
 
 
