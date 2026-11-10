@@ -12,10 +12,10 @@ All variants describe the same intent:
 
 ## Variants
 
-- `solidcraftforge/model.rs` — the SolidCraftForge Rust script. It defines
+- `scrf/model.rs` — the SCRF Rust script. It defines
   the reusable `CsgCube` type and ends with `CsgCube::new(50.0)`.
   There is no `main()`, `show()`, `build!()` or transport code in the script.
-- `solidcraftforge/solidcraft.json` — the reviewed raw SolidCraft command
+- `scrf/solidcraft.json` — the reviewed raw SolidCraft command
   sequence generated from that script.
 - `microcad/model.mu` — µcad reference. µcad is its own Rust-inspired CAD
   language; this file is **not Rust**.
@@ -33,7 +33,7 @@ model files.
 
 ## Script shape
 
-SolidCraftForge scripts use ordinary Rust types. The final expression is the
+SCRF scripts use ordinary Rust types. The final expression is the
 object to build. The Cargo example harness wraps that expression outside the
 script only so normal Rust can compile and test it.
 
@@ -55,4 +55,4 @@ geometry result while preserving `degradations`, `why_not_brep` and the
 stage-by-stage volumes as evidence. The vcad output is therefore STL for this
 case unless a later pinned kernel retains BRep and can also emit STEP.
 
-The SolidCraftForge script uses plain numeric millimetre values at its call site. The constructor marks `size` with `#[parameter]` under `#[cad]`; the macro preserves named native SolidCraft expressions such as `size / 1.5` without exposing `ParamLength` to the script.
+The SCRF script uses plain numeric millimetre values at its call site. The constructor marks `size` with `#[parameter]` under `#[cad]`; the macro preserves named native SolidCraft expressions such as `size / 1.5` without exposing `ParamLength` to the script.
