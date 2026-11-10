@@ -3,7 +3,7 @@
 Anchor resolution is shared by Box and extruded Rectangle2D models.
 It is not a geometry engine: SolidCraft owns actual face identity.
 """
-from .core import Shape, value_of, command_value
+from .core import Shape, _BoundOffset, value_of, command_value
 
 def _is_centered_box(shape):
     while shape.kind in ("fillet", "shell", "union", "difference"):
@@ -69,6 +69,19 @@ def _combine(*terms):
     if literal:
         expression += f" + ({number_text(literal)} mm)"
     return Expression(numeric, expression, used)
+
+
+def _bound_offset(value, size):
+    """Resolve MIN/CENTER/MAX to an offset from the parent axis centre."""
+    if not isinstance(value, _BoundOffset):
+        return value
+    if value.reference == "min":
+        return _combine(-(size / 2), value.delta)
+    if value.reference == "center":
+        return value.delta
+    if value.reference == "max":
+        return _combine(size / 2, value.delta)
+    raise ValueError(f"unknown bound reference {value.reference!r}")
 
 
 def _anchored_features(shape):
@@ -151,19 +164,21 @@ def _anchored_features(shape):
     else:
         base_z = face_z
     result = []
+    offset_x = _bound_offset(offset[0], width)
+    offset_y = _bound_offset(offset[1], depth)
     for shift, axis in shifts:
         dx, dy = ((shift, 0) if axis is Axis.X else
                   ((0, shift) if axis is Axis.Y else (0, 0)))
-        xx = _combine(x, width / 2, offset[0], dx)
-        yy = _combine(y, depth / 2, offset[1], dy)
+        xx = _combine(x, width / 2, offset_x, dx)
+        yy = _combine(y, depth / 2, offset_y, dy)
         # The edge samples are intentionally strictly within straight segments
         # on filleted rectangular faces (midpoints, not rounded corners).
         if not on_boss and parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
             refs = [
                 {"edge": [value_of(x), value_of(y) + value_of(depth)/2, value_of(face_z)],
-                 "distance": command_value(_combine(width / 2, offset[0], dx))},
+                 "distance": command_value(_combine(width / 2, offset_x, dx))},
                 {"edge": [value_of(x) + value_of(width)/2, value_of(y), value_of(face_z)],
-                 "distance": command_value(_combine(depth / 2, offset[1], dy))}
+                 "distance": command_value(_combine(depth / 2, offset_y, dy))}
             ]
         else:
             refs = None
