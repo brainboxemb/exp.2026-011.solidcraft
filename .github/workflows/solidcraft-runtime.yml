@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/issue-1-python-interface
+      - feature/scpf-python
   workflow_dispatch:
 
 permissions:
@@ -36,6 +37,22 @@ jobs:
           mkdir -p output/native/command-plans
           cp output/examples/plate/solidcraftforge/solidcraft.json output/native/command-plans/plate.json
           cp output/examples/csg-cube/solidcraftforge/solidcraft.json output/native/command-plans/csg-cube.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python SCPF models to native commands
+        env:
+          PYTHONPATH: scpf
+        run: |
+          python -m unittest discover -s scpf/tests -v
+          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate-scpf.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube-scpf.json
+          jq -e -s '.[0] == .[1]' \
+            output/native/command-plans/plate.json \
+            output/native/command-plans/plate-scpf.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            output/native/command-plans/csg-cube.json \
+            output/native/command-plans/csg-cube-scpf.json >/dev/null
       - name: Fetch and verify official Linux SolidCraft release
         shell: bash
         run: |
@@ -225,7 +242,7 @@ jobs:
           retention-days: 14
 
       - name: Publish qualified native SolidCraft evidence to orphan vrf branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface' && success()
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/feature/issue-1-python-interface' || github.ref == 'refs/heads/feature/scpf-python') && success()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
