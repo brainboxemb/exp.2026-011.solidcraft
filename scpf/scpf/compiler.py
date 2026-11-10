@@ -234,7 +234,7 @@ def _plate(shape, name):
 def _has_profile(shape):
     if shape.kind == "polygon":
         return True
-    if shape.kind in ("fillet", "extrusion", "holes"):
+    if shape.kind in ("fillet", "extrusion", "holes", "union"):
         return _has_profile(shape.data[0])
     return False
 
@@ -247,6 +247,17 @@ def _profile_features(shape, name):
     evaluated at the supplied parameter defaults; general parametric sketch
     constraints are intentionally not claimed.
     """
+    # Native Hole features added with + are part of the ordered CAD history.
+    native_holes = []
+    while shape.kind == "union":
+        base, feature = shape.data
+        if feature.kind != "placed3d" or feature.data[0].kind != "hole":
+            raise ModelError("polygon bodies support positioned Hole features")
+        primitive, x, y, z = feature.data
+        native_holes.append((primitive, x, y, z))
+        shape = base
+    native_holes.reverse()
+
     holes = None
     if shape.kind == "holes":
         shape, positions, diameter, depth, plane = shape.data
@@ -338,7 +349,17 @@ def _profile_features(shape, name):
             _command("solid.extrude", distance=command_value(depth),
                      direction=hole_direction, operation="cut"),
         ])
-    return _param_commands(_collect((distance, shape))) + steps
+    for feature, x, y, z in native_holes:
+        diameter, hole_depth = feature.data
+        _require_positive(diameter, "hole diameter")
+        params = dict(position=[value_of(x), value_of(y), value_of(z)],
+                      diameter=command_value(diameter), targets=[name])
+        from .core import Depth
+        if hole_depth is not Depth.THROUGH_ALL:
+            _require_positive(hole_depth, "hole depth")
+            params["depth"] = command_value(hole_depth)
+        steps.append(_command("solid.hole", **params))
+    return _param_commands(_collect((distance, shape, native_holes))) + steps
 
 
 def compile_model(shape: Shape, name: str) -> dict:
@@ -350,7 +371,7 @@ def compile_model(shape: Shape, name: str) -> dict:
     from .sketch_features import _is_rectangular_feature, compile_sketch_features
     if _is_rectangular_feature(shape):
         commands = compile_sketch_features(shape, name)
-    elif shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
+    elif shape.kind in ("holes", "extrusion", "fillet", "union") and _has_profile(shape):
         commands = _profile_features(shape, name)
     elif shape.kind == "difference" and shape.data[0].kind == "fillet":
         commands = _plate(shape, name)
