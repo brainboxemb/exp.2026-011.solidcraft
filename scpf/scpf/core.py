@@ -56,28 +56,40 @@ class Faces(Enum):
 
 @dataclass(frozen=True)
 class _BoundOffset:
-    """Position relative to one axis of the parent bounds."""
+    """Position relative to one named axis of the parent bounds."""
+    axis: str
     reference: str
-    delta: float = 0
+    delta: Any = 0
 
     def __add__(self, value):
         if isinstance(value, bool):
             return NotImplemented
-        return _BoundOffset(self.reference, value if self.delta == 0 else self.delta + value)
+        delta = value if self.delta == 0 else self.delta + value
+        return _BoundOffset(self.axis, self.reference, delta)
 
     __radd__ = __add__
 
     def __sub__(self, value):
         if isinstance(value, bool):
             return NotImplemented
-        return _BoundOffset(self.reference, -value if self.delta == 0 else self.delta - value)
+        delta = -value if self.delta == 0 else self.delta - value
+        return _BoundOffset(self.axis, self.reference, delta)
 
 
-class Bounds:
-    """Parent-bound positions accepted in attach(offset=(x, y))."""
-    MIN = _BoundOffset("min")
-    CENTER = _BoundOffset("center")
-    MAX = _BoundOffset("max")
+class _AxisRef(str):
+    """Axis token that also exposes parent-bound placement selectors."""
+
+    @property
+    def MIN(self):
+        return _BoundOffset(str(self), "min")
+
+    @property
+    def CENTER(self):
+        return _BoundOffset(str(self), "center")
+
+    @property
+    def MAX(self):
+        return _BoundOffset(str(self), "max")
 
 
 @dataclass(frozen=True)
@@ -310,8 +322,13 @@ class Shape:
             raise ValueError("unknown parent or child anchor") from exc
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("offset must be a pair (x, y)")
-        for value in offset:
+        for index, value in enumerate(offset):
             if isinstance(value, _BoundOffset):
+                expected_axis = "X" if index == 0 else "Y"
+                if value.axis != expected_axis:
+                    raise ValueError(
+                        f"offset position {index} requires {expected_axis} bounds"
+                    )
                 if not isfinite(value_of(value.delta)):
                     raise ValueError("bound offset must be finite")
             else:
@@ -426,4 +443,4 @@ def Rest(*, width, height, length=None, along=None, direction=None):
     return Shape("rest", (width, height, length, along, direction))
 
 
-X, Y, Z = "X", "Y", "Z"
+X, Y, Z = _AxisRef("X"), _AxisRef("Y"), _AxisRef("Z")
