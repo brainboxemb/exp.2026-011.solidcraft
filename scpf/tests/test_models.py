@@ -543,6 +543,69 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
+    def test_reusable_model_instances_compile_to_one_component_and_two_occurrences(self):
+        commands = run_script(
+            ROOT / "examples/components/scpf/model.py"
+        )["commands"]
+
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "parameters.add"],
+            ["Block_length", "Block_width", "Block_height"],
+        )
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "component.create"],
+            ["Block"],
+        )
+        copies = [c for c in commands if c["command"] == "occurrence.copy"]
+        self.assertEqual(len(copies), 1)
+        self.assertEqual(copies[0]["params"]["component"], "Block")
+        self.assertEqual(copies[0]["params"]["translate"], [50.0, 0.0, 0.0])
+        self.assertTrue(any(
+            c["command"] == "sketch.rectangle.two_point"
+            and "Block_length" in str(c["params"])
+            and "Block_width" in str(c["params"])
+            for c in commands
+        ))
+
+    def test_different_model_parameters_create_independent_component_definitions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Block:\n"
+                "    length = 40.0\n"
+                "    width = 30.0\n"
+                "    height = 10.0\n"
+                "    def build(self):\n"
+                "        Box(self.length, self.width, self.height)\n"
+                "class Pair:\n"
+                "    def build(self):\n"
+                "        left = Block(width=30.0)\n"
+                "        right = Block(width=50.0).move(x=60.0)\n"
+                "        left + right\n"
+                "Pair()\n"
+            )
+            commands = run_script(file)["commands"]
+
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "component.create"],
+            ["Block", "Block 2"],
+        )
+        self.assertFalse(any(c["command"] == "occurrence.copy" for c in commands))
+        parameter_names = [
+            c["params"]["name"] for c in commands
+            if c["command"] == "parameters.add"
+        ]
+        self.assertEqual(
+            parameter_names,
+            [
+                "Block_length", "Block_width", "Block_height",
+                "Block_2_length", "Block_2_width", "Block_2_height",
+            ],
+        )
+
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
         from scpf.core import Circle2D
