@@ -92,5 +92,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: bld
           publish_dir: ./output/examples
+          keep_files: true
           force_orphan: true
           commit_message: "SolidCraftForge generated command plans from ${{ github.sha }}"
