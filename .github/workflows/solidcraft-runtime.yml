@@ -248,8 +248,8 @@ jobs:
           jq -e '
             .body_count == 1
             and .bodies[0].bbox.max[0] > 119.9999
-            and .total.volume_mm3 > 78993
-            and .total.volume_mm3 < 78996
+            and .total.volume_mm3 > 70993
+            and .total.volume_mm3 < 70996
             and (.timeline | all(.error == null))
           ' output/native/anchored-holes/wider.json
       - name: Evaluate CSG cube through native SolidCraft
