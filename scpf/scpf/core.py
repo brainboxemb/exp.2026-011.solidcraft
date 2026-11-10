@@ -214,9 +214,9 @@ class Shape:
         For XY sketches, x and y locate the profile on its sketch plane;
         z offsets the sketch plane. The profile remains a reusable Shape.
         """
-        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d"):
+        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d", "hole"):
             raise ValueError("at() currently supports planar profiles")
-        return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
+        return Shape("placed3d" if self.kind in ("cylinder3d", "hole") else "positioned", (self, x, y, z))
 
     def pattern(self, *, count=None, spacing=None, axis=None, x=None, y=None):
         """Create a symmetric linear pattern or the existing 2x2 hole fixture.
