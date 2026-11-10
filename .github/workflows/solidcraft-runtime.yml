@@ -416,6 +416,71 @@ jobs:
           test -s output/native/history-policy/model.sc
           test -s output/native/history-policy/model.step
 
+      - name: Qualify Plastic Enclosure Pi in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/plastic-enclosure-pi
+          python -m scpf examples/plastic-enclosure-pi/scpf/model.py \
+            --out output/native/plastic-enclosure-pi/commands.json
+          jq -e '
+            [.commands[] | select(.command == "sketch.create") | .params.name]
+              == ["PlasticEnclosurePi footprint", "USB port"]
+            and ([.commands[] | select(.command == "plastic.boss")] | length) == 4
+            and ([.commands[] | select(
+              .command == "solid.extrude"
+              and .params.name == "USB port"
+              and .params.operation == "cut"
+              and .params.through_all == true
+            )] | length) == 1
+          ' output/native/plastic-enclosure-pi/commands.json
+          solidcraft-cli run output/native/plastic-enclosure-pi/commands.json \
+            --param-check strict --results \
+            --json-out output/native/plastic-enclosure-pi/results.json \
+            --save output/native/plastic-enclosure-pi/model.sc \
+            --out output/native/plastic-enclosure-pi/model.step
+          solidcraft-cli eval output/native/plastic-enclosure-pi/model.sc \
+            --json-out output/native/plastic-enclosure-pi/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "PlasticEnclosurePi"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min == [-40, -30, 0]
+            and .bodies[0].bbox.max == [40, 30, 30]
+            and (.sketches | length) == 2
+            and (.timeline | all(.error == null))
+          ' output/native/plastic-enclosure-pi/measurements.json
+          unzip -p output/native/plastic-enclosure-pi/model.sc document.json \
+            > output/native/plastic-enclosure-pi/document.json
+          jq -e '
+            [.features[].type] ==
+              ["sketch", "extrude", "fillet", "shell",
+               "sketch", "extrude", "boss", "boss", "boss", "boss"]
+          ' output/native/plastic-enclosure-pi/document.json
+          cat > output/native/plastic-enclosure-pi/change-width.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{"name":"width","expression":"100 mm"}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/plastic-enclosure-pi/change-width.json \
+            --in output/native/plastic-enclosure-pi/model.sc \
+            --param-check strict \
+            --save output/native/plastic-enclosure-pi/model-wide.sc
+          solidcraft-cli eval output/native/plastic-enclosure-pi/model-wide.sc \
+            --json-out output/native/plastic-enclosure-pi/measurements-wide.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.min[0] == -50
+            and .bodies[0].bbox.max[0] == 50
+            and (.timeline | all(.error == null))
+          ' output/native/plastic-enclosure-pi/measurements-wide.json
+          solidcraft-cli snapshot output/native/plastic-enclosure-pi/model.sc \
+            --out output/native/plastic-enclosure-pi/model.png \
+            --no-grid --no-axes
+          test -s output/native/plastic-enclosure-pi/model.png
+
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
