@@ -120,10 +120,8 @@ def _anchored_features(shape):
                 if not _require_positive_local:
                     raise ValueError("invalid attached boss")
                 on_boss = True
-            else:
-                raise ValueError("compound top attachment requires a centered joined boss")
-        else:
-            raise ValueError("compound top attachment requires an attached boss")
+            # Other joins (including attached Hole features) do not raise
+            # the top surface; the rectangular top remains the reference.
     if parent_anchor is Anchor.TOP:
         face_z = _combine(thickness, boss_height) if on_boss else thickness
     elif parent_anchor is Anchor.BOTTOM:
