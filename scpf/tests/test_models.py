@@ -285,6 +285,46 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(cylinder["params"]["diameter"], "diameter")
         self.assertEqual(cylinder["params"]["operation"], "new")
 
+    def test_plain_model_class_fields_become_parameters(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Cuboid:\n"
+                "    length = 80.0\n"
+                "    width = 50.0\n"
+                "    height = 30.0\n"
+                "    def build(self):\n"
+                "        Box(self.length, self.width, self.height)\n"
+                "Cuboid(width=60.0)\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(
+            [c["params"]["name"] for c in generated["commands"][:3]],
+            ["length", "width", "height"],
+        )
+        self.assertEqual(
+            [c["params"]["expression"] for c in generated["commands"][:3]],
+            ["80", "60", "30"],
+        )
+
+    def test_plain_model_class_accepts_positional_overrides_in_field_order(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Cuboid:\n"
+                "    length = 80.0\n"
+                "    width = 50.0\n"
+                "    height = 30.0\n"
+                "    def build(self):\n"
+                "        Box(self.length, self.width, self.height)\n"
+                "Cuboid(100.0, 70.0)\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(
+            [c["params"]["expression"] for c in generated["commands"][:3]],
+            ["100", "70", "30"],
+        )
+
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
@@ -410,6 +450,29 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(commands[4]["params"]["thickness"], 2)
         with self.assertRaises(ValueError):
             Box(80, 50, 30).shell(2, open=Faces.TOP).move(x=10)
+
+    def test_bound_relative_offsets_resolve_against_parent_extents(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Anchor, Boss, Bounds, Box, Faces
+        body = Box(80, 50, 30).shell(2, open=Faces.TOP)
+
+        minimum = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
+        )
+        maximum = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(Bounds.MAX - 10, Bounds.MAX - 10),
+        )
+
+        commands = compile_model(body + minimum + maximum, "Enclosure")["commands"]
+        bosses = [c for c in commands if c["command"] == "plastic.boss"]
+        self.assertEqual(
+            [boss["params"]["position"] for boss in bosses],
+            [[-30, -15, 2], [30, 15, 2]],
+        )
 
     def test_inner_bottom_anchor_requires_shell(self):
         from scpf.compiler import compile_model, ModelError
