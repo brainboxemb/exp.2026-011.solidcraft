@@ -14,14 +14,14 @@ ROOT = Path(__file__).resolve().parents[2]
 class SCPFExamples(unittest.TestCase):
     def test_csg_cube_matches_reviewed_native_commands(self):
         generated = run_script(ROOT / "examples/csg-cube/scpf/model.py")
-        expected = json.loads((ROOT / "examples/csg-cube/scrf/solidcraft.json").read_text())
+        expected = json.loads((ROOT / "examples/csg-cube/scpf/reference.json").read_text())
         self.assertEqual(generated, expected)
         self.assertEqual(generated["commands"][0]["params"]["name"], "size")
         self.assertEqual(generated["commands"][1]["params"]["radius"], "size / 1.5")
 
     def test_plate_matches_reviewed_native_commands(self):
         generated = run_script(ROOT / "examples/plate/scpf/model.py")
-        expected = json.loads((ROOT / "examples/plate/scrf/solidcraft.json").read_text())
+        expected = json.loads((ROOT / "examples/plate/scpf/reference.json").read_text())
         self.assertEqual(generated, expected)
         self.assertEqual([c["params"]["name"] for c in generated["commands"][:3]],
                          ["length", "width", "thickness"])
