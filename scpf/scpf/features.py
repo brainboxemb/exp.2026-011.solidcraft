@@ -60,6 +60,65 @@ def _fillet_command(base, radius, edges, name):
     return _command("solid.fillet", edges=picks, radius=r)
 
 
+def _attached_hole_commands(child, target, parent_anchor, resolved, name):
+    """Compile Hole intent as one editable sketch plus one cut feature."""
+    feature = child.data[0] if child.kind == "linear_pattern" else child
+    if feature.kind != "hole":
+        raise ModelError("expected Hole feature")
+    if parent_anchor is not Anchor.TOP:
+        raise ModelError("Hole.attach() currently starts drilling from Anchor.TOP")
+
+    diameter, depth = feature.data
+    _require_positive(diameter, "hole diameter")
+    (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
+    base_top = _combine(origin_z, thickness)
+    entry_z = resolved[0][1][2]
+    on_base_top = abs(value_of(entry_z) - value_of(base_top)) < 1e-9
+
+    if depth is Depth.THROUGH_ALL:
+        if on_base_top:
+            # Preserve the editable Sample Plate convention: XY/base-plane
+            # sketch and positive cut through the plate thickness.
+            sketch_z = origin_z
+            distance = thickness
+            direction = "positive"
+        else:
+            # A bore starting on a joined boss is sketched at its entry face
+            # and cuts back through the complete current height.
+            sketch_z = entry_z
+            distance = _combine(entry_z, -value_of(origin_z))
+            direction = "negative"
+    else:
+        _require_positive(depth, "hole depth")
+        sketch_z = entry_z
+        distance = depth
+        direction = "negative"
+
+    label = "Holes" if child.kind == "linear_pattern" else (
+        "Bore" if not on_base_top else "Hole")
+    plane = {"plane": "XY", "name": label}
+    if value_of(sketch_z):
+        plane["offset"] = command_value(sketch_z)
+
+    operations = [_command("sketch.create", **plane)]
+    for primitive, position, _refs in resolved:
+        hole_diameter, _ = primitive.data
+        operations.append(_command(
+            "sketch.circle.center",
+            center=position[:2],
+            diameter=command_value(hole_diameter),
+        ))
+    operations.extend([
+        _command("sketch.finish"),
+        _command("solid.extrude",
+                 distance=command_value(distance),
+                 direction=direction,
+                 operation="cut",
+                 targets=[name]),
+    ])
+    return operations
+
+
 def _attached_commands(shape, original, feature, name, *, feature_name=None):
     child, target, parent_anchor, child_anchor, offset = feature.data
     if target != original:
@@ -68,11 +127,14 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
         resolved = _anchored_features(feature)
     except (ValueError, TypeError) as exc:
         raise ModelError(str(exc)) from exc
+
+    attached_primitive = child.data[0] if child.kind == "linear_pattern" else child
+    if attached_primitive.kind == "hole":
+        return _attached_hole_commands(
+            child, target, parent_anchor, resolved, name)
+
     operations = []
     for primitive, position, refs in resolved:
-        if primitive.kind == "hole":
-            operations.append(_hole_command(primitive, position, name, refs))
-            continue
         height, diameter = primitive.data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
