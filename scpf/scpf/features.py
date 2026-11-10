@@ -25,36 +25,93 @@ def _is_feature_tree(shape):
     return False
 
 
-def _hole_command(feature, position, name, refs=None):
+def _hole_commands(feature, position, name, refs=None):
+    """Compile an explicitly positioned Hole to one or more native features."""
     if feature.kind != "hole":
         raise ModelError("native hole operation requires Hole")
-    diameter, depth, direction, countersink_d, countersink_angle = feature.data
+    (
+        diameter, depth, direction, countersink_d, countersink_angle,
+        countersink_recess,
+    ) = feature.data
     _require_positive(diameter, "hole diameter")
-    params = dict(
-        position=[value_of(v) for v in position],
-        diameter=command_value(diameter),
-        targets=[name],
+
+    point = tuple(position)
+    concrete_point = [value_of(v) for v in point]
+    if not all(isfinite(v) for v in concrete_point):
+        raise ModelError("hole position must be finite")
+
+    direction_vector = (
+        _vector(direction, "hole direction") if direction is not None else None
     )
-    if depth is not Depth.THROUGH_ALL:
-        _require_positive(depth, "hole depth")
-        params["depth"] = command_value(depth)
-    if direction is not None:
-        params["direction"] = _vector(direction, "hole direction")
-    if countersink_d is not None:
-        _require_positive(countersink_d, "countersink diameter")
-        if value_of(countersink_d) <= value_of(diameter):
-            raise ModelError("countersink diameter must exceed hole diameter")
-        angle = value_of(countersink_angle)
-        if not isfinite(angle) or angle <= 0 or angle >= 180:
-            raise ModelError("countersink angle must be between 0 and 180 degrees")
-        params.update(
-            type="countersink",
-            cs_diameter=command_value(countersink_d),
-            cs_angle=command_value(countersink_angle),
+
+    def simple_params(at, hole_diameter, hole_depth):
+        params = dict(
+            position=[command_value(v) for v in at],
+            diameter=command_value(hole_diameter),
+            targets=[name],
         )
-    if refs:
-        params["references"] = refs
-    return _command("solid.hole", **params)
+        if hole_depth is not Depth.THROUGH_ALL:
+            _require_positive(hole_depth, "hole depth")
+            params["depth"] = command_value(hole_depth)
+        if direction_vector is not None:
+            params["direction"] = direction_vector
+        if refs:
+            params["references"] = refs
+        return params
+
+    if countersink_d is None:
+        return [_command("solid.hole", **simple_params(point, diameter, depth))]
+
+    _require_positive(countersink_d, "countersink diameter")
+    if value_of(countersink_d) <= value_of(diameter):
+        raise ModelError("countersink diameter must exceed hole diameter")
+    angle = value_of(countersink_angle)
+    if not isfinite(angle) or angle <= 0 or angle >= 180:
+        raise ModelError("countersink angle must be between 0 and 180 degrees")
+
+    recess = value_of(countersink_recess)
+    if recess < 0:
+        raise ModelError("countersink recess cannot be negative")
+
+    commands = []
+    entry = point
+    remaining_depth = depth
+
+    if recess:
+        if direction_vector is None:
+            raise ModelError(
+                "a recessed countersink requires an explicit hole direction"
+            )
+        commands.append(_command(
+            "solid.hole",
+            **simple_params(point, countersink_d, countersink_recess),
+        ))
+        length = sum(v * v for v in direction_vector) ** 0.5
+        unit = tuple(v / length for v in direction_vector)
+        entry = tuple(
+            _combine(point[i], countersink_recess * unit[i])
+            for i in range(3)
+        )
+        if depth is not Depth.THROUGH_ALL:
+            remaining_depth = _combine(depth, -countersink_recess)
+            if value_of(remaining_depth) <= 0:
+                raise ModelError(
+                    "hole depth must extend beyond the countersink recess"
+                )
+
+    params = simple_params(entry, diameter, remaining_depth)
+    params.update(
+        type="countersink",
+        cs_diameter=command_value(countersink_d),
+        cs_angle=command_value(countersink_angle),
+    )
+    # References describe the original entry face. They do not apply to the
+    # recessed floor created by the first command.
+    if recess:
+        params.pop("references", None)
+    commands.append(_command("solid.hole", **params))
+    return commands
+
 
 
 def _fillet_command(base, radius, edges, name):
@@ -217,9 +274,13 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     if parent_anchor is not Anchor.TOP:
         raise ModelError("Hole.attach() currently starts drilling from Anchor.TOP")
 
-    diameter, depth, hole_direction, countersink_d, countersink_angle = feature.data
+    (
+        diameter, depth, hole_direction, countersink_d, countersink_angle,
+        countersink_recess,
+    ) = feature.data
     _require_positive(diameter, "hole diameter")
-    if hole_direction is not None or countersink_d is not None:
+    if (hole_direction is not None or countersink_d is not None
+            or value_of(countersink_recess) != 0):
         raise ModelError(
             "directional or countersunk Hole currently requires explicit .at() placement"
         )
@@ -426,7 +487,7 @@ def _to_commands(shape, name):
             ], base
         if added.kind == "placed3d" and added.data[0].kind == "hole":
             hole, x, y, z = added.data
-            return steps + [_hole_command(hole, (x, y, z), name)], base
+            return steps + _hole_commands(hole, (x, y, z), name), base
         if added.kind == "hole":
             raise ModelError("Hole must be positioned with .attach() or .at()")
         if added.kind in ("lip", "snap_fit", "boss", "rest"):
