@@ -168,43 +168,6 @@ class Shape:
     def __sub__(self, other):
         return Shape("difference", (self, _shape(other)))
 
-    def _apply_feature(self, feature, operation, *, on=None, at=None,
-                       child=Anchor.BOTTOM, offset=(0, 0), name=None):
-        """Apply a positioned CAD feature to this body in one operation.
-
-        Placement and application are one step: the parent object is only
-        mentioned once. Existing .on()/.attach() and +/- stay valid.
-        """
-        feature = _shape(feature)
-        if on is not None and at is not None:
-            raise ValueError("choose on=Anchor.TOP or at=(x, y, z), not both")
-        if on is not None:
-            feature = feature.attach(
-                self, parent=on, child=child, offset=offset)
-        elif at is not None:
-            if not isinstance(at, (tuple, list)) or len(at) != 3:
-                raise ValueError("at must be an (x, y, z) point")
-            feature = feature.at(*at)
-        elif offset != (0, 0) or child is not Anchor.BOTTOM:
-            raise ValueError("child/offset require on=Anchor.TOP/BOTTOM/CENTER")
-        if name is not None:
-            if not isinstance(name, str) or not name.isidentifier():
-                raise ValueError("feature name must be a Python identifier")
-            feature = Shape("labeled", (feature, name))
-        return Shape(operation, (self, feature))
-
-    def add(self, feature, *, on=None, at=None, child=Anchor.BOTTOM,
-            offset=(0, 0), name=None):
-        """Add a CAD feature, including native Hole features that cut material."""
-        return self._apply_feature(feature, "union", on=on, at=at, child=child,
-                                   offset=offset, name=name)
-
-    def cut(self, feature, *, on=None, at=None, child=Anchor.BOTTOM,
-            offset=(0, 0), name=None):
-        """Remove material using a cutter or an explicitly sketched extrusion."""
-        return self._apply_feature(feature, "difference", on=on, at=at, child=child,
-                                   offset=offset, name=name)
-
     def move(self, x=0, y=0, z=0):
         """Translate a CSG shape by millimetres.
 
@@ -262,19 +225,6 @@ class Shape:
             raise ValueError("only XY linear patterns are supported")
         return Shape("linear_pattern", (self, count, spacing, axis))
 
-    def on(self, target, anchor=Anchor.CENTER, *, offset=(0, 0)):
-        """Position a Cylinder or a linear pattern relative to an object.
-
-        .on() aligns the cylinder's CENTER to the selected reference anchor.
-        Both axes of offset are local to the XY face of the base plate.
-        """
-        child_anchor = Anchor.BOTTOM if (
-            self.kind == "hole" or (
-                self.kind == "linear_pattern" and self.data[0].kind == "hole"
-            )
-        ) else Anchor.CENTER
-        return self._anchor_to(target, anchor, child_anchor, offset)
-
     def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
                offset=(0, 0)):
         """Match a parent anchor to a child anchor (BOSL2-inspired)."""
@@ -282,7 +232,7 @@ class Shape:
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
         if self.kind not in ("cylinder", "linear_pattern", "hole"):
-            raise ValueError("on()/attach() currently support Cylinder, Hole and their linear patterns")
+            raise ValueError("attach() supports Cylinder, Hole and their linear patterns")
         if not isinstance(target, Shape):
             raise TypeError("anchor target must be an existing Shape")
         try:
@@ -348,10 +298,11 @@ def Cylinder(*, d, h):
 
 
 def Hole(*, d, depth=Depth.THROUGH_ALL):
-    """A native SolidCraft hole feature; unlike Cylinder it is not a solid.
+    """A hole intent; unlike Cylinder it is not positive solid geometry.
 
-    Place it on an existing solid face using .on(parent, Anchor.TOP).
-    A symbolic or numeric depth drills a blind hole; the default is through all.
+    Attach it to the face where drilling starts. The compiler chooses the
+    native SolidCraft sketch/cut representation. A numeric depth makes a
+    blind hole; the default drills through the supported body.
     """
     if value_of(d) <= 0:
         raise ValueError("hole diameter must be positive")
