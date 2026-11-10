@@ -44,20 +44,16 @@ generated JSON. Use `--out` first to inspect the exact sequence.
 - [Sample Plate — original history](examples/sample-plate/scpf/model.py):
   four named sketches (`Base`, `Holes`, `Boss`, `Bore`) and matching
   sketch-based cut/extrusion operations.
-- [Sample Plate — native Hole alternative](examples/sample-plate/scpf/native-holes.py):
-  the same nominal shape expressed with three native `Hole` features and
-  only two sketches.
 - [Plate](examples/plate/scpf/model.py): rectangular mounting plate.
 - [Bracket](examples/bracket/scpf/model.py): polygon-based angle bracket.
 - [CSG Cube](examples/csg-cube/scpf/model.py): primitive Boolean operations.
 - [Anchored Holes](examples/anchored-holes/scpf/model.py): repeated
   native holes positioned relative to the plate.
 
-A native `Hole` uses SolidCraft's `solid.hole` command. Use
-`plate = plate.add(Hole(d=8), on=Anchor.TOP)` to position and apply it in
-one operation. For accurate reconstruction of the original Sample Plate
-feature history, `model.py` uses `Circle2D` profiles and `.cut()` instead.
-Neither form requires creating a `Sketch` object explicitly.
+A `Hole` describes drilling intent. Attach it to the face where drilling
+starts, then add it to the body with `+`. For the Sample Plate, the compiler
+creates editable `Holes` and `Bore` sketches plus cut extrusions; the Python
+model does not create explicit Sketch objects.
 
 See the [SCPF guide](scpf/README.md) for models, parameters, placement,
 the live GUI connection and limitations.
