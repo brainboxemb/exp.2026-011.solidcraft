@@ -692,6 +692,26 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(holes[1]["params"]["cs_angle"], 90)
         self.assertEqual(holes[1]["params"]["position"], [10.0, 0.0, 11.0])
 
+    def test_vertical_recessed_countersink_uses_kernel_safe_order(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Hole
+
+        body = Box(40, 30, 12)
+        side_hole = Hole(
+            d=5.4, depth=13.0,
+            countersink_d=10.4, countersink_angle=90,
+            countersink_recess=1.0, direction=(1, 0, 0),
+        ).at(-20, 0, 6)
+        commands = compile_model(body + side_hole, "Part")["commands"]
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+
+        self.assertEqual(len(holes), 2)
+        self.assertEqual(holes[0]["params"]["type"], "countersink")
+        self.assertEqual(holes[0]["params"]["position"], [-19.0, 0.0, 6.0])
+        self.assertEqual(holes[1]["params"]["diameter"], 10.4)
+        self.assertEqual(holes[1]["params"]["depth"], 1.0)
+        self.assertEqual(holes[1]["params"]["position"], [-20, 0, 6])
+
     def test_production_corner_bracket_compiles_to_native_feature_history(self):
         commands = run_script(
             ROOT / "examples/corner-bracket/scpf/model.py"
