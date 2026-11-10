@@ -5,6 +5,17 @@ geometry engine.
 
 ## User-facing model
 
+A model does not need `@dataclass`. Numeric class fields are model
+parameters:
+
+```python
+class Enclosure:
+    length = 80.0
+    width = 50.0
+    height = 30.0
+    wall = 2.0
+```
+
 ```python
 holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
     count=2, spacing=self.width - 24, axis=Axis.X
@@ -40,6 +51,9 @@ plate + bore
 - `Anchor.INNER_BOTTOM` refers to the inner floor of a shelled body,
   so enclosure details can be placed relative to the shell wall instead of
   hard-coded world Z coordinates.
+- `Bounds.MIN`, `Bounds.CENTER` and `Bounds.MAX` describe X/Y
+  placement relative to the parent bounds, for example
+  `offset=(Bounds.MIN + 10, Bounds.MAX - 6)`.
 
 ## Responsibility boundaries
 
