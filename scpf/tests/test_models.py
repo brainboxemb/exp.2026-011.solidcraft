@@ -117,43 +117,6 @@ class SCPFExamples(unittest.TestCase):
         )
         self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
 
-    def test_sample_plate_native_holes_is_explicit_alternative(self):
-        commands = run_script(
-            ROOT / "examples/sample-plate/scpf/native-holes.py")["commands"]
-        sketches = [c["params"]["name"] for c in commands
-                    if c["command"] == "sketch.create"]
-        self.assertEqual(sketches, ["Base", "Boss"])
-        holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
-        self.assertEqual([h["diameter"] for h in holes], [8, 8, 12])
-        self.assertEqual([h["position"] for h in holes],
-                         [[12, 25, 8], [68, 25, 8], [40, 25, 22]])
-        self.assertTrue(all("references" in h for h in holes[:2]))
-        self.assertNotIn("references", holes[2])
-        self.assertEqual([c["params"]["operation"] for c in commands
-                          if c["command"] == "solid.extrude" and
-                          "operation" in c["params"]], ["join"])
-
-    def test_fluent_add_and_cut_match_legacy_composition(self):
-        from scpf.core import Anchor, Hole, Rectangle2D, Circle2D
-        from scpf.compiler import compile_model
-        plate = Rectangle2D(80, 50).extrude(8)
-        old = plate + Hole(d=8).on(plate, Anchor.TOP)
-        compact = plate.add(Hole(d=8), on=Anchor.TOP)
-        self.assertEqual(compile_model(old, "Plate"),
-                         compile_model(compact, "Plate"))
-
-        with self.assertRaises(ValueError):
-            plate.add(Hole(d=8), on=Anchor.TOP, at=(12, 25, 8))
-        with self.assertRaises(ValueError):
-            plate.add(Hole(d=8), at=(12, 25))
-        sketch_cut = plate.cut(
-            Circle2D(d=8).at(40, 25).extrude(8), name="Holes")
-        commands = compile_model(sketch_cut, "Plate")["commands"]
-        self.assertEqual([c["params"]["name"] for c in commands
-                          if c["command"] == "sketch.create"],
-                         ["Base", "Holes"])
-        self.assertEqual(commands[-1]["params"]["operation"], "cut")
-
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
         body = Box(80, 50, 8)
@@ -189,7 +152,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertIn("edges=Edges.VERTICAL", source)
         run_script(ROOT / "examples/sample-plate/scpf/model.py")
 
-    def test_hole_is_a_native_feature_with_edge_references(self):
+    def test_attached_hole_pattern_builds_one_sketch_cut(self):
         from scpf.core import Anchor, Axis, Depth, Hole, Rectangle2D, Parameter
         from scpf.compiler import compile_model
         width = Parameter("width", 100)
@@ -198,36 +161,45 @@ class SCPFExamples(unittest.TestCase):
         plate = Rectangle2D(width, depth).extrude(thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=40, axis=Axis.Y
-        ).on(plate, Anchor.TOP)
-        native = compile_model(plate + holes, "Plate")["commands"]
-        features = [x["params"] for x in native if x["command"] == "solid.hole"]
-        self.assertEqual(len(features), 2)
-        self.assertEqual([x["position"] for x in features],
-                         [[50, 10, 10], [50, 50, 10]])
-        self.assertTrue(all(x["references"][0]["distance"] == "(width / 2)" for x in features))
-        self.assertTrue(all("depth" in x["references"][1]["distance"] for x in features))
-        self.assertTrue(all("depth" not in x for x in features))
+        ).attach(plate, parent=Anchor.TOP)
+        commands = compile_model(plate + holes, "Plate")["commands"]
 
-    def test_hole_requires_exterior_face(self):
+        sketches = [c["params"]["name"] for c in commands
+                    if c["command"] == "sketch.create"]
+        self.assertEqual(sketches, ["Base", "Holes"])
+        circles = [c["params"] for c in commands
+                   if c["command"] == "sketch.circle.center"]
+        self.assertEqual([c["center"] for c in circles], [[50, 10], [50, 50]])
+        self.assertTrue(all(c["diameter"] == 8 for c in circles))
+        self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
+        self.assertEqual(commands[-1]["command"], "solid.extrude")
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
+        self.assertEqual(commands[-1]["params"]["direction"], "positive")
+        self.assertEqual(commands[-1]["params"]["distance"], "thickness")
+
+    def test_hole_attach_starts_at_exterior_top(self):
         from scpf.core import Hole, Anchor, Rectangle2D
         from scpf.compiler import compile_model, ModelError
         plate = Rectangle2D(80, 50).extrude(8)
-        commands = compile_model(plate + Hole(d=8).on(plate, Anchor.TOP), "Plate")["commands"]
-        self.assertEqual(commands[-1]["command"], "solid.hole")
-        legacy = compile_model(plate - Hole(d=8).on(plate, Anchor.TOP), "Plate")["commands"]
-        self.assertEqual(legacy[-1]["command"], "solid.hole")
+        attached = Hole(d=8).attach(plate, parent=Anchor.TOP)
+        commands = compile_model(plate + attached, "Plate")["commands"]
+        self.assertEqual(commands[-1]["command"], "solid.extrude")
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
         with self.assertRaises(ModelError):
-            compile_model(plate - Hole(d=8).on(plate, Anchor.CENTER), "Plate")
+            compile_model(
+                plate - Hole(d=8).attach(plate, parent=Anchor.CENTER),
+                "Plate",
+            )
         with self.assertRaises(ValueError):
             Hole(d=-2)
 
-    def test_symmetric_anchored_hole_pattern_follows_plate_dimensions(self):
+    def test_symmetric_anchored_cylinder_pattern_follows_plate_dimensions(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D
         from scpf.compiler import compile_model
         base = Rectangle2D(100, 60).extrude(10)
         holes = Cylinder(d=8, h=12).pattern(
             count=2, spacing=40, axis=Axis.Y
-        ).on(base, Anchor.CENTER)
+        ).attach(base, parent=Anchor.CENTER, child=Anchor.CENTER)
         commands = compile_model(base - holes, "Plate")["commands"]
         cylinders = [c["params"] for c in commands
                      if c["command"] == "solid.cylinder"]
@@ -262,11 +234,11 @@ class SCPFExamples(unittest.TestCase):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D, Sphere
         base = Rectangle2D(80, 50).extrude(8)
         with self.assertRaises(ValueError):
-            Sphere(8).on(base, Anchor.TOP)
+            Sphere(8).attach(base, parent=Anchor.TOP)
         with self.assertRaises(ValueError):
             Cylinder(d=8, h=10).pattern(count=2, spacing=40, axis=Axis.Z)
         with self.assertRaises(ValueError):
-            Cylinder(d=8, h=10).on(base, offset=(1, 2, 3))
+            Cylinder(d=8, h=10).attach(base, offset=(1, 2, 3))
 
     def test_cylinder_keyword_form_is_direct_3d_primitive(self):
         from scpf.core import Cylinder
@@ -372,26 +344,27 @@ class SCPFExamples(unittest.TestCase):
         with self.assertRaises(ValueError):
             Hole(d=8).pattern(count=2, spacing=40, axis=Axis.Z)
 
-    def test_same_hole_feature_compiles_for_box_rectangle_and_polygon(self):
+    def test_attached_hole_uses_sketch_while_explicit_at_can_be_native(self):
         from scpf.compiler import compile_model
         from scpf.core import Box, Rectangle2D, Polygon2D, Direction, Hole, Anchor
         box = Box(80, 50, 8)
         rectangle = Rectangle2D(80, 50).extrude(8)
-        polygon = Polygon2D([(0, 0), (40, 0), (40, 6), (0, 6)],
-                            plane="XZ").extrude(50, direction=Direction.NEGATIVE)
-        models = (
-            box + Hole(d=6).on(box, Anchor.TOP),
-            rectangle + Hole(d=6).on(rectangle, Anchor.TOP),
-            polygon + Hole(d=6).at(20, -25, 0),
-        )
-        for i, model in enumerate(models):
-            with self.subTest(base=i):
-                commands = compile_model(model, "Widget")["commands"]
-                holes = [c for c in commands if c["command"] == "solid.hole"]
-                self.assertEqual(len(holes), 1)
-                self.assertEqual(holes[0]["params"]["diameter"], 6)
-                self.assertEqual(holes[0]["params"]["targets"], ["Widget"])
-                self.assertEqual(commands[-1], holes[0])
+        for model in (
+            box + Hole(d=6).attach(box, parent=Anchor.TOP),
+            rectangle + Hole(d=6).attach(rectangle, parent=Anchor.TOP),
+        ):
+            commands = compile_model(model, "Widget")["commands"]
+            self.assertEqual(commands[-1]["command"], "solid.extrude")
+            self.assertEqual(commands[-1]["params"]["operation"], "cut")
+            self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
+
+        polygon = Polygon2D(
+            [(0, 0), (40, 0), (40, 6), (0, 6)], plane="XZ"
+        ).extrude(50, direction=Direction.NEGATIVE)
+        commands = compile_model(
+            polygon + Hole(d=6).at(20, -25, 0), "Widget"
+        )["commands"]
+        self.assertEqual(commands[-1]["command"], "solid.hole")
 
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
