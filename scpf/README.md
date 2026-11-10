@@ -26,9 +26,9 @@ class Plate:
         body = Box(self.length, self.width, self.thickness)
         body = body.fillet(2, edges=Edges.VERTICAL)
         for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
-            hole = Hole(d=8, depth=Depth.THROUGH_ALL).on(
-                body, Anchor.TOP, offset=(x, y))
-            body = body + hole
+            body = body.add(
+                Hole(d=8, depth=Depth.THROUGH_ALL),
+                on=Anchor.TOP, offset=(x, y))
         body
 
 Plate()
@@ -189,9 +189,9 @@ The compiler is divided by **responsibility**, not by example model:
 - `csg.py`: primitive solids and Boolean operations for CSG compositions.
 - `runner.py`: loads a trusted Python script and executes its model definition.
 
-All three examples Plate, Bracket and Sample Plate use the **same**
-`features.py` implementation for `Hole` and `Fillet`. No special
-compiler function is selected by the model's name.
+Plate, Bracket and both Sample Plate variants use the same `features.py`
+implementation for Hole, Fillet, and sketch-based cuts/joins. No compiler
+function is selected by the model's name.
 
 ## Current limits
 
@@ -210,32 +210,46 @@ compiler function is selected by the model's name.
   solver constraints and arbitrary workplanes are not yet supported.
 - SolidCraft, not SCPF, owns the geometry and native feature history.
 
-## Sample Plate reconstruction
+## Sample Plate — two intentionally different histories
 
 The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
-contains an editable SolidCraft **design history**, not command JSON.
-The [SCPF class](../examples/sample-plate/scpf/model.py) describes the base,
-mounting holes, joined boss, and bore with the same object-level operations:
-`Rectangle2D`, `Cylinder`, and the native `Hole` feature. The adapter creates
-a sketch internally for the base and the boss, while all three holes compile
-to native `solid.hole`. A `Hole` is added to the model using `+`, even
-though the resulting CAD feature removes material.
+contains **four named sketches**: `Base`, `Holes`, `Boss`, and `Bore`.
+The default [Sample Plate model](../examples/sample-plate/scpf/model.py)
+recreates those four sketches and their native extrusions/cuts. In the
+Python script, `Circle2D` describes a profile, not an explicit Sketch
+object; the adapter creates the sketches automatically. The resulting
+history is expected to contain nine native CAD features.
 
-This intentionally differs from the original saved file's **four sketches and
-nine features**. The source retains its original sketch-based cut history;
-the generated design instead contains `Base`, two mounting Hole features,
-`Boss`, and one bore Hole feature. Geometry and parameter edits must be
-verified independently rather than claiming identical feature histories.
+A second [native Hole variant](../examples/sample-plate/scpf/native-holes.py)
+uses real SolidCraft Hole features. It has only two sketches, `Base` and
+`Boss`, together with `Hole1`, `Hole2`, and `Hole3`. **This is not
+an error:** a native Hole feature does not need its own sketch. The two
+variants should produce the same shape but intentionally retain different
+editable construction histories.
+
+The compact API does not repeat `plate` as both an attachment target and
+a Boolean operand:
+
+```python
+plate = plate.add(
+    Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+        count=2, spacing=self.width - 24, axis=Axis.X),
+    on=Anchor.TOP,
+)
+plate = plate.add(Cylinder(d=24, h=14), on=Anchor.TOP)
+plate = plate.add(Hole(d=12, depth=Depth.THROUGH_ALL), on=Anchor.TOP)
+```
 
 ```powershell
 $env:PYTHONPATH = "scpf"
-python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
-python -m scpf examples/sample-plate/scpf/model.py --connect
+# Four original sketches and three extrusions
+python -m scpf examples/sample-plate/scpf/model.py --out output/sample-plate.json
+# Two sketches and three native Hole features
+python -m scpf examples/sample-plate/scpf/native-holes.py --out output/sample-plate-native-holes.json
 ```
 
-The live command requires a new empty SolidCraft design; the generated
-command plan creates its own parameters. Native validation is required
-before accepting this reconstruction as geometrically equivalent.
+Run `--connect` only with a fresh SolidCraft design. Neither variant is
+intended to be applied twice to an existing design.
 
 ## SCPF API cheatsheet
 
@@ -283,8 +297,9 @@ changes: only a simple rectangular XY base is supported, and native
 save/reopen/parameter-edit qualification is required.
 
 `Hole(d=8, depth=Depth.THROUGH_ALL)` describes a native `solid.hole`
-feature, distinct from a cutting Cylinder. Use it with `on()` and add
-it to the parent as `plate + hole`. The plus adds a CAD feature, not material:
+feature, distinct from a cutting Cylinder. Prefer `plate.add(Hole(d=8), on=Anchor.TOP)` to position and apply it
+in one call. An older `plate + hole.on(plate, Anchor.TOP)` also works.
+Adding the Hole feature does not add material:
 the native `solid.hole` operation removes material. Older `plate - hole`
 scripts remain supported for compatibility. `Fillet` remains a modifier method on solids.
 More general attachments remain tracked in issue #5.
