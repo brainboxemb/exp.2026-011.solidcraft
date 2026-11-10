@@ -233,9 +233,16 @@ jobs:
           jq -e '
             [.features[] | select(.type == "hole")] | length == 2
           ' output/native/anchored-holes/document.json
-          echo "Native Hole feature placement before parameter change:"
-          jq '[.features[] | select(.type == "hole")]' \
-            output/native/anchored-holes/document.json
+          jq -e '
+            [.features[] | select(.type == "hole")] as $holes
+            | ($holes | length) == 2
+            and ($holes | all(
+              .face_names == ["F2:top"]
+              and (.edge_names | length) == 2
+              and (.references | length) == 2
+              and .references[0].distance == "(width / 2)"
+            ))
+          ' output/native/anchored-holes/document.json
           cat > output/native/anchored-holes/edit.json <<'JSON'
           {"commands":[
             {"command":"parameters.change",
@@ -250,14 +257,27 @@ jobs:
             --json-out output/native/anchored-holes/wider.json
           unzip -p output/native/anchored-holes/wider.sc document.json \
             > output/native/anchored-holes/wider-document.json
-          echo "Native Hole feature placement after width=120:"
-          jq '[.features[] | select(.type == "hole")]' \
-            output/native/anchored-holes/wider-document.json
+          # Native Hole.position is an authoring snapshot. The persisted
+          # parametric references and evaluated mass centre prove that the
+          # actual bores moved from X=50 to X=60 after width changes.
+          jq -e '
+            [.features[] | select(.type == "hole")] as $holes
+            | ($holes | length) == 2
+            and ($holes | all(
+              .face_names == ["F2:top"]
+              and (.edge_names | length) == 2
+              and .references[0].distance == "(width / 2)"
+              and .position[0] == 50
+            ))
+          ' output/native/anchored-holes/wider-document.json
           jq -e '
             .body_count == 1
             and .bodies[0].bbox.max[0] > 119.9999
             and .total.volume_mm3 > 70993
             and .total.volume_mm3 < 70996
+            and .bodies[0].center_of_mass[0] > 59.9999
+            and .bodies[0].center_of_mass[0] < 60.0001
+            and (.bodies[0].face_types.cylinder == 2)
             and (.timeline | all(.error == null))
           ' output/native/anchored-holes/wider.json
       - name: Evaluate CSG cube through native SolidCraft
