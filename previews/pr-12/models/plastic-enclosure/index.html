@@ -15,14 +15,13 @@
 </div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
 <h3>Construction stages</h3><ol><li>Enclosure footprint — sketch the 80 × 50 mm base</li><li>Extrude1 — create the 30 mm solid</li><li>Shell1 — hollow to 2 mm with the top open</li><li>Lip1 — add a 1 × 2 mm rim lip</li><li>SnapFit1 — add the 14 mm cantilever snap</li><li>Boss1 / Boss2 — add two Ø7 × 12 mm screw bosses</li><li>Rest1 — add the 16 × 24 × 3 mm centre rest</li></ol></section></div>
-<h2>Python model</h2><pre><code>@dataclass
-class Enclosure:
+<h2>Python model</h2><pre><code>class Enclosure:
     &quot;&quot;&quot;Rebuild the SolidCraft plastic enclosure with native plastic features.&quot;&quot;&quot;
 
-    length: float = 80
-    width: float = 50
-    height: float = 30
-    wall: float = 2
+    length = 80.0
+    width = 50.0
+    height = 30.0
+    wall = 2.0
 
     def build(self):
         enclosure = Box(self.length, self.width, self.height)
@@ -31,7 +30,7 @@ class Enclosure:
         lip = Lip(width=1, height=2).attach(
             enclosure,
             parent=Anchor.TOP,
-            offset=(-(self.length / 2) + 1, 0),
+            offset=(X.MIN + 1, Y.CENTER),
         )
         enclosure = enclosure + lip
 
@@ -45,27 +44,21 @@ class Enclosure:
         ).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(0, self.width / 2 - 6),
+            offset=(X.CENTER, Y.MAX - 6),
         )
         enclosure = enclosure + snap
 
         boss1 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(
-                -(self.length / 2) + 10,
-                -(self.width / 2) + 10,
-            ),
+            offset=(X.MIN + 10, Y.MIN + 10),
         )
         enclosure = enclosure + boss1
 
         boss2 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(
-                self.length / 2 - 10,
-                self.width / 2 - 10,
-            ),
+            offset=(X.MAX - 10, Y.MAX - 10),
         )
         enclosure = enclosure + boss2
 
