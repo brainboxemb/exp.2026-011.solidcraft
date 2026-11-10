@@ -14,7 +14,7 @@
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
 </div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
-<h3>Construction stages</h3><ol><li>Sketch XY rectangle (80 × 50)</li><li>Extrude base by 8 mm</li><li>Fillet four vertical corners, R6</li><li>Cut two mounting holes Ø8</li><li>Join Ø24 boss above plate, height 14</li><li>Cut central Ø12 bore through full 22 mm</li></ol></section></div>
+<h3>Construction stages</h3><ol><li>Base — sketch XY rectangle (80 × 50)</li><li>Extrude1 — extrude base by 8 mm</li><li>Fillet1 — fillet four vertical corners, R6</li><li>Holes — cut two mounting holes Ø8</li><li>Boss — join Ø24 boss above plate, height 14</li><li>Bore — cut central Ø12 bore through full 22 mm</li></ol></section></div>
 <h2>Python model</h2><pre><code>@dataclass
 class SamplePlate:
     &quot;&quot;&quot;Build the sample plate from object-level CAD intent.&quot;&quot;&quot;
