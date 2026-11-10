@@ -128,32 +128,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.cylinder",
       "params": {
-        "plane": "XY",
-        "name": "Boss",
-        "offset": "thickness"
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
-          40.0,
-          25.0
+        "height": 14,
+        "diameter": 24,
+        "base": [
+          40,
+          25,
+          "thickness"
         ],
-        "diameter": 24
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 14,
-        "direction": "positive",
+        "axis": "Z",
         "operation": "join",
         "targets": [
           "SamplePlate"
@@ -161,32 +145,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.cylinder",
       "params": {
-        "plane": "XY",
-        "name": "Bore",
-        "offset": "thickness + 14 mm"
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
-          40.0,
-          25.0
+        "height": "thickness + 14 mm",
+        "diameter": 12,
+        "base": [
+          40,
+          25,
+          0
         ],
-        "diameter": 12
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "thickness + 14 mm",
-        "direction": "negative",
+        "axis": "Z",
         "operation": "cut",
         "targets": [
           "SamplePlate"

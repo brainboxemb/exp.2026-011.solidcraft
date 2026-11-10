@@ -2,13 +2,13 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CsgCube · SolidCraft CAD experiments</title><link rel="stylesheet" href="../../results.css"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="../../">SolidCraft · CAD experiments</a>
-<a href="../../">Models</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / csg-cube</div>
 <h1>CsgCube</h1><p>A cube, sphere and three crossing bores</p></div></section>
-<main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
+<main class="wrap"><div class="metadata"><span class="badge pending">Generated command plan · native render not verified for this commit</span>
 <span class="badge">6 commands</span><span class="badge">50 mm cube; three crossing cylindrical cuts</span></div>
-<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft native model render"></div>
-<p class="small muted">Native SolidCraft image, matching this source revision.</p>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg"><path d="M130 68 250 15 376 68 376 188 250 241 130 188Z" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M130 68 250 125 376 68 M250 125 V241" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="250" cy="129" rx="39" ry="37" fill="#f1f6fc" stroke="#285785" stroke-width="5"/><ellipse cx="250" cy="130" rx="14" ry="34" fill="#acc6e3" stroke="#285785" stroke-width="3"/><path d="M196 90 307 162 M185 155 310 100" stroke="#285785" stroke-width="4" stroke-dasharray="8 8"/></svg></div>
+<p class="small muted">Schematic drawing only; it is not a SolidCraft geometry render.</p>
 <p>A constructive solid geometry demonstration: intersect a cube with a sphere, then subtract cylinders along three axes.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
@@ -33,7 +33,7 @@ CsgCube()
 <li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li>
 <li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li>
 <li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li></ol></section>
-<div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
+<div class="notice"><strong>Verification:</strong> Generated command plan · native render not verified for this commit.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
 <p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>

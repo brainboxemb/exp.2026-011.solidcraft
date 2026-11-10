@@ -1,27 +1,27 @@
 @dataclass
 class SamplePlate:
-    """Reconstructed from the saved SolidCraft Sample Plate design."""
+    """Reconstruct the nominal geometry of a saved SolidCraft design."""
 
     width: float = 80
     depth: float = 50
     thickness: float = 8
 
     def build(self):
-        # Base: one XY rectangle, extruded upward, with four R6 corners.
-        plate = Rectangle(self.width, self.depth).extrude(self.thickness)
+        # An XY sketch becomes a solid base.
+        plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges="vertical")
 
-        # The two mounting holes are ordinary circles on the XY plane.
-        holes = Circle(d=8).at(12, 25) + Circle(d=8).at(68, 25)
+        # Two mounting holes follow the original sketch-and-cut history.
+        holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
         plate = plate - holes.extrude(self.thickness)
 
-        # Another circle, positioned on top of the plate and joined.
-        boss = Circle(d=24).at(40, 25, z=self.thickness)
-        plate = plate + boss.extrude(14)
+        # Direct 3D primitives; SolidCraft emits solid.cylinder, not a sketch.
+        boss = Cylinder3D(d=24, h=14).at(40, 25, self.thickness)
+        plate = plate + boss
 
-        # A circle on top of the boss, extruded down through both solids.
-        bore = Circle(d=12).at(40, 25, z=self.thickness + 14)
-        plate - bore.extrude(self.thickness + 14, direction="negative")
+        # Its base is at z=0; the full 22 mm height is removed.
+        bore = Cylinder3D(d=12, h=self.thickness + 14).at(40, 25, 0)
+        plate - bore
 
 
 SamplePlate()
