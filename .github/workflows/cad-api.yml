@@ -37,7 +37,9 @@ jobs:
         run: |
           set -euo pipefail
           jq empty output/examples/csg-cube/solidcraftforge/solidcraft.json
-          jq -e -s '.[0] == .[1]'             examples/csg-cube/solidcraftforge/solidcraft.json             output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            examples/csg-cube/solidcraftforge/solidcraft.json \
+            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
 
       - name: Show and identify generated command plans
         shell: bash
@@ -66,5 +68,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: bld
           publish_dir: ./output/examples
+          keep_files: true
           force_orphan: true
           commit_message: "SolidCraftForge generated command plans from ${{ github.sha }}"
