@@ -248,7 +248,15 @@ explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
 Currently supported: Rectangle2D extrusion base; `Anchor.CENTER`,
 `Anchor.TOP`, `Anchor.BOTTOM`; and XY linear patterns of cylinders.
 
-**Important limitation:** the compiler resolves references to native
-parameter expressions. It does NOT create a persistent topological face
-constraint in SolidCraft. This must be distinguished from the planned
-fully associative attachment support in issue #5.
+For `Anchor.TOP` and `Anchor.BOTTOM`, the native adapter now emits
+`references` with two perpendicular straight edge picks and parametric
+distances. The accompanying `base` or `position` is numeric because
+SolidCraft explicitly requires numeric coordinates when using references.
+The initial edge pick points are not promises of stable topology across all
+changes: only a simple rectangular XY base is supported, and native
+save/reopen/parameter-edit qualification is required.
+
+`Hole(d=8, depth=Depth.THROUGH_ALL)` describes a native `solid.hole`
+feature, distinct from a cutting Cylinder. Use it with `on()` and subtract
+it from the parent. `Fillet` remains a modifier method on solids.
+More general attachments remain tracked in issue #5.

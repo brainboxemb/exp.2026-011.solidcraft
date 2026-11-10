@@ -25,6 +25,10 @@ class Anchor(str, Enum):
     BOTTOM = "bottom"
 
 
+class Depth(str, Enum):
+    THROUGH_ALL = "through_all"
+
+
 class Axis(str, Enum):
     X = "X"
     Y = "Y"
@@ -200,8 +204,8 @@ class Shape:
         The new form uses count/spacing/axis. The x/y form is retained for
         the existing rectangular Plate fixture until that feature is generalized.
         """
-        if self.kind != "cylinder3d":
-            raise ValueError("pattern() currently supports Cylinder")
+        if self.kind not in ("cylinder3d", "hole"):
+            raise ValueError("pattern() currently supports Cylinder or Hole")
         if count is None and spacing is None and axis is None:
             if x is None or y is None:
                 raise ValueError("pattern requires count/spacing/axis or x/y")
@@ -226,7 +230,12 @@ class Shape:
         .on() aligns the cylinder's CENTER to the selected reference anchor.
         Both axes of offset are local to the XY face of the base plate.
         """
-        return self._anchor_to(target, anchor, Anchor.CENTER, offset)
+        child_anchor = Anchor.BOTTOM if (
+            self.kind == "hole" or (
+                self.kind == "linear_pattern" and self.data[0].kind == "hole"
+            )
+        ) else Anchor.CENTER
+        return self._anchor_to(target, anchor, child_anchor, offset)
 
     def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
                offset=(0, 0)):
@@ -234,8 +243,8 @@ class Shape:
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
-        if self.kind not in ("cylinder3d", "linear_pattern"):
-            raise ValueError("on()/attach() currently support Cylinder and linear patterns")
+        if self.kind not in ("cylinder3d", "linear_pattern", "hole"):
+            raise ValueError("on()/attach() currently support Cylinder, Hole and their linear patterns")
         if not isinstance(target, Shape):
             raise TypeError("anchor target must be an existing Shape")
         try:
@@ -302,6 +311,19 @@ def Sphere(radius):
 def Cylinder(*, d, h):
     """A cylinder based at z=0; use .at(x, y, z) for placement."""
     return Shape("cylinder3d", (h, d))
+
+
+def Hole(*, d, depth=Depth.THROUGH_ALL):
+    """A native SolidCraft hole feature; unlike Cylinder it is not a solid.
+
+    Place it on an existing solid face using .on(parent, Anchor.TOP).
+    A symbolic or numeric depth drills a blind hole; the default is through all.
+    """
+    if value_of(d) <= 0:
+        raise ValueError("hole diameter must be positive")
+    if depth is not Depth.THROUGH_ALL and value_of(depth) <= 0:
+        raise ValueError("hole depth must be positive or Depth.THROUGH_ALL")
+    return Shape("hole", (d, depth))
 
 
 X, Y, Z = "X", "Y", "Z"

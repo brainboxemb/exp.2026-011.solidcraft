@@ -84,8 +84,9 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual([c["height"] for c in cylinders],
                          [14, "thickness + 14 mm"])
         self.assertEqual([c["base"] for c in cylinders],
-                         [["(width / 2)", "(depth / 2)", "(thickness)"],
-                          ["(width / 2)", "(depth / 2)", 0]])
+                         [[40, 25, 8], [40, 25, 0]])
+        self.assertEqual([c["references"][0]["distance"] for c in cylinders],
+                         ["(width / 2)", "(width / 2)"])
         self.assertEqual(
             [c["params"]["expression"] for c in commands[:3]], ["80", "50", "8"]
         )
@@ -106,8 +107,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
         cylinders = [c["params"] for c in commands
                      if c["command"] == "solid.cylinder"]
-        self.assertEqual(cylinders[0]["base"],
-                         ["(width / 2)", "(depth / 2)", "(thickness)"])
+        self.assertEqual(cylinders[0]["base"], [50, 30, 10])
         self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
 
     def test_named_edge_selection_and_explicit_edge_points(self):
@@ -145,6 +145,36 @@ class SCPFExamples(unittest.TestCase):
         self.assertIn("edges=Edges.VERTICAL", source)
         run_script(ROOT / "examples/sample-plate/scpf/model.py")
 
+    def test_hole_is_a_native_feature_with_edge_references(self):
+        from scpf.core import Anchor, Axis, Depth, Hole, Rectangle2D, Parameter
+        from scpf.compiler import compile_model
+        width = Parameter("width", 100)
+        depth = Parameter("depth", 60)
+        thickness = Parameter("thickness", 10)
+        plate = Rectangle2D(width, depth).extrude(thickness)
+        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+            count=2, spacing=40, axis=Axis.Y
+        ).on(plate, Anchor.TOP)
+        native = compile_model(plate - holes, "Plate")["commands"]
+        features = [x["params"] for x in native if x["command"] == "solid.hole"]
+        self.assertEqual(len(features), 2)
+        self.assertEqual([x["position"] for x in features],
+                         [[50, 10, 10], [50, 50, 10]])
+        self.assertTrue(all(x["references"][0]["distance"] == "(width / 2)" for x in features))
+        self.assertTrue(all("depth" in x["references"][1]["distance"] for x in features))
+        self.assertTrue(all("depth" not in x for x in features))
+
+    def test_hole_requires_exterior_face_and_subtractive_operation(self):
+        from scpf.core import Hole, Anchor, Rectangle2D
+        from scpf.compiler import compile_model, ModelError
+        plate = Rectangle2D(80, 50).extrude(8)
+        with self.assertRaises(ModelError):
+            compile_model(plate + Hole(d=8).on(plate, Anchor.TOP), "Plate")
+        with self.assertRaises(ModelError):
+            compile_model(plate - Hole(d=8).on(plate, Anchor.CENTER), "Plate")
+        with self.assertRaises(ValueError):
+            Hole(d=-2)
+
     def test_symmetric_anchored_hole_pattern_follows_plate_dimensions(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D
         from scpf.compiler import compile_model
@@ -174,11 +204,9 @@ class SCPFExamples(unittest.TestCase):
         commands = compile_model(base + boss, "Plate")["commands"]
         cylinder = commands[-1]["params"]
         self.assertEqual(cylinder["operation"], "join")
-        self.assertIn("width", cylinder["base"][0])
-        self.assertIn("depth", cylinder["base"][1])
-        self.assertIn("thickness", cylinder["base"][2])
-        self.assertEqual(cylinder["base"][0], "(width / 2)")
-        self.assertEqual(cylinder["base"][1], "(depth / 2)")
+        self.assertEqual(cylinder["base"], [40, 25, 8])
+        self.assertEqual(cylinder["references"][0]["distance"], "(width / 2)")
+        self.assertEqual(cylinder["references"][1]["distance"], "(depth / 2)")
 
     def test_relative_anchor_rejects_unsupported_usage(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D, Sphere

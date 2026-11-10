@@ -5,7 +5,7 @@ additional extruded Circle sketches can be joined (+) or cut (-).
 This module recognizes CAD operations, never example names such as Boss
 or Bore. SolidCraft is the only BRep engine.
 """
-from .core import Parameter, Shape, Edges, command_value, value_of
+from .core import Parameter, Shape, Edges, Depth, command_value, value_of
 
 
 def _circle_profiles(shape, dx=0, dy=0, z=0):
@@ -86,52 +86,72 @@ def _combine(*terms):
     return Expression(numeric, expression, used)
 
 
-def _anchored_cylinders(shape):
-    """Resolve attached cylinders against the original base plate dimensions.
+def _anchored_features(shape):
+    """Resolve relative placement and retain two native reference edges.
 
-    Resolving a relation into named-parameter expressions is currently an
-    SCPF compile-time operation, NOT a persistent native face constraint.
+    Only rectangular XY bases are currently supported. For a face on the
+    original base plate, two perpendicular straight edges locate the center.
+    Native references follow those edges after a parameter edit. The numeric
+    pick points are merely initial selectors, not the dimensional relationship.
     """
-    from .core import Anchor, Axis
+    from .core import Anchor, Axis, Depth
     if shape.kind != "anchored":
-        raise ValueError("expected an anchored cylinder")
+        raise ValueError("expected an anchored feature")
     child, target, parent_anchor, child_anchor, offset = shape.data
     (width, depth), (x, y, z), thickness = _base_rectangle(target)
     if thickness is None:
-        raise ValueError("anchor target must be a 3D rectangular plate")
-    center_x = _combine(x, width / 2)
-    center_y = _combine(y, depth / 2)
+        raise ValueError("anchor target must be an extruded Rectangle2D")
+    if value_of(x) != 0 or value_of(y) != 0 or value_of(z) != 0:
+        raise ValueError("native reference edges require an unshifted base for now")
     if parent_anchor is Anchor.TOP:
-        parent_z = _combine(z, thickness)
-    elif parent_anchor is Anchor.CENTER:
-        parent_z = _combine(z, thickness / 2)
+        face_z = thickness
     elif parent_anchor is Anchor.BOTTOM:
-        parent_z = z
+        face_z = z
     else:
-        raise ValueError("unsupported anchor")
+        face_z = _combine(z, thickness / 2)
     if child.kind == "linear_pattern":
-        cylinder, count, spacing, axis = child.data
-        shifts = [((i - (count - 1)/2) * value_of(spacing), axis)
-                  for i in range(count)]
-    elif child.kind == "cylinder3d":
-        cylinder = child
-        shifts = [(0, None)]
+        feature, count, spacing, axis = child.data
+        shifts = [((n - (count - 1) / 2) * value_of(spacing), axis)
+                  for n in range(count)]
     else:
-        raise ValueError("only Cylinder patterns are supported")
-    height, diameter = cylinder.data
-    if child_anchor is Anchor.BOTTOM:
-        base_z = parent_z
-    elif child_anchor is Anchor.CENTER:
-        base_z = _combine(parent_z, -(height / 2))
+        feature, shifts = child, [(0, None)]
+    if feature.kind not in ("cylinder3d", "hole"):
+        raise ValueError("anchoring currently supports Cylinder and Hole")
+    if feature.kind == "hole":
+        if parent_anchor not in (Anchor.TOP, Anchor.BOTTOM):
+            raise ValueError("Hole must be placed on a planar exterior face")
+        if child_anchor is not Anchor.BOTTOM:
+            raise ValueError("Hole uses its entry point, not a volume center")
+    height = feature.data[0] if feature.kind == "cylinder3d" else None
+    if feature.kind == "cylinder3d":
+        if child_anchor is Anchor.BOTTOM:
+            base_z = face_z
+        elif child_anchor is Anchor.CENTER:
+            base_z = _combine(face_z, -(height / 2))
+        else:
+            base_z = _combine(face_z, -height)
     else:
-        base_z = _combine(parent_z, -height)
+        base_z = face_z
     result = []
     for shift, axis in shifts:
-        dx, dy = (shift, 0) if axis is Axis.X else ((0, shift) if axis is Axis.Y else (0, 0))
-        result.append((cylinder,
-                       (_combine(center_x, offset[0], dx),
-                        _combine(center_y, offset[1], dy),
-                        base_z)))
+        dx, dy = ((shift, 0) if axis is Axis.X else
+                  ((0, shift) if axis is Axis.Y else (0, 0)))
+        xx = _combine(x, width / 2, offset[0], dx)
+        yy = _combine(y, depth / 2, offset[1], dy)
+        # The edge samples are intentionally strictly within straight segments
+        # on filleted rectangular faces (midpoints, not rounded corners).
+        if parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
+            refs = [
+                {"edge": [value_of(x), value_of(y) + value_of(depth)/2, value_of(face_z)],
+                 "distance": command_value(_combine(width / 2, offset[0], dx))},
+                {"edge": [value_of(x) + value_of(width)/2, value_of(y), value_of(face_z)],
+                 "distance": command_value(_combine(depth / 2, offset[1], dy))}
+            ]
+        else:
+            refs = None
+        position = [value_of(xx), value_of(yy), value_of(base_z)] if refs else [
+            command_value(xx), command_value(yy), command_value(base_z)]
+        result.append((feature, position, refs))
     return result
 
 
@@ -188,22 +208,39 @@ def _to_commands(shape, body_name):
     if shape.kind in ("union", "difference"):
         original, cutter = shape.data
         steps, base = _to_commands(original, body_name)
-        # Anchored cylinders resolve to SolidCraft named-parameter coordinates.
         if cutter.kind == "anchored":
             try:
-                cylinders = _anchored_cylinders(cutter)
+                features = _anchored_features(cutter)
             except (ValueError, TypeError) as exc:
                 raise ModelError(str(exc)) from exc
-            for primitive, position in cylinders:
-                height, diameter = primitive.data
-                _require_positive(height, "cylinder height")
-                _require_positive(diameter, "cylinder diameter")
-                steps.append(_command(
-                    "solid.cylinder", height=command_value(height),
-                    diameter=command_value(diameter),
-                    base=[command_value(dim) for dim in position],
-                    axis="Z", operation="join" if shape.kind == "union" else "cut",
-                    targets=[body_name]))
+            for feature, position, refs in features:
+                if feature.kind == "hole":
+                    if shape.kind != "difference":
+                        raise ModelError("Hole can only remove material; use parent - hole")
+                    diameter, depth = feature.data
+                    _require_positive(diameter, "hole diameter")
+                    params = dict(
+                        position=position, diameter=command_value(diameter),
+                        targets=[body_name])
+                    if depth is not Depth.THROUGH_ALL:
+                        _require_positive(depth, "hole depth")
+                        params["depth"] = command_value(depth)
+                    if refs:
+                        params["references"] = refs
+                    steps.append(_command("solid.hole", **params))
+                else:
+                    height, diameter = feature.data
+                    _require_positive(height, "cylinder height")
+                    _require_positive(diameter, "cylinder diameter")
+                    params = dict(
+                        height=command_value(height),
+                        diameter=command_value(diameter), base=position,
+                        axis="Z",
+                        operation="join" if shape.kind == "union" else "cut",
+                        targets=[body_name])
+                    if refs:
+                        params["references"] = refs
+                    steps.append(_command("solid.cylinder", **params))
             return steps, base
         # A native 3D cylinder does not require a 2D sketch or extrusion.
         if cutter.kind in ("cylinder3d", "placed3d"):
