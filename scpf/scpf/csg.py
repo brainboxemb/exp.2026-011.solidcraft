@@ -55,7 +55,7 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), c
         params = dict(radius=command_value(radius), center=list(offset),
                       operation=operation)
         command = "solid.sphere"
-    elif kind == "cylinder3d":
+    elif kind == "cylinder":
         height, diameter = data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
@@ -80,7 +80,7 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_apply(child, name, operation, _shift(offset, delta))
-    if shape.kind in ("box", "sphere", "cylinder3d"):
+    if shape.kind in ("box", "sphere", "cylinder"):
         return [_csg_primitive(shape, name, operation, offset=offset)]
     if shape.kind == "orient" and operation in ("cut", "join"):
         cylinder, axes = shape.data
@@ -97,13 +97,13 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
 def _csg_new(shape, name, offset=(0, 0, 0)):
     if shape.kind == "placed3d":
         child, x, y, z = shape.data
-        if child.kind != "cylinder3d":
-            raise ModelError("Only Cylinder3D is supported by 3D placement")
+        if child.kind != "cylinder":
+            raise ModelError("Only Cylinder is supported by 3D placement")
         return _csg_new(child, name, (command_value(x), command_value(y), command_value(z)))
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_new(child, name, _shift(offset, delta))
-    if shape.kind in ("box", "sphere", "cylinder3d"):
+    if shape.kind in ("box", "sphere", "cylinder"):
         return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data
