@@ -1,6 +1,6 @@
 # Experiment 011 — SCPF (Python interface to SolidCraft)
 
-**Current direction: Python SCPF.** The earlier Rust SolidCraftForge
+**Current direction: Python SCPF.** The Rust variant is **SCRF** (SolidCraft Rust Forge). The earlier Rust SCRF
 prototype remains in this repository as a preserved reference, not as the
 intended user-facing scripting language.
 
@@ -42,14 +42,14 @@ qualified comparisons.
 
 ---
 
-# Archived Rust prototype — SolidCraftForge
+# Archived Rust prototype — SCRF (SolidCraft Rust Forge)
 
 
 **Status: active Rust proof of principle; the first native SolidCraft 0.30.1 fixture now executes successfully.**
 
 The goal is a readable **CAD interface** in Rust: model code describes parts, holes, faces, workplanes and fillets. A SolidCraft adapter translates that intent into native SolidCraft operations. **SolidCraft remains the only geometry engine.**
 
-The comparison covers **five implementations**: SolidCraftForge, CadQuery, vcad, µcad and PythonSCAD. The other four are API-design references, not SolidCraftForge geometry backends.
+The comparison covers **five implementations**: SCRF, CadQuery, vcad, µcad and PythonSCAD. The other four are API-design references, not SCRF geometry backends.
 
 The user-facing scripts contain no `main()`, runner calls or output plumbing.
 They define ordinary Rust object types and end with the object expression to build.
@@ -57,10 +57,10 @@ They define ordinary Rust object types and end with the object expression to bui
 ## Architecture
 
 ```text
-SolidCraftForge script
+SCRF script
   ordinary Rust objects + final model expression
                  ↓
-SolidCraftForge domain / adapter
+SCRF domain / adapter
                  ↓
 native SolidCraft operations
                  ↓
@@ -159,7 +159,7 @@ CAD exports and diagnostics for vcad's mesh fallback. It is **not** a
 substitute for the full CI checks or visual inspection.
 See [the experiment plan](docs/00-plan.md#generated-model-evidence).
 
-The generated SolidCraftForge command JSON is retained on the `bld` orphan
+The generated SCRF command JSON is retained on the `bld` orphan
 branch after successful offline CI; native SolidCraft verification outputs are
 retained on `vrf` after successful native CI. The future
 `generated-examples` branch will hold all five comparison variants together.
