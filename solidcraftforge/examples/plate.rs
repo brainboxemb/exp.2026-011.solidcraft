@@ -1,5 +1,5 @@
-use solidcraftforge::solidcraft_adapter::SolidCraftAdapter;
-use solidcraftforge::ScriptTransport;
+use scrf::solidcraft_adapter::SolidCraftAdapter;
+use scrf::ScriptTransport;
 use std::error::Error;
 use std::path::PathBuf;
 
