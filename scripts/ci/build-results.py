@@ -33,7 +33,7 @@ MODELS = {
     "sample-plate": {
         "title": "SamplePlate",
         "tagline": "Original four-sketch history: Base, Holes, Boss, Bore",
-        "description": "Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. A separate native-holes.py example produces the same geometry using SolidCraft Hole features (only two sketches).",
+        "description": "Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. The object-level Hole and Cylinder intent is compiled to the four editable sketches and matching cut/join history.",
         "parameters": "80 × 50 × 8 mm; R6; Ø24 × 14 boss",
         "diagram": "sample",
         "stages": ["Sketch XY rectangle (80 × 50)", "Extrude base by 8 mm",
@@ -249,10 +249,10 @@ def make_cheatsheet(out):
         ("Relative placement · experimental", [
             ("child.attach(parent, parent=..., child=...)", "Join two anchor positions. Native output is resolved parameter expressions, not a persistent face constraint.",
              "Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP, child=Anchor.BOTTOM)"),
-            ("child.on(parent, Anchor.CENTER)", "Align centers; for a cylinder, its center is at the plate center.",
-             "Cylinder(d=8, h=12).on(plate, Anchor.CENTER)"),
+            ("child.attach(parent, parent=Anchor.CENTER, child=Anchor.CENTER)", "Align child and parent centers.",
+             "Cylinder(d=8, h=12).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
             ("cylinder.pattern(count=2, spacing=40, axis=Axis.Y)", "Make symmetric repeated cutters. On a plate center this makes two holes at Y = -20 and +20 relative to its center.",
-             "Cylinder(d=8, h=12).pattern(count=2, spacing=40, axis=Axis.Y).on(plate)"),
+             "Cylinder(d=8, h=12).pattern(count=2, spacing=40, axis=Axis.Y).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
         ]),
         ("Operations", [
             ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder; 2D z offsets the sketch plane.",
