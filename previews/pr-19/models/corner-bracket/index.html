@@ -542,8 +542,8 @@ CornerBracket()
   &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
     &quot;position&quot;: [
-      &quot;(plywood_thickness + (bolt_offset)) + (head_recess * 0)&quot;,
-      &quot;(bolt_y_offset) + (head_recess * 0)&quot;,
+      &quot;plywood_thickness + (bolt_offset)&quot;,
+      &quot;bolt_y_offset&quot;,
       &quot;(wall_thickness) + (head_recess * -1)&quot;
     ],
     &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
@@ -624,8 +624,8 @@ CornerBracket()
   &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
     &quot;position&quot;: [
-      &quot;(plywood_thickness + (bolt_offset)) + (bolt_spacing) + (head_recess * 0)&quot;,
-      &quot;(bolt_y_offset) + (head_recess * 0)&quot;,
+      &quot;(plywood_thickness + (bolt_offset)) + (bolt_spacing)&quot;,
+      &quot;bolt_y_offset&quot;,
       &quot;(wall_thickness) + (head_recess * -1)&quot;
     ],
     &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
@@ -687,8 +687,8 @@ CornerBracket()
   &quot;params&quot;: {
     &quot;position&quot;: [
       &quot;(-(wall_thickness)) + (head_recess * 1)&quot;,
-      &quot;(-(bolt_y_offset)) + (head_recess * 0)&quot;,
-      &quot;(-(plywood_thickness + (bolt_offset))) + (head_recess * 0)&quot;
+      &quot;-(bolt_y_offset)&quot;,
+      &quot;-(plywood_thickness + (bolt_offset))&quot;
     ],
     &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
     &quot;targets&quot;: [
@@ -770,8 +770,8 @@ CornerBracket()
   &quot;params&quot;: {
     &quot;position&quot;: [
       &quot;(-(wall_thickness)) + (head_recess * 1)&quot;,
-      &quot;(-(bolt_y_offset)) + (head_recess * 0)&quot;,
-      &quot;(-((plywood_thickness + (bolt_offset)) + (bolt_spacing))) + (head_recess * 0)&quot;
+      &quot;-(bolt_y_offset)&quot;,
+      &quot;-((plywood_thickness + (bolt_offset)) + (bolt_spacing))&quot;
     ],
     &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
     &quot;targets&quot;: [
