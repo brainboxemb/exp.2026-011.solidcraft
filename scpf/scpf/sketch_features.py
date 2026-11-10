@@ -47,6 +47,10 @@ def _base_rectangle(shape):
     """
     if shape.kind == "rectangle":
         return shape.data, (0, 0, 0), None
+    if shape.kind == "box":
+        length, width, height = shape.data
+        # Box uses the SolidCraft convention: centered in XY, bottom at Z=0.
+        return (length, width), (-length / 2, -width / 2, 0), height
     if shape.kind == "positioned":
         child, x, y, z = shape.data
         if child.kind == "rectangle":
@@ -101,8 +105,10 @@ def _anchored_features(shape):
     (width, depth), (x, y, z), thickness = _base_rectangle(target)
     if thickness is None:
         raise ValueError("anchor target must be an extruded Rectangle2D")
-    if value_of(x) != 0 or value_of(y) != 0 or value_of(z) != 0:
-        raise ValueError("native reference edges require an unshifted base for now")
+    from .box_features import _is_box_feature
+    if value_of(z) != 0 or (not _is_box_feature(target)
+                              and (value_of(x) != 0 or value_of(y) != 0)):
+        raise ValueError("native references require an unshifted supported base")
     # The original rectangular base is not necessarily the highest face:
     # after a joined boss, Anchor.TOP must resolve to that boss's top.
     # A circular boss has no suitable pair of straight reference edges,
