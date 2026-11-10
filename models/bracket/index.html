@@ -37,30 +37,30 @@ class Bracket:
 
 Bracket()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;width&quot;,
     &quot;expression&quot;: &quot;60&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;thickness&quot;,
     &quot;expression&quot;: &quot;6&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Profile, plane: XZ</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Profile, plane: XZ</small><pre><code>{
   &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
     &quot;plane&quot;: &quot;XZ&quot;,
     &quot;name&quot;: &quot;Profile&quot;
   }
-}</code></pre></details></li>
-<li><strong>Profile edges</strong><small>sketch.line</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Profile edges</strong><small>sketch.line</small><pre><code>{
   &quot;command&quot;: &quot;sketch.line&quot;,
   &quot;params&quot;: {
     &quot;points&quot;: [
@@ -99,20 +99,20 @@ Bracket()
       &quot;f&quot;
     ]
   }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, body_name: Bracket</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, body_name: Bracket</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;width&quot;,
     &quot;direction&quot;: &quot;negative&quot;,
     &quot;body_name&quot;: &quot;Bracket&quot;
   }
-}</code></pre></details></li>
-<li><strong>Rounded edge</strong><small>solid.fillet</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Rounded edge</strong><small>solid.fillet</small><pre><code>{
   &quot;command&quot;: &quot;solid.fillet&quot;,
   &quot;params&quot;: {
     &quot;edges&quot;: [
@@ -124,8 +124,8 @@ Bracket()
     ],
     &quot;radius&quot;: 2.0
   }
-}</code></pre></details></li>
-<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole</small><pre><code>{
   &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
     &quot;position&quot;: [
@@ -139,8 +139,8 @@ Bracket()
     ],
     &quot;depth&quot;: &quot;thickness&quot;
   }
-}</code></pre></details></li>
-<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole</small><pre><code>{
   &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
     &quot;position&quot;: [
@@ -154,7 +154,7 @@ Bracket()
     ],
     &quot;depth&quot;: &quot;thickness&quot;
   }
-}</code></pre></details></li></ol></section>
+}</code></pre></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>

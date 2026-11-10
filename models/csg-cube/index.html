@@ -27,15 +27,15 @@ class CsgCube:
 
 CsgCube()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: size</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: size</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;size&quot;,
     &quot;expression&quot;: &quot;50&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Sphere primitive</strong><small>solid.sphere · operation: new, body_name: CsgCube</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Sphere primitive</strong><small>solid.sphere · operation: new, body_name: CsgCube</small><pre><code>{
   &quot;command&quot;: &quot;solid.sphere&quot;,
   &quot;params&quot;: {
     &quot;radius&quot;: &quot;size / 1.5&quot;,
@@ -47,8 +47,8 @@ CsgCube()
     &quot;operation&quot;: &quot;new&quot;,
     &quot;body_name&quot;: &quot;CsgCube&quot;
   }
-}</code></pre></details></li>
-<li><strong>Box primitive</strong><small>solid.box · operation: intersect</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Box primitive</strong><small>solid.box · operation: intersect</small><pre><code>{
   &quot;command&quot;: &quot;solid.box&quot;,
   &quot;params&quot;: {
     &quot;length&quot;: &quot;size&quot;,
@@ -64,8 +64,8 @@ CsgCube()
       &quot;CsgCube&quot;
     ]
   }
-}</code></pre></details></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><pre><code>{
   &quot;command&quot;: &quot;solid.cylinder&quot;,
   &quot;params&quot;: {
     &quot;height&quot;: &quot;size&quot;,
@@ -81,8 +81,8 @@ CsgCube()
       &quot;CsgCube&quot;
     ]
   }
-}</code></pre></details></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><pre><code>{
   &quot;command&quot;: &quot;solid.cylinder&quot;,
   &quot;params&quot;: {
     &quot;height&quot;: &quot;size&quot;,
@@ -98,8 +98,8 @@ CsgCube()
       &quot;CsgCube&quot;
     ]
   }
-}</code></pre></details></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><pre><code>{
   &quot;command&quot;: &quot;solid.cylinder&quot;,
   &quot;params&quot;: {
     &quot;height&quot;: &quot;size&quot;,
@@ -115,7 +115,7 @@ CsgCube()
       &quot;CsgCube&quot;
     ]
   }
-}</code></pre></details></li></ol></section>
+}</code></pre></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>

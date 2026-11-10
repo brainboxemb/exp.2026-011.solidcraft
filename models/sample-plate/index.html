@@ -50,38 +50,38 @@ class SamplePlate:
 
 SamplePlate()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;width&quot;,
     &quot;expression&quot;: &quot;80&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: depth</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: depth</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;depth&quot;,
     &quot;expression&quot;: &quot;50&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
     &quot;name&quot;: &quot;thickness&quot;,
     &quot;expression&quot;: &quot;8&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Base, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Base, plane: XY</small><pre><code>{
   &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
     &quot;plane&quot;: &quot;XY&quot;,
     &quot;name&quot;: &quot;Base&quot;
   }
-}</code></pre></details></li>
-<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><pre><code>{
   &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
   &quot;params&quot;: {
     &quot;p0&quot;: [
@@ -93,20 +93,20 @@ SamplePlate()
       &quot;depth&quot;
     ]
   }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, body_name: SamplePlate</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, body_name: SamplePlate</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;thickness&quot;,
     &quot;direction&quot;: &quot;positive&quot;,
     &quot;body_name&quot;: &quot;SamplePlate&quot;
   }
-}</code></pre></details></li>
-<li><strong>Rounded edge</strong><small>solid.fillet</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Rounded edge</strong><small>solid.fillet</small><pre><code>{
   &quot;command&quot;: &quot;solid.fillet&quot;,
   &quot;params&quot;: {
     &quot;edges&quot;: [
@@ -134,15 +134,15 @@ SamplePlate()
     &quot;radius&quot;: 6.0,
     &quot;body&quot;: &quot;SamplePlate&quot;
   }
-}</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Holes, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Holes, plane: XY</small><pre><code>{
   &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
     &quot;plane&quot;: &quot;XY&quot;,
     &quot;name&quot;: &quot;Holes&quot;
   }
-}</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small><pre><code>{
   &quot;command&quot;: &quot;sketch.circle.center&quot;,
   &quot;params&quot;: {
     &quot;center&quot;: [
@@ -151,8 +151,8 @@ SamplePlate()
     ],
     &quot;diameter&quot;: 8
   }
-}</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small><pre><code>{
   &quot;command&quot;: &quot;sketch.circle.center&quot;,
   &quot;params&quot;: {
     &quot;center&quot;: [
@@ -161,12 +161,12 @@ SamplePlate()
     ],
     &quot;diameter&quot;: 8
   }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Holes, direction: positive, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Holes, direction: positive, operation: cut</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;thickness&quot;,
@@ -177,16 +177,16 @@ SamplePlate()
     ],
     &quot;name&quot;: &quot;Holes&quot;
   }
-}</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small><pre><code>{
   &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
     &quot;plane&quot;: &quot;XY&quot;,
     &quot;name&quot;: &quot;Boss&quot;,
     &quot;offset&quot;: &quot;thickness&quot;
   }
-}</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small><pre><code>{
   &quot;command&quot;: &quot;sketch.circle.center&quot;,
   &quot;params&quot;: {
     &quot;center&quot;: [
@@ -195,12 +195,12 @@ SamplePlate()
     ],
     &quot;diameter&quot;: 24
   }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Boss, direction: positive, operation: join</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Boss, direction: positive, operation: join</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: 14,
@@ -211,16 +211,16 @@ SamplePlate()
     ],
     &quot;name&quot;: &quot;Boss&quot;
   }
-}</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Bore, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Bore, plane: XY</small><pre><code>{
   &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
     &quot;plane&quot;: &quot;XY&quot;,
     &quot;name&quot;: &quot;Bore&quot;,
     &quot;offset&quot;: &quot;thickness + 14 mm&quot;
   }
-}</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small><pre><code>{
   &quot;command&quot;: &quot;sketch.circle.center&quot;,
   &quot;params&quot;: {
     &quot;center&quot;: [
@@ -229,12 +229,12 @@ SamplePlate()
     ],
     &quot;diameter&quot;: 12
   }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Bore, direction: negative, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Bore, direction: negative, operation: cut</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;thickness + 14 mm&quot;,
@@ -245,7 +245,7 @@ SamplePlate()
     ],
     &quot;name&quot;: &quot;Bore&quot;
   }
-}</code></pre></details></li></ol></section>
+}</code></pre></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
