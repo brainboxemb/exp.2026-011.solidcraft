@@ -209,20 +209,10 @@ class Shape:
             raise ValueError("at() currently supports planar profiles")
         return Shape("placed3d" if self.kind in ("cylinder", "hole") else "positioned", (self, x, y, z))
 
-    def pattern(self, *, count=None, spacing=None, axis=None, x=None, y=None):
-        """Create a symmetric linear pattern or the existing 2x2 hole fixture.
-
-        The new form uses count/spacing/axis. The x/y form is retained for
-        the existing rectangular Plate fixture until that feature is generalized.
-        """
+    def pattern(self, *, count, spacing, axis):
+        """Repeat a Hole or Cylinder at symmetric offsets along an XY axis."""
         if self.kind not in ("cylinder", "hole"):
-            raise ValueError("pattern() currently supports Cylinder or Hole")
-        if count is None and spacing is None and axis is None:
-            if x is None or y is None:
-                raise ValueError("pattern requires count/spacing/axis or x/y")
-            return Shape("pattern", (self, x, y))
-        if x is not None or y is not None or count is None or spacing is None:
-            raise ValueError("linear pattern requires count, spacing and axis")
+            raise ValueError("pattern() supports Cylinder or Hole")
         if not isinstance(count, int) or isinstance(count, bool) or count < 1:
             raise ValueError("pattern count must be a positive integer")
         if value_of(spacing) <= 0:
@@ -232,7 +222,7 @@ class Shape:
         except ValueError as exc:
             raise ValueError("pattern axis must be Axis.X or Axis.Y") from exc
         if axis not in (Axis.X, Axis.Y):
-            raise ValueError("Only Axis.X and Axis.Y are supported for this pattern")
+            raise ValueError("only XY linear patterns are supported")
         return Shape("linear_pattern", (self, count, spacing, axis))
 
     def on(self, target, anchor=Anchor.CENTER, *, offset=(0, 0)):
