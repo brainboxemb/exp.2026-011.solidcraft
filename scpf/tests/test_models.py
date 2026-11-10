@@ -561,13 +561,45 @@ class SCPFExamples(unittest.TestCase):
         copies = [c for c in commands if c["command"] == "occurrence.copy"]
         self.assertEqual(len(copies), 1)
         self.assertEqual(copies[0]["params"]["component"], "Block")
-        self.assertEqual(copies[0]["params"]["translate"], [50.0, 0.0, 0.0])
-        self.assertTrue(any(
-            c["command"] == "sketch.rectangle.two_point"
-            and "Block_length" in str(c["params"])
-            and "Block_width" in str(c["params"])
-            for c in commands
-        ))
+        self.assertEqual(copies[0]["params"]["translate"], [40.0, 0.0, 0.0])
+        rectangle = next(
+            c for c in commands
+            if c["command"] == "sketch.rectangle.two_point"
+        )
+        self.assertIn("Block_length", str(rectangle["params"]))
+        self.assertIn("Block_width", str(rectangle["params"]))
+
+        joint = next(c for c in commands if c["command"] == "joint.create")
+        self.assertEqual(joint["params"]["type"], "rigid")
+        self.assertEqual(
+            joint["params"]["a"],
+            {"occurrence": "Block:1", "face": [20.0, 0.0, 5.0]},
+        )
+        self.assertEqual(
+            joint["params"]["b"],
+            {"occurrence": "Block:2", "face": [20.0, 0.0, 5.0]},
+        )
+
+    def test_component_attach_rejects_non_associative_offset_for_now(self):
+        from scpf.core import Anchor
+        from scpf.model_objects import ModelDefinition, ModelInstance
+        from scpf.core import Box
+
+        definition = ModelDefinition(
+            "Block",
+            (("length", 40.0), ("width", 30.0), ("height", 10.0)),
+            Box(40, 30, 10),
+        )
+        left = ModelInstance(definition)
+        right = ModelInstance(definition)
+
+        with self.assertRaisesRegex(ValueError, "not implemented associatively"):
+            right.attach(
+                left,
+                parent=Anchor.RIGHT,
+                child=Anchor.LEFT,
+                offset=(5, 0),
+            )
 
     def test_different_model_parameters_create_independent_component_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
