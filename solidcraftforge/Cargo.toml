@@ -1,9 +1,9 @@
 [package]
-name = "solidcraftforge"
+name = "scrf"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
 [dependencies]
 serde_json = "1"
-solidcraftforge-macros = { path = "../solidcraftforge-macros" }
+scrf-macros = { path = "../solidcraftforge-macros" }
