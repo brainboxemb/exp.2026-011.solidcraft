@@ -49,7 +49,10 @@ def _hole_commands(feature, position, name, refs=None):
 
     def simple_params(at, hole_diameter, hole_depth):
         params = dict(
-            position=[command_value(v) for v in at],
+            position=(
+                [command_value(v) for v in at] if direction_vector is not None
+                else [value_of(v) for v in at]
+            ),
             diameter=command_value(hole_diameter),
             targets=[name],
         )
@@ -147,7 +150,7 @@ def _fillet_command(base, radius, edges, name):
         return _command(
             "solid.fillet",
             edges=picks,
-            radius=command_value(radius),
+            radius=r,
             body=name,
         )
     picks = [[value_of(v) for v in point] for point in edges]
@@ -156,7 +159,7 @@ def _fillet_command(base, radius, edges, name):
     return _command(
         "solid.fillet",
         edges=picks,
-        radius=command_value(radius),
+        radius=r,
         body=name,
     )
 
