@@ -15,15 +15,18 @@ class SamplePlate:
         holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
         plate = plate - holes.extrude(self.thickness)
 
-        # Direct 3D primitives; SolidCraft emits solid.cylinder, not a sketch.
-        boss = Cylinder(d=24, h=14).attach(
-            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
-        plate = plate + boss
+        # Match the source SolidCraft feature history:
+        # two more sketches, one for the joined boss and one for the cut bore.
+        # Sketch planes remain linked to thickness by a native expression.
+        cx, cy = self.width / 2, self.depth / 2
 
-        # Its base is at z=0; the full 22 mm height is removed.
-        bore = Cylinder(d=12, h=self.thickness + 14).attach(
-            plate, parent=Anchor.BOTTOM, child=Anchor.BOTTOM)
-        plate - bore
+        boss_profile = Circle2D(d=24).at(cx, cy, self.thickness)
+        plate = plate + boss_profile.extrude(14)
+
+        bore_profile = Circle2D(d=12).at(cx, cy, self.thickness + 14)
+        plate - bore_profile.extrude(
+            self.thickness + 14, direction=Direction.NEGATIVE
+        )
 
 
 SamplePlate()

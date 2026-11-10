@@ -128,72 +128,68 @@
       }
     },
     {
-      "command": "solid.cylinder",
+      "command": "sketch.create",
       "params": {
-        "height": 14,
-        "diameter": 24,
-        "base": [
+        "plane": "XY",
+        "name": "Boss",
+        "offset": "thickness"
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
           40.0,
-          25.0,
-          8
+          25.0
         ],
-        "axis": "Z",
+        "diameter": 24
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 14,
+        "direction": "positive",
         "operation": "join",
         "targets": [
           "SamplePlate"
-        ],
-        "references": [
-          {
-            "edge": [
-              0.0,
-              25.0,
-              8
-            ],
-            "distance": "(width / 2)"
-          },
-          {
-            "edge": [
-              40.0,
-              0.0,
-              8
-            ],
-            "distance": "(depth / 2)"
-          }
         ]
       }
     },
     {
-      "command": "solid.cylinder",
+      "command": "sketch.create",
       "params": {
-        "height": "thickness + 14 mm",
-        "diameter": 12,
-        "base": [
+        "plane": "XY",
+        "name": "Bore",
+        "offset": "thickness + 14 mm"
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
           40.0,
-          25.0,
-          0.0
+          25.0
         ],
-        "axis": "Z",
+        "diameter": 12
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "thickness + 14 mm",
+        "direction": "negative",
         "operation": "cut",
         "targets": [
           "SamplePlate"
-        ],
-        "references": [
-          {
-            "edge": [
-              0.0,
-              25.0,
-              0.0
-            ],
-            "distance": "(width / 2)"
-          },
-          {
-            "edge": [
-              40.0,
-              0.0,
-              0.0
-            ],
-            "distance": "(depth / 2)"
-          }
         ]
       }
     }

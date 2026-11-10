@@ -6,7 +6,7 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / sample-plate</div>
 <h1>SamplePlate</h1><p>Rounded plate with two holes, boss and through-bore</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">15 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
+<span class="badge">21 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.</p></section>
@@ -32,15 +32,18 @@ class SamplePlate:
         holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
         plate = plate - holes.extrude(self.thickness)
 
-        # Direct 3D primitives; SolidCraft emits solid.cylinder, not a sketch.
-        boss = Cylinder(d=24, h=14).attach(
-            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
-        plate = plate + boss
+        # Match the source SolidCraft feature history:
+        # two more sketches, one for the joined boss and one for the cut bore.
+        # Sketch planes remain linked to thickness by a native expression.
+        cx, cy = self.width / 2, self.depth / 2
 
-        # Its base is at z=0; the full 22 mm height is removed.
-        bore = Cylinder(d=12, h=self.thickness + 14).attach(
-            plate, parent=Anchor.BOTTOM, child=Anchor.BOTTOM)
-        plate - bore
+        boss_profile = Circle2D(d=24).at(cx, cy, self.thickness)
+        plate = plate + boss_profile.extrude(14)
+
+        bore_profile = Circle2D(d=12).at(cx, cy, self.thickness + 14)
+        plate - bore_profile.extrude(
+            self.thickness + 14, direction=Direction.NEGATIVE
+        )
 
 
 SamplePlate()
@@ -58,8 +61,14 @@ SamplePlate()
 <li><strong>Circle</strong><small>sketch.circle.center</small></li>
 <li><strong>Finish sketch</strong><small>sketch.finish</small></li>
 <li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: cut</small></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: join</small></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li></ol></section>
+<li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: join</small></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Bore, plane: XY</small></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, operation: cut</small></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
