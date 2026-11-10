@@ -205,9 +205,9 @@ class Shape:
         For XY sketches, x and y locate the profile on its sketch plane;
         z offsets the sketch plane. The profile remains a reusable Shape.
         """
-        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d", "hole"):
+        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder", "hole"):
             raise ValueError("at() currently supports planar profiles")
-        return Shape("placed3d" if self.kind in ("cylinder3d", "hole") else "positioned", (self, x, y, z))
+        return Shape("placed3d" if self.kind in ("cylinder", "hole") else "positioned", (self, x, y, z))
 
     def pattern(self, *, count=None, spacing=None, axis=None, x=None, y=None):
         """Create a symmetric linear pattern or the existing 2x2 hole fixture.
@@ -215,7 +215,7 @@ class Shape:
         The new form uses count/spacing/axis. The x/y form is retained for
         the existing rectangular Plate fixture until that feature is generalized.
         """
-        if self.kind not in ("cylinder3d", "hole"):
+        if self.kind not in ("cylinder", "hole"):
             raise ValueError("pattern() currently supports Cylinder or Hole")
         if count is None and spacing is None and axis is None:
             if x is None or y is None:
@@ -254,7 +254,7 @@ class Shape:
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
-        if self.kind not in ("cylinder3d", "linear_pattern", "hole"):
+        if self.kind not in ("cylinder", "linear_pattern", "hole"):
             raise ValueError("on()/attach() currently support Cylinder, Hole and their linear patterns")
         if not isinstance(target, Shape):
             raise TypeError("anchor target must be an existing Shape")
@@ -270,7 +270,7 @@ class Shape:
         return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
 
     def orient(self, *axes):
-        if self.kind != "cylinder3d":
+        if self.kind != "cylinder":
             raise ValueError("only cylinders support orient()")
         if len(axes) == 1 and isinstance(axes[0], (tuple, list)):
             axes = tuple(axes[0])
@@ -317,7 +317,7 @@ def Sphere(radius):
 
 def Cylinder(*, d, h):
     """A cylinder based at z=0; use .at(x, y, z) for placement."""
-    return Shape("cylinder3d", (h, d))
+    return Shape("cylinder", (h, d))
 
 
 def Hole(*, d, depth=Depth.THROUGH_ALL):
