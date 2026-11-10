@@ -37,6 +37,9 @@ plate + bore
 - `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level
   building blocks, like `Box`, `Cylinder` and `Hole`; the compiler maps
   them to native SolidCraft plastic features.
+- `Anchor.INNER_BOTTOM` refers to the inner floor of a shelled body,
+  so enclosure details can be placed relative to the shell wall instead of
+  hard-coded world Z coordinates.
 
 ## Responsibility boundaries
 
