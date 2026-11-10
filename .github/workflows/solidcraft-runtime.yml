@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - example/plastic-enclosure-pi
     paths:
       - "scpf/**"
       - "examples/**"
