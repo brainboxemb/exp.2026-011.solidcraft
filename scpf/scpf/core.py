@@ -23,6 +23,10 @@ class Anchor(str, Enum):
     CENTER = "center"
     TOP = "top"
     BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
+    FRONT = "front"
+    BACK = "back"
     INNER_BOTTOM = "inner_bottom"
 
 
