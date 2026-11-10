@@ -10,7 +10,11 @@ class Block:
 class TwoBlocks:
     def build(self):
         left = Block()
-        right = Block().move(x=50.0)
+        right = Block().attach(
+            left,
+            parent=Anchor.RIGHT,
+            child=Anchor.LEFT,
+        )
 
         left + right
 
