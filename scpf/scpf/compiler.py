@@ -311,17 +311,19 @@ def _profile_features(shape, name):
                 raise ModelError("non-finite hole centre")
             steps.append(_command("sketch.circle.center",
                                   center=coords, diameter=value_of(diameter)))
-        # For an XZ polygon extruded along Y, the horizontal flange lies
-        # between its min and max Z values. An XY sketch is at Z=0.
-        # Choose the direction that actually enters the solid.
+        # SolidCraft's XZ sketch coordinate v maps to NEGATIVE world Z.
+        # The source Bracket profile uses local v=0..30 and therefore has
+        # world Z=-30..0. An XY sketch at world Z=0 must cut towards -Z.
+        # Do not infer the direction directly from unsigned sketch values.
         if sketch_plane != "XZ":
             raise ModelError("automatic XY hole direction requires XZ profile")
-        z_values = [point[1] for point in concrete_points]
-        low, high = min(z_values), max(z_values)
-        if low >= 0 and high > 0:
-            hole_direction = "positive"
-        elif high <= 0 and low < 0:
+        local_vertical = [point[1] for point in concrete_points]
+        world_z = [-v for v in local_vertical]
+        low, high = min(world_z), max(world_z)
+        if high <= 0 and low < 0:
             hole_direction = "negative"
+        elif low >= 0 and high > 0:
+            hole_direction = "positive"
         else:
             raise ModelError("XY sketch crosses solid on both sides; choose a face-based cutter")
         steps.extend([
