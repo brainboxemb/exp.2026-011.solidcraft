@@ -37,7 +37,7 @@ never `sketch.finish` or command IDs.
 has a deliberately minimal domain type:
 
 ```rust
-use solidcraftforge::cad::{Length, Part, Hole};
+use scrf::cad::{Length, Part, Hole};
 
 let part = Part::box_with_units(
     Length::mm(100.0), Length::inches(2.0), Length::mm(10.0)
