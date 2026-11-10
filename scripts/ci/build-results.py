@@ -65,7 +65,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -166,7 +166,7 @@ def build(out, commit, native_root=None, generated_root=None):
 <h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline">{command_stages(commands)}</ol></section>
 <div class="notice"><strong>Verification:</strong> {esc(status)}.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
-The bracket remains experimental until its native geometry is qualified.</div>
+Native qualification is reported only when the matching verified image exists.</div>
 <p><a href="../../">← Back to all models</a></p></main>"""
         (work / "index.html").write_text(
             layout(info["title"], view, "../../results.css", "../../"),
