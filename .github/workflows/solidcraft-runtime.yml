@@ -430,13 +430,13 @@ jobs:
           jq -e '
             [.commands[] | select(.command == "sketch.create") | .params.name]
               == ["PlasticEnclosurePi footprint", "Pi ports",
-                  "USB and Ethernet", "Floor vents"]
+                  "USB and Ethernet", "Floor vents", "Pi 4 engraving"]
             and ([.commands[] | select(.command == "plastic.boss")] | length) == 4
             and ([.commands[] | select(.command == "solid.fillet")] | length) == 2
             and ([.commands[] | select(.command == "solid.shell")] | length) == 1
             and ([.commands[] | select(
               .command == "solid.extrude" and .params.operation == "cut"
-            )] | length) == 3
+            )] | length) == 4
           ' output/native/plastic-enclosure-pi/commands.json
           solidcraft-cli run output/native/plastic-enclosure-pi/commands.json \
             --param-check strict --results \
@@ -452,7 +452,9 @@ jobs:
             and .bodies[0].closed == true
             and (.bodies[0].bbox.min | map(. * 1000 | round / 1000)) == [-47.5, -33, 0]
             and (.bodies[0].bbox.max | map(. * 1000 | round / 1000)) == [47.5, 33, 24]
-            and (.sketches | length) == 4
+            and (.sketches | length) == 5
+            and .bodies[0].material == "PETG"
+            and .bodies[0].density_g_cm3 == 1.27
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure-pi/measurements.json
           unzip -p output/native/plastic-enclosure-pi/model.sc document.json \
@@ -461,7 +463,8 @@ jobs:
             [.features[].type] ==
               ["sketch", "extrude", "fillet", "shell", "fillet",
                "boss", "boss", "boss", "boss",
-               "sketch", "extrude", "sketch", "extrude", "sketch", "extrude"]
+               "sketch", "extrude", "sketch", "extrude", "sketch", "extrude",
+               "sketch", "extrude"]
           ' output/native/plastic-enclosure-pi/document.json
           # Last step of the upstream video: edit height 24 -> 32 mm.
           cat > output/native/plastic-enclosure-pi/change-height.json <<'JSON'
