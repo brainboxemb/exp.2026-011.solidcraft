@@ -74,27 +74,34 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
-    def test_sample_plate_native_holes_and_boss_history(self):
-        """A native Hole feature needs no explicit sketch in the script."""
+    def test_sample_plate_preserves_original_four_sketch_history(self):
         commands = run_script(ROOT / "examples/sample-plate/scpf/model.py")["commands"]
-        sketches = [c["params"]["name"] for c in commands
-                    if c["command"] == "sketch.create"]
-        self.assertEqual(sketches, ["Base", "Boss"])
-        self.assertEqual([c["command"] for c in commands
-                          if c["command"] in ("solid.hole", "solid.cylinder")],
-                         ["solid.hole", "solid.hole", "solid.hole"])
-        holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
-        self.assertEqual([h["diameter"] for h in holes], [8, 8, 12])
-        self.assertEqual([h["position"] for h in holes],
-                         [[12, 25, 8], [68, 25, 8], [40, 25, 22]])
-        self.assertEqual([c["params"]["operation"] for c in commands
-                          if c["command"] == "solid.extrude" and
-                          "operation" in c["params"]], ["join"])
-        self.assertEqual([c["params"]["offset"] for c in commands
-                          if c["command"] == "sketch.create" and
-                          "offset" in c["params"]], ["thickness"])
+        self.assertEqual(
+            [c["params"]["name"] for c in commands if c["command"] == "sketch.create"],
+            ["Base", "Holes", "Boss", "Bore"],
+        )
+        self.assertEqual(
+            [c["command"] for c in commands
+             if c["command"] in ("solid.hole", "solid.cylinder")],
+            [],
+        )
+        self.assertEqual(
+            [c["params"]["operation"] for c in commands
+             if c["command"] == "solid.extrude" and "operation" in c["params"]],
+            ["cut", "join", "cut"],
+        )
+        self.assertEqual(
+            [c["params"]["center"] for c in commands
+             if c["command"] == "sketch.circle.center"],
+            [[12, 25], [68, 25], [40, 25], [40, 25]],
+        )
+        self.assertEqual(
+            [c["params"]["offset"] for c in commands
+             if c["command"] == "sketch.create" and "offset" in c["params"]],
+            ["thickness", "thickness + 14 mm"],
+        )
 
-    def test_sample_plate_parameter_override_updates_native_holes(self):
+    def test_sample_plate_parameter_override_preserves_sketch_centres(self):
         with tempfile.TemporaryDirectory() as directory:
             source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
             script = Path(directory) / "model.py"
@@ -103,12 +110,28 @@ class SCPFExamples(unittest.TestCase):
             commands = run_script(script)["commands"]
         self.assertEqual([c["params"]["expression"] for c in commands[:3]],
                          ["100", "60", "10"])
+        self.assertEqual(
+            [c["params"]["center"] for c in commands
+             if c["command"] == "sketch.circle.center"],
+            [[12, 30], [88, 30], [50, 30], [50, 30]],
+        )
+        self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
+
+    def test_sample_plate_native_holes_is_explicit_alternative(self):
+        commands = run_script(
+            ROOT / "examples/sample-plate/scpf/native-holes.py")["commands"]
+        sketches = [c["params"]["name"] for c in commands
+                    if c["command"] == "sketch.create"]
+        self.assertEqual(sketches, ["Base", "Boss"])
         holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
+        self.assertEqual([h["diameter"] for h in holes], [8, 8, 12])
         self.assertEqual([h["position"] for h in holes],
-                         [[12, 30, 10], [88, 30, 10], [50, 30, 24]])
+                         [[12, 25, 8], [68, 25, 8], [40, 25, 22]])
         self.assertTrue(all("references" in h for h in holes[:2]))
         self.assertNotIn("references", holes[2])
-        self.assertFalse(any(c["command"] == "solid.cylinder" for c in commands))
+        self.assertEqual([c["params"]["operation"] for c in commands
+                          if c["command"] == "solid.extrude" and
+                          "operation" in c["params"]], ["join"])
 
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
