@@ -1,0 +1,238 @@
+name: SolidCraft 0.30.1 native CLI qualification
+
+on:
+  push:
+    branches:
+      - feature/issue-1-python-interface
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  native-solidcraft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SOLIDCRAFT_VERSION: "0.30.1"
+      SOLIDCRAFT_GPU: cpu
+    steps:
+      - name: Check out experiment
+        uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build actual Rust scripts and compare reviewed command plans
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
+          cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+          cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
+          jq -e -s '.[0] == .[1]' \
+            examples/plate/solidcraftforge/solidcraft.json \
+            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
+          jq -e -s '.[0] == .[1]' \
+            examples/csg-cube/solidcraftforge/solidcraft.json \
+            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+          mkdir -p output/native/command-plans
+          cp output/examples/plate/solidcraftforge/solidcraft.json output/native/command-plans/plate.json
+          cp output/examples/csg-cube/solidcraftforge/solidcraft.json output/native/command-plans/csg-cube.json
+      - name: Fetch and verify official Linux SolidCraft release
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          BASE="https://github.com/tangency-labs/solidcraft/releases/download/v${SOLIDCRAFT_VERSION}"
+          ARCHIVE="solidcraft-${SOLIDCRAFT_VERSION}-linux-x86_64.tar.gz"
+          curl --fail --location --retry 3 --silent --show-error "$BASE/SHA256SUMS.txt" --output SHA256SUMS.txt
+          curl --fail --location --retry 3 --silent --show-error "$BASE/$ARCHIVE" --output "$ARCHIVE"
+          grep -F " $ARCHIVE" SHA256SUMS.txt | sha256sum --check
+          tar -xzf "$ARCHIVE"
+          echo "$RUNNER_TEMP/solidcraft-${SOLIDCRAFT_VERSION}-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Check executable and version
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v solidcraft-cli
+          solidcraft-cli --version
+      - name: Evaluate semantic plate model with strict SolidCraft parameter checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native
+          solidcraft-cli run output/native/command-plans/plate.json \
+            --param-check strict \
+            --results \
+            --json-out output/native/plate-results.json \
+            --save output/native/plate.sc \
+            --out output/native/plate.step
+          solidcraft-cli eval output/native/plate.sc --json-out output/native/plate-measurements.json
+          jq empty output/native/plate-results.json
+          jq empty output/native/plate-measurements.json
+          test -s output/native/plate.sc
+          test -s output/native/plate.step
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "Plate"
+            and .bodies[0].closed == true
+            and .bodies[0].face_types.cylinder == 8
+            and .bodies[0].face_types.plane == 6
+            and .bodies[0].bbox.min[0] > -50.0001 and .bodies[0].bbox.min[0] < -49.9999
+            and .bodies[0].bbox.max[0] > 49.9999 and .bodies[0].bbox.max[0] < 50.0001
+            and .bodies[0].bbox.min[1] > -30.0001 and .bodies[0].bbox.min[1] < -29.9999
+            and .bodies[0].bbox.max[1] > 29.9999 and .bodies[0].bbox.max[1] < 30.0001
+            and .bodies[0].bbox.min[2] > -0.0001 and .bodies[0].bbox.min[2] < 0.0001
+            and .bodies[0].bbox.max[2] > 9.9999 and .bodies[0].bbox.max[2] < 10.0001
+            and .total.volume_mm3 > 57954 and .total.volume_mm3 < 57956
+            and (.timeline | all(.error == null))
+          ' output/native/plate-measurements.json
+          cat output/native/plate-measurements.json
+      - name: Inspect native face attachment and hole coordinates
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -p output/native/plate.sc document.json > output/native/plate-document.json
+          jq -e '
+            .features[3].type == "sketch"
+            and .features[3].plane.type == "face"
+            and .features[3].plane.anchor.target.body == "Plate"
+            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
+            and .features[3].plane.plane.origin == [0.0, 0.0, 10.0]
+            and .features[3].plane.plane.x_dir == [1.0, 0.0, 0.0]
+            and .features[3].plane.plane.y_dir == [0.0, 1.0, 0.0]
+            and ([.features[3].sketch.points[]
+                  | select(.id == "c1.center" or .id == "c2.center" or .id == "c3.center" or .id == "c4.center")
+                  | .pos]
+                 == [[-35.0,-15.0],[35.0,-15.0],[35.0,15.0],[-35.0,15.0]])
+          ' output/native/plate-document.json
+      - name: Rebuild from saved native design history
+        shell: bash
+        run: |
+          set -euo pipefail
+          solidcraft-cli script output/native/plate.sc --out output/native/plate-repro.json
+          solidcraft-cli eval output/native/plate-repro.json --json-out output/native/plate-repro-measurements.json
+          jq empty output/native/plate-repro.json
+          jq empty output/native/plate-repro-measurements.json
+          jq -e -s '
+            .[0].body_count == .[1].body_count
+            and .[0].total.volume_mm3 == .[1].total.volume_mm3
+            and .[0].bodies[0].bbox == .[1].bodies[0].bbox
+          ' output/native/plate-measurements.json output/native/plate-repro-measurements.json
+      - name: Change thickness parameter and verify associative rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > output/native/change-thickness.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{"name":"thickness","expression":"15 mm"}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/change-thickness.json \
+            --in output/native/plate.sc \
+            --param-check strict \
+            --save output/native/plate-thick.sc \
+            --out output/native/plate-thick.step
+          solidcraft-cli eval output/native/plate-thick.sc --json-out output/native/plate-thick-measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].bbox.max[2] > 14.9999
+            and .bodies[0].bbox.max[2] < 15.0001
+            and .total.volume_mm3 > 86931
+            and .total.volume_mm3 < 86934
+            and (.timeline | all(.error == null))
+          ' output/native/plate-thick-measurements.json
+          unzip -p output/native/plate-thick.sc document.json > output/native/plate-thick-document.json
+          jq -e '
+            (.params | any(
+              .name == "thickness"
+              and .expr == "15 mm"
+              and .unit == "mm"
+            ))
+            and .features[3].plane.type == "face"
+            and .features[3].plane.anchor.target.body == "Plate"
+            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
+            and .features[3].plane.anchor.target.certificate.high == true
+            and .features[4].extent.distance == "thickness"
+          ' output/native/plate-thick-document.json
+      - name: Evaluate CSG cube through native SolidCraft
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/csg-cube
+          solidcraft-cli run output/native/command-plans/csg-cube.json \
+            --param-check strict \
+            --results \
+            --json-out output/native/csg-cube/results.json \
+            --save output/native/csg-cube/model.sc \
+            --out output/native/csg-cube/model.step
+          solidcraft-cli eval output/native/csg-cube/model.sc \
+            --json-out output/native/csg-cube/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "CsgCube"
+            and .bodies[0].closed == true
+            and .bodies[0].faces == 13
+            and .bodies[0].face_types.plane == 6
+            and .bodies[0].face_types.cylinder == 6
+            and .bodies[0].face_types.sphere == 1
+            and .total.volume_mm3 > 36624
+            and .total.volume_mm3 < 36627
+            and .bodies[0].bbox.min[0] > -25.0001
+            and .bodies[0].bbox.min[0] < -24.9999
+            and .bodies[0].bbox.max[0] > 24.9999
+            and .bodies[0].bbox.max[0] < 25.0001
+            and .bodies[0].bbox.min[1] > -25.0001
+            and .bodies[0].bbox.min[1] < -24.9999
+            and .bodies[0].bbox.max[1] > 24.9999
+            and .bodies[0].bbox.max[1] < 25.0001
+            and .bodies[0].bbox.min[2] > -25.0001
+            and .bodies[0].bbox.min[2] < -24.9999
+            and .bodies[0].bbox.max[2] > 24.9999
+            and .bodies[0].bbox.max[2] < 25.0001
+            and (.timeline | all(.error == null))
+          ' output/native/csg-cube/measurements.json
+          test -s output/native/csg-cube/model.sc
+          test -s output/native/csg-cube/model.step
+          cat output/native/csg-cube/measurements.json
+      - name: Render CSG cube preview
+        shell: bash
+        continue-on-error: true
+        run: |
+          solidcraft-cli snapshot output/native/csg-cube/model.sc \
+            --out output/native/csg-cube/model.png \
+            --no-grid --no-axes
+      - name: Render preview via SolidCraft CLI (CPU renderer)
+        shell: bash
+        continue-on-error: true
+        run: |
+          solidcraft-cli snapshot output/native/plate.sc \
+            --out output/native/plate.png \
+            --no-grid --no-axes
+      - name: Record native verification provenance
+        if: success()
+        shell: bash
+        run: |
+          jq -n --arg commit "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
+            --arg version "$SOLIDCRAFT_VERSION" \
+            '{source_commit:$commit, workflow_run:$run, solidcraft_version:$version, verified:true}' \
+            > output/native/verification.json
+      - name: Retain runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solidcraft-0_30_1-runtime-evidence
+          path: output/native/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish qualified native SolidCraft evidence to orphan vrf branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface' && success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: vrf
+          publish_dir: ./output/native
+          force_orphan: true
+          commit_message: "SolidCraft native qualification evidence from ${{ github.sha }}"

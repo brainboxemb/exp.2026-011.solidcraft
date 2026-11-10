@@ -1,0 +1,290 @@
+name: CSG comparison examples
+
+on:
+  push:
+    branches:
+      - main
+      - feature/issue-1-python-interface
+  workflow_dispatch: {}
+
+jobs:
+  cadquery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install CadQuery 2.8.0
+        run: python -m pip install --upgrade pip cadquery==2.8.0
+      - name: Execute clean CadQuery model and export geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/csg-cube/cadquery
+          python - <<'PY'
+          import json
+          import runpy
+          import cadquery as cq
+
+          ns = runpy.run_path("examples/csg-cube/cadquery/model.py")
+          result = ns["result"]
+          solid = result.val()
+          bb = solid.BoundingBox()
+          measurements = {
+              "bbox": {
+                  "min": [bb.xmin, bb.ymin, bb.zmin],
+                  "max": [bb.xmax, bb.ymax, bb.zmax],
+              },
+              "volume_mm3": solid.Volume(),
+          }
+          cq.exporters.export(result, "output/examples/csg-cube/cadquery/model.step")
+          cq.exporters.export(result, "output/examples/csg-cube/cadquery/model.stl")
+          with open("output/examples/csg-cube/cadquery/measurements.json", "w") as f:
+              json.dump(measurements, f, indent=2)
+
+          assert all(abs(v + 25.0) < 1e-6 for v in measurements["bbox"]["min"])
+          assert all(abs(v - 25.0) < 1e-6 for v in measurements["bbox"]["max"])
+          assert 35000 < measurements["volume_mm3"] < 38000
+          print(json.dumps(measurements, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-cadquery
+          path: output/examples/csg-cube/cadquery/
+
+  microcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install µcad 0.6.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          cargo install mucad --version 0.6.0 --locked
+          mucad --version
+      - name: Check and export µcad model
+        shell: bash
+        run: |
+          set -euo pipefail
+          mucad check examples/csg-cube/microcad/model.mu
+          mucad export examples/csg-cube/microcad/model.mu
+          mkdir -p output/examples/csg-cube/microcad
+          cp examples/csg-cube/microcad/model.stl output/examples/csg-cube/microcad/model.stl
+          python scripts/measure_stl.py output/examples/csg-cube/microcad/model.stl \
+            > output/examples/csg-cube/microcad/measurements.json
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/microcad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-microcad
+          path: output/examples/csg-cube/microcad/
+
+  pythonscad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PythonSCAD 1.1.2
+        run: python -m pip install --upgrade pip pythonscad==1.1.2
+      - name: Execute clean PythonSCAD model and export geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/csg-cube/pythonscad
+          python - <<'PY'
+          import runpy
+          ns = runpy.run_path("examples/csg-cube/pythonscad/model.py")
+          result = ns["result"]
+          result.export("output/examples/csg-cube/pythonscad/model.stl")
+          PY
+          python scripts/measure_stl.py output/examples/csg-cube/pythonscad/model.stl \
+            > output/examples/csg-cube/pythonscad/measurements.json
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/pythonscad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-pythonscad
+          path: output/examples/csg-cube/pythonscad/
+
+  vcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Compile and execute pinned vcad-kernel 0.11.0 BRep model
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/vcad-runner/src" output/examples/csg-cube/vcad
+          cat > "$RUNNER_TEMP/vcad-runner/Cargo.toml" <<'TOML'
+          [package]
+          name = "csg-cube-vcad-runner"
+          version = "0.0.0"
+          edition = "2021"
+          publish = false
+
+          [dependencies]
+          vcad-kernel = { git = "https://github.com/muni-works/vcad.git", rev = "b44f7bfd00402a45675a59b160b3d33b32a2d626", default-features = false }
+          serde_json = "1"
+          [patch.crates-io]
+          kosm-render = { git = "https://github.com/ecto/kosm", rev = "59b1d03ec45cf9e9a04ccbbbef0bcc06d8f559d4" }
+          TOML
+          cat > "$RUNNER_TEMP/vcad-runner/src/main.rs" <<'RS'
+          use std::fs;
+          use vcad_kernel::Solid;
+
+          fn model() -> Solid {
+              include!(concat!(env!("GITHUB_WORKSPACE"), "/examples/csg-cube/vcad/model.rs"))
+          }
+
+          fn stage(name: &str, solid: &Solid) -> serde_json::Value {
+              let (min, max) = solid.bounding_box();
+              serde_json::json!({
+                  "name": name,
+                  "bbox": {"min": min, "max": max},
+                  "volume_mm3": solid.volume(),
+                  "triangles": solid.num_triangles(),
+                  "degradations": solid.degradations().len(),
+                  "wrong_geometry_events": solid.wrong_geometry_events().count(),
+                  "why_not_brep": solid.why_not_brep()
+              })
+          }
+
+          fn diagnostic_stages() -> Vec<serde_json::Value> {
+              let size = 50.0;
+              let segments = 64;
+              let half = size / 2.0;
+              let sphere = Solid::sphere(size / 1.5, segments);
+              let cube = Solid::cube(size, size, size).translate(-half, -half, -half);
+              let body = sphere.try_intersection(&cube).expect("sphere/cube intersection");
+
+              let radius = size / 1.5 / 2.0;
+              let cutter_length = size * 1.2;
+              let cutter_half = cutter_length / 2.0;
+              let hole_x = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half)
+                  .rotate(0.0, 90.0, 0.0);
+              let hole_y = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half)
+                  .rotate(90.0, 0.0, 0.0);
+              let hole_z = Solid::cylinder(radius, cutter_length, segments)
+                  .translate(0.0, 0.0, -cutter_half);
+
+              let after_x = body.try_difference(&hole_x).expect("X cylinder cut");
+              let after_y = after_x.try_difference(&hole_y).expect("Y cylinder cut");
+              let after_z = after_y.try_difference(&hole_z).expect("Z cylinder cut");
+
+              vec![
+                  stage("sphere_intersect_cube", &body),
+                  stage("after_x_cut", &after_x),
+                  stage("after_y_cut", &after_y),
+                  stage("after_z_cut", &after_z),
+              ]
+          }
+
+          fn write_binary_stl(model: &Solid, path: &str) {
+              let mesh = model.to_mesh(64);
+              let mut bytes = vec![0u8; 80];
+              let tri_count = (mesh.indices.len() / 3) as u32;
+              bytes.extend_from_slice(&tri_count.to_le_bytes());
+
+              for tri in mesh.indices.chunks_exact(3) {
+                  let point = |idx: u32| -> [f32; 3] {
+                      let i = idx as usize * 3;
+                      [mesh.vertices[i], mesh.vertices[i + 1], mesh.vertices[i + 2]]
+                  };
+                  let a = point(tri[0]);
+                  let b = point(tri[1]);
+                  let c = point(tri[2]);
+                  let u = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
+                  let v = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+                  let mut n = [
+                      u[1]*v[2] - u[2]*v[1],
+                      u[2]*v[0] - u[0]*v[2],
+                      u[0]*v[1] - u[1]*v[0],
+                  ];
+                  let len = (n[0]*n[0] + n[1]*n[1] + n[2]*n[2]).sqrt();
+                  if len > 0.0 {
+                      n = [n[0]/len, n[1]/len, n[2]/len];
+                  }
+                  for p in [n, a, b, c] {
+                      for x in p {
+                          bytes.extend_from_slice(&x.to_le_bytes());
+                      }
+                  }
+                  bytes.extend_from_slice(&0u16.to_le_bytes());
+              }
+              fs::write(path, bytes).unwrap();
+          }
+
+          fn main() {
+              let model = model();
+              let output = std::env::var("VCAD_OUTPUT").unwrap();
+              fs::create_dir_all(&output).unwrap();
+
+              let measurements = stage("final_model", &model);
+              let stages = diagnostic_stages();
+              fs::write(
+                  format!("{output}/measurements.json"),
+                  serde_json::to_vec_pretty(&measurements).unwrap()
+              ).unwrap();
+              fs::write(
+                  format!("{output}/stages.json"),
+                  serde_json::to_vec_pretty(&stages).unwrap()
+              ).unwrap();
+
+              println!("{}", serde_json::to_string_pretty(&stages).unwrap());
+              println!("{}", serde_json::to_string_pretty(&measurements).unwrap());
+
+              assert_eq!(measurements["wrong_geometry_events"], 0);
+              write_binary_stl(&model, &format!("{output}/model.stl"));
+
+              // STEP is evidence of retained analytic BRep. The current pinned
+              // vcad 0.11 dev kernel falls back to mesh on the Y/Z cuts in
+              // this case, so STL remains the durable output in that state.
+              if measurements["why_not_brep"].is_null() {
+                  model.to_step(format!("{output}/model.step")).unwrap();
+              }
+          }
+          RS
+          GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+          VCAD_OUTPUT="$GITHUB_WORKSPACE/output/examples/csg-cube/vcad" \
+            cargo run --manifest-path "$RUNNER_TEMP/vcad-runner/Cargo.toml" --release
+          python - <<'PY'
+          import json
+          p="output/examples/csg-cube/vcad/measurements.json"
+          m=json.load(open(p))
+          assert all(abs(v + 25.0) < 0.2 for v in m["bbox"]["min"]), m
+          assert all(abs(v - 25.0) < 0.2 for v in m["bbox"]["max"]), m
+          assert 34000 < m["volume_mm3"] < 39000, m
+          assert m["wrong_geometry_events"] == 0, m
+          PY
+          test -s output/examples/csg-cube/vcad/model.stl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csg-cube-vcad
+          path: output/examples/csg-cube/vcad/

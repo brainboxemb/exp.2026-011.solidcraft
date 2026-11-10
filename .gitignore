@@ -1,0 +1,7 @@
+# Generated CAD exports and local evidence
+output/
+*.step
+*.stp
+
+# Rust build output
+rust-facade/target/
