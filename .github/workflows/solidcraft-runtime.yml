@@ -519,7 +519,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube bracket sample-plate plastic-enclosure; do
+          for model in plate csg-cube bracket sample-plate plastic-enclosure plastic-enclosure-pi; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
           done
@@ -531,6 +531,7 @@ jobs:
           python scripts/ci/test-results.py output/site "$GITHUB_SHA"
           test -s output/site/models/bracket/native.png
           test -s output/site/models/sample-plate/native.png
+          test -s output/site/models/plastic-enclosure-pi/native.png
       - name: Find PR number for native preview
         if: success() && github.event_name == 'pull_request'
         id: preview_pr
