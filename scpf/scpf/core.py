@@ -17,6 +17,7 @@ class Direction(str, Enum):
     """Extrusion direction relative to the sketch plane normal."""
     POSITIVE = "positive"
     NEGATIVE = "negative"
+    SYMMETRIC = "symmetric"
 
 
 class Anchor(str, Enum):
@@ -127,6 +128,12 @@ class Parameter:
         if isinstance(other, (int, float)):
             return Expression(self.value + other,
                               f"{self.name} + {number_text(other)} mm", (self,))
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value + value_of(other),
+                f"{self.name} + ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     __radd__ = __add__
@@ -135,6 +142,12 @@ class Parameter:
         if isinstance(other, (int, float)):
             return Expression(self.value - other,
                               f"{self.name} - {number_text(other)} mm", (self,))
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value - value_of(other),
+                f"{self.name} - ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     def __neg__(self):
@@ -165,6 +178,12 @@ class Expression:
             return Expression(self.value + other,
                               f"{self.expression} + {number_text(other)} mm",
                               self.parameters)
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value + value_of(other),
+                f"({self.expression}) + ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     __radd__ = __add__
@@ -173,6 +192,12 @@ class Expression:
         if isinstance(other, (int, float)):
             return Expression(self.value - other,
                               f"({self.expression}) - {number_text(other)} mm", self.parameters)
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value - value_of(other),
+                f"({self.expression}) - ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     def __neg__(self):
@@ -243,7 +268,9 @@ class Shape:
         try:
             direction = Direction(direction)
         except ValueError as exc:
-            raise ValueError("extrude direction must be Direction.POSITIVE or Direction.NEGATIVE") from exc
+            raise ValueError(
+                "extrude direction must be POSITIVE, NEGATIVE or SYMMETRIC"
+            ) from exc
         return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges=Edges.VERTICAL):
@@ -254,6 +281,18 @@ class Shape:
                 if len(point) != 3:
                     raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
+
+    def chamfer(self, distance, *, edges):
+        """Chamfer explicitly selected solid edges by an equal distance."""
+        value_of(distance)
+        if not isinstance(edges, (list, tuple)) or not edges:
+            raise ValueError("chamfer edges must be a non-empty sequence of 3D edge points")
+        for point in edges:
+            if not isinstance(point, (list, tuple)) or len(point) != 3:
+                raise ValueError("each chamfer edge point must have x, y and z")
+            for coordinate in point:
+                value_of(coordinate)
+        return Shape("chamfer", (self, distance, tuple(tuple(p) for p in edges)))
 
     def shell(self, thickness, *, open=Faces.TOP):
         """Hollow a solid to an even wall thickness and leave selected faces open."""
@@ -390,18 +429,42 @@ def Cylinder(*, d, h):
     return Shape("cylinder", (h, d))
 
 
-def Hole(*, d, depth=Depth.THROUGH_ALL):
-    """A hole intent; unlike Cylinder it is not positive solid geometry.
+def Hole(*, d, depth=Depth.THROUGH_ALL, direction=None,
+         countersink_d=None, countersink_angle=90, countersink_recess=0):
+    """Hole intent, optionally directional and countersunk.
 
-    Attach it to the face where drilling starts. The compiler chooses the
-    native SolidCraft sketch/cut representation. A numeric depth makes a
-    blind hole; the default drills through the supported body.
+    Simple attached holes keep the sketch/cut history used by existing SCPF
+    models. Directional or countersunk holes use SolidCraft's native Hole
+    feature when explicitly positioned with .at().
     """
     if value_of(d) <= 0:
         raise ValueError("hole diameter must be positive")
     if depth is not Depth.THROUGH_ALL and value_of(depth) <= 0:
         raise ValueError("hole depth must be positive or Depth.THROUGH_ALL")
-    return Shape("hole", (d, depth))
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("Hole direction must be a 3D direction")
+        concrete = [value_of(v) for v in direction]
+        if not all(isfinite(v) for v in concrete) or concrete == [0, 0, 0]:
+            raise ValueError("Hole direction must be a finite non-zero direction")
+    if countersink_d is not None:
+        if value_of(countersink_d) <= value_of(d):
+            raise ValueError("countersink diameter must be larger than hole diameter")
+        angle = value_of(countersink_angle)
+        if not isfinite(angle) or angle <= 0 or angle >= 180:
+            raise ValueError("countersink angle must be between 0 and 180 degrees")
+        if value_of(countersink_recess) < 0:
+            raise ValueError("countersink recess cannot be negative")
+    elif value_of(countersink_recess) != 0:
+        raise ValueError("countersink recess requires countersink_d")
+    return Shape(
+        "hole",
+        (
+            d, depth, direction, countersink_d, countersink_angle,
+            countersink_recess,
+        ),
+    )
 
 
 def Lip(*, width, height):

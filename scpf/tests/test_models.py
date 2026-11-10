@@ -31,8 +31,8 @@ class SCPFExamples(unittest.TestCase):
         holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
         self.assertEqual(len(holes), 4)
         self.assertEqual([c["position"] for c in holes],
-                         [[-35, -15, 10], [35, -15, 10],
-                          [35, 15, 10], [-35, 15, 10]])
+                         [[-35, -15, "thickness"], [35, -15, "thickness"],
+                          [35, 15, "thickness"], [-35, 15, "thickness"]])
         self.assertTrue(all(c["diameter"] == 8 for c in holes))
         self.assertTrue(all(c["targets"] == ["Plate"] for c in holes))
         self.assertTrue(all("references" not in c for c in holes))
@@ -49,9 +49,12 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The input source used sketch + cut. SCPF now emits native Hole
-        # features for the same two entry points; the base and fillet match.
-        self.assertEqual(generated["commands"][2:7], original["commands"][2:7])
+        # The input source used sketch + cut. SCPF now keeps the same profile
+        # geometry parametrically and emits native Hole features.
+        self.assertEqual(
+            [c["command"] for c in generated["commands"][2:7]],
+            [c["command"] for c in original["commands"][2:7]],
+        )
         self.assertEqual([c["command"] for c in generated["commands"][7:]],
                          ["solid.hole", "solid.hole"])
         self.assertEqual([c["params"]["position"]
@@ -71,7 +74,10 @@ class SCPFExamples(unittest.TestCase):
             generated = run_script(file)
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
-        self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
+        self.assertEqual(
+            generated["commands"][3]["params"]["points"][2],
+            [40, "thickness"],
+        )
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
     def test_sample_plate_preserves_original_sketch_and_feature_names(self):
@@ -637,6 +643,138 @@ class SCPFExamples(unittest.TestCase):
                 "Block_2_length", "Block_2_width", "Block_2_height",
             ],
         )
+
+    def test_symmetric_polygon_keeps_symbolic_coordinates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Profile:\n"
+                "    length = 60.0\n"
+                "    wall = 12.0\n"
+                "    width = 24.0\n"
+                "    def build(self):\n"
+                "        Polygon2D([(0, 0), (self.length, 0), "
+                "(self.length, self.wall), (0, self.wall)], plane='XZ')" 
+                ".extrude(self.width, direction=Direction.SYMMETRIC)\n"
+                "Profile()\n"
+            )
+            commands = run_script(file)["commands"]
+
+        line = next(c for c in commands if c["command"] == "sketch.line")
+        extrude = next(c for c in commands if c["command"] == "solid.extrude")
+        self.assertEqual(line["params"]["points"][1][0], "length")
+        self.assertEqual(line["params"]["points"][2], ["length", "wall"])
+        self.assertEqual(extrude["params"]["distance"], "width")
+        self.assertEqual(extrude["params"]["direction"], "symmetric")
+
+    def test_recessed_countersink_preserves_the_recess_floor(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Hole
+
+        body = Box(40, 30, 12)
+        hole = Hole(
+            d=5.4,
+            countersink_d=10.4,
+            countersink_angle=90,
+            countersink_recess=1.0,
+            direction=(0, 0, -1),
+        ).at(10, 0, 12)
+        commands = compile_model(body + hole, "Part")["commands"]
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+
+        self.assertEqual(len(holes), 2)
+        self.assertEqual(holes[0]["params"]["diameter"], 10.4)
+        self.assertEqual(holes[0]["params"]["depth"], 1.0)
+        self.assertEqual(holes[0]["params"]["position"], [10, 0, 12])
+        self.assertEqual(holes[1]["params"]["type"], "countersink")
+        self.assertEqual(holes[1]["params"]["diameter"], 5.4)
+        self.assertEqual(holes[1]["params"]["cs_diameter"], 10.4)
+        self.assertEqual(holes[1]["params"]["cs_angle"], 90)
+        self.assertEqual(holes[1]["params"]["position"], [10.0, 0.0, 11.0])
+
+    def test_vertical_recessed_countersink_uses_kernel_safe_order(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Hole
+
+        body = Box(40, 30, 12)
+        side_hole = Hole(
+            d=5.4, depth=13.0,
+            countersink_d=10.4, countersink_angle=90,
+            countersink_recess=1.0, direction=(1, 0, 0),
+        ).at(-20, 0, 6)
+        commands = compile_model(body + side_hole, "Part")["commands"]
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+
+        self.assertEqual(len(holes), 2)
+        self.assertEqual(holes[0]["params"]["type"], "countersink")
+        self.assertEqual(holes[0]["params"]["position"], [-19.0, 0.0, 6.0])
+        self.assertEqual(holes[1]["params"]["diameter"], 10.4)
+        self.assertEqual(holes[1]["params"]["depth"], 1.0)
+        self.assertEqual(holes[1]["params"]["position"], [-20, 0, 6])
+
+    def test_bracket_countersink_position_has_no_zero_offsets(self):
+        # A recessed axial hole must not add head_recess * 0 to X or Y.
+        import json
+        commands = run_script(
+            ROOT / "examples/corner-bracket/scpf/model.py"
+        )["commands"]
+        self.assertNotIn("head_recess * 0", json.dumps(commands))
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+        countersinks = [c for c in holes if
+                        c["params"].get("type") == "countersink"]
+        self.assertEqual(len(countersinks), 4)
+        for hole in countersinks:
+            self.assertTrue(all("* 0" not in str(x)
+                                for x in hole["params"]["position"]))
+
+    def test_production_corner_bracket_compiles_to_native_feature_history(self):
+        commands = run_script(
+            ROOT / "examples/corner-bracket/scpf/model.py"
+        )["commands"]
+        feature_commands = [
+            c for c in commands if c["command"] != "parameters.add"
+        ]
+
+        self.assertEqual(
+            [c["command"] for c in feature_commands[:7]],
+            [
+                "sketch.create",
+                "sketch.line",
+                "sketch.finish",
+                "solid.extrude",
+                "solid.fillet",
+                "solid.chamfer",
+                "solid.chamfer",
+            ],
+        )
+        self.assertEqual(
+            feature_commands[3]["params"]["direction"],
+            "symmetric",
+        )
+        self.assertEqual(
+            feature_commands[3]["params"]["distance"],
+            "bracket_width",
+        )
+        self.assertEqual(
+            feature_commands[4]["params"]["radius"],
+            "inside_corner_radius",
+        )
+        self.assertEqual(
+            [c["params"]["distance"] for c in feature_commands[5:7]],
+            ["side_edge_chamfer", "elephant_foot_relief"],
+        )
+
+        holes = [
+            c for c in feature_commands if c["command"] == "solid.hole"
+        ]
+        self.assertEqual(len(holes), 16)
+        countersinks = [
+            c for c in holes if c["params"].get("type") == "countersink"
+        ]
+        self.assertEqual(len(countersinks), 4)
+        self.assertTrue(all(
+            c["params"]["cs_angle"] == 90 for c in countersinks
+        ))
 
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model

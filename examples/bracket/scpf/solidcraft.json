@@ -37,14 +37,14 @@
           ],
           [
             40,
-            6
+            "thickness"
           ],
           [
-            6,
-            6
+            "thickness",
+            "thickness"
           ],
           [
-            6,
+            "thickness",
             30
           ],
           [
@@ -85,7 +85,8 @@
             -6
           ]
         ],
-        "radius": 2
+        "radius": 2,
+        "body": "Bracket"
       }
     },
     {

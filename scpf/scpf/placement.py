@@ -33,7 +33,7 @@ def _base_rectangle(shape):
         if old_height is not None or direction != "positive":
             raise ValueError("anchoring requires one positive XY base extrusion")
         return dimensions, origin, height
-    if shape.kind in ("fillet", "shell"):
+    if shape.kind in ("fillet", "chamfer", "shell"):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])
@@ -44,7 +44,7 @@ def _shell_thickness(shape):
     """Return the active shell wall thickness in a supported feature chain."""
     if shape.kind == "shell":
         return shape.data[1]
-    if shape.kind in ("fillet", "union", "difference"):
+    if shape.kind in ("fillet", "chamfer", "union", "difference"):
         return _shell_thickness(shape.data[0])
     return None
 
