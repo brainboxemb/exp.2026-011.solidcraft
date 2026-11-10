@@ -63,8 +63,8 @@ def compile_base(shape, name):
     if shape.kind != "extrusion":
         raise ModelError(f"Expected a solid base, got {shape.kind}")
     profile, distance, direction = shape.data
-    if direction not in ("positive", "negative"):
-        raise ModelError("extrusion direction must be positive or negative")
+    if direction not in ("positive", "negative", "symmetric"):
+        raise ModelError("extrusion direction must be positive, negative or symmetric")
     _require_positive(distance, "extrusion distance")
 
     if profile.kind in ("rectangle", "positioned"):
