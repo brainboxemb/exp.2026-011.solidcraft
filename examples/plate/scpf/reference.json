@@ -85,70 +85,130 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.hole",
       "params": {
-        "plane": {
-          "face": [
-            0,
-            0,
-            10
-          ]
-        },
-        "name": "Plate top-face holes"
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
+        "position": [
           -35,
-          -15
+          -15,
+          10
         ],
-        "diameter": 8
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
-          35,
-          -15
-        ],
-        "diameter": 8
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
-          35,
-          15
-        ],
-        "diameter": 8
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
-          -35,
-          15
-        ],
-        "diameter": 8
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "thickness",
-        "direction": "negative",
-        "operation": "cut",
+        "diameter": 8,
         "targets": [
           "Plate"
+        ],
+        "references": [
+          {
+            "edge": [
+              -50,
+              0,
+              10
+            ],
+            "distance": "(length / 2) + (-35 mm)"
+          },
+          {
+            "edge": [
+              0,
+              -30,
+              10
+            ],
+            "distance": "(width / 2) + (-15 mm)"
+          }
+        ]
+      }
+    },
+    {
+      "command": "solid.hole",
+      "params": {
+        "position": [
+          35,
+          -15,
+          10
+        ],
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ],
+        "references": [
+          {
+            "edge": [
+              -50,
+              0,
+              10
+            ],
+            "distance": "(length / 2) + (35 mm)"
+          },
+          {
+            "edge": [
+              0,
+              -30,
+              10
+            ],
+            "distance": "(width / 2) + (-15 mm)"
+          }
+        ]
+      }
+    },
+    {
+      "command": "solid.hole",
+      "params": {
+        "position": [
+          35,
+          15,
+          10
+        ],
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ],
+        "references": [
+          {
+            "edge": [
+              -50,
+              0,
+              10
+            ],
+            "distance": "(length / 2) + (35 mm)"
+          },
+          {
+            "edge": [
+              0,
+              -30,
+              10
+            ],
+            "distance": "(width / 2) + (15 mm)"
+          }
+        ]
+      }
+    },
+    {
+      "command": "solid.hole",
+      "params": {
+        "position": [
+          -35,
+          15,
+          10
+        ],
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ],
+        "references": [
+          {
+            "edge": [
+              -50,
+              0,
+              10
+            ],
+            "distance": "(length / 2) + (-35 mm)"
+          },
+          {
+            "edge": [
+              0,
+              -30,
+              10
+            ],
+            "distance": "(width / 2) + (15 mm)"
+          }
         ]
       }
     }
