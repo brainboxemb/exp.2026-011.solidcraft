@@ -242,8 +242,8 @@ def _profile_features(shape, name):
     """
     holes = None
     if shape.kind == "holes":
-        shape, positions, diameter, depth, plane, hole_direction = shape.data
-        holes = (positions, diameter, depth, plane, hole_direction)
+        shape, positions, diameter, depth, plane = shape.data
+        holes = (positions, diameter, depth, plane)
 
     fillet = None
     if shape.kind == "fillet":
@@ -299,7 +299,7 @@ def _profile_features(shape, name):
                               radius=value_of(radius)))
 
     if holes is not None:
-        positions, diameter, depth, plane, hole_direction = holes
+        positions, diameter, depth, plane = holes
         _require_positive(diameter, "hole diameter")
         _require_positive(depth, "hole cut depth")
         if plane != "XY":
@@ -311,6 +311,19 @@ def _profile_features(shape, name):
                 raise ModelError("non-finite hole centre")
             steps.append(_command("sketch.circle.center",
                                   center=coords, diameter=value_of(diameter)))
+        # For an XZ polygon extruded along Y, the horizontal flange lies
+        # between its min and max Z values. An XY sketch is at Z=0.
+        # Choose the direction that actually enters the solid.
+        if sketch_plane != "XZ":
+            raise ModelError("automatic XY hole direction requires XZ profile")
+        z_values = [point[1] for point in concrete_points]
+        low, high = min(z_values), max(z_values)
+        if low >= 0 and high > 0:
+            hole_direction = "positive"
+        elif high <= 0 and low < 0:
+            hole_direction = "negative"
+        else:
+            raise ModelError("XY sketch crosses solid on both sides; choose a face-based cutter")
         steps.extend([
             _command("sketch.finish"),
             _command("solid.extrude", distance=command_value(depth),
