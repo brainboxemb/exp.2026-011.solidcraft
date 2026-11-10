@@ -26,8 +26,7 @@ SolidCraft qualification. Compare exact command types, native geometry,
 and saved feature history; do not claim that a script matches a source
 document's history unless that comparison actually passes.
 
-The default Sample Plate now reproduces the original four sketches
-(`Base`, `Holes`, `Boss`, `Bore`) and their feature operations.
-The alternative `examples/sample-plate/scpf/native-holes.py` uses three
-SolidCraft native Hole features and only two sketches. CI qualifies both
-versions independently. A native Hole intentionally does not create a sketch.
+The Sample Plate qualification requires the native feature history to contain
+four sketches: `Base`, `Holes`, `Boss`, and `Bore`. The object-level
+Hole/Cylinder Python code is therefore verified not only for final geometry,
+but also for the generated sketch/cut/join history.
