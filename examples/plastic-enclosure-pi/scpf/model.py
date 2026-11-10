@@ -41,7 +41,7 @@ class PlasticEnclosurePi:
                     offset=(x - half_width, 7.5),
                 )
         enclosure = enclosure - ports.extrude(
-            self.wall, direction=Direction.POSITIVE
+            self.wall, direction=Direction.NEGATIVE
         )
 
         # Right (+X) end: the combined USB-A and Ethernet window.
