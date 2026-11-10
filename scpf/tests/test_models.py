@@ -56,6 +56,35 @@ class SCPFExamples(unittest.TestCase):
             with self.assertRaises(ModelError):
                 run_script(file)
 
+    def test_move_translates_a_csg_composite_without_changing_sizes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "def CsgCube(size=50.0):\\n"
+                "    body = Sphere(size / 1.5) & Cube(size)\\n"
+                "    holes = Cylinder(size, size / 1.5).orient(X, Y, Z)\\n"
+                "    return (body - holes).move(x=10, y=20, z=30)\\n"
+                "CsgCube()\\n"
+            )
+            document = run_script(file)
+        commands = document["commands"]
+        self.assertEqual(commands[1]["params"]["center"], [10, 20, 30])
+        self.assertEqual(commands[2]["params"]["center"], [10, 20, 30])
+        self.assertEqual(commands[3]["params"]["base"], ["(-(size) / 2) + 10", 20, 30])
+        self.assertEqual(commands[4]["params"]["base"], [10, "(-(size) / 2) + 20", 30])
+        self.assertEqual(commands[5]["params"]["base"], [10, 20, "(-(size) / 2) + 30"])
+
+    def test_move_rejects_non_finite_coordinates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "def Cuboid(size=50):\\n"
+                "    return Cube(size).move(x=float('nan'))\\n"
+                "Cuboid()\\n"
+            )
+            with self.assertRaises(ValueError):
+                run_script(file)
+
     def test_script_requires_final_model_expression(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
