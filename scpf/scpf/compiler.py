@@ -224,13 +224,110 @@ def _plate(shape, name):
     return _param_commands(used) + steps
 
 
+def _has_profile(shape):
+    if shape.kind == "polygon":
+        return True
+    if shape.kind in ("fillet", "extrusion", "holes"):
+        return _has_profile(shape.data[0])
+    return False
+
+
+def _profile_features(shape, name):
+    """Compile Polygon.extrude().fillet().holes() into native CAD history.
+
+    Only one closed planar polygon, one extrusion, optional explicit edge
+    fillet and an XY circle sketch are supported here. Coordinates are
+    evaluated at the supplied parameter defaults; general parametric sketch
+    constraints are intentionally not claimed.
+    """
+    holes = None
+    if shape.kind == "holes":
+        shape, positions, diameter, depth, plane, hole_direction = shape.data
+        holes = (positions, diameter, depth, plane, hole_direction)
+
+    fillet = None
+    if shape.kind == "fillet":
+        shape, radius, edges = shape.data
+        if edges == "vertical":
+            raise ModelError("polygon fillet requires explicit 3D edge points")
+        fillet = (radius, edges)
+
+    if shape.kind != "extrusion":
+        raise ModelError("profile features require a Polygon extrusion")
+    polygon, distance, direction = shape.data
+    if polygon.kind != "polygon":
+        raise ModelError("extrude() requires a Polygon")
+    points, sketch_plane = polygon.data
+    _require_positive(distance, "extrusion distance")
+    if direction not in ("positive", "negative"):
+        raise ModelError("invalid extrusion direction")
+
+    # Closed sketch uses real coordinates; SolidCraft may later support
+    # symbolic point constraints, but this is not established here.
+    concrete_points = []
+    for point in points:
+        coords = [value_of(v) for v in point]
+        if not all(isfinite(x) for x in coords):
+            raise ModelError("non-finite polygon coordinate")
+        concrete_points.append(coords)
+
+    # Avoid silently introducing invalid zero-length sketch edges.
+    if len(set(tuple(x) for x in concrete_points)) != len(concrete_points):
+        raise ModelError("duplicate polygon vertices")
+    for p, q in zip(concrete_points, concrete_points[1:] + concrete_points[:1]):
+        if p == q:
+            raise ModelError("zero-length polygon edge")
+
+    steps = [
+        _command("sketch.create", plane=sketch_plane, name="Profile"),
+        _command("sketch.line", points=concrete_points, closed=True,
+                 ids=[chr(ord("a") + i) for i in range(len(points))]),
+        _command("sketch.finish"),
+        _command("solid.extrude", distance=command_value(distance),
+                 direction=direction, body_name=name),
+    ]
+    if fillet is not None:
+        radius, edges = fillet
+        _require_positive(radius, "fillet radius")
+        locations = []
+        for point in edges:
+            coords = [value_of(x) for x in point]
+            if not all(isfinite(x) for x in coords):
+                raise ModelError("non-finite edge selection")
+            locations.append(coords)
+        steps.append(_command("solid.fillet", edges=locations,
+                              radius=value_of(radius)))
+
+    if holes is not None:
+        positions, diameter, depth, plane, hole_direction = holes
+        _require_positive(diameter, "hole diameter")
+        _require_positive(depth, "hole cut depth")
+        if plane != "XY":
+            raise ModelError("only XY hole sketches are supported")
+        steps.append(_command("sketch.create", plane=plane, name="Holes"))
+        for point in positions:
+            coords = [value_of(x) for x in point]
+            if not all(isfinite(x) for x in coords):
+                raise ModelError("non-finite hole centre")
+            steps.append(_command("sketch.circle.center",
+                                  center=coords, diameter=value_of(diameter)))
+        steps.extend([
+            _command("sketch.finish"),
+            _command("solid.extrude", distance=command_value(depth),
+                     direction=hole_direction, operation="cut"),
+        ])
+    return _param_commands(_collect(shape)) + steps
+
+
 def compile_model(shape: Shape, name: str) -> dict:
     """Return a native SolidCraft JSON document for a supported SCPF Shape."""
     if not isinstance(shape, Shape):
         raise TypeError("the final script expression must produce a Shape")
     if not name or not name.isidentifier():
         raise ModelError("the model name must be a valid identifier")
-    if shape.kind == "difference" and shape.data[0].kind == "fillet":
+    if shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
+        commands = _profile_features(shape, name)
+    elif shape.kind == "difference" and shape.data[0].kind == "fillet":
         commands = _plate(shape, name)
     else:
         commands = _param_commands(_collect(shape)) + _csg_new(shape, name)
