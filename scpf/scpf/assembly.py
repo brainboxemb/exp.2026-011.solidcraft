@@ -9,8 +9,8 @@ from .compiler import compile_model
 _IDENTIFIER = re.compile(r"\\b[A-Za-z_][A-Za-z0-9_]*\\b")
 
 
-def _command(name, **params):
-    return {"command": name, "params": params}
+def _command(command_name, **params):
+    return {"command": command_name, "params": params}
 
 
 def _component_slug(name):
