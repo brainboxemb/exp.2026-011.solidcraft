@@ -40,6 +40,23 @@ native SolidCraft sketch plus a subtractive extrusion, not a mesh.
 No `import`, `self`, `main()`, `show()`, `Result`, `?`,
 `#[cad]` or `#[parameter]` is required in model files.
 
+## Positioning
+
+CSG primitives and complete CSG combinations can be repositioned in mm:
+
+```python
+def MovedCube(size=50):
+    body = Sphere(size / 1.5) & Cube(size)
+    return body.move(x=10, y=20, z=30)
+
+MovedCube()
+```
+
+The move applies to all primitives in the CSG tree, including
+subtractive cylinders. It is emitted as SolidCraft coordinates, not an
+approximate mesh transformation. At present, `.move()` on
+feature-based Plate bodies is deliberately rejected.
+
 ## Parameters
 
 The runner reads the final model function's Python signature using
@@ -93,6 +110,9 @@ verification of the comparison implementations.
 - This is an explicit, narrow translation layer: arbitrary Python code
   can execute, but not every shape composition can be compiled into
   SolidCraft commands yet.
-- Positioning, general face/edge selectors, arbitrary patterns,
-  more dimensional arithmetic and model reuse are future work.
+- Positioning: `Shape.move(x=..., y=..., z=...)` now translates
+  native CSG primitives and composite CSG shapes without changing dimensions.
+  More general positioning (including feature-based box placement),
+  rotations, face/edge selectors, arbitrary patterns, richer dimensional
+  arithmetic and model reuse are future work.
 - SolidCraft, not SCPF, remains responsible for topology, solving and geometry.
