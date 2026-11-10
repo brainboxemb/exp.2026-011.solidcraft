@@ -276,6 +276,20 @@ Currently supported: Box or Rectangle2D extrusion bases; `Anchor.CENTER`,
 `Anchor.TOP`, `Anchor.BOTTOM`; `Anchor.INNER_BOTTOM` for the inner floor
 of a shelled rectangular body; and XY linear patterns of cylinders.
 
+For X/Y placement relative to the parent bounds, use the axis-qualified
+selectors `X.MIN`, `X.CENTER`, `X.MAX` and `Y.MIN`, `Y.CENTER`,
+`Y.MAX`. For example:
+
+```python
+Boss(d=7, h=12, hole_d=2.5).attach(
+    enclosure,
+    parent=Anchor.INNER_BOTTOM,
+    offset=(X.MIN + 10, Y.MAX - 10),
+)
+```
+
+This means 10 mm from the minimum X edge and 10 mm from the maximum Y edge.
+
 For `Anchor.TOP` and `Anchor.BOTTOM`, the native adapter now emits
 `references` with two perpendicular straight edge picks and parametric
 distances. The accompanying `base` or `position` is numeric because
