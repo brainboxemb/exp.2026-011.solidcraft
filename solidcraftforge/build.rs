@@ -3,11 +3,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn wrap_script(source: &Path, output: &Path, object_name: &str) {
-    let script = fs::read_to_string(source).expect("read SolidCraftForge example script");
+    let script = fs::read_to_string(source).expect("read SCRF example script");
     let generated = format!(
-        "use solidcraftforge::script::IntoScriptModel as _;\n\
-         pub fn load() -> Result<solidcraftforge::script::ScriptModel, solidcraftforge::cad::DesignError> {{\n\
-         \x20   let model = {{\n    use solidcraftforge::script::prelude::*;\n{script}\n\x20   }};\n\
+        "use scrf::script::IntoScriptModel as _;\n\
+         pub fn load() -> Result<scrf::script::ScriptModel, scrf::cad::DesignError> {{\n\
+         \x20   let model = {{\n    use scrf::script::prelude::*;\n{script}\n\x20   }};\n\
          \x20   model.into_script_model(\"{object_name}\")\n\
          }}\n"
     );
