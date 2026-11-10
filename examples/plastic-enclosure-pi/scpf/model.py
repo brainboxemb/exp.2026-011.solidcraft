@@ -68,6 +68,24 @@ class PlasticEnclosurePi:
         enclosure = enclosure - vents.extrude(
             self.wall, direction=Direction.NEGATIVE
         )
+
+        # Recess "Pi 4" 0.6 mm into the inner floor of the case.
+        with Sketch(
+            name="Pi 4 engraving", on=enclosure, plane="XY",
+            origin=(0, 0, self.wall),
+        ) as label:
+            label.add(
+                Text2D("Pi 4", height=6.0, font="DejaVu Sans Bold"),
+                offset=(-9.0, 18.0),
+            )
+        enclosure = enclosure - label.extrude(
+            0.6, direction=Direction.NEGATIVE
+        )
+
+        # The recording assigns a physical design material, not just a color.
+        enclosure = enclosure.with_material(
+            "PETG", density_g_cm3=1.27, color="#2a8696"
+        )
         enclosure
 
 
