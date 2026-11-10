@@ -256,6 +256,8 @@ jobs:
             --no-grid --no-axes
           test -s output/native/bracket/model.png
       - name: Qualify reconstructed SamplePlate in native SolidCraft
+        env:
+          PYTHONPATH: scpf
         shell: bash
         run: |
           set -euo pipefail
