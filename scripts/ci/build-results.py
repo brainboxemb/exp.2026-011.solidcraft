@@ -73,7 +73,7 @@ def screenshot_info(native_root, commit, model):
 
 
 def diagram(model):
-    return f'<svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg">{DIAGRAMS[model]}</svg>'
+    return f'<svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg">{DIAGRAMS[MODELS[model]["diagram"]]}</svg>'
 
 
 def layout(title, body, css_path, home_path):
