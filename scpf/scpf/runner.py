@@ -6,7 +6,7 @@ Within the model's build() or final function, a last geometry expression
 acts as an implicit return. No show() or main() is required.
 """
 import ast
-from dataclasses import dataclass
+from dataclasses import dataclass, is_dataclass
 import functools
 import inspect
 from pathlib import Path
@@ -38,26 +38,78 @@ def _model_function(function):
     return wrapped
 
 
-def _design_object(cls, *args, **kwargs):
-    """Construct normally first so dataclass validation sees plain values.
+def _plain_model_fields(cls):
+    """Ordered numeric class attributes used as implicit SCPF parameters."""
+    return [
+        (name, value)
+        for name, value in vars(cls).items()
+        if not name.startswith("_")
+        and isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    ]
 
-    Build-time numerical properties become Parameter objects; no user-written
-    conversion boilerplate is needed. Frozen dataclasses are supported by
-    setting values on the freshly constructed instance through object.__setattr__.
+
+def _plain_model_instance(cls, *args, **kwargs):
+    """Instantiate a plain SCPF model class without requiring @dataclass."""
+    fields = _plain_model_fields(cls)
+    names = [name for name, _ in fields]
+    if len(args) > len(fields):
+        raise TypeError(
+            f"{cls.__name__}() takes at most {len(fields)} model arguments"
+        )
+
+    values = dict(fields)
+    assigned = set()
+    for (name, _), value in zip(fields, args):
+        values[name] = value
+        assigned.add(name)
+
+    for name, value in kwargs.items():
+        if name not in values:
+            raise TypeError(
+                f"{cls.__name__}() got an unexpected model parameter {name!r}"
+            )
+        if name in assigned:
+            raise TypeError(
+                f"{cls.__name__}() got multiple values for parameter {name!r}"
+            )
+        values[name] = value
+        assigned.add(name)
+
+    instance = cls()
+    for name in names:
+        value = values[name]
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise TypeError(f"{name} must be a numeric model parameter")
+        object.__setattr__(instance, name, _symbolic(value, name))
+    return instance
+
+
+def _design_object(cls, *args, **kwargs):
+    """Build a dataclass or plain SCPF model object.
+
+    Plain classes use numeric class attributes as implicit CAD parameters.
+    Dataclasses remain supported for compatibility and custom validation.
     """
-    instance = cls(*args, **kwargs)
+    if is_dataclass(cls):
+        # Construct normally first so dataclass validation sees plain values.
+        instance = cls(*args, **kwargs)
+        signature = inspect.signature(cls)
+        bound = signature.bind(*args, **kwargs)
+        bound.apply_defaults()
+        for name, value in bound.arguments.items():
+            if name not in vars(instance):
+                continue
+            symbolic = _symbolic(value, name)
+            if symbolic is not value:
+                object.__setattr__(instance, name, symbolic)
+    else:
+        instance = _plain_model_instance(cls, *args, **kwargs)
+
     build = getattr(instance, "build", None)
     if not callable(build):
         raise TypeError(f"{cls.__name__} must define build()")
-    signature = inspect.signature(cls)
-    bound = signature.bind(*args, **kwargs)
-    bound.apply_defaults()
-    for name, value in bound.arguments.items():
-        if name not in vars(instance):
-            continue
-        symbolic = _symbolic(value, name)
-        if symbolic is not value:
-            object.__setattr__(instance, name, symbolic)
+
     result = build()
     if not isinstance(result, Shape):
         raise TypeError(
