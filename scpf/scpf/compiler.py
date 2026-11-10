@@ -316,7 +316,7 @@ def _profile_features(shape, name):
             _command("solid.extrude", distance=command_value(depth),
                      direction=hole_direction, operation="cut"),
         ])
-    return _param_commands(_collect(shape)) + steps
+    return _param_commands(_collect((distance, shape))) + steps
 
 
 def compile_model(shape: Shape, name: str) -> dict:
