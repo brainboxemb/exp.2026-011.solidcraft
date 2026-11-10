@@ -3,10 +3,10 @@
 The compiler only describes operations. Native SolidCraft performs all
 actual BRep booleans, sketches, fillets and geometric verification.
 """
-from math import isfinite, hypot
+from math import isfinite
 
 from .core import (
-    Shape, Parameter, Edges, command_value, number_text, parameters_in, value_of,
+    Shape, Parameter, number_text, parameters_in, value_of,
 )
 
 
@@ -51,23 +51,13 @@ def _collect(node, values=None):
 
 
 def compile_model(shape: Shape, name: str) -> dict:
-    """Dispatch on the kind of CAD geometry, never on example/model names."""
+    """Compile a shape tree by operation semantics, not example names."""
     if not isinstance(shape, Shape):
         raise TypeError("the final script expression must produce a Shape")
     if not name or not name.isidentifier():
         raise ModelError("the model name must be a valid identifier")
-
-    from .sketch_features import _is_rectangular_feature, compile_sketch_features
-    from .sketch_features import _has_profile, compile_polygon_features
-    from .box_features import _is_box_feature, compile_box_features
+    from .features import _is_feature_tree, compile_features
     from .csg import _csg_new
-
-    if _is_rectangular_feature(shape):
-        commands = compile_sketch_features(shape, name)
-    elif _is_box_feature(shape):
-        commands = compile_box_features(shape, name)
-    elif _has_profile(shape):
-        commands = compile_polygon_features(shape, name)
-    else:
-        commands = _param_commands(_collect(shape)) + _csg_new(shape, name)
+    commands = (compile_features(shape, name) if _is_feature_tree(shape)
+                else _param_commands(_collect(shape)) + _csg_new(shape, name))
     return {"commands": commands}
