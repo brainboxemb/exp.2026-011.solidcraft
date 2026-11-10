@@ -566,13 +566,39 @@ class SCPFExamples(unittest.TestCase):
                 "sketch.circle.center",
                 "sketch.finish",
                 "solid.extrude",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
             ],
         )
         self.assertEqual(
             [c["params"].get("name") for c in feature_commands
              if c["command"] == "sketch.create"],
-            ["HistoryPolicyBoss footprint", "Boss", "Boss hole"],
+            [
+                "HistoryPolicyBoss footprint",
+                "Boss",
+                "Boss hole",
+                "Explicit pad",
+            ],
         )
+
+    def test_explicit_sketch_scope_requires_profiles_and_closes_before_extrude(self):
+        from scpf.core import Box, Circle2D
+        from scpf.explicit_sketch import Sketch
+
+        body = Box(40, 30, 6)
+        with self.assertRaisesRegex(ValueError, "at least one profile"):
+            with Sketch(name="Empty", on=body):
+                pass
+
+        sketch = Sketch(name="Pad", on=body)
+        with sketch:
+            sketch.add(Circle2D(d=10))
+            with self.assertRaisesRegex(ValueError, "before extruding"):
+                sketch.extrude(5)
+
+        self.assertEqual(sketch.extrude(5).kind, "explicit_sketch_extrusion")
 
     def test_history_policy_scope_does_not_leak(self):
         from scpf.core import Boss
