@@ -1,6 +1,15 @@
-def Plate(length=100.0, width=60.0, thickness=10.0):
-    body = Box(length, width, thickness).fillet(2.0, edges="vertical")
-    holes = Cylinder(thickness, 8.0).pattern(x=70.0, y=30.0)
-    return body - holes
+@dataclass
+class Plate:
+    length: float = 100
+    width: float = 60
+    thickness: float = 10
+
+    def build(self):
+        body = Box(self.length, self.width, self.thickness).fillet(
+            2, edges="vertical"
+        )
+        holes = Cylinder(self.thickness, 8).pattern(x=70, y=30)
+        body - holes
+
 
 Plate()
