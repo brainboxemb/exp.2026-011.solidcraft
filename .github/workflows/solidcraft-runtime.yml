@@ -5,6 +5,9 @@ on:
     branches:
       - feature/issue-1-python-interface
       - feature/scpf-python
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
