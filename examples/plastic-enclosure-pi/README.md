@@ -32,6 +32,9 @@ retained only for comparison.
 3. Three openings on the front (-Y) face (USB-C and two micro-HDMI).
 4. One 50 × 14 mm combined USB/Ethernet opening at the right (+X) end.
 5. Five separate 5 × 28 mm floor ventilation slots at 7 mm spacing along X.
+6. `Pi 4` engraving, 6 mm DejaVu Sans Bold, depth 0.6 mm.
+7. PETG design-owned material, density 1.27 g/cm³, color `#2a8696`.
+8. CI replay of the final 24 → 32 mm height parameter edit.
 
 ### Differences / outstanding verification
 
@@ -41,7 +44,7 @@ geometry is the target, but the editable feature-history is not yet identical.
 
 The original recording creates a 28 × 5 mm slot and patterns it 7 mm along its 28 mm length, which overlaps cuts. Our model uses separate 5 × 28 mm slots for the intended five vents; this is a deliberate correction, **not** an exact feature-history match.
 
-The script also engraves `Pi 4` text (DejaVu Sans Bold, 6 mm, 0.6 mm deep),
-assigns PETG (1.27 g/cm³, `#2a8696`), and changes height 24 → 32 mm.
-These features are **not yet implemented in SCPF**. Native execution and visual
-equivalence must be verified before treating this example as complete.
+The lettering and PETG material are compiled as native SolidCraft operations.
+The final height change is checked by the native CI workflow, not baked into the
+initial Python object's 24 mm height. Native execution and visual equivalence
+still require qualification.
