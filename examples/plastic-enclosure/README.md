@@ -37,14 +37,14 @@ class Enclosure:
         snap = SnapFit(...).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.CENTER, Bounds.MAX - 6),
+            offset=(X.CENTER, Y.MAX - 6),
         )
         enclosure = enclosure + snap
 
         boss = Boss(...).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
+            offset=(X.MIN + 10, Y.MIN + 10),
         )
 ```
 
@@ -53,8 +53,8 @@ from `Anchor.TOP`, which describes relative placement for `attach()`.
 
 SCPF `Box` is centered in X/Y, while the uploaded SolidCraft source uses a
 corner at `[0, 0, 0]`. The script does not manually compensate with
-`length / 2` or `width / 2`: `Bounds.MIN/CENTER/MAX` keeps feature
-placement relative to the enclosure bounds.
+`length / 2` or `width / 2`: `X.MIN/CENTER/MAX` and `Y.MIN/CENTER/MAX`
+keep each coordinate relative to the matching enclosure axis.
 
 The uploaded SolidCraft source contains no sketches. SCPF deliberately keeps
 its normal `Box` representation instead: one footprint sketch plus an
