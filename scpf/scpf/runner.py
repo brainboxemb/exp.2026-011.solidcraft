@@ -167,7 +167,6 @@ def run_script(path: str | Path) -> dict:
         "Edges": core.Edges,
         "Faces": core.Faces,
         "Anchor": core.Anchor,
-        "Bounds": core.Bounds,
         "Axis": core.Axis,
         "Shape": core.Shape,
         "X": core.X,
