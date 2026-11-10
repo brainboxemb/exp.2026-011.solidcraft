@@ -23,7 +23,7 @@ def _is_feature_tree(shape):
         if profile.kind == "positioned":
             profile = profile.data[0]
         return profile.kind in ("rectangle", "circle", "polygon")
-    if shape.kind in ("fillet", "shell", "union", "difference"):
+    if shape.kind in ("fillet", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
     return False
 
@@ -483,7 +483,16 @@ def _explicit_sketch_commands(shape, original, feature, name):
             )
             continue
 
-        raise ModelError("explicit Sketch supports Circle2D or Rectangle2D")
+        if profile.kind == "text":
+            text, height, font = profile.data
+            _require_positive(height, "sketch text height")
+            commands.append(_command(
+                "sketch.text", text=text,
+                at=[command_value(ox), command_value(oy)],
+                height=command_value(height), font=font,
+            ))
+            continue
+        raise ModelError("explicit Sketch supports Circle2D, Rectangle2D or Text2D")
 
     commands.append(_command("sketch.finish"))
 
@@ -542,6 +551,16 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
 def _to_commands(shape, name):
     if shape.kind in ("box", "extrusion"):
         return compile_base(shape, name)
+    if shape.kind == "material_assignment":
+        base_shape, material, density, color = shape.data
+        steps, base = _to_commands(base_shape, name)
+        creation = dict(name=material, density_g_cm3=density)
+        if color is not None:
+            creation["color"] = color
+        return steps + [
+            _command("material.create", **creation),
+            _command("material.assign", bodies=["Body1"], material=material),
+        ], base
     if shape.kind == "shell":
         original, thickness, faces = shape.data
         steps, base = _to_commands(original, name)
@@ -612,7 +631,7 @@ def compile_features(shape, name):
     # dimension of the feature. Keep it before coordinates of its profile.
     # XY rectangular footprints instead list their plan dimensions first.
     root = shape
-    while root.kind in ("fillet", "shell", "union", "difference"):
+    while root.kind in ("fillet", "shell", "union", "difference", "material_assignment"):
         root = root.data[0]
     if root.kind == "extrusion" and root.data[0].kind == "polygon":
         parameters = _collect((root.data[1], shape))
