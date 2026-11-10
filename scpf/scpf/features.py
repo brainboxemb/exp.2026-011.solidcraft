@@ -559,7 +559,7 @@ def _to_commands(shape, name):
             creation["color"] = color
         return steps + [
             _command("material.create", **creation),
-            _command("material.assign", bodies=["Body1"], material=material),
+            _command("material.assign", bodies=[name], material=material),
         ], base
     if shape.kind == "shell":
         original, thickness, faces = shape.data
