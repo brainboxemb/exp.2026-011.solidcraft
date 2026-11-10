@@ -17,19 +17,21 @@
 <h3>Construction stages</h3><ol><li>Outline — centered 95 × 66 mm footprint</li><li>Extrude — height 24 mm</li><li>Fillet — four vertical corners R5</li><li>Shell — open top, 2 mm wall</li><li>Fillet upper rim — R1</li><li>Four mounting bosses — Ø6 / Ø2.5, 58 × 49 pattern</li><li>Sketch and cut USB-C and dual micro-HDMI ports</li><li>Sketch and cut USB / Ethernet opening</li><li>Sketch and cut five floor ventilation slots</li><li>Engrave Pi 4 text, 0.6 mm</li><li>Assign PETG physical material</li></ol></section></div>
 <h2>Python model</h2><pre><code>class PlasticEnclosurePi:
     # SolidCraft 0.8 Raspberry Pi 4 video: board 85 × 56, case +10 mm.
-    width = 95.0
-    depth = 66.0
+    board_w = 85.0
+    board_d = 56.0
     height = 24.0
     wall = 2.0
 
     def build(self):
-        enclosure = Box(self.width, self.depth, self.height)
+        width = self.board_w + 10.0
+        depth = self.board_d + 10.0
+        enclosure = Box(width, depth, self.height)
         enclosure = enclosure.fillet(5.0, edges=Edges.VERTICAL)
         enclosure = enclosure.shell(self.wall, open=Faces.TOP)
 
         # The video rounds one upper rim edge, R1.
         enclosure = enclosure.fillet(
-            1.0, edges=[(0, self.depth / 2, self.height)]
+            1.0, edges=[(0, depth / 2, self.height)]
         )
 
         # Board mounting holes: one corner 3.5 mm in from board edges,
@@ -50,7 +52,7 @@
         # extrusion points into the case from the front face.
         with Sketch(
             name=&quot;Pi ports&quot;, on=enclosure, plane=&quot;XZ&quot;,
-            origin=(0, -(self.depth / 2), 0),
+            origin=(0, -(depth / 2), 0),
         ) as ports:
             for x, half_width in ((-31.3, 5.0), (-16.5, 4.0), (-3.0, 4.0)):
                 ports.add(
@@ -65,7 +67,7 @@
         # Local YZ coordinates are (world Y, world Z).
         with Sketch(
             name=&quot;USB and Ethernet&quot;, on=enclosure, plane=&quot;YZ&quot;,
-            origin=(self.width / 2, 0, 0),
+            origin=(width / 2, 0, 0),
         ) as end_ports:
             end_ports.add(Rectangle2D(50.0, 14.0), offset=(-25.0, 8.0))
         enclosure = enclosure - end_ports.extrude(
@@ -108,19 +110,19 @@
 
 PlasticEnclosurePi()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><pre><code>{
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: board_w</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
-    &quot;name&quot;: &quot;width&quot;,
-    &quot;expression&quot;: &quot;95&quot;,
+    &quot;name&quot;: &quot;board_w&quot;,
+    &quot;expression&quot;: &quot;85&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: depth</small><pre><code>{
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: board_d</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
-    &quot;name&quot;: &quot;depth&quot;,
-    &quot;expression&quot;: &quot;66&quot;,
+    &quot;name&quot;: &quot;board_d&quot;,
+    &quot;expression&quot;: &quot;56&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
@@ -151,12 +153,12 @@ PlasticEnclosurePi()
   &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
   &quot;params&quot;: {
     &quot;p0&quot;: [
-      &quot;-width / 2&quot;,
-      &quot;-depth / 2&quot;
+      &quot;-(board_w + 10 mm) / 2&quot;,
+      &quot;-(board_d + 10 mm) / 2&quot;
     ],
     &quot;p1&quot;: [
-      &quot;width / 2&quot;,
-      &quot;depth / 2&quot;
+      &quot;(board_w + 10 mm) / 2&quot;,
+      &quot;(board_d + 10 mm) / 2&quot;
     ]
   }
 }</code></pre></li>

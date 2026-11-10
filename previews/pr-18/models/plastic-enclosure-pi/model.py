@@ -1,18 +1,20 @@
 class PlasticEnclosurePi:
     # SolidCraft 0.8 Raspberry Pi 4 video: board 85 × 56, case +10 mm.
-    width = 95.0
-    depth = 66.0
+    board_w = 85.0
+    board_d = 56.0
     height = 24.0
     wall = 2.0
 
     def build(self):
-        enclosure = Box(self.width, self.depth, self.height)
+        width = self.board_w + 10.0
+        depth = self.board_d + 10.0
+        enclosure = Box(width, depth, self.height)
         enclosure = enclosure.fillet(5.0, edges=Edges.VERTICAL)
         enclosure = enclosure.shell(self.wall, open=Faces.TOP)
 
         # The video rounds one upper rim edge, R1.
         enclosure = enclosure.fillet(
-            1.0, edges=[(0, self.depth / 2, self.height)]
+            1.0, edges=[(0, depth / 2, self.height)]
         )
 
         # Board mounting holes: one corner 3.5 mm in from board edges,
@@ -33,7 +35,7 @@ class PlasticEnclosurePi:
         # extrusion points into the case from the front face.
         with Sketch(
             name="Pi ports", on=enclosure, plane="XZ",
-            origin=(0, -(self.depth / 2), 0),
+            origin=(0, -(depth / 2), 0),
         ) as ports:
             for x, half_width in ((-31.3, 5.0), (-16.5, 4.0), (-3.0, 4.0)):
                 ports.add(
@@ -48,7 +50,7 @@ class PlasticEnclosurePi:
         # Local YZ coordinates are (world Y, world Z).
         with Sketch(
             name="USB and Ethernet", on=enclosure, plane="YZ",
-            origin=(self.width / 2, 0, 0),
+            origin=(width / 2, 0, 0),
         ) as end_ports:
             end_ports.add(Rectangle2D(50.0, 14.0), offset=(-25.0, 8.0))
         enclosure = enclosure - end_ports.extrude(

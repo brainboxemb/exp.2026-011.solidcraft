@@ -3,16 +3,16 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "width",
-        "expression": "95",
+        "name": "board_w",
+        "expression": "85",
         "unit": "mm"
       }
     },
     {
       "command": "parameters.add",
       "params": {
-        "name": "depth",
-        "expression": "66",
+        "name": "board_d",
+        "expression": "56",
         "unit": "mm"
       }
     },
@@ -43,12 +43,12 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          "-width / 2",
-          "-depth / 2"
+          "-(board_w + 10 mm) / 2",
+          "-(board_d + 10 mm) / 2"
         ],
         "p1": [
-          "width / 2",
-          "depth / 2"
+          "(board_w + 10 mm) / 2",
+          "(board_d + 10 mm) / 2"
         ]
       }
     },
