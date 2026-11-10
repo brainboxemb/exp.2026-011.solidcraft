@@ -5,6 +5,7 @@ additional extruded Circle sketches can be joined (+) or cut (-).
 This module recognizes CAD operations, never example names such as Boss
 or Bore. SolidCraft is the only BRep engine.
 """
+from math import isfinite
 from .core import Parameter, Shape, Edges, Depth, command_value, value_of
 
 
@@ -406,6 +407,7 @@ def _has_profile(shape):
 
 
 def compile_polygon_features(shape, name):
+    from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
     """Compile a polygon extrusion and its ordered CAD modifiers.
 
     One closed planar polygon, one extrusion, optional edge fillet and
