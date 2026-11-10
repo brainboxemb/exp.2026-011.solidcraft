@@ -384,10 +384,10 @@ jobs:
           python -m scpf examples/history-policy/scpf/model.py \
             --out output/native/history-policy/commands.json
           jq -e '
-            [.commands[] | select(.command == "plastic.boss")] | length == 1
-            and [.commands[] | select(.command == "sketch.create") | .params.name]
+            [.[] | select(.command == "plastic.boss")] | length == 1
+            and [.[] | select(.command == "sketch.create") | .params.name]
               == ["HistoryPolicyBoss footprint", "Boss", "Boss hole", "Explicit pad"]
-            and [.commands[] | select(.command == "solid.extrude")] | length == 4
+            and [.[] | select(.command == "solid.extrude")] | length == 4
           ' output/native/history-policy/commands.json
           solidcraft-cli run output/native/history-policy/commands.json \
             --param-check strict --results \
