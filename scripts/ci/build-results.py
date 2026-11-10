@@ -51,6 +51,22 @@ MODELS = {
         "stages": ["Draw the L profile", "Extrude its width",
                    "Round an exposed edge", "Sketch mounting holes", "Cut through the flange"],
     },
+    "corner-bracket": {
+        "title": "CornerBracket",
+        "tagline": "Production plywood corner bracket reconstructed in native SolidCraft",
+        "description": "Parameterized 24 mm-wide L bracket with R4 inside corner, outer-side and print-foot relief chamfers, and four recessed M5 countersunk mounting holes.",
+        "parameters": "60 × 60 mm arms; 12 mm wall; 24 mm width; four M5 holes",
+        "diagram": "bracket",
+        "stages": [
+            "XZ side-profile with end bevels and outside-corner chamfer",
+            "Symmetric extrude — 24 mm wide",
+            "Round inside corner — R4",
+            "Chamfer outside side edges — 2 mm",
+            "Print-side elephant-foot relief — 0.6 mm",
+            "Cut four recessed M5 DIN 7991 countersunk holes",
+            "Finish the four pairs of 0.2 mm edge-relief cuts",
+        ],
+    },
     "plastic-enclosure": {
         "title": "Plastic Enclosure",
         "tagline": "A shelled enclosure with native plastic design features",
@@ -94,7 +110,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "corner-bracket": "corner-bracket/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
