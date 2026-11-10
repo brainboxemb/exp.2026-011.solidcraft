@@ -378,7 +378,7 @@ jobs:
                "sketch", "extrude", "hole"]
             and [.features[] | select(.type == "sketch") | .name]
               == ["Base", "Boss"]
-            and [.features[] | select(.type == "hole")] | length == 3
+            and ([.features[] | select(.type == "hole")] | length) == 3
           ' output/native/sample-plate/document.json
           solidcraft-cli snapshot output/native/sample-plate/model.sc \
             --out output/native/sample-plate/model.png \
