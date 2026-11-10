@@ -71,7 +71,7 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     diameter, depth = feature.data
     _require_positive(diameter, "hole diameter")
     (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
-    base_top = _combine(origin_z, thickness)
+    base_top = thickness if value_of(origin_z) == 0 else _combine(origin_z, thickness)
     entry_z = base_top
     on_base_top = True
 
@@ -87,7 +87,9 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
                     and boss_child_anchor is Anchor.BOTTOM
                     and all(value_of(v) == 0 for v in boss_offset)):
                 boss_height, _ = boss.data
-                entry_z = _combine(base_top, boss_height)
+                entry_z = (base_top + boss_height
+                           if isinstance(boss_height, (int, float))
+                           else _combine(base_top, boss_height))
                 on_base_top = False
 
     if depth is Depth.THROUGH_ALL:
@@ -101,7 +103,8 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
             # A bore starting on a joined boss is sketched at its entry face
             # and cuts back through the complete current height.
             sketch_z = entry_z
-            distance = _combine(entry_z, -value_of(origin_z))
+            distance = (entry_z if value_of(origin_z) == 0
+                        else _combine(entry_z, -value_of(origin_z)))
             direction = "negative"
     else:
         _require_positive(depth, "hole depth")
