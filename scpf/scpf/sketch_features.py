@@ -39,6 +39,100 @@ def _rectangle_profile(shape):
     raise ValueError("Base shape must be a Rectangle")
 
 
+def _base_rectangle(shape):
+    """Get an XY rectangular plate's defining dimensions.
+
+    For a feature chain, follow its original base; no bounding-box guesses.
+    The result is valid for the supported base-rectangle feature family only.
+    """
+    if shape.kind == "rectangle":
+        return shape.data, (0, 0, 0), None
+    if shape.kind == "positioned":
+        child, x, y, z = shape.data
+        if child.kind == "rectangle":
+            return child.data, (x, y, z), None
+    if shape.kind == "extrusion":
+        child, height, direction = shape.data
+        dimensions, origin, old_height = _base_rectangle(child)
+        if old_height is not None or direction != "positive":
+            raise ValueError("anchoring requires one positive XY base extrusion")
+        return dimensions, origin, height
+    if shape.kind == "fillet":
+        return _base_rectangle(shape.data[0])
+    if shape.kind in ("union", "difference"):
+        return _base_rectangle(shape.data[0])
+    raise ValueError("anchor target must be a supported extruded Rectangle2D")
+
+
+def _combine(*terms):
+    """Compose symbolic coordinates using the same named model dimensions."""
+    from .core import Expression, Parameter, parameters_in, number_text
+    numeric = sum(value_of(x) for x in terms)
+    used = parameters_in(*terms)
+    if not used:
+        return numeric
+    symbolic = []
+    literal = 0
+    for term in terms:
+        if isinstance(term, (Parameter, Expression)):
+            symbolic.append(f"({command_value(term)})")
+        else:
+            literal += value_of(term)
+    expression = " + ".join(symbolic)
+    if literal:
+        expression += f" + ({number_text(literal)} mm)"
+    return Expression(numeric, expression, used)
+
+
+def _anchored_cylinders(shape):
+    """Resolve attached cylinders against the original base plate dimensions.
+
+    Resolving a relation into named-parameter expressions is currently an
+    SCPF compile-time operation, NOT a persistent native face constraint.
+    """
+    from .core import Anchor, Axis
+    if shape.kind != "anchored":
+        raise ValueError("expected an anchored cylinder")
+    child, target, parent_anchor, child_anchor, offset = shape.data
+    (width, depth), (x, y, z), thickness = _base_rectangle(target)
+    if thickness is None:
+        raise ValueError("anchor target must be a 3D rectangular plate")
+    center_x = _combine(x, width / 2)
+    center_y = _combine(y, depth / 2)
+    if parent_anchor is Anchor.TOP:
+        parent_z = _combine(z, thickness)
+    elif parent_anchor is Anchor.CENTER:
+        parent_z = _combine(z, thickness / 2)
+    elif parent_anchor is Anchor.BOTTOM:
+        parent_z = z
+    else:
+        raise ValueError("unsupported anchor")
+    if child.kind == "linear_pattern":
+        cylinder, count, spacing, axis = child.data
+        shifts = [((i - (count - 1)/2) * value_of(spacing), axis)
+                  for i in range(count)]
+    elif child.kind == "cylinder3d":
+        cylinder = child
+        shifts = [(0, None)]
+    else:
+        raise ValueError("only Cylinder patterns are supported")
+    height, diameter = cylinder.data
+    if child_anchor is Anchor.BOTTOM:
+        base_z = parent_z
+    elif child_anchor is Anchor.CENTER:
+        base_z = _combine(parent_z, -(height / 2))
+    else:
+        base_z = _combine(parent_z, -height)
+    result = []
+    for shift, axis in shifts:
+        dx, dy = (shift, 0) if axis is Axis.X else ((0, shift) if axis is Axis.Y else (0, 0))
+        result.append((cylinder,
+                       (_combine(center_x, offset[0], dx),
+                        _combine(center_y, offset[1], dy),
+                        base_z)))
+    return result
+
+
 def _to_commands(shape, body_name):
     # The imported compiler utilities are generic and centralized.
     from .compiler import ModelError, _command, _require_positive
@@ -92,6 +186,23 @@ def _to_commands(shape, body_name):
     if shape.kind in ("union", "difference"):
         original, cutter = shape.data
         steps, base = _to_commands(original, body_name)
+        # Anchored cylinders resolve to SolidCraft named-parameter coordinates.
+        if cutter.kind == "anchored":
+            try:
+                cylinders = _anchored_cylinders(cutter)
+            except (ValueError, TypeError) as exc:
+                raise ModelError(str(exc)) from exc
+            for primitive, position in cylinders:
+                height, diameter = primitive.data
+                _require_positive(height, "cylinder height")
+                _require_positive(diameter, "cylinder diameter")
+                steps.append(_command(
+                    "solid.cylinder", height=command_value(height),
+                    diameter=command_value(diameter),
+                    base=[command_value(dim) for dim in position],
+                    axis="Z", operation="join" if shape.kind == "union" else "cut",
+                    targets=[body_name]))
+            return steps, base
         # A native 3D cylinder does not require a 2D sketch or extrusion.
         if cutter.kind in ("cylinder3d", "placed3d"):
             if cutter.kind == "placed3d":

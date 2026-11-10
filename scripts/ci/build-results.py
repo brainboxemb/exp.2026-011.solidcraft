@@ -243,6 +243,14 @@ def make_cheatsheet(out):
             ("Cube(size)", "A special case of Box with three equal sides, centered on the origin. OpenSCAD also uses cube([x, y, z]) for rectangular boxes.",
              "Cube(50)"),
         ]),
+        ("Relative placement · experimental", [
+            ("child.attach(parent, parent=..., child=...)", "Join two anchor positions. Native output is resolved parameter expressions, not a persistent face constraint.",
+             "Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP, child=Anchor.BOTTOM)"),
+            ("child.on(parent, Anchor.CENTER)", "Align centers; for a cylinder, its center is at the plate center.",
+             "Cylinder(d=8, h=12).on(plate, Anchor.CENTER)"),
+            ("cylinder.pattern(count=2, spacing=40, axis=Axis.Y)", "Make symmetric repeated cutters. On a plate center this makes two holes at Y = -20 and +20 relative to its center.",
+             "Cylinder(d=8, h=12).pattern(count=2, spacing=40, axis=Axis.Y).on(plate)"),
+        ]),
         ("Operations", [
             ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder; 2D z offsets the sketch plane.",
              "Circle2D(d=8).at(12, 25)"),

@@ -19,6 +19,18 @@ class Direction(str, Enum):
     NEGATIVE = "negative"
 
 
+class Anchor(str, Enum):
+    CENTER = "center"
+    TOP = "top"
+    BOTTOM = "bottom"
+
+
+class Axis(str, Enum):
+    X = "X"
+    Y = "Y"
+    Z = "Z"
+
+
 class Edges(Enum):
     """Named edge selections used by feature operations.
 
@@ -182,10 +194,60 @@ class Shape:
             raise ValueError("at() currently supports planar profiles")
         return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
 
-    def pattern(self, *, x, y):
+    def pattern(self, *, count=None, spacing=None, axis=None, x=None, y=None):
+        """Create a symmetric linear pattern or the existing 2x2 hole fixture.
+
+        The new form uses count/spacing/axis. The x/y form is retained for
+        the existing rectangular Plate fixture until that feature is generalized.
+        """
         if self.kind != "cylinder3d":
-            raise ValueError("only cylinders support rectangular patterns in this PoP")
-        return Shape("pattern", (self, x, y))
+            raise ValueError("pattern() currently supports Cylinder")
+        if count is None and spacing is None and axis is None:
+            if x is None or y is None:
+                raise ValueError("pattern requires count/spacing/axis or x/y")
+            return Shape("pattern", (self, x, y))
+        if x is not None or y is not None or count is None or spacing is None:
+            raise ValueError("linear pattern requires count, spacing and axis")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+            raise ValueError("pattern count must be a positive integer")
+        if value_of(spacing) <= 0:
+            raise ValueError("pattern spacing must be positive")
+        try:
+            axis = Axis(axis)
+        except ValueError as exc:
+            raise ValueError("pattern axis must be Axis.X or Axis.Y") from exc
+        if axis not in (Axis.X, Axis.Y):
+            raise ValueError("Only Axis.X and Axis.Y are supported for this pattern")
+        return Shape("linear_pattern", (self, count, spacing, axis))
+
+    def on(self, target, anchor=Anchor.CENTER, *, offset=(0, 0)):
+        """Position a Cylinder or a linear pattern relative to an object.
+
+        .on() aligns the cylinder's CENTER to the selected reference anchor.
+        Both axes of offset are local to the XY face of the base plate.
+        """
+        return self._anchor_to(target, anchor, Anchor.CENTER, offset)
+
+    def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
+               offset=(0, 0)):
+        """Match a parent anchor to a child anchor (BOSL2-inspired)."""
+        return self._anchor_to(target, parent, child, offset)
+
+    def _anchor_to(self, target, parent_anchor, child_anchor, offset):
+        if self.kind not in ("cylinder3d", "linear_pattern"):
+            raise ValueError("on()/attach() currently support Cylinder and linear patterns")
+        if not isinstance(target, Shape):
+            raise TypeError("anchor target must be an existing Shape")
+        try:
+            parent_anchor = Anchor(parent_anchor)
+            child_anchor = Anchor(child_anchor)
+        except ValueError as exc:
+            raise ValueError("unknown parent or child anchor") from exc
+        if not isinstance(offset, (tuple, list)) or len(offset) != 2:
+            raise ValueError("offset must be a pair (x, y)")
+        for value in offset:
+            value_of(value)
+        return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
 
     def orient(self, *axes):
         if self.kind != "cylinder3d":

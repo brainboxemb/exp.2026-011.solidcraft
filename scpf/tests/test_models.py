@@ -84,7 +84,8 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual([c["height"] for c in cylinders],
                          [14, "thickness + 14 mm"])
         self.assertEqual([c["base"] for c in cylinders],
-                         [[40, 25, "thickness"], [40, 25, 0]])
+                         [["(width / 2)", "(depth / 2)", "(thickness)"],
+                          ["(width / 2)", "(depth / 2)", 0]])
         self.assertEqual(
             [c["params"]["expression"] for c in commands[:3]], ["80", "50", "8"]
         )
@@ -105,7 +106,8 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
         cylinders = [c["params"] for c in commands
                      if c["command"] == "solid.cylinder"]
-        self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
+        self.assertEqual(cylinders[0]["base"],
+                         ["(width / 2)", "(depth / 2)", "(thickness)"])
         self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
 
     def test_named_edge_selection_and_explicit_edge_points(self):
@@ -142,6 +144,51 @@ class SCPFExamples(unittest.TestCase):
         source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
         self.assertIn("edges=Edges.VERTICAL", source)
         run_script(ROOT / "examples/sample-plate/scpf/model.py")
+
+    def test_symmetric_anchored_hole_pattern_follows_plate_dimensions(self):
+        from scpf.core import Anchor, Axis, Cylinder, Rectangle2D
+        from scpf.compiler import compile_model
+        base = Rectangle2D(100, 60).extrude(10)
+        holes = Cylinder(d=8, h=12).pattern(
+            count=2, spacing=40, axis=Axis.Y
+        ).on(base, Anchor.CENTER)
+        commands = compile_model(base - holes, "Plate")["commands"]
+        cylinders = [c["params"] for c in commands
+                     if c["command"] == "solid.cylinder"]
+        self.assertEqual(len(cylinders), 2)
+        self.assertEqual([c["base"][0] for c in cylinders], [50, 50])
+        self.assertEqual([c["base"][1] for c in cylinders], [10, 50])
+        self.assertEqual([c["base"][2] for c in cylinders], [-1, -1])
+        self.assertEqual([c["operation"] for c in cylinders], ["cut", "cut"])
+
+    def test_attached_boss_tracks_plate_top_and_offsets(self):
+        from scpf.core import Anchor, Cylinder, Rectangle2D, Parameter
+        from scpf.compiler import compile_model
+        width, depth, thickness = (
+            Parameter("width", 80), Parameter("depth", 50),
+            Parameter("thickness", 8)
+        )
+        base = Rectangle2D(width, depth).extrude(thickness)
+        boss = Cylinder(d=24, h=14).attach(
+            base, parent=Anchor.TOP, child=Anchor.BOTTOM)
+        commands = compile_model(base + boss, "Plate")["commands"]
+        cylinder = commands[-1]["params"]
+        self.assertEqual(cylinder["operation"], "join")
+        self.assertIn("width", cylinder["base"][0])
+        self.assertIn("depth", cylinder["base"][1])
+        self.assertIn("thickness", cylinder["base"][2])
+        self.assertEqual(cylinder["base"][0], "(width / 2)")
+        self.assertEqual(cylinder["base"][1], "(depth / 2)")
+
+    def test_relative_anchor_rejects_unsupported_usage(self):
+        from scpf.core import Anchor, Axis, Cylinder, Rectangle2D, Sphere
+        base = Rectangle2D(80, 50).extrude(8)
+        with self.assertRaises(ValueError):
+            Sphere(8).on(base, Anchor.TOP)
+        with self.assertRaises(ValueError):
+            Cylinder(d=8, h=10).pattern(count=2, spacing=40, axis=Axis.Z)
+        with self.assertRaises(ValueError):
+            Cylinder(d=8, h=10).on(base, offset=(1, 2, 3))
 
     def test_cylinder_keyword_form_is_direct_3d_primitive(self):
         from scpf.core import Cylinder

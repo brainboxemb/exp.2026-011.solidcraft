@@ -228,3 +228,27 @@ rectangular bodies, or supply a list of explicit 3D edge points for a
 specific edge. This is intentionally distinct from the planned object
 attachment anchors (`Anchor.TOP`, etc.). Strings such as
 `edges="vertical"` are no longer part of the SCPF API.
+
+## Relative anchors and symmetric patterns (experimental)
+
+For a rectangular XY plate, placement can reference the plate rather than
+hard-coded world coordinates:
+
+```python
+plate = Rectangle2D(100, 60).extrude(10)
+holes = Cylinder(d=8, h=12).pattern(
+    count=2, spacing=40, axis=Axis.Y
+).on(plate, Anchor.CENTER)
+plate - holes
+```
+
+`on()` aligns the child center with the parent anchor.
+`attach(target, parent=Anchor.TOP, child=Anchor.BOTTOM)` connects two
+explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
+Currently supported: Rectangle2D extrusion base; `Anchor.CENTER`,
+`Anchor.TOP`, `Anchor.BOTTOM`; and XY linear patterns of cylinders.
+
+**Important limitation:** the compiler resolves references to native
+parameter expressions. It does NOT create a persistent topological face
+constraint in SolidCraft. This must be distinguished from the planned
+fully associative attachment support in issue #5.
