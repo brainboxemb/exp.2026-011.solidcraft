@@ -29,9 +29,9 @@ class Plate:
         # Four native SolidCraft Hole features, relative to the box top.
         # Their nominal centres are (+/-35, +/-15) mm.
         for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
-            hole = Hole(d=8, depth=Depth.THROUGH_ALL).on(
-                body, Anchor.TOP, offset=(x, y))
-            body = body + hole
+            body = body.add(
+                Hole(d=8, depth=Depth.THROUGH_ALL),
+                on=Anchor.TOP, offset=(x, y))
         body
 
 

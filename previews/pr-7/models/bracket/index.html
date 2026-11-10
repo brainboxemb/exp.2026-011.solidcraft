@@ -32,7 +32,8 @@ class Bracket:
         # Native Hole features on the upper face (world Z = 0).
         # The XZ profile grows towards negative Z in SolidCraft.
         for y in (-15, -45):
-            body = body + Hole(d=8, depth=self.thickness).at(25, y, 0)
+            body = body.add(
+                Hole(d=8, depth=self.thickness), at=(25, y, 0))
         body
 
 
