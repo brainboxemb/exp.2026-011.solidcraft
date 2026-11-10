@@ -116,7 +116,7 @@ See [the experiment plan](../docs/00-plan.md) for qualification cases.
 
 ## Rust prototype naming
 
-The Rust crate is named **`scrf`** (SolidCraft Rust Forge). Legacy source and JSON fixture directories retain their `scrf/` paths so the completed PR #2 evidence, CI commands, and historical links remain reproducible. **SCPF** is the separate, primary Python experiment.
+The Rust crate is named **`scrf`** (SolidCraft Rust Forge). The current Rust source is under `scrf/`, its procedural macro crate under `scrf-macros/`, and both Rust example fixtures under `examples/{plate,csg-cube}/scrf/`. The original PR #2 remains accessible in Git history under its former directory names. **SCPF** is the separate, primary Python experiment.
 
 ## Build and verification results
 
