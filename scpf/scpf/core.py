@@ -128,6 +128,12 @@ class Parameter:
         if isinstance(other, (int, float)):
             return Expression(self.value + other,
                               f"{self.name} + {number_text(other)} mm", (self,))
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value + value_of(other),
+                f"{self.name} + ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     __radd__ = __add__
@@ -136,6 +142,12 @@ class Parameter:
         if isinstance(other, (int, float)):
             return Expression(self.value - other,
                               f"{self.name} - {number_text(other)} mm", (self,))
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value - value_of(other),
+                f"{self.name} - ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     def __neg__(self):
@@ -166,6 +178,12 @@ class Expression:
             return Expression(self.value + other,
                               f"{self.expression} + {number_text(other)} mm",
                               self.parameters)
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value + value_of(other),
+                f"({self.expression}) + ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     __radd__ = __add__
@@ -174,6 +192,12 @@ class Expression:
         if isinstance(other, (int, float)):
             return Expression(self.value - other,
                               f"({self.expression}) - {number_text(other)} mm", self.parameters)
+        if isinstance(other, (Parameter, Expression)):
+            return Expression(
+                self.value - value_of(other),
+                f"({self.expression}) - ({command_value(other)})",
+                parameters_in(self, other),
+            )
         return NotImplemented
 
     def __neg__(self):
