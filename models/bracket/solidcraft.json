@@ -89,42 +89,33 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.hole",
       "params": {
-        "plane": "XY",
-        "name": "Holes"
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
+        "position": [
           25.0,
-          -15.0
+          -15.0,
+          0.0
         ],
-        "diameter": 8.0
+        "diameter": 8,
+        "targets": [
+          "Bracket"
+        ],
+        "depth": "thickness"
       }
     },
     {
-      "command": "sketch.circle.center",
+      "command": "solid.hole",
       "params": {
-        "center": [
+        "position": [
           25.0,
-          -45.0
+          -45.0,
+          0.0
         ],
-        "diameter": 8.0
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "thickness",
-        "direction": "negative",
-        "operation": "cut"
+        "diameter": 8,
+        "targets": [
+          "Bracket"
+        ],
+        "depth": "thickness"
       }
     }
   ]
