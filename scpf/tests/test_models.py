@@ -461,13 +461,16 @@ class SCPFExamples(unittest.TestCase):
             parent=Anchor.INNER_BOTTOM,
             offset=(X.MIN + 10, Y.MIN + 10),
         )
+        body = body + minimum
+
         maximum = Boss(d=7, h=12, hole_d=2.5).attach(
             body,
             parent=Anchor.INNER_BOTTOM,
             offset=(X.MAX - 10, Y.MAX - 10),
         )
+        body = body + maximum
 
-        commands = compile_model(body + minimum + maximum, "Enclosure")["commands"]
+        commands = compile_model(body, "Enclosure")["commands"]
         bosses = [c for c in commands if c["command"] == "plastic.boss"]
         self.assertEqual(
             [boss["params"]["position"] for boss in bosses],
