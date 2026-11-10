@@ -71,10 +71,12 @@ def _combine(*terms):
     return Expression(numeric, expression, used)
 
 
-def _bound_offset(value, size):
-    """Resolve MIN/CENTER/MAX to an offset from the parent axis centre."""
+def _bound_offset(value, size, axis):
+    """Resolve X/Y MIN/CENTER/MAX to an offset from the parent axis centre."""
     if not isinstance(value, _BoundOffset):
         return value
+    if value.axis != axis:
+        raise ValueError(f"{axis} offset cannot use {value.axis} bounds")
     if value.reference == "min":
         return _combine(-(size / 2), value.delta)
     if value.reference == "center":
@@ -164,8 +166,8 @@ def _anchored_features(shape):
     else:
         base_z = face_z
     result = []
-    offset_x = _bound_offset(offset[0], width)
-    offset_y = _bound_offset(offset[1], depth)
+    offset_x = _bound_offset(offset[0], width, "X")
+    offset_y = _bound_offset(offset[1], depth, "Y")
     for shift, axis in shifts:
         dx, dy = ((shift, 0) if axis is Axis.X else
                   ((0, shift) if axis is Axis.Y else (0, 0)))
