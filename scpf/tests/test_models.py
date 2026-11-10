@@ -111,6 +111,29 @@ class SCPFExamples(unittest.TestCase):
             with self.assertRaises(ValueError):
                 run_script(file)
 
+    def test_model_function_implicit_shape_expression(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "def Cuboid(size=50):\n"
+                "    body = Cube(size)\n"
+                "    body.move(x=10)\n"
+                "Cuboid()\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(generated["commands"][1]["params"]["center"], [10, 0, 0])
+
+    def test_assignment_only_function_must_still_explicitly_return(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "def Cuboid(size=50):\n"
+                "    body = Cube(size)\n"
+                "Cuboid()\n"
+            )
+            with self.assertRaises(TypeError):
+                run_script(file)
+
     def test_script_requires_final_model_expression(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
