@@ -118,7 +118,7 @@ def _anchored_features(shape):
         previous, boss = target.data
         if boss.kind == "anchored":
             boss_feature, boss_parent, boss_anchor, boss_child, boss_offset = boss.data
-            if (boss_feature.kind == "cylinder3d" and boss_parent == previous
+            if (boss_feature.kind == "cylinder" and boss_parent == previous
                     and boss_anchor is Anchor.TOP and boss_child is Anchor.BOTTOM
                     and all(value_of(v) == 0 for v in boss_offset)):
                 boss_height, boss_diameter = boss_feature.data
@@ -140,15 +140,15 @@ def _anchored_features(shape):
                   for n in range(count)]
     else:
         feature, shifts = child, [(0, None)]
-    if feature.kind not in ("cylinder3d", "hole"):
+    if feature.kind not in ("cylinder", "hole"):
         raise ValueError("anchoring currently supports Cylinder and Hole")
     if feature.kind == "hole":
         if parent_anchor not in (Anchor.TOP, Anchor.BOTTOM):
             raise ValueError("Hole must be placed on a planar exterior face")
         if child_anchor is not Anchor.BOTTOM:
             raise ValueError("Hole uses its entry point, not a volume center")
-    height = feature.data[0] if feature.kind == "cylinder3d" else None
-    if feature.kind == "cylinder3d":
+    height = feature.data[0] if feature.kind == "cylinder" else None
+    if feature.kind == "cylinder":
         if child_anchor is Anchor.BOTTOM:
             base_z = face_z
         elif child_anchor is Anchor.CENTER:
@@ -269,7 +269,7 @@ def _to_commands(shape, body_name):
                     # its native SolidCraft construction is a circle sketch
                     # plus an extrusion. Leave linear patterns on the existing
                     # direct-cylinder path until sketch pattern support exists.
-                    if child.kind == "cylinder3d":
+                    if child.kind == "cylinder":
                         from .core import Anchor
                         (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
                         if shape.kind == "union" and child_anchor is Anchor.BOTTOM:
@@ -314,12 +314,12 @@ def _to_commands(shape, body_name):
                         steps.append(_command("solid.cylinder", **params))
             return steps, base
         # A native 3D cylinder does not require a 2D sketch or extrusion.
-        if cutter.kind in ("cylinder3d", "placed3d"):
+        if cutter.kind in ("cylinder", "placed3d"):
             if cutter.kind == "placed3d":
                 primitive, x, y, z = cutter.data
             else:
                 primitive, x, y, z = cutter, 0, 0, 0
-            if primitive.kind != "cylinder3d":
+            if primitive.kind != "cylinder":
                 raise ModelError("Only cylinders can join/cut this feature chain")
             height, diameter = primitive.data
             _require_positive(height, "cylinder height")
