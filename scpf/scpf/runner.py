@@ -131,7 +131,7 @@ def _design_object(cls, *args, **kwargs):
     result, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
-            f"{cls.__name__}.build() must finish with CAD geometry or an assembly"
+            f"{cls.__name__}.build() must finish with a Shape or assembly"
         )
     return result
 
