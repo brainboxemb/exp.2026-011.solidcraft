@@ -1,31 +1,36 @@
 @dataclass
 class SamplePlate:
-    """Reconstruct the nominal geometry of a saved SolidCraft design."""
+    """Reproduce the four editable sketches in the original SolidCraft sample."""
 
     width: float = 80
     depth: float = 50
     thickness: float = 8
 
     def build(self):
-        # An XY sketch becomes a solid base.
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges=Edges.VERTICAL)
 
-        # Hole is a native SolidCraft feature; + adds the feature to the model.
-        # Two holes at (12, 25) and (68, 25), centered on the plate.
-        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
-            count=2, spacing=self.width - 24, axis=Axis.X
-        ).on(plate, Anchor.TOP)
-        plate = plate + holes
+        # Original source history uses a HoleS SKETCH and one extruded cut.
+        holes = (
+            Circle2D(d=8).at(12, self.depth / 2)
+            + Circle2D(d=8).at(self.width - 12, self.depth / 2)
+        )
+        plate = plate.cut(holes.extrude(self.thickness), name="Holes")
 
-        # Object-level attachment; adapter builds native Boss sketch + join.
-        boss = Cylinder(d=24, h=14).attach(
-            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
-        plate = plate + boss
+        # Original source history uses a BOSS SKETCH and joined extrusion.
+        boss = Circle2D(d=24).at(
+            self.width / 2, self.depth / 2, self.thickness
+        )
+        plate = plate.add(boss.extrude(14), name="Boss")
 
-        # A native through-hole is placed on the joined boss's top face.
-        bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(plate, Anchor.TOP)
-        plate + bore
+        # Original source history uses a BORE SKETCH and downward cut.
+        bore = Circle2D(d=12).at(
+            self.width / 2, self.depth / 2, self.thickness + 14
+        )
+        plate.cut(
+            bore.extrude(self.thickness + 14, direction=Direction.NEGATIVE),
+            name="Bore",
+        )
 
 
 SamplePlate()

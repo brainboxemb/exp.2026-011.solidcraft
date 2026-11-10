@@ -86,66 +86,44 @@
       }
     },
     {
-      "command": "solid.hole",
+      "command": "sketch.create",
       "params": {
-        "position": [
-          12.0,
-          25.0,
-          8.0
-        ],
-        "diameter": 8,
-        "targets": [
-          "SamplePlate"
-        ],
-        "references": [
-          {
-            "edge": [
-              0.0,
-              25.0,
-              8
-            ],
-            "distance": "(width / 2) + ((width - 24 mm) * -0.5)"
-          },
-          {
-            "edge": [
-              40.0,
-              0.0,
-              8
-            ],
-            "distance": "(depth / 2)"
-          }
-        ]
+        "plane": "XY",
+        "name": "Holes"
       }
     },
     {
-      "command": "solid.hole",
+      "command": "sketch.circle.center",
       "params": {
-        "position": [
-          68.0,
-          25.0,
-          8.0
+        "center": [
+          12.0,
+          25.0
         ],
-        "diameter": 8,
+        "diameter": 8
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          68,
+          25.0
+        ],
+        "diameter": 8
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "thickness",
+        "direction": "positive",
+        "operation": "cut",
         "targets": [
           "SamplePlate"
-        ],
-        "references": [
-          {
-            "edge": [
-              0.0,
-              25.0,
-              8
-            ],
-            "distance": "(width / 2) + ((width - 24 mm) * 0.5)"
-          },
-          {
-            "edge": [
-              40.0,
-              0.0,
-              8
-            ],
-            "distance": "(depth / 2)"
-          }
         ]
       }
     },
@@ -183,14 +161,33 @@
       }
     },
     {
-      "command": "solid.hole",
+      "command": "sketch.create",
       "params": {
-        "position": [
+        "plane": "XY",
+        "name": "Bore",
+        "offset": "thickness + 14 mm"
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
           40.0,
-          25.0,
-          22.0
+          25.0
         ],
-        "diameter": 12,
+        "diameter": 12
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "thickness + 14 mm",
+        "direction": "negative",
+        "operation": "cut",
         "targets": [
           "SamplePlate"
         ]
