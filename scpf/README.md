@@ -38,7 +38,7 @@ The four hole centres are (±35, ±15) mm; the pattern values specify
 native SolidCraft sketch plus a subtractive extrusion, not a mesh.
 
 No `import`, `self`, `main()`, `show()`, `Result`, `?`,
-`#[cad]` or `#[parameter]` is required in model files.
+`#[cad]` or `#[parameter]` is required in model files. A SCPF model function may finish with a bare Shape expression instead of Python's `return` (the runner rewrites the final expression to an implicit return). This is an SCPF convention, not standard Python semantics.
 
 ## Positioning
 
