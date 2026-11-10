@@ -5,11 +5,12 @@ from .core import (
     Shape, Parameter, Direction, Edges, Faces, Anchor, Axis, X, Y, Z,
 )
 from .compiler import compile_model, ModelError
+from .history import History, behavior
 from .runner import run_script
 
 __all__ = [
     "Box", "Cylinder", "Sphere", "Hole", "Lip", "SnapFit", "Boss", "Rest",
     "Depth", "Rectangle2D", "Circle2D", "Polygon2D", "Shape", "Parameter",
     "Direction", "Edges", "Faces", "Anchor", "Axis", "X", "Y", "Z",
-    "compile_model", "run_script", "ModelError",
+    "History", "behavior", "compile_model", "run_script", "ModelError",
 ]
