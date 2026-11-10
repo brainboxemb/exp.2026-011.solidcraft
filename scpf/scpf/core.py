@@ -107,10 +107,30 @@ class Shape:
             raise ValueError("move() currently supports only CSG shapes")
         return Shape("translated", (self, offsets))
 
+    def extrude(self, distance, *, direction="positive"):
+        if self.kind != "polygon":
+            raise ValueError("extrude() currently requires a Polygon")
+        if direction not in ("positive", "negative"):
+            raise ValueError("extrude direction must be positive or negative")
+        return Shape("extrusion", (self, distance, direction))
+
     def fillet(self, radius, *, edges="vertical"):
         if edges != "vertical":
-            raise ValueError("SCPF PoP supports only vertical outer box edges")
+            if not isinstance(edges, (list, tuple)) or not edges:
+                raise ValueError("fillet edges must be 'vertical' or 3D edge points")
+            for point in edges:
+                if len(point) != 3:
+                    raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
+
+    def holes(self, centers, *, diameter, depth, plane="XY", direction="positive"):
+        """Cut circles drawn in an XY sketch through an extruded profile."""
+        if plane != "XY" or direction not in ("positive", "negative"):
+            raise ValueError("the current holes() compiler supports XY and a signed direction")
+        positions = tuple(tuple(p) for p in centers)
+        if not positions or any(len(p) != 2 for p in positions):
+            raise ValueError("holes require at least one (x, y) centre")
+        return Shape("holes", (self, positions, diameter, depth, plane, direction))
 
     def pattern(self, *, x, y):
         if self.kind != "cylinder":
@@ -131,6 +151,16 @@ def _shape(value):
     if not isinstance(value, Shape):
         raise TypeError("boolean operations require a Shape")
     return value
+
+
+def Polygon(points, *, plane="XY"):
+    """Create a closed planar profile, extrudable by SolidCraft."""
+    coordinates = tuple(tuple(p) for p in points)
+    if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
+        raise ValueError("Polygon needs at least three (u, v) points")
+    if plane not in ("XY", "XZ", "YZ"):
+        raise ValueError("unsupported sketch plane")
+    return Shape("polygon", (coordinates, plane))
 
 
 def Box(length, width, thickness):
