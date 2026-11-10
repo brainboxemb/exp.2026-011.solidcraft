@@ -543,6 +543,64 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
+    def test_plastic_enclosure_pi_video_feature_sequence(self):
+        commands = run_script(
+            ROOT / "examples/plastic-enclosure-pi/scpf/model.py"
+        )["commands"]
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "parameters.add"],
+            ["board_w", "board_d", "height", "wall"],
+        )
+        features = [c for c in commands if c["command"] != "parameters.add"]
+        self.assertEqual(
+            [c["command"] for c in features],
+            ["sketch.create", "sketch.rectangle.two_point", "sketch.finish",
+             "solid.extrude", "solid.fillet", "solid.shell", "solid.fillet",
+             "plastic.boss", "plastic.boss", "plastic.boss", "plastic.boss",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
+        )
+        self.assertIn("board_w", str(features[1]["params"]["p0"][0]))
+        self.assertIn("board_d", str(features[1]["params"]["p1"][1]))
+        self.assertEqual(features[4]["params"]["radius"], 5.0)
+        self.assertEqual(features[6]["params"]["radius"], 1.0)
+        bosses = [c["params"] for c in features if c["command"] == "plastic.boss"]
+        self.assertEqual(
+            [p["position"] for p in bosses],
+            [[-39, -24.5, 2], [19, -24.5, 2],
+             [-39, 24.5, 2], [19, 24.5, 2]],
+        )
+        self.assertTrue(all(p["hole_diameter"] == 2.5 for p in bosses))
+        self.assertEqual(
+            [c["params"]["name"] for c in features
+             if c["command"] == "sketch.create"],
+            ["PlasticEnclosurePi footprint", "Pi ports",
+             "USB and Ethernet", "Floor vents", "Pi 4 engraving"],
+        )
+        cuts = [c for c in features if c["command"] == "solid.extrude"
+                and c["params"].get("operation") == "cut"]
+        self.assertEqual(len(cuts), 4)
+        self.assertEqual([c["params"]["direction"] for c in cuts],
+                         ["negative", "negative", "negative", "negative"])
+        self.assertEqual(
+            [c["command"] for c in features[-6:]],
+            ["sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
+        )
+        self.assertEqual(features[-5]["params"]["text"], "Pi 4")
+        self.assertEqual(features[-2]["params"]["density_g_cm3"], 1.27)
+        self.assertEqual(features[-1]["params"]["material"], "PETG")
+
     def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
             ROOT / "examples/history-policy/scpf/model.py"
