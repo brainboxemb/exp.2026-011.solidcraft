@@ -218,8 +218,8 @@ def _to_commands(shape, body_name):
                 raise ModelError("attached feature target must be the current body")
             for feature, position, refs in features:
                 if feature.kind == "hole":
-                    if shape.kind != "difference":
-                        raise ModelError("Hole can only remove material; use parent - hole")
+                    # A Hole is added as a CAD feature, not positive material.
+                    # Keep legacy subtraction syntax valid for old scripts.
                     diameter, depth = feature.data
                     _require_positive(diameter, "hole diameter")
                     params = dict(
