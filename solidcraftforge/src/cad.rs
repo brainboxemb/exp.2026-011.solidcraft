@@ -44,7 +44,7 @@ impl Length {
     pub fn to_mm(self) -> f64 { self.0 }
 }
 
-/// Concise script-facing millimetre constructor: `mm(2)` instead of `2.mm()`.
+/// Concise script-facing millimetre constructor: `mm(2.0)` instead of `2.mm()`.
 pub fn mm(value: f64) -> Length { Length::mm(value) }
 
 /// A named CAD length parameter with an initial value.
@@ -459,10 +459,10 @@ mod tests {
 
     #[test]
     fn rectangular_hole_pattern_uses_local_symmetric_positions() {
-        let part = Part::box3d(mm(100), mm(60), mm(10)).unwrap()
+        let part = Part::box3d(mm(100.0), mm(60.0), mm(10.0)).unwrap()
             .faces(Faces::Top).workplane()
-            .rectangular_pattern(mm(70), mm(30)).unwrap()
-            .holes(mm(8)).unwrap()
+            .rectangular_pattern(mm(70.0), mm(30.0)).unwrap()
+            .holes(mm(8.0)).unwrap()
             .cut_through().unwrap();
         assert!(matches!(
             &part.features[0],
@@ -470,9 +470,9 @@ mod tests {
                 if holes.iter().map(|h| (h.x, h.y)).collect::<Vec<_>>()
                     == vec![(-35.0, -15.0), (35.0, -15.0), (35.0, 15.0), (-35.0, 15.0)]
         ));
-        assert!(Part::box3d(mm(100), mm(60), mm(10)).unwrap()
+        assert!(Part::box3d(mm(100.0), mm(60.0), mm(10.0)).unwrap()
             .faces(Faces::Top).workplane()
-            .rectangular_pattern(mm(0), mm(30)).is_err());
+            .rectangular_pattern(mm(0.0), mm(30.0)).is_err());
     }
 
     #[test]
