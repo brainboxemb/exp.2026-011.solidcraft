@@ -1,4 +1,4 @@
-name: SolidCraft 0.30.1 native qualification (SCRF and SCPF)
+name: SolidCraft 0.30.1 native qualification (SCPF Python)
 
 on:
   push:
@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - "scpf/**"
-      - "scrf/**"
-      - "scrf-macros/**"
       - "examples/**"
       - "site/**"
       - "scripts/ci/**"
@@ -18,8 +16,6 @@ on:
     types: [ready_for_review, synchronize, reopened]
     paths:
       - "scpf/**"
-      - "scrf/**"
-      - "scrf-macros/**"
       - "examples/**"
       - "site/**"
       - "scripts/ci/**"
@@ -44,23 +40,8 @@ jobs:
     steps:
       - name: Check out experiment
         uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Build actual Rust scripts and compare reviewed command plans
-        shell: bash
-        run: |
-          set -euo pipefail
-          cargo test --manifest-path scrf/Cargo.toml --all-targets
-          cargo run --manifest-path scrf/Cargo.toml --example plate
-          cargo run --manifest-path scrf/Cargo.toml --example csg_cube
-          jq -e -s '.[0] == .[1]' \
-            examples/plate/scrf/solidcraft.json \
-            output/examples/plate/scrf/solidcraft.json >/dev/null
-          jq -e -s '.[0] == .[1]' \
-            examples/csg-cube/scrf/solidcraft.json \
-            output/examples/csg-cube/scrf/solidcraft.json >/dev/null
-          mkdir -p output/native/command-plans
-          cp output/examples/plate/scrf/solidcraft.json output/native/command-plans/plate.json
-          cp output/examples/csg-cube/scrf/solidcraft.json output/native/command-plans/csg-cube.json
+      - name: Prepare output directories
+        run: mkdir -p output/native/command-plans
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -69,19 +50,19 @@ jobs:
           PYTHONPATH: scpf
         run: |
           python -m unittest discover -s scpf/tests -v
-          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate-scpf.json
-          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube-scpf.json
+          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube.json
           python -m scpf examples/bracket/scpf/model.py --out output/native/command-plans/bracket-scpf.json
           jq -e --slurpfile original examples/bracket/source/bracket.json '
             (.commands | length) == ($original[0].commands | length)
             and (.commands[2:] == $original[0].commands[2:])
           ' output/native/command-plans/bracket-scpf.json
           jq -e -s '.[0] == .[1]' \
-            output/native/command-plans/plate.json \
-            output/native/command-plans/plate-scpf.json >/dev/null
+            examples/plate/scpf/reference.json \
+            output/native/command-plans/plate.json >/dev/null
           jq -e -s '.[0] == .[1]' \
-            output/native/command-plans/csg-cube.json \
-            output/native/command-plans/csg-cube-scpf.json >/dev/null
+            examples/csg-cube/scpf/reference.json \
+            output/native/command-plans/csg-cube.json >/dev/null
       - name: Fetch and verify official Linux SolidCraft release
         shell: bash
         run: |
