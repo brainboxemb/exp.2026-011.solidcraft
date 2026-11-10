@@ -13,6 +13,7 @@ import unittest
 from unittest.mock import patch
 
 from scpf.live import LiveError, send_commands
+from scpf.__main__ import read_command_file, main
 from scpf.runner import run_script
 
 
@@ -86,6 +87,34 @@ class LiveProtocolTests(unittest.TestCase):
         send_commands(commands, connect=f"127.0.0.1:{server.port}", directory=self.directory)
         server.join()
         self.assertEqual(server.request["params"]["commands"][0]["command"], "parameters.add")
+
+    def test_replay_existing_json_unchanged_to_live_gui(self):
+        commands_file = ROOT / "examples/bracket/source/bracket.json"
+        original = json.loads(commands_file.read_text(encoding="utf-8"))
+        self.assertEqual(read_command_file(commands_file), original)
+        server = FakeSolidCraft({
+            "id": 1, "ok": True,
+            "result": {"completed": len(original["commands"]), "results": []},
+        })
+        self.configure(server)
+        with patch.dict(os.environ, {"SOLIDCRAFT_CONTROL_DIR": str(self.directory)}):
+            self.assertEqual(main(["replay", str(commands_file)]), 0)
+        server.join()
+        self.assertEqual(server.request["params"]["commands"], original["commands"])
+        self.assertEqual(server.request["params"]["commands"][0]["command"],
+                         "parameters.change")
+
+    def test_replay_rejects_invalid_command_document(self):
+        invalid = self.directory / "invalid.json"
+        invalid.write_text('{"not_commands":[]}', encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "commands"):
+            read_command_file(invalid)
+
+    def test_replay_rejects_out_option(self):
+        with self.assertRaises(SystemExit) as error:
+            main(["replay", str(ROOT / "examples/bracket/source/bracket.json"),
+                  "--out", "copied.json"])
+        self.assertEqual(error.exception.code, 2)
 
     def test_live_rollback_failure_is_reported(self):
         commands = [{"command": "solid.box", "params": {}}]
