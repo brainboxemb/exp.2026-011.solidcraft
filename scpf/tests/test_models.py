@@ -91,6 +91,11 @@ class SCPFExamples(unittest.TestCase):
             ["cut", "join", "cut"],
         )
         self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "solid.extrude" and "operation" in c["params"]],
+            ["Holes", "Boss", "Bore"],
+        )
+        self.assertEqual(
             [c["params"]["center"] for c in commands
              if c["command"] == "sketch.circle.center"],
             [[12, 25], [68, 25], [40, 25], [40, 25]],
