@@ -51,6 +51,24 @@ MODELS = {
         "stages": ["Draw the L profile", "Extrude its width",
                    "Round an exposed edge", "Sketch mounting holes", "Cut through the flange"],
     },
+    "plastic-enclosure-pi": {
+        "title": "Plastic Enclosure Pi",
+        "tagline": "Raspberry Pi 4 case with connectors, vents and engraving",
+        "description": "Reconstructs the Raspberry Pi 4 video using a rounded open-top shell, mounting bosses, connector cuts, floor vents, Pi 4 lettering and PETG material.",
+        "parameters": "95 × 66 × 24 mm; R5; PETG; 4 × M2.5 standoffs",
+        "diagram": "plastic-enclosure",
+        "stages": ["Outline — centered 95 × 66 mm footprint",
+                   "Extrude — height 24 mm",
+                   "Fillet — four vertical corners R5",
+                   "Shell — open top, 2 mm wall",
+                   "Fillet upper rim — R1",
+                   "Four mounting bosses — Ø6 / Ø2.5, 58 × 49 pattern",
+                   "Sketch and cut USB-C and dual micro-HDMI ports",
+                   "Sketch and cut USB / Ethernet opening",
+                   "Sketch and cut five floor ventilation slots",
+                   "Engrave Pi 4 text, 0.6 mm",
+                   "Assign PETG physical material"],
+    },
     "plastic-enclosure": {
         "title": "Plastic Enclosure",
         "tagline": "A shelled enclosure with native plastic design features",
@@ -94,7 +112,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -228,7 +246,7 @@ Native qualification is reported only when the matching verified image exists.</
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
     home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore five small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
+<p>Explore six small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
