@@ -61,16 +61,16 @@ class _BoundOffset:
     delta: float = 0
 
     def __add__(self, value):
-        if not isinstance(value, (int, float)) or isinstance(value, bool):
+        if isinstance(value, bool):
             return NotImplemented
-        return _BoundOffset(self.reference, self.delta + value)
+        return _BoundOffset(self.reference, value if self.delta == 0 else self.delta + value)
 
     __radd__ = __add__
 
     def __sub__(self, value):
-        if not isinstance(value, (int, float)) or isinstance(value, bool):
+        if isinstance(value, bool):
             return NotImplemented
-        return _BoundOffset(self.reference, self.delta - value)
+        return _BoundOffset(self.reference, -value if self.delta == 0 else self.delta - value)
 
 
 class Bounds:
@@ -184,6 +184,9 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
             found.setdefault(value.name, value)
         elif isinstance(value, Expression):
             for param in value.parameters:
+                found.setdefault(param.name, param)
+        elif isinstance(value, _BoundOffset):
+            for param in parameters_in(value.delta):
                 found.setdefault(param.name, param)
     return tuple(found.values())
 
@@ -309,7 +312,7 @@ class Shape:
             raise ValueError("offset must be a pair (x, y)")
         for value in offset:
             if isinstance(value, _BoundOffset):
-                if not isfinite(value.delta):
+                if not isfinite(value_of(value.delta)):
                     raise ValueError("bound offset must be finite")
             else:
                 value_of(value)
