@@ -1,0 +1,187 @@
+{
+  "format": "solidcraft/48",
+  "name": "Plastic Enclosure",
+  "units": "mm",
+  "params": [],
+  "features": [
+    {
+      "id": 1,
+      "name": "Box1",
+      "suppressed": false,
+      "body_names": [
+        "Enclosure"
+      ],
+      "param_names": [
+        "d1",
+        "d2",
+        "d3"
+      ],
+      "type": "box",
+      "corner": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "length": "80",
+      "width": "50",
+      "height": "30",
+      "operation": "new_body"
+    },
+    {
+      "id": 2,
+      "name": "Shell1",
+      "suppressed": false,
+      "param_names": [
+        "d4"
+      ],
+      "face_names": [
+        "F1:+z"
+      ],
+      "type": "shell",
+      "faces": [
+        [
+          40.0,
+          25.0,
+          30.0
+        ]
+      ],
+      "thickness": "2"
+    },
+    {
+      "id": 3,
+      "name": "Lip1",
+      "suppressed": false,
+      "param_names": [
+        "d5",
+        "d6"
+      ],
+      "type": "lip",
+      "face": [
+        1.0,
+        25.0,
+        30.0
+      ],
+      "width": "1 mm",
+      "height": "2 mm"
+    },
+    {
+      "id": 4,
+      "name": "SnapFit1",
+      "suppressed": false,
+      "param_names": [
+        "d7",
+        "d8",
+        "d9",
+        "d10",
+        "d11"
+      ],
+      "face_names": [
+        "F2:inner:F1:-z"
+      ],
+      "type": "snap_fit",
+      "position": [
+        40.0,
+        44.0,
+        2.0
+      ],
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "hook": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "length": "14 mm",
+      "thickness": "1.5 mm",
+      "width": "6 mm",
+      "catch_depth": "1 mm",
+      "catch_length": "2 mm"
+    },
+    {
+      "id": 5,
+      "name": "Boss1",
+      "suppressed": false,
+      "param_names": [
+        "d12",
+        "d13",
+        "d14"
+      ],
+      "face_names": [
+        "F2:inner:F1:-z"
+      ],
+      "type": "boss",
+      "position": [
+        10.0,
+        10.0,
+        2.0
+      ],
+      "direction": [
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "diameter": "7 mm",
+      "height": "12 mm",
+      "hole_diameter": "2.5 mm"
+    },
+    {
+      "id": 6,
+      "name": "Boss2",
+      "suppressed": false,
+      "param_names": [
+        "d15",
+        "d16",
+        "d17"
+      ],
+      "face_names": [
+        "F2:inner:F1:-z"
+      ],
+      "type": "boss",
+      "position": [
+        70.0,
+        40.0,
+        2.0
+      ],
+      "direction": [
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "diameter": "7 mm",
+      "height": "12 mm",
+      "hole_diameter": "2.5 mm"
+    },
+    {
+      "id": 7,
+      "name": "Rest1",
+      "suppressed": false,
+      "param_names": [
+        "d18",
+        "d19",
+        "d20"
+      ],
+      "face_names": [
+        "F2:inner:F1:-z"
+      ],
+      "type": "rest",
+      "position": [
+        40.0,
+        25.0,
+        2.0
+      ],
+      "direction": [
+        0.0,
+        -0.0,
+        1.0
+      ],
+      "width": "16 mm",
+      "length": "24 mm",
+      "height": "3 mm"
+    }
+  ],
+  "next_id": 8,
+  "next_component_color_index": 0
+}

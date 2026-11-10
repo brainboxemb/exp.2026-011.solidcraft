@@ -3,10 +3,10 @@
 Anchor resolution is shared by Box and extruded Rectangle2D models.
 It is not a geometry engine: SolidCraft owns actual face identity.
 """
-from .core import Shape, value_of, command_value
+from .core import Shape, _BoundOffset, value_of, command_value
 
 def _is_centered_box(shape):
-    while shape.kind in ("fillet", "union", "difference"):
+    while shape.kind in ("fillet", "shell", "union", "difference"):
         shape = shape.data[0]
     return shape.kind == "box"
 
@@ -33,11 +33,20 @@ def _base_rectangle(shape):
         if old_height is not None or direction != "positive":
             raise ValueError("anchoring requires one positive XY base extrusion")
         return dimensions, origin, height
-    if shape.kind == "fillet":
+    if shape.kind in ("fillet", "shell"):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])
     raise ValueError("anchor target must be a supported extruded Rectangle2D")
+
+
+def _shell_thickness(shape):
+    """Return the active shell wall thickness in a supported feature chain."""
+    if shape.kind == "shell":
+        return shape.data[1]
+    if shape.kind in ("fillet", "union", "difference"):
+        return _shell_thickness(shape.data[0])
+    return None
 
 
 def _combine(*terms):
@@ -60,6 +69,21 @@ def _combine(*terms):
     if literal:
         expression += f" + ({number_text(literal)} mm)"
     return Expression(numeric, expression, used)
+
+
+def _bound_offset(value, size, axis):
+    """Resolve X/Y MIN/CENTER/MAX to an offset from the parent axis centre."""
+    if not isinstance(value, _BoundOffset):
+        return value
+    if value.axis != axis:
+        raise ValueError(f"{axis} offset cannot use {value.axis} bounds")
+    if value.reference == "min":
+        return _combine(-(size / 2), value.delta)
+    if value.reference == "center":
+        return value.delta
+    if value.reference == "max":
+        return _combine(size / 2, value.delta)
+    raise ValueError(f"unknown bound reference {value.reference!r}")
 
 
 def _anchored_features(shape):
@@ -103,6 +127,11 @@ def _anchored_features(shape):
         face_z = _combine(thickness, boss_height) if on_boss else thickness
     elif parent_anchor is Anchor.BOTTOM:
         face_z = z
+    elif parent_anchor is Anchor.INNER_BOTTOM:
+        wall = _shell_thickness(target)
+        if wall is None:
+            raise ValueError("Anchor.INNER_BOTTOM requires a shelled body")
+        face_z = _combine(z, wall)
     else:
         face_z = _combine(z, thickness / 2)
     if child.kind == "linear_pattern":
@@ -111,14 +140,22 @@ def _anchored_features(shape):
                   for n in range(count)]
     else:
         feature, shifts = child, [(0, None)]
-    if feature.kind not in ("cylinder", "hole"):
-        raise ValueError("anchoring currently supports Cylinder and Hole")
+    if feature.kind not in (
+            "cylinder", "hole", "lip", "snap_fit", "boss", "rest"):
+        raise ValueError("unsupported anchored feature")
     if feature.kind == "hole":
         if parent_anchor not in (Anchor.TOP, Anchor.BOTTOM):
             raise ValueError("Hole must be placed on a planar exterior face")
         if child_anchor is not Anchor.BOTTOM:
             raise ValueError("Hole uses its entry point, not a volume center")
-    height = feature.data[0] if feature.kind == "cylinder" else None
+    if feature.kind in ("lip", "snap_fit", "boss", "rest"):
+        if child_anchor is not Anchor.BOTTOM:
+            raise ValueError("plastic features use their supporting point as Anchor.BOTTOM")
+        if parent_anchor not in (Anchor.TOP, Anchor.BOTTOM, Anchor.INNER_BOTTOM):
+            raise ValueError("plastic features require a supported planar anchor")
+        height = None
+    else:
+        height = feature.data[0] if feature.kind == "cylinder" else None
     if feature.kind == "cylinder":
         if child_anchor is Anchor.BOTTOM:
             base_z = face_z
@@ -129,26 +166,28 @@ def _anchored_features(shape):
     else:
         base_z = face_z
     result = []
+    offset_x = _bound_offset(offset[0], width, "X")
+    offset_y = _bound_offset(offset[1], depth, "Y")
     for shift, axis in shifts:
         dx, dy = ((shift, 0) if axis is Axis.X else
                   ((0, shift) if axis is Axis.Y else (0, 0)))
-        xx = _combine(x, width / 2, offset[0], dx)
-        yy = _combine(y, depth / 2, offset[1], dy)
+        xx = _combine(x, width / 2, offset_x, dx)
+        yy = _combine(y, depth / 2, offset_y, dy)
         # The edge samples are intentionally strictly within straight segments
         # on filleted rectangular faces (midpoints, not rounded corners).
         if not on_boss and parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
             refs = [
                 {"edge": [value_of(x), value_of(y) + value_of(depth)/2, value_of(face_z)],
-                 "distance": command_value(_combine(width / 2, offset[0], dx))},
+                 "distance": command_value(_combine(width / 2, offset_x, dx))},
                 {"edge": [value_of(x) + value_of(width)/2, value_of(y), value_of(face_z)],
-                 "distance": command_value(_combine(depth / 2, offset[1], dy))}
+                 "distance": command_value(_combine(depth / 2, offset_y, dy))}
             ]
         else:
             refs = None
         # Native solid.hole uses a numeric authoring pick. For holes on the
         # joined circular boss no stable straight-edge references exist yet.
         # Do not pass unevaluated expressions as its position coordinates.
-        if feature.kind == "hole" or refs:
+        if feature.kind in ("hole", "lip", "snap_fit", "boss", "rest") or refs:
             position = [value_of(xx), value_of(yy), value_of(base_z)]
         else:
             position = [command_value(xx), command_value(yy), command_value(base_z)]

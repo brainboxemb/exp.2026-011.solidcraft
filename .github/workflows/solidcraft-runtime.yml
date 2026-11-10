@@ -333,6 +333,47 @@ jobs:
             --no-grid --no-axes
           test -s output/native/sample-plate/model.png
           cat output/native/sample-plate/measurements.json
+      - name: Qualify reconstructed Plastic Enclosure in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/plastic-enclosure
+          python -m scpf examples/plastic-enclosure/scpf/model.py \
+            --out output/native/command-plans/plastic-enclosure.json
+          solidcraft-cli run output/native/command-plans/plastic-enclosure.json \
+            --param-check strict --results \
+            --json-out output/native/plastic-enclosure/results.json \
+            --save output/native/plastic-enclosure/model.sc \
+            --out output/native/plastic-enclosure/model.step
+          solidcraft-cli eval output/native/plastic-enclosure/model.sc \
+            --json-out output/native/plastic-enclosure/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "Enclosure"
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.min == [-40, -25, 0]
+            and .bodies[0].bbox.max == [40, 25, 32]
+            and (.sketches | length) == 1
+            and (.timeline | all(.error == null))
+          ' output/native/plastic-enclosure/measurements.json
+          test -s output/native/plastic-enclosure/model.sc
+          test -s output/native/plastic-enclosure/model.step
+          unzip -p output/native/plastic-enclosure/model.sc document.json \
+            > output/native/plastic-enclosure/document.json
+          jq -e '
+            [.features[].type] ==
+              ["sketch", "extrude", "shell", "lip", "snap_fit", "boss", "boss", "rest"]
+            and [.features[].name] ==
+              ["Enclosure footprint", "Extrude1", "Shell1", "Lip1",
+               "SnapFit1", "Boss1", "Boss2", "Rest1"]
+          ' output/native/plastic-enclosure/document.json
+          solidcraft-cli snapshot output/native/plastic-enclosure/model.sc \
+            --out output/native/plastic-enclosure/model.png \
+            --no-grid --no-axes
+          test -s output/native/plastic-enclosure/model.png
+          cat output/native/plastic-enclosure/measurements.json
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
@@ -371,7 +412,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube bracket sample-plate; do
+          for model in plate csg-cube bracket sample-plate plastic-enclosure; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
           done

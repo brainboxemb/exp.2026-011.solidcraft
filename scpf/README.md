@@ -11,40 +11,36 @@ native SolidCraft feature history when possible.
 
 ## Model objects
 
-The preferred SCPF style is a reusable Python dataclass. Numeric fields
-are CAD parameters, and `build()` constructs the model. The last Shape
+The preferred SCPF style is a plain Python class. Numeric class fields are
+CAD parameters, and `build()` constructs the model. The last Shape
 expression in `build()` is the result: no `return`, `show()` or `main()`.
 
 ```python
-@dataclass
 class Plate:
-    length: float = 100
-    width: float = 60
-    thickness: float = 10
+    length = 100.0
+    width = 60.0
+    thickness = 10.0
 
     def build(self):
         body = Box(self.length, self.width, self.thickness)
         body = body.fillet(2, edges=Edges.VERTICAL)
-        for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
-            body = body + Hole(
-                d=8, depth=Depth.THROUGH_ALL
-            ).at(x, y, self.thickness)
         body
 
 Plate()
 ```
 
-SCPF makes `dataclass` available without an import. It constructs the
-Python object normally (including `__post_init__` validation), promotes
-numeric model fields to SolidCraft parameters, and calls `build()`.
-`@dataclass(frozen=True)` is also supported. The last-expression behavior
-is an SCPF convention, not normal Python behavior.
+SCPF promotes those numeric class fields to SolidCraft parameters and also
+allows overrides such as `Plate(width=80.0)` without requiring a handwritten
+`__init__`. Existing `@dataclass` models remain supported, including
+`@dataclass(frozen=True)` and `__post_init__` validation. The
+last-expression behavior is an SCPF convention, not normal Python behavior.
 
-Four CAD examples:
+Five CAD examples:
 - [Plate](../examples/plate/scpf/model.py): rounded box with holes.
 - [CsgCube](../examples/csg-cube/scpf/model.py): intersect and cut solids.
 - [Bracket](../examples/bracket/scpf/model.py): polygon extrusion, fillet and native Hole features.
 - [Sample Plate](../examples/sample-plate/scpf/model.py): boss, bore, and mounting holes.
+- [Plastic Enclosure](../examples/plastic-enclosure/scpf/model.py): shell, lip, snap fit, screw bosses and rest.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
@@ -67,13 +63,15 @@ feature-based Plate bodies is deliberately rejected.
 
 ## Parameters
 
-The runner reads the final model class constructor signature using
-`inspect.signature`. Numerical fields become named CAD parameters,
-including arguments explicitly overridden by the final call:
+For a plain model class, numeric class fields become named CAD parameters in
+declaration order. The final model call may override them by name or position:
 
 ```python
-Plate(120, 80, 12)
+Plate(width=80.0)
+Plate(120.0, 80.0, 12.0)
 ```
+
+Dataclass models continue to use their normal constructor signature.
 
 SCPF preserves symbolic expressions such as `size / 1.5` in emitted JSON.
 For the supported box, parameters `length`, `width` and `thickness`
@@ -174,7 +172,7 @@ positive Z; this has been corrected following a real GUI error.
 The CAD results website is built by
 `scripts/ci/build-results.py` and published from GitHub Actions to
 GitHub Pages, with a PR-specific preview. It contains separate pages
-for Plate, CsgCube and Bracket, code, command JSON, construction
+for all SCPF examples, with code, command JSON, construction
 stages and schematic illustrations. Native CAD screenshots are only
 included if their verification metadata matches the exact source
 commit; unverified previews are explicitly labelled.
@@ -197,12 +195,14 @@ function is selected by the model's name.
 
 ## Current limits
 
-- Supported 3D objects: `Box`, `Cylinder`, `Sphere`; there is no `Cube`
-  constructor or `Cylinder3D` alias.
+- Supported 3D objects include `Box`, `Cylinder`, `Sphere`, plus the
+  native plastic building blocks `Lip`, `SnapFit`, `Boss` and `Rest`;
+  there is no `Cube` constructor or `Cylinder3D` alias.
 - Supported profiles: `Rectangle2D`, `Circle2D`, `Polygon2D`, extruded
   implicitly through native SolidCraft sketches.
-- Native CAD features: `Hole` (blind or through-all), `.fillet()` and
-  positive/negative extrusion. Hole patterns expand to individual Hole features.
+- Native CAD modifiers include `Hole` (blind or through-all), `.fillet()`,
+  `.shell()` and positive/negative extrusion. Plastic objects compile to
+  SolidCraft's native `plastic.*` features.
 - `+`, `-` and `&` describe Boolean operations where supported;
   `+` on a Hole means adding the *feature* (which removes material).
 - CSG translation supports intersection, union, difference and oriented cylinders.
@@ -245,13 +245,17 @@ and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
 Hole patterns use native `solid.hole` features.
 The old positional constructor and 3D-suffixed aliases are not supported.
 
-## Edge selection
+## Edge and face selection
 
 Use `Edges.VERTICAL` for automatic selection of vertical edges on supported
 rectangular bodies, or supply a list of explicit 3D edge points for a
-specific edge. This is intentionally distinct from the planned object
-attachment anchors (`Anchor.TOP`, etc.). Strings such as
-`edges="vertical"` are no longer part of the SCPF API.
+specific edge.
+
+Face selection is a separate concept: `Faces.TOP`, `Faces.BOTTOM`, etc.
+select faces for operations such as `body.shell(2, open=Faces.TOP)`.
+`Anchor.TOP` remains a placement reference for `attach()`; it is not a
+face-selection value. Strings such as `edges="vertical"` are no longer part
+of the SCPF API.
 
 ## Relative anchors and symmetric patterns (experimental)
 
@@ -266,11 +270,25 @@ holes = Cylinder(d=8, h=12).pattern(
 plate - holes
 ```
 
-`on()` aligns the child center with the parent anchor.
 `attach(target, parent=Anchor.TOP, child=Anchor.BOTTOM)` connects two
 explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
 Currently supported: Box or Rectangle2D extrusion bases; `Anchor.CENTER`,
-`Anchor.TOP`, `Anchor.BOTTOM`; and XY linear patterns of cylinders.
+`Anchor.TOP`, `Anchor.BOTTOM`; `Anchor.INNER_BOTTOM` for the inner floor
+of a shelled rectangular body; and XY linear patterns of cylinders.
+
+For X/Y placement relative to the parent bounds, use the axis-qualified
+selectors `X.MIN`, `X.CENTER`, `X.MAX` and `Y.MIN`, `Y.CENTER`,
+`Y.MAX`. For example:
+
+```python
+Boss(d=7, h=12, hole_d=2.5).attach(
+    enclosure,
+    parent=Anchor.INNER_BOTTOM,
+    offset=(X.MIN + 10, Y.MAX - 10),
+)
+```
+
+This means 10 mm from the minimum X edge and 10 mm from the maximum Y edge.
 
 For `Anchor.TOP` and `Anchor.BOTTOM`, the native adapter now emits
 `references` with two perpendicular straight edge picks and parametric

@@ -51,6 +51,20 @@ MODELS = {
         "stages": ["Draw the L profile", "Extrude its width",
                    "Round an exposed edge", "Sketch mounting holes", "Cut through the flange"],
     },
+    "plastic-enclosure": {
+        "title": "Plastic Enclosure",
+        "tagline": "A shelled enclosure with native plastic design features",
+        "description": "Rebuilds the supplied enclosure with the normal SCPF Box sketch/extrusion, followed by native Shell, Lip, Snap Fit, Boss and Rest features.",
+        "parameters": "80 × 50 × 30 mm; 2 mm wall; two Ø7 × 12 bosses",
+        "diagram": "plastic-enclosure",
+        "stages": ["Enclosure footprint — sketch the 80 × 50 mm base",
+                   "Extrude1 — create the 30 mm solid",
+                   "Shell1 — hollow to 2 mm with the top open",
+                   "Lip1 — add a 1 × 2 mm rim lip",
+                   "SnapFit1 — add the 14 mm cantilever snap",
+                   "Boss1 / Boss2 — add two Ø7 × 12 mm screw bosses",
+                   "Rest1 — add the 16 × 24 × 3 mm centre rest"],
+    },
 }
 
 # Purely schematic line art; never mistaken for a native SolidCraft render.
@@ -59,6 +73,7 @@ DIAGRAMS = {
     "plate": """<rect x="95" y="25" width="310" height="165" rx="16" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M95 175 145 218 H420 V65 L405 25" fill="#99bad9" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/>""",
     "csg": """<path d="M130 68 250 15 376 68 376 188 250 241 130 188Z" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M130 68 250 125 376 68 M250 125 V241" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="250" cy="129" rx="39" ry="37" fill="#f1f6fc" stroke="#285785" stroke-width="5"/><ellipse cx="250" cy="130" rx="14" ry="34" fill="#acc6e3" stroke="#285785" stroke-width="3"/><path d="M196 90 307 162 M185 155 310 100" stroke="#285785" stroke-width="4" stroke-dasharray="8 8"/>""",
     "bracket": """<path d="M104 195 104 34 145 34 145 163 388 163 388 207 104 207Z" fill="#b4cde9" stroke="#285785" stroke-width="5"/><path d="M145 163 174 188 407 188 388 163 M388 207 407 188" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="230" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/><ellipse cx="330" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/>""",
+    "plastic-enclosure": """<path d="M82 78 250 25 420 78 420 185 250 238 82 185Z" fill="#a8c5e2" stroke="#285785" stroke-width="5"/><path d="M107 91 250 48 394 91 394 169 250 211 107 169Z" fill="#eef4fb" stroke="#285785" stroke-width="4"/><path d="M82 78 107 91 M420 78 394 91 M82 185 107 169 M420 185 394 169" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="153" rx="13" ry="9" fill="#7ba4cc" stroke="#285785" stroke-width="3"/><ellipse cx="345" cy="118" rx="13" ry="9" fill="#7ba4cc" stroke="#285785" stroke-width="3"/><rect x="218" y="128" width="64" height="38" rx="5" fill="#8db2d5" stroke="#285785" stroke-width="3"/><path d="M248 70 V128 M248 70 266 77 266 91" fill="none" stroke="#285785" stroke-width="5"/>""",
 }
 
 
@@ -79,7 +94,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -114,6 +129,11 @@ def command_stages(commands):
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",
         "solid.hole": "Native Hole feature",
+        "solid.shell": "Shell / hollow body",
+        "plastic.lip": "Plastic lip",
+        "plastic.snap_fit": "Plastic snap fit",
+        "plastic.boss": "Plastic screw boss",
+        "plastic.rest": "Plastic support rest",
     }
     items = []
     for entry in commands:
@@ -208,7 +228,7 @@ Native qualification is reported only when the matching verified image exists.</
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
     home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore four small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
+<p>Explore five small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
@@ -251,6 +271,10 @@ def make_cheatsheet(out):
              "Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP, child=Anchor.BOTTOM)"),
             ("child.attach(parent, parent=Anchor.CENTER, child=Anchor.CENTER)", "Align child and parent centers.",
              "Cylinder(d=8, h=12).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
+            ("child.attach(parent, parent=Anchor.INNER_BOTTOM)", "Place an enclosure feature on the inner floor of a shelled rectangular body.",
+             "Boss(d=7, h=12, hole_d=2.5).attach(enclosure, parent=Anchor.INNER_BOTTOM, offset=(X.MIN + 10, Y.MIN + 10))"),
+            ("X.MIN/CENTER/MAX · Y.MIN/CENTER/MAX", "Reference each offset coordinate to the matching parent bound instead of manually calculating half-widths.",
+             "offset=(X.CENTER, Y.MAX - 6)"),
             ("cylinder.pattern(count=2, spacing=40, axis=Axis.Y)", "Make symmetric repeated cutters. On a plate center this makes two holes at Y = -20 and +20 relative to its center.",
              "Cylinder(d=8, h=12).pattern(count=2, spacing=40, axis=Axis.Y).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)"),
         ]),
@@ -269,6 +293,18 @@ def make_cheatsheet(out):
              "Sphere(30) & Box(50, 50, 50)"),
             ("solid.fillet(radius, edges=Edges.VERTICAL)", "Round vertical edges of a supported 3D body. Explicit 3D edge points are also accepted.",
              "plate.fillet(6, edges=Edges.VERTICAL)"),
+            ("solid.shell(thickness, open=Faces.TOP)", "Hollow a solid while leaving the selected face open. Faces selects geometry; Anchor remains for placement.",
+             "Box(80, 50, 30).shell(2, open=Faces.TOP)"),
+        ]),
+        ("Plastic features", [
+            ("Lip(width=..., height=...)", "Native plastic lip placed by a point on a shelled rim face.",
+             "Lip(width=1, height=2).at(-39, 0, 30)"),
+            ("SnapFit(...)", "Native cantilever snap fit; hook gives the catch direction.",
+             "SnapFit(length=14, thickness=1.5, width=6, catch_depth=1, catch_length=2, hook=(0, -1, 0)).at(0, 19, 2)"),
+            ("Boss(d=..., h=..., hole_d=...)", "Native screw boss with an optional centre hole.",
+             "Boss(d=7, h=12, hole_d=2.5).at(-30, -15, 2)"),
+            ("Rest(width=..., length=..., height=...)", "Native support pad placed by its centre on a face.",
+             "Rest(width=16, length=24, height=3).at(0, 0, 2)"),
         ]),
         ("Run and inspect", [
             ("python -m scpf model.py --out out.json", "Compile commands without starting SolidCraft.",

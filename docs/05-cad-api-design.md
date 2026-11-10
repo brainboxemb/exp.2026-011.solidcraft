@@ -5,6 +5,17 @@ geometry engine.
 
 ## User-facing model
 
+A model does not need `@dataclass`. Numeric class fields are model
+parameters:
+
+```python
+class Enclosure:
+    length = 80.0
+    width = 50.0
+    height = 30.0
+    wall = 2.0
+```
+
 ```python
 holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
     count=2, spacing=self.width - 24, axis=Axis.X
@@ -30,6 +41,20 @@ plate + bore
 - The adapter decides the native representation. For Sample Plate it creates
   the editable `Holes` and `Bore` sketches and cut extrusions.
 - Python scripts do not need an explicit `Sketch` object.
+- `Faces` selects geometry for operations; `Anchor` describes relative
+  placement. They are intentionally separate concepts.
+- `shell()` is a modifier like `fillet()`: for example
+  `body.shell(2, open=Faces.TOP)`.
+- `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level
+  building blocks, like `Box`, `Cylinder` and `Hole`; the compiler maps
+  them to native SolidCraft plastic features.
+- `Anchor.INNER_BOTTOM` refers to the inner floor of a shelled body,
+  so enclosure details can be placed relative to the shell wall instead of
+  hard-coded world Z coordinates.
+- `X.MIN/CENTER/MAX` and `Y.MIN/CENTER/MAX` describe placement relative
+  to the corresponding parent bounds. For example
+  `offset=(X.MIN + 10, Y.MAX - 6)` means 10 mm from the minimum X edge
+  and 6 mm from the maximum Y edge.
 
 ## Responsibility boundaries
 

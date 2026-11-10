@@ -23,6 +23,7 @@ class Anchor(str, Enum):
     CENTER = "center"
     TOP = "top"
     BOTTOM = "bottom"
+    INNER_BOTTOM = "inner_bottom"
 
 
 class Depth(str, Enum):
@@ -41,6 +42,54 @@ class Edges(Enum):
     Explicit edges can alternatively be supplied as 3D coordinates.
     """
     VERTICAL = "vertical"
+
+
+class Faces(Enum):
+    """Named planar face selections for feature operations."""
+    TOP = "top"
+    BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
+    FRONT = "front"
+    BACK = "back"
+
+
+@dataclass(frozen=True)
+class _BoundOffset:
+    """Position relative to one named axis of the parent bounds."""
+    axis: str
+    reference: str
+    delta: Any = 0
+
+    def __add__(self, value):
+        if isinstance(value, bool):
+            return NotImplemented
+        delta = value if self.delta == 0 else self.delta + value
+        return _BoundOffset(self.axis, self.reference, delta)
+
+    __radd__ = __add__
+
+    def __sub__(self, value):
+        if isinstance(value, bool):
+            return NotImplemented
+        delta = -value if self.delta == 0 else self.delta - value
+        return _BoundOffset(self.axis, self.reference, delta)
+
+
+class _AxisRef(str):
+    """Axis token that also exposes parent-bound placement selectors."""
+
+    @property
+    def MIN(self):
+        return _BoundOffset(str(self), "min")
+
+    @property
+    def CENTER(self):
+        return _BoundOffset(str(self), "center")
+
+    @property
+    def MAX(self):
+        return _BoundOffset(str(self), "max")
 
 
 @dataclass(frozen=True)
@@ -148,6 +197,9 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
         elif isinstance(value, Expression):
             for param in value.parameters:
                 found.setdefault(param.name, param)
+        elif isinstance(value, _BoundOffset):
+            for param in parameters_in(value.delta):
+                found.setdefault(param.name, param)
     return tuple(found.values())
 
 
@@ -177,7 +229,7 @@ class Shape:
         offsets = (value_of(x), value_of(y), value_of(z))
         if not all(isfinite(v) for v in offsets):
             raise ValueError("move() requires finite coordinates")
-        if self.kind in ("fillet", "pattern"):
+        if self.kind in ("fillet", "shell", "pattern"):
             raise ValueError("move() currently supports only primitive and CSG shapes")
         return Shape("translated", (self, offsets))
 
@@ -199,15 +251,38 @@ class Shape:
                     raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
 
-    def at(self, x=0, y=0, z=0):
-        """Place a 2D profile in world coordinates.
+    def shell(self, thickness, *, open=Faces.TOP):
+        """Hollow a solid to an even wall thickness and leave selected faces open."""
+        value_of(thickness)
+        if isinstance(open, Faces):
+            faces = (open,)
+        elif isinstance(open, (list, tuple)) and open:
+            try:
+                faces = tuple(Faces(face) for face in open)
+            except ValueError as exc:
+                raise ValueError("shell open faces must use Faces values") from exc
+        else:
+            raise ValueError("shell open must be a Faces value or non-empty sequence")
+        return Shape("shell", (self, thickness, faces))
 
-        For XY sketches, x and y locate the profile on its sketch plane;
-        z offsets the sketch plane. The profile remains a reusable Shape.
+    def at(self, x=0, y=0, z=0):
+        """Place a supported profile, primitive or feature at world coordinates.
+
+        For XY sketches, x and y locate the profile on its sketch plane and z
+        offsets that plane. For 3D and plastic features the point is the native
+        SolidCraft authoring position.
         """
-        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder", "hole"):
-            raise ValueError("at() currently supports planar profiles")
-        return Shape("placed3d" if self.kind in ("cylinder", "hole") else "positioned", (self, x, y, z))
+        if self.kind not in (
+            "circle", "rectangle", "polygon", "positioned", "cylinder", "hole",
+            "lip", "snap_fit", "boss", "rest",
+        ):
+            raise ValueError("at() does not support this shape")
+        return Shape(
+            "placed3d" if self.kind in (
+                "cylinder", "hole", "lip", "snap_fit", "boss", "rest"
+            ) else "positioned",
+            (self, x, y, z),
+        )
 
     def pattern(self, *, count, spacing, axis):
         """Repeat a Hole or Cylinder at symmetric offsets along an XY axis."""
@@ -231,8 +306,13 @@ class Shape:
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
-        if self.kind not in ("cylinder", "linear_pattern", "hole"):
-            raise ValueError("attach() supports Cylinder, Hole and their linear patterns")
+        if self.kind not in (
+            "cylinder", "linear_pattern", "hole",
+            "lip", "snap_fit", "boss", "rest",
+        ):
+            raise ValueError(
+                "attach() supports Cylinder, Hole, plastic features and their supported patterns"
+            )
         if not isinstance(target, Shape):
             raise TypeError("anchor target must be an existing Shape")
         try:
@@ -242,8 +322,17 @@ class Shape:
             raise ValueError("unknown parent or child anchor") from exc
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("offset must be a pair (x, y)")
-        for value in offset:
-            value_of(value)
+        for index, value in enumerate(offset):
+            if isinstance(value, _BoundOffset):
+                expected_axis = "X" if index == 0 else "Y"
+                if value.axis != expected_axis:
+                    raise ValueError(
+                        f"offset position {index} requires {expected_axis} bounds"
+                    )
+                if not isfinite(value_of(value.delta)):
+                    raise ValueError("bound offset must be finite")
+            else:
+                value_of(value)
         return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
 
     def orient(self, *axes):
@@ -311,4 +400,47 @@ def Hole(*, d, depth=Depth.THROUGH_ALL):
     return Shape("hole", (d, depth))
 
 
-X, Y, Z = "X", "Y", "Z"
+def Lip(*, width, height):
+    """Plastic enclosure lip placed by a point on a shelled rim face."""
+    return Shape("lip", (width, height))
+
+
+def SnapFit(*, length, thickness, width, catch_depth, catch_length,
+            hook, direction=None):
+    """Cantilever plastic snap fit placed by a point on its supporting face."""
+    hook = tuple(hook)
+    if len(hook) != 3:
+        raise ValueError("SnapFit hook must be a 3D direction")
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("SnapFit direction must be a 3D direction")
+    return Shape(
+        "snap_fit",
+        (length, thickness, width, catch_depth, catch_length, hook, direction),
+    )
+
+
+def Boss(*, d, h, hole_d=None, direction=None):
+    """Plastic screw boss placed by a point on its supporting face."""
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("Boss direction must be a 3D direction")
+    return Shape("boss", (d, h, hole_d, direction))
+
+
+def Rest(*, width, height, length=None, along=None, direction=None):
+    """Plastic support pad placed by its centre point on a supporting face."""
+    if along is not None:
+        along = tuple(along)
+        if len(along) != 3:
+            raise ValueError("Rest along must be a 3D direction")
+    if direction is not None:
+        direction = tuple(direction)
+        if len(direction) != 3:
+            raise ValueError("Rest direction must be a 3D direction")
+    return Shape("rest", (width, height, length, along, direction))
+
+
+X, Y, Z = _AxisRef("X"), _AxisRef("Y"), _AxisRef("Z")

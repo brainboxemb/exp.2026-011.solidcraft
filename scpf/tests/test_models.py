@@ -285,6 +285,46 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(cylinder["params"]["diameter"], "diameter")
         self.assertEqual(cylinder["params"]["operation"], "new")
 
+    def test_plain_model_class_fields_become_parameters(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Cuboid:\n"
+                "    length = 80.0\n"
+                "    width = 50.0\n"
+                "    height = 30.0\n"
+                "    def build(self):\n"
+                "        Box(self.length, self.width, self.height)\n"
+                "Cuboid(width=60.0)\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(
+            [c["params"]["name"] for c in generated["commands"][:3]],
+            ["length", "width", "height"],
+        )
+        self.assertEqual(
+            [c["params"]["expression"] for c in generated["commands"][:3]],
+            ["80", "60", "30"],
+        )
+
+    def test_plain_model_class_accepts_positional_overrides_in_field_order(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Cuboid:\n"
+                "    length = 80.0\n"
+                "    width = 50.0\n"
+                "    height = 30.0\n"
+                "    def build(self):\n"
+                "        Box(self.length, self.width, self.height)\n"
+                "Cuboid(100.0, 70.0)\n"
+            )
+            generated = run_script(file)
+        self.assertEqual(
+            [c["params"]["expression"] for c in generated["commands"][:3]],
+            ["100", "70", "30"],
+        )
+
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
@@ -387,6 +427,121 @@ class SCPFExamples(unittest.TestCase):
             polygon + Hole(d=6).at(20, -25, 0), "Widget"
         )["commands"]
         self.assertEqual(commands[-1]["command"], "solid.hole")
+
+    def test_shell_uses_faces_without_reusing_anchor_semantics(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Box, Faces
+        commands = compile_model(
+            Box(80, 50, 30).shell(2, open=Faces.TOP),
+            "Enclosure",
+        )["commands"]
+        self.assertEqual(
+            [c["command"] for c in commands],
+            [
+                "sketch.create",
+                "sketch.rectangle.two_point",
+                "sketch.finish",
+                "solid.extrude",
+                "solid.shell",
+            ],
+        )
+        self.assertEqual(commands[0]["params"]["name"], "Enclosure footprint")
+        self.assertEqual(commands[4]["params"]["faces"], [[0, 0, 30]])
+        self.assertEqual(commands[4]["params"]["thickness"], 2)
+        with self.assertRaises(ValueError):
+            Box(80, 50, 30).shell(2, open=Faces.TOP).move(x=10)
+
+    def test_bound_relative_offsets_resolve_against_parent_extents(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Anchor, Boss, Box, Faces, X, Y
+        body = Box(80, 50, 30).shell(2, open=Faces.TOP)
+
+        minimum = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(X.MIN + 10, Y.MIN + 10),
+        )
+        body = body + minimum
+
+        maximum = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(X.MAX - 10, Y.MAX - 10),
+        )
+        body = body + maximum
+
+        commands = compile_model(body, "Enclosure")["commands"]
+        bosses = [c for c in commands if c["command"] == "plastic.boss"]
+        self.assertEqual(
+            [boss["params"]["position"] for boss in bosses],
+            [[-30, -15, 2], [30, 15, 2]],
+        )
+
+    def test_bound_relative_offsets_reject_wrong_axis(self):
+        from scpf.core import Anchor, Boss, Box, Faces, X, Y
+        body = Box(80, 50, 30).shell(2, open=Faces.TOP)
+        with self.assertRaisesRegex(ValueError, "requires X bounds"):
+            Boss(d=7, h=12, hole_d=2.5).attach(
+                body,
+                parent=Anchor.INNER_BOTTOM,
+                offset=(Y.MIN + 10, Y.MIN + 10),
+            )
+        with self.assertRaisesRegex(ValueError, "requires Y bounds"):
+            Boss(d=7, h=12, hole_d=2.5).attach(
+                body,
+                parent=Anchor.INNER_BOTTOM,
+                offset=(X.MIN + 10, X.MIN + 10),
+            )
+
+    def test_inner_bottom_anchor_requires_shell(self):
+        from scpf.compiler import compile_model, ModelError
+        from scpf.core import Anchor, Boss, Box
+        body = Box(80, 50, 30)
+        boss = Boss(d=7, h=12, hole_d=2.5).attach(
+            body,
+            parent=Anchor.INNER_BOTTOM,
+        )
+        with self.assertRaises(ModelError):
+            compile_model(body + boss, "Enclosure")
+
+    def test_plastic_enclosure_compiles_to_sketch_base_and_native_plastic_features(self):
+        commands = run_script(
+            ROOT / "examples/plastic-enclosure/scpf/model.py"
+        )["commands"]
+        feature_commands = [c for c in commands
+                            if c["command"] != "parameters.add"]
+        self.assertEqual(
+            [c["command"] for c in feature_commands],
+            [
+                "sketch.create",
+                "sketch.rectangle.two_point",
+                "sketch.finish",
+                "solid.extrude",
+                "solid.shell",
+                "plastic.lip",
+                "plastic.snap_fit",
+                "plastic.boss",
+                "plastic.boss",
+                "plastic.rest",
+            ],
+        )
+        self.assertEqual(feature_commands[0]["params"]["name"], "Enclosure footprint")
+        self.assertEqual(feature_commands[3]["params"]["body_name"], "Enclosure")
+        self.assertTrue(all(
+            c["params"].get("body") == "Enclosure"
+            for c in feature_commands[4:]
+        ))
+        self.assertEqual(feature_commands[4]["params"]["faces"], [[0, 0, 30]])
+        self.assertEqual(feature_commands[5]["params"]["face"], [-39, 0, 30])
+        self.assertEqual(feature_commands[6]["params"]["position"], [0, 19, 2])
+        self.assertEqual(feature_commands[6]["params"]["hook"], [0, -1, 0])
+        self.assertEqual(
+            [feature_commands[7]["params"]["position"],
+             feature_commands[8]["params"]["position"]],
+            [[-30, -15, 2], [30, 15, 2]],
+        )
+        self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
+        self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model
