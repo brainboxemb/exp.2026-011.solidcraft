@@ -94,6 +94,19 @@ class Shape:
     def __sub__(self, other):
         return Shape("difference", (self, _shape(other)))
 
+    def move(self, x=0, y=0, z=0):
+        """Translate a CSG shape by millimetres.
+
+        Translates all primitives in a composite CSG model together.
+        General feature-based box placement is not implemented yet.
+        """
+        offsets = (value_of(x), value_of(y), value_of(z))
+        if not all(isfinite(v) for v in offsets):
+            raise ValueError("move() requires finite coordinates")
+        if self.kind in ("box", "fillet", "pattern"):
+            raise ValueError("move() currently supports only CSG shapes")
+        return Shape("translated", (self, offsets))
+
     def fillet(self, radius, *, edges="vertical"):
         if edges != "vertical":
             raise ValueError("SCPF PoP supports only vertical outer box edges")
