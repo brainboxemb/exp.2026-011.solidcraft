@@ -134,7 +134,7 @@ class SCPFExamples(unittest.TestCase):
 
     def test_removed_aliases_are_not_exposed(self):
         import scpf
-        for name in ("Rectangle", "Circle", "Polygon", "Box3D", "Cylinder3D", "Sphere3D"):
+        for name in ("Rectangle", "Circle", "Polygon", "Cube", "Box3D", "Cylinder3D", "Sphere3D"):
             self.assertFalse(hasattr(scpf, name), name)
 
     def test_sample_plate_uses_edge_enum(self):
@@ -254,7 +254,7 @@ class SCPFExamples(unittest.TestCase):
                 "    def __post_init__(self):\n"
                 "        assert self.size > 0\n"
                 "    def build(self):\n"
-                "        Cube(self.size).move(x=10)\n"
+                "        Box(self.size, self.size, self.size).move(x=10)\n"
                 "Cuboid(80)\n"
             )
             generated = run_script(file)
@@ -272,7 +272,7 @@ class SCPFExamples(unittest.TestCase):
                 "    def __post_init__(self):\n"
                 "        assert self.size > 0\n"
                 "    def build(self):\n"
-                "        Cube(self.size)\n"
+                "        Box(self.size, self.size, self.size)\n"
                 "Cuboid(-5)\n"
             )
             with self.assertRaises(AssertionError):
@@ -298,7 +298,7 @@ class SCPFExamples(unittest.TestCase):
                 "class Cuboid:\n"
                 "    size: float = 50\n"
                 "    def build(self):\n"
-                "        body = Cube(self.size)\n"
+                "        body = Box(self.size, self.size, self.size)\n"
                 "Cuboid()\n"
             )
             with self.assertRaisesRegex(TypeError, "finish with a Shape"):
@@ -309,7 +309,7 @@ class SCPFExamples(unittest.TestCase):
             file = Path(directory) / "model.py"
             file.write_text(
                 "def CsgCube(size=50.0):\n"
-                "    return Sphere(size / 1.5) & Cube(size)\n"
+                "    return Sphere(size / 1.5) & Box(size, size, size)\n"
                 "CsgCube(60.0)\n"
             )
             generated = run_script(file)
@@ -333,7 +333,7 @@ class SCPFExamples(unittest.TestCase):
             file = Path(directory) / "model.py"
             file.write_text(
                 "def CsgCube(size=50.0):\n"
-                "    body = Sphere(size / 1.5) & Cube(size)\n"
+                "    body = Sphere(size / 1.5) & Box(size, size, size)\n"
                 "    holes = Cylinder(d=size / 1.5, h=size).orient(X, Y, Z)\n"
                 "    return (body - holes).move(x=10, y=20, z=30)\n"
                 "CsgCube()\n"
@@ -351,7 +351,7 @@ class SCPFExamples(unittest.TestCase):
             file = Path(directory) / "model.py"
             file.write_text(
                 "def Cuboid(size=50):\n"
-                "    return Cube(size).move(x=float('nan'))\n"
+                "    return Box(size, size, size).move(x=float('nan'))\n"
                 "Cuboid()\n"
             )
             with self.assertRaises(ValueError):
@@ -362,7 +362,7 @@ class SCPFExamples(unittest.TestCase):
             file = Path(directory) / "model.py"
             file.write_text(
                 "def Cuboid(size=50):\n"
-                "    body = Cube(size)\n"
+                "    body = Box(size, size, size)\n"
                 "    body.move(x=10)\n"
                 "Cuboid()\n"
             )
@@ -374,7 +374,7 @@ class SCPFExamples(unittest.TestCase):
             file = Path(directory) / "model.py"
             file.write_text(
                 "def Cuboid(size=50):\n"
-                "    body = Cube(size)\n"
+                "    body = Box(size, size, size)\n"
                 "Cuboid()\n"
             )
             with self.assertRaises(TypeError):
@@ -383,7 +383,7 @@ class SCPFExamples(unittest.TestCase):
     def test_script_requires_final_model_expression(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
-            file.write_text("def CubeModel(size=50):\n    return Cube(size)\n")
+            file.write_text("def CubeModel(size=50):\n    return Box(size, size, size)\n")
             with self.assertRaises(SyntaxError):
                 run_script(file)
 
