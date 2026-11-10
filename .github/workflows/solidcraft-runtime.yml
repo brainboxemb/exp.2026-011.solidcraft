@@ -544,22 +544,27 @@ jobs:
           test -s output/site/models/sample-plate/native.png
           test -s output/site/models/plastic-enclosure-pi/native.png
       - name: Find PR number for native preview
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         id: preview_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=$(gh pr view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json number --jq .number)" >> "$GITHUB_OUTPUT"
+          fi
       - name: Check out existing Pages without replacing the main site
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: published-native-preview
           persist-credentials: true
       - name: Publish native-verified PR snapshot only
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         env:
           PR_NUMBER: ${{ steps.preview_pr.outputs.number }}
         shell: bash
