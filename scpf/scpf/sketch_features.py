@@ -75,7 +75,9 @@ def _combine(*terms):
     literal = 0
     for term in terms:
         if isinstance(term, (Parameter, Expression)):
-            symbolic.append(f"({command_value(term)})")
+            text = str(command_value(term))
+            symbolic.append(text if text.startswith("(") and text.endswith(")")
+                            else f"({text})")
         else:
             literal += value_of(term)
     expression = " + ".join(symbolic)
