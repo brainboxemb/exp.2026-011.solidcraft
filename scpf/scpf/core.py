@@ -39,6 +39,14 @@ class Parameter:
 
     __rmul__ = __mul__
 
+    def __add__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value + other,
+                              f"{self.name} + {number_text(other)} mm", (self,))
+        return NotImplemented
+
+    __radd__ = __add__
+
     def __neg__(self):
         return Expression(-self.value, f"-({self.name})", (self,))
 
@@ -53,6 +61,15 @@ class Expression:
         if not isinstance(other, (float, int)) or other == 0:
             return NotImplemented
         return Expression(self.value / other, f"({self.expression}) / {number_text(other)}", self.parameters)
+
+    def __add__(self, other):
+        if isinstance(other, (int, float)):
+            return Expression(self.value + other,
+                              f"{self.expression} + {number_text(other)} mm",
+                              self.parameters)
+        return NotImplemented
+
+    __radd__ = __add__
 
     def __neg__(self):
         return Expression(-self.value, f"-({self.expression})", self.parameters)
@@ -114,8 +131,8 @@ class Shape:
         return Shape("translated", (self, offsets))
 
     def extrude(self, distance, *, direction="positive"):
-        if self.kind != "polygon":
-            raise ValueError("extrude() currently requires a Polygon")
+        if self.kind not in ("polygon", "rectangle"):
+            raise ValueError("extrude() requires a Polygon or Rectangle")
         if direction not in ("positive", "negative"):
             raise ValueError("extrude direction must be positive or negative")
         return Shape("extrusion", (self, distance, direction))
@@ -138,6 +155,18 @@ class Shape:
             raise ValueError("holes require at least one (x, y) centre")
         return Shape("holes", (self, positions, diameter, depth, plane))
 
+    def boss(self, *, center, diameter, height):
+        """Join a circular boss on the top of an extruded XY plate."""
+        if len(center) != 2:
+            raise ValueError("boss requires an XY centre")
+        return Shape("boss", (self, tuple(center), diameter, height))
+
+    def bore(self, *, center, diameter, depth=None):
+        """Drill down from the top of the boss through its underlying plate."""
+        if len(center) != 2:
+            raise ValueError("bore requires an XY centre")
+        return Shape("bore", (self, tuple(center), diameter, depth))
+
     def pattern(self, *, x, y):
         if self.kind != "cylinder":
             raise ValueError("only cylinders support rectangular patterns in this PoP")
@@ -157,6 +186,11 @@ def _shape(value):
     if not isinstance(value, Shape):
         raise TypeError("boolean operations require a Shape")
     return value
+
+
+def Rectangle(width, depth):
+    """Create a parameterized XY rectangle, anchored at the origin."""
+    return Shape("rectangle", (width, depth))
 
 
 def Polygon(points, *, plane="XY"):

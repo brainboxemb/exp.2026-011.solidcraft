@@ -62,6 +62,58 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
+    def test_sample_plate_reconstructed_from_saved_history(self):
+        source = json.loads((ROOT / "examples/sample-plate/source/Sample Plate.json").read_text())
+        generated = run_script(ROOT / "examples/sample-plate/scpf/model.py")
+        steps = generated["commands"]
+        self.assertEqual([p["name"] for p in source["params"][:3]],
+                         ["width", "depth", "thickness"])
+        self.assertEqual(
+            [p["params"]["name"] for p in steps if p["command"] == "parameters.add"],
+            ["width", "depth", "thickness"],
+        )
+        self.assertEqual(len(source["features"]), 9)
+        self.assertEqual(
+            [x["type"] for x in source["features"]],
+            ["sketch", "extrude", "fillet", "sketch", "extrude",
+             "sketch", "extrude", "sketch", "extrude"],
+        )
+        self.assertEqual(
+            [x["params"]["name"] for x in steps if x["command"] == "sketch.create"],
+            ["Base", "Holes", "Boss", "Bore"],
+        )
+        self.assertEqual(
+            [x["params"]["diameter"] for x in steps
+             if x["command"] == "sketch.circle.center"], [8, 8, 24, 12],
+        )
+        self.assertEqual(
+            [x["params"]["operation"] for x in steps
+             if x["command"] == "solid.extrude" and "operation" in x["params"]],
+            ["cut", "join", "cut"],
+        )
+        self.assertEqual(
+            [x["params"]["offset"] for x in steps
+             if x["command"] == "sketch.create" and "offset" in x["params"]],
+            ["thickness", "thickness + 14 mm"],
+        )
+        self.assertEqual(steps[-1]["params"]["distance"], "thickness + 14 mm")
+        self.assertEqual(steps[-1]["params"]["direction"], "negative")
+
+    def test_sample_plate_parameter_override_updates_native_sketch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            src = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
+            file = Path(directory) / "model.py"
+            file.write_text(src.replace("SamplePlate()",
+                                        "SamplePlate(width=100, depth=60, thickness=10)"))
+            generated = run_script(file)
+        self.assertEqual(
+            [x["params"]["expression"] for x in generated["commands"][:3]],
+            ["100", "60", "10"],
+        )
+        rect = next(x for x in generated["commands"]
+                    if x["command"] == "sketch.rectangle.two_point")
+        self.assertEqual(rect["params"]["p1"], ["width", "depth"])
+
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"

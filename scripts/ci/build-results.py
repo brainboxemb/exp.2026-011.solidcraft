@@ -30,6 +30,18 @@ MODELS = {
         "stages": ["Create the sphere", "Intersect with a cube",
                    "Cut along X, Y and Z"],
     },
+    "sample-plate": {
+        "title": "SamplePlate",
+        "tagline": "Rounded plate with two holes, boss and through-bore",
+        "description": "Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.",
+        "parameters": "80 × 50 × 8 mm; R6; Ø24 × 14 boss",
+        "diagram": "sample",
+        "stages": ["Sketch XY rectangle (80 × 50)", "Extrude base by 8 mm",
+                   "Fillet four vertical corners, R6",
+                   "Cut two mounting holes Ø8",
+                   "Join Ø24 boss above plate, height 14",
+                   "Cut central Ø12 bore through full 22 mm"],
+    },
     "bracket": {
         "title": "Bracket", "tagline": "An L-shaped extrusion with two mounting holes",
         "description": "An XZ polygon extruded along Y, with an edge fillet and an XY sketch for the two mounting holes.",
@@ -42,6 +54,7 @@ MODELS = {
 
 # Purely schematic line art; never mistaken for a native SolidCraft render.
 DIAGRAMS = {
+    "sample": """<path d="M65 115 300 50 425 100 185 175Z" fill="#bcd4ee" stroke="#285785" stroke-width="5"/><path d="M65 115 V160 L185 222 V175 M185 222 425 150 V100" fill="#8eb5db" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="100" rx="62" ry="39" fill="#5f92c6" stroke="#285785" stroke-width="4"/><path d="M231 100 V60 A62 39 0 0 1 355 60 V100" fill="#b4d0e9" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="60" rx="62" ry="39" fill="#d1e4f4" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="60" rx="29" ry="18" fill="#edf4fb" stroke="#285785" stroke-width="4"/><ellipse cx="130" cy="116" rx="15" ry="10" fill="#edf4fb" stroke="#285785" stroke-width="4"/><ellipse cx="385" cy="129" rx="15" ry="10" fill="#edf4fb" stroke="#285785" stroke-width="4"/>""",
     "plate": """<rect x="95" y="25" width="310" height="165" rx="16" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M95 175 145 218 H420 V65 L405 25" fill="#99bad9" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/>""",
     "csg": """<path d="M130 68 250 15 376 68 376 188 250 241 130 188Z" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M130 68 250 125 376 68 M250 125 V241" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="250" cy="129" rx="39" ry="37" fill="#f1f6fc" stroke="#285785" stroke-width="5"/><ellipse cx="250" cy="130" rx="14" ry="34" fill="#acc6e3" stroke="#285785" stroke-width="3"/><path d="M196 90 307 162 M185 155 310 100" stroke="#285785" stroke-width="4" stroke-dasharray="8 8"/>""",
     "bracket": """<path d="M104 195 104 34 145 34 145 163 388 163 388 207 104 207Z" fill="#b4cde9" stroke="#285785" stroke-width="5"/><path d="M145 163 174 188 407 188 388 163 M388 207 407 188" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="230" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/><ellipse cx="330" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/>""",
@@ -65,7 +78,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel

@@ -340,7 +340,10 @@ def compile_model(shape: Shape, name: str) -> dict:
         raise TypeError("the final script expression must produce a Shape")
     if not name or not name.isidentifier():
         raise ModelError("the model name must be a valid identifier")
-    if shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
+    if shape.kind == "bore":
+        from .raised_plate import compile_raised_plate
+        commands = compile_raised_plate(shape, name)
+    elif shape.kind in ("holes", "extrusion", "fillet") and _has_profile(shape):
         commands = _profile_features(shape, name)
     elif shape.kind == "difference" and shape.data[0].kind == "fillet":
         commands = _plate(shape, name)
