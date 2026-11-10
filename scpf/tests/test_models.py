@@ -31,8 +31,8 @@ class SCPFExamples(unittest.TestCase):
         holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
         self.assertEqual(len(holes), 4)
         self.assertEqual([c["position"] for c in holes],
-                         [[-35, -15, 10], [35, -15, 10],
-                          [35, 15, 10], [-35, 15, 10]])
+                         [[-35, -15, "thickness"], [35, -15, "thickness"],
+                          [35, 15, "thickness"], [-35, 15, "thickness"]])
         self.assertTrue(all(c["diameter"] == 8 for c in holes))
         self.assertTrue(all(c["targets"] == ["Plate"] for c in holes))
         self.assertTrue(all("references" not in c for c in holes))
@@ -49,9 +49,12 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The input source used sketch + cut. SCPF now emits native Hole
-        # features for the same two entry points; the base and fillet match.
-        self.assertEqual(generated["commands"][2:7], original["commands"][2:7])
+        # The input source used sketch + cut. SCPF now keeps the same profile
+        # geometry parametrically and emits native Hole features.
+        self.assertEqual(
+            [c["command"] for c in generated["commands"][2:7]],
+            [c["command"] for c in original["commands"][2:7]],
+        )
         self.assertEqual([c["command"] for c in generated["commands"][7:]],
                          ["solid.hole", "solid.hole"])
         self.assertEqual([c["params"]["position"]
@@ -71,7 +74,10 @@ class SCPFExamples(unittest.TestCase):
             generated = run_script(file)
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
-        self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
+        self.assertEqual(
+            generated["commands"][3]["params"]["points"][2],
+            [40, "thickness"],
+        )
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
     def test_sample_plate_preserves_original_sketch_and_feature_names(self):
