@@ -210,46 +210,28 @@ function is selected by the model's name.
   solver constraints and arbitrary workplanes are not yet supported.
 - SolidCraft, not SCPF, owns the geometry and native feature history.
 
-## Sample Plate — two intentionally different histories
+## Sample Plate reconstruction
 
-The source document [Sample Plate](../examples/sample-plate/source/Sample%20Plate.json)
-contains **four named sketches**: `Base`, `Holes`, `Boss`, and `Bore`.
-The default [Sample Plate model](../examples/sample-plate/scpf/model.py)
-recreates those four sketches and their native extrusions/cuts. In the
-Python script, `Circle2D` describes a profile, not an explicit Sketch
-object; the adapter creates the sketches automatically. The resulting
-history is expected to contain nine native CAD features.
-
-A second [native Hole variant](../examples/sample-plate/scpf/native-holes.py)
-uses real SolidCraft Hole features. It has only two sketches, `Base` and
-`Boss`, together with `Hole1`, `Hole2`, and `Hole3`. **This is not
-an error:** a native Hole feature does not need its own sketch. The two
-variants should produce the same shape but intentionally retain different
-editable construction histories.
-
-The compact API does not repeat `plate` as both an attachment target and
-a Boolean operand:
+The saved Sample Plate has four named sketches: `Base`, `Holes`, `Boss`
+and `Bore`. SCPF keeps the Python model object-oriented:
 
 ```python
-plate = plate.add(
-    Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
-        count=2, spacing=self.width - 24, axis=Axis.X),
-    on=Anchor.TOP,
-)
-plate = plate.add(Cylinder(d=24, h=14), on=Anchor.TOP)
-plate = plate.add(Hole(d=12, depth=Depth.THROUGH_ALL), on=Anchor.TOP)
+holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+    count=2, spacing=self.width - 24, axis=Axis.X
+).attach(plate, parent=Anchor.TOP)
+plate = plate + holes
+
+boss = Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP)
+plate = plate + boss
+
+bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
+    plate, parent=Anchor.TOP)
+plate + bore
 ```
 
-```powershell
-$env:PYTHONPATH = "scpf"
-# Four original sketches and three extrusions
-python -m scpf examples/sample-plate/scpf/model.py --out output/sample-plate.json
-# Two sketches and three native Hole features
-python -m scpf examples/sample-plate/scpf/native-holes.py --out output/sample-plate-native-holes.json
-```
-
-Run `--connect` only with a fresh SolidCraft design. Neither variant is
-intended to be applied twice to an existing design.
+The compiler translates that intent to native SolidCraft sketches and
+extrusions: `Holes` is one sketch with two circles, `Boss` is a joined
+circle extrusion, and `Bore` is a downward cut from the current top.
 
 ## SCPF API cheatsheet
 
@@ -278,7 +260,7 @@ hard-coded world coordinates:
 plate = Rectangle2D(100, 60).extrude(10)
 holes = Cylinder(d=8, h=12).pattern(
     count=2, spacing=40, axis=Axis.Y
-).on(plate, Anchor.CENTER)
+).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)
 plate - holes
 ```
 
@@ -296,13 +278,10 @@ The initial edge pick points are not promises of stable topology across all
 changes: only a simple rectangular XY base is supported, and native
 save/reopen/parameter-edit qualification is required.
 
-`Hole(d=8, depth=Depth.THROUGH_ALL)` describes a native `solid.hole`
-feature, distinct from a cutting Cylinder. Prefer `plate.add(Hole(d=8), on=Anchor.TOP)` to position and apply it
-in one call. An older `plate + hole.on(plate, Anchor.TOP)` also works.
-Adding the Hole feature does not add material:
-the native `solid.hole` operation removes material. Older `plate - hole`
-scripts remain supported for compatibility. `Fillet` remains a modifier method on solids.
-More general attachments remain tracked in issue #5.
+`Hole(d=8, depth=Depth.THROUGH_ALL)` describes drilling intent. Use
+`.attach(parent, parent=Anchor.TOP)` to choose the entry face and then add
+the feature with `+`. The compiler may represent that intent as an editable
+sketch plus cut extrusion. More general attachments remain tracked in issue #5.
 
 ## Sketches versus direct features
 
@@ -312,12 +291,9 @@ and `solid.extrude`. Likewise, `Circle2D` profiles in an extruded
 cut create a native sketch and subtractive extrusion. Those sketches
 are preserved in SolidCraft's feature history, where they can be edited.
 
-By contrast, `Hole(...).on(plate, Anchor.TOP)` is a **direct native Hole
-feature** and emits `solid.hole` with two edge references; it does not
-require a sketch. This is useful for one or a few holes positioned by
-reference edges. The `pattern(count=2, spacing=..., axis=...)` form
-currently expands to two individual native Hole features, **not** to one
-constraint-driven point sketch or one native pattern feature.
+An attached `Hole` is compiled to an editable sketch plus cut extrusion
+for the supported rectangular feature chain. A patterned Hole becomes one
+sketch containing all circle profiles, not separate loose Hole features.
 
 The user-facing Python model does **not** need to create `Sketch` objects.
 The adapter creates sketches where SolidCraft requires them; they remain
