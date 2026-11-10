@@ -26,7 +26,7 @@ def check(site, commit):
     text = homepage.read_text(encoding="utf-8")
     assert commit in text, "site must identify its source commit"
     assert "SCPF" in text and "SCRF" in text
-    for slug in ("plate", "csg-cube", "bracket"):
+    for slug in ("plate", "csg-cube", "bracket", "sample-plate"):
         model = site / "models" / slug
         assert (model / "index.html").is_file(), slug
         assert (model / "model.py").is_file(), slug
