@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CornerBracket · SolidCraft CAD experiments</title><link rel="stylesheet" href="../../results.css"></head>
+<body><header class="top"><div class="wrap"><nav><a class="brand" href="../../">SolidCraft · CAD experiments</a>
+<a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<section class="hero"><div class="wrap"><div class="eyebrow">CAD design / corner-bracket</div>
+<h1>CornerBracket</h1><p>24 mm plywood corner bracket with four countersunk mounting holes</p></div></section>
+<main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
+<span class="badge">29 commands</span><span class="badge">24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes</span></div>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
+<p class="small muted">Native SolidCraft image, matching this source revision.</p>
+<p>The default SCPF model uses one native 90° countersink per hole. The old recessed-hole experiment remains as model_reference.py; this fast variant has a larger tapered opening instead of a flat-bottom head seat. Remaining arm-end points are tracked in issue #20.</p></section>
+<section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
+<div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
+</div>
+<p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
+<h3>Construction stages</h3><ol><li>Profile — 2D L outline with arm-end bevels</li><li>Extrude — symmetric 24 mm body</li><li>Fillet — rounded inside corner R4</li><li>Chamfer — outer edges of both broad faces</li><li>Chamfer — print-face elephant-foot relief</li><li>Four countersinks — single hole feature per location</li></ol></section></div>
+<h2>Python model</h2><pre><code>&quot;&quot;&quot;Fast CornerBracket variant: one native countersink per mounting hole.
+
+Temporary GUI-performance experiment.  Unlike the production reference, the
+counterbore/recess and the 0.2 mm hole-edge relief cuts are omitted.  The
+larger countersink mouth is intentional; it is NOT an exact geometrical
+replacement for a flat-bottom recessed screw-head seat.
+&quot;&quot;&quot;
+
+class CornerBracketFast:
+    bracket_width = 24.0
+    wall_thickness = 12.0
+    horizontal_arm_length = 60.0
+    vertical_arm_length = 60.0
+
+    outer_corner_chamfer = 6.0
+    arm_end_chamfer = 3.0
+    side_edge_chamfer = 2.0
+    elephant_foot_relief = 0.6
+    inside_corner_radius = 4.0
+
+    plywood_thickness = 12.0
+    bolt_offset = 12.0
+    bolt_spacing = 18.0
+    bolt_y_offset = 0.0
+
+    bolt_diameter = 5.0
+    bolt_clearance = 0.4
+    head_diameter = 10.0
+    head_clearance = 0.4
+    head_recess = 1.0
+
+    def build(self):
+        w = self.wall_thickness
+        h = self.horizontal_arm_length
+        v = self.vertical_arm_length
+        end = self.arm_end_chamfer
+        outer = self.outer_corner_chamfer
+        ef = self.elephant_foot_relief
+
+        # Consecutive points describe the seven outer edges to bevel.
+        # These are also used by the sketch: one source of geometry.
+        outer_path_xz = [
+            (h, ef),
+            (h, w - end),
+            (h - end, w),
+            (-w + outer, w),
+            (-w, w - outer),
+            (-w, -v + end),
+            (-w + end, -v),
+            (-ef, -v),
+        ]
+        # SolidCraft&#x27;s XZ sketch local vertical axis points toward world -Z.
+        outline_xz = [
+            (h - ef, 0),
+            *outer_path_xz,
+            (0, -v + ef),
+            (0, 0),
+        ]
+        # Sketch IDs identify the edge that STARTS at each profile point.
+        # They document the shape; 3D chamfer picks still use coordinates
+        # until SCPF can resolve profile IDs to solid edges.
+        segment_ids = [
+            &quot;tip_horizontal_relief&quot;,
+            &quot;outer_horizontal_end&quot;,
+            &quot;outer_horizontal_end_bevel&quot;,
+            &quot;outer_horizontal_face&quot;,
+            &quot;outer_corner_bevel&quot;,
+            &quot;outer_vertical_face&quot;,
+            &quot;outer_vertical_end_bevel&quot;,
+            &quot;outer_vertical_end&quot;,
+            &quot;tip_vertical_relief&quot;,
+            &quot;inside_vertical&quot;,
+            &quot;inside_horizontal&quot;,
+        ]
+        profile = Polygon2D(
+            [(x, -z) for x, z in outline_xz],
+            plane=&quot;XZ&quot;,
+            ids=segment_ids,
+        )
+        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
+        body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
+
+        y0 = self.bracket_width / 2
+        # SolidCraft&#x27;s chamfer command currently selects an edge by a
+        # point on it. Derive those points from the sketch path instead
+        # of duplicating seven coordinate formulas in the model.
+        outer_edges = [
+            ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+            for a, b in zip(outer_path_xz, outer_path_xz[1:])
+        ]
+        body = body.chamfer(
+            self.side_edge_chamfer,
+            edges=[
+                (x, side * y0, z)
+                for side in (-1, 1)
+                for x, z in outer_edges
+            ],
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=[(h / 2, -y0, 0), (h / 2, y0, 0)],
+        )
+
+        # A single 90-degree countersink avoids coincident circle/face cuts.
+        # For 90 degrees, increasing the mouth diameter by 2*recess gives
+        # the original head diameter at the intended nominal recess depth.
+        # Note: this is a tapered opening, not a flat-bottom counterbore.
+        through_d = self.bolt_diameter + self.bolt_clearance
+        mouth_d = self.head_diameter + self.head_clearance + 2 * self.head_recess
+        first = self.plywood_thickness + self.bolt_offset
+
+        for x in (first, first + self.bolt_spacing):
+            body = body + Hole(
+                d=through_d,
+                countersink_d=mouth_d,
+                countersink_angle=90,
+                direction=(0, 0, -1),
+            ).at(x, self.bolt_y_offset, w)
+
+        for z in (-first, -(first + self.bolt_spacing)):
+            body = body + Hole(
+                d=through_d,
+                depth=w + 1.0,
+                countersink_d=mouth_d,
+                countersink_angle=90,
+                direction=(1, 0, 0),
+            ).at(-w, -self.bolt_y_offset, z)
+
+        body
+
+
+CornerBracketFast()
+</code></pre>
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: bracket_width</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bracket_width&quot;,
+    &quot;expression&quot;: &quot;24&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: horizontal_arm_length</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;horizontal_arm_length&quot;,
+    &quot;expression&quot;: &quot;60&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: elephant_foot_relief</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;elephant_foot_relief&quot;,
+    &quot;expression&quot;: &quot;0.6&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: wall_thickness</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;wall_thickness&quot;,
+    &quot;expression&quot;: &quot;12&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: arm_end_chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;arm_end_chamfer&quot;,
+    &quot;expression&quot;: &quot;3&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: outer_corner_chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;outer_corner_chamfer&quot;,
+    &quot;expression&quot;: &quot;6&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: vertical_arm_length</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;vertical_arm_length&quot;,
+    &quot;expression&quot;: &quot;60&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: inside_corner_radius</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;inside_corner_radius&quot;,
+    &quot;expression&quot;: &quot;4&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: side_edge_chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;side_edge_chamfer&quot;,
+    &quot;expression&quot;: &quot;2&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: bolt_diameter</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bolt_diameter&quot;,
+    &quot;expression&quot;: &quot;5&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: bolt_clearance</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bolt_clearance&quot;,
+    &quot;expression&quot;: &quot;0.4&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: head_diameter</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;head_diameter&quot;,
+    &quot;expression&quot;: &quot;10&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: head_clearance</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;head_clearance&quot;,
+    &quot;expression&quot;: &quot;0.4&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: head_recess</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;head_recess&quot;,
+    &quot;expression&quot;: &quot;1&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: plywood_thickness</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;plywood_thickness&quot;,
+    &quot;expression&quot;: &quot;12&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: bolt_offset</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bolt_offset&quot;,
+    &quot;expression&quot;: &quot;12&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: bolt_y_offset</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bolt_y_offset&quot;,
+    &quot;expression&quot;: &quot;0&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: bolt_spacing</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;bolt_spacing&quot;,
+    &quot;expression&quot;: &quot;18&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Profile, plane: XZ</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XZ&quot;,
+    &quot;name&quot;: &quot;Profile&quot;
+  }
+}</code></pre></li>
+<li><strong>Profile edges</strong><small>sketch.line</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.line&quot;,
+  &quot;params&quot;: {
+    &quot;points&quot;: [
+      [
+        &quot;horizontal_arm_length - (elephant_foot_relief)&quot;,
+        0
+      ],
+      [
+        &quot;horizontal_arm_length&quot;,
+        &quot;-(elephant_foot_relief)&quot;
+      ],
+      [
+        &quot;horizontal_arm_length&quot;,
+        &quot;-(wall_thickness - (arm_end_chamfer))&quot;
+      ],
+      [
+        &quot;horizontal_arm_length - (arm_end_chamfer)&quot;,
+        &quot;-(wall_thickness)&quot;
+      ],
+      [
+        &quot;(-(wall_thickness)) + (outer_corner_chamfer)&quot;,
+        &quot;-(wall_thickness)&quot;
+      ],
+      [
+        &quot;-(wall_thickness)&quot;,
+        &quot;-(wall_thickness - (outer_corner_chamfer))&quot;
+      ],
+      [
+        &quot;-(wall_thickness)&quot;,
+        &quot;-((-(vertical_arm_length)) + (arm_end_chamfer))&quot;
+      ],
+      [
+        &quot;(-(wall_thickness)) + (arm_end_chamfer)&quot;,
+        &quot;-(-(vertical_arm_length))&quot;
+      ],
+      [
+        &quot;-(elephant_foot_relief)&quot;,
+        &quot;-(-(vertical_arm_length))&quot;
+      ],
+      [
+        0,
+        &quot;-((-(vertical_arm_length)) + (elephant_foot_relief))&quot;
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    &quot;closed&quot;: true,
+    &quot;ids&quot;: [
+      &quot;tip_horizontal_relief&quot;,
+      &quot;outer_horizontal_end&quot;,
+      &quot;outer_horizontal_end_bevel&quot;,
+      &quot;outer_horizontal_face&quot;,
+      &quot;outer_corner_bevel&quot;,
+      &quot;outer_vertical_face&quot;,
+      &quot;outer_vertical_end_bevel&quot;,
+      &quot;outer_vertical_end&quot;,
+      &quot;tip_vertical_relief&quot;,
+      &quot;inside_vertical&quot;,
+      &quot;inside_horizontal&quot;
+    ]
+  }
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: symmetric, body_name: CornerBracketFast</small><pre><code>{
+  &quot;command&quot;: &quot;solid.extrude&quot;,
+  &quot;params&quot;: {
+    &quot;distance&quot;: &quot;bracket_width&quot;,
+    &quot;direction&quot;: &quot;symmetric&quot;,
+    &quot;body_name&quot;: &quot;CornerBracketFast&quot;
+  }
+}</code></pre></li>
+<li><strong>Rounded edge</strong><small>solid.fillet</small><pre><code>{
+  &quot;command&quot;: &quot;solid.fillet&quot;,
+  &quot;params&quot;: {
+    &quot;edges&quot;: [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    &quot;radius&quot;: 4.0,
+    &quot;body&quot;: &quot;CornerBracketFast&quot;
+  }
+}</code></pre></li>
+<li><strong>Chamfered edge</strong><small>solid.chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;solid.chamfer&quot;,
+  &quot;params&quot;: {
+    &quot;edges&quot;: [
+      [
+        60.0,
+        -12.0,
+        4.8
+      ],
+      [
+        58.5,
+        -12.0,
+        10.5
+      ],
+      [
+        25.5,
+        -12.0,
+        12.0
+      ],
+      [
+        -9.0,
+        -12.0,
+        9.0
+      ],
+      [
+        -12.0,
+        -12.0,
+        -25.5
+      ],
+      [
+        -10.5,
+        -12.0,
+        -58.5
+      ],
+      [
+        -4.8,
+        -12.0,
+        -60.0
+      ],
+      [
+        60.0,
+        12.0,
+        4.8
+      ],
+      [
+        58.5,
+        12.0,
+        10.5
+      ],
+      [
+        25.5,
+        12.0,
+        12.0
+      ],
+      [
+        -9.0,
+        12.0,
+        9.0
+      ],
+      [
+        -12.0,
+        12.0,
+        -25.5
+      ],
+      [
+        -10.5,
+        12.0,
+        -58.5
+      ],
+      [
+        -4.8,
+        12.0,
+        -60.0
+      ]
+    ],
+    &quot;distance&quot;: &quot;side_edge_chamfer&quot;,
+    &quot;body&quot;: &quot;CornerBracketFast&quot;
+  }
+}</code></pre></li>
+<li><strong>Chamfered edge</strong><small>solid.chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;solid.chamfer&quot;,
+  &quot;params&quot;: {
+    &quot;edges&quot;: [
+      [
+        30.0,
+        -12.0,
+        0.0
+      ],
+      [
+        30.0,
+        12.0,
+        0.0
+      ]
+    ],
+    &quot;distance&quot;: &quot;elephant_foot_relief&quot;,
+    &quot;body&quot;: &quot;CornerBracketFast&quot;
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;plywood_thickness + (bolt_offset)&quot;,
+      &quot;bolt_y_offset&quot;,
+      &quot;wall_thickness&quot;
+    ],
+    &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
+    &quot;targets&quot;: [
+      &quot;CornerBracketFast&quot;
+    ],
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    &quot;type&quot;: &quot;countersink&quot;,
+    &quot;cs_diameter&quot;: &quot;(head_diameter + (head_clearance)) + (head_recess * 2)&quot;,
+    &quot;cs_angle&quot;: 90
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;(plywood_thickness + (bolt_offset)) + (bolt_spacing)&quot;,
+      &quot;bolt_y_offset&quot;,
+      &quot;wall_thickness&quot;
+    ],
+    &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
+    &quot;targets&quot;: [
+      &quot;CornerBracketFast&quot;
+    ],
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    &quot;type&quot;: &quot;countersink&quot;,
+    &quot;cs_diameter&quot;: &quot;(head_diameter + (head_clearance)) + (head_recess * 2)&quot;,
+    &quot;cs_angle&quot;: 90
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [1.0, 0.0, 0.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;-(wall_thickness)&quot;,
+      &quot;-(bolt_y_offset)&quot;,
+      &quot;-(plywood_thickness + (bolt_offset))&quot;
+    ],
+    &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
+    &quot;targets&quot;: [
+      &quot;CornerBracketFast&quot;
+    ],
+    &quot;depth&quot;: &quot;wall_thickness + 1 mm&quot;,
+    &quot;direction&quot;: [
+      1.0,
+      0.0,
+      0.0
+    ],
+    &quot;type&quot;: &quot;countersink&quot;,
+    &quot;cs_diameter&quot;: &quot;(head_diameter + (head_clearance)) + (head_recess * 2)&quot;,
+    &quot;cs_angle&quot;: 90
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [1.0, 0.0, 0.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;-(wall_thickness)&quot;,
+      &quot;-(bolt_y_offset)&quot;,
+      &quot;-((plywood_thickness + (bolt_offset)) + (bolt_spacing))&quot;
+    ],
+    &quot;diameter&quot;: &quot;bolt_diameter + (bolt_clearance)&quot;,
+    &quot;targets&quot;: [
+      &quot;CornerBracketFast&quot;
+    ],
+    &quot;depth&quot;: &quot;wall_thickness + 1 mm&quot;,
+    &quot;direction&quot;: [
+      1.0,
+      0.0,
+      0.0
+    ],
+    &quot;type&quot;: &quot;countersink&quot;,
+    &quot;cs_diameter&quot;: &quot;(head_diameter + (head_clearance)) + (head_recess * 2)&quot;,
+    &quot;cs_angle&quot;: 90
+  }
+}</code></pre></li></ol></section>
+<div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
+The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
+Native qualification is reported only when the matching verified image exists.</div>
+<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
+</body></html>
