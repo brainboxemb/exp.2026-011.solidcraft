@@ -85,7 +85,8 @@
             -6
           ]
         ],
-        "radius": 2
+        "radius": 2,
+        "body": "Bracket"
       }
     },
     {

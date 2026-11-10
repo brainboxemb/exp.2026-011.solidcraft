@@ -156,8 +156,7 @@ def _fillet_command(base, radius, edges, name):
     picks = [[value_of(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
-    # Preserve the legacy automatic body resolution for polygon fillets.
-    return _command("solid.fillet", edges=picks, radius=r)
+    return _command("solid.fillet", edges=picks, radius=r, body=name)
 
 
 def _chamfer_command(distance, edges, name):

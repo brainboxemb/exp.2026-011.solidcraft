@@ -44,21 +44,15 @@ class SCPFExamples(unittest.TestCase):
         expected = json.loads(
             (ROOT / "examples/bracket/scpf/solidcraft.json").read_text()
         )
-        if generated != expected:
-            import difflib
-            print("\\n".join(difflib.unified_diff(
-                json.dumps(expected, indent=2).splitlines(),
-                json.dumps(generated, indent=2).splitlines(),
-                fromfile="expected", tofile="generated",
-            )))
         self.assertEqual(generated, expected)
 
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The input source used sketch + cut. SCPF now emits native Hole
-        # features for the same two entry points; the base and fillet match.
-        self.assertEqual(generated["commands"][2:7], original["commands"][2:7])
+        # The profile/extrusion agree with the source; fillet selection
+        # explicitly names the target body rather than relying on GUI state.
+        self.assertEqual(generated["commands"][2:6], original["commands"][2:6])
+        self.assertEqual(generated["commands"][6]["params"]["body"], "Bracket")
         self.assertEqual([c["command"] for c in generated["commands"][7:]],
                          ["solid.hole", "solid.hole"])
         self.assertEqual([c["params"]["position"]
