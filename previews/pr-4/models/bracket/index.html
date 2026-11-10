@@ -5,10 +5,10 @@
 <a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / bracket</div>
 <h1>Bracket</h1><p>An L-shaped extrusion with two mounting holes</p></div></section>
-<main class="wrap"><div class="metadata"><span class="badge pending">Generated command plan · native render not verified for this commit</span>
+<main class="wrap"><div class="metadata"><span class="badge pending">Previously verified render from main · not verified for this PR</span>
 <span class="badge">12 commands</span><span class="badge">60 mm wide; 6 mm wall; two Ø8 mm holes</span></div>
-<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg"><path d="M104 195 104 34 145 34 145 163 388 163 388 207 104 207Z" fill="#b4cde9" stroke="#285785" stroke-width="5"/><path d="M145 163 174 188 407 188 388 163 M388 207 407 188" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="230" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/><ellipse cx="330" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/></svg></div>
-<p class="small muted">Schematic drawing only; it is not a SolidCraft geometry render.</p>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
+<p class="small muted">Previously verified SolidCraft render from main; this PR revision is not yet native-verified.</p>
 <p>An XZ polygon extruded along Y, with an edge fillet and an XY sketch for the two mounting holes.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
@@ -46,7 +46,7 @@ Bracket()
 <li><strong>Circle</strong><small>sketch.circle.center</small></li>
 <li><strong>Finish sketch</strong><small>sketch.finish</small></li>
 <li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, operation: cut</small></li></ol></section>
-<div class="notice"><strong>Verification:</strong> Generated command plan · native render not verified for this commit.
+<div class="notice"><strong>Verification:</strong> Previously verified render from main · not verified for this PR.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
 <p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
