@@ -168,7 +168,7 @@ class Shape:
     def __sub__(self, other):
         return Shape("difference", (self, _shape(other)))
 
-    def _apply_feature(self, feature, operation, *, on=None,
+    def _apply_feature(self, feature, operation, *, on=None, at=None,
                        child=Anchor.BOTTOM, offset=(0, 0), name=None):
         """Apply a positioned CAD feature to this body in one operation.
 
@@ -176,9 +176,15 @@ class Shape:
         mentioned once. Existing .on()/.attach() and +/- stay valid.
         """
         feature = _shape(feature)
+        if on is not None and at is not None:
+            raise ValueError("choose on=Anchor.TOP or at=(x, y, z), not both")
         if on is not None:
             feature = feature.attach(
                 self, parent=on, child=child, offset=offset)
+        elif at is not None:
+            if not isinstance(at, (tuple, list)) or len(at) != 3:
+                raise ValueError("at must be an (x, y, z) point")
+            feature = feature.at(*at)
         elif offset != (0, 0) or child is not Anchor.BOTTOM:
             raise ValueError("child/offset require on=Anchor.TOP/BOTTOM/CENTER")
         if name is not None:
@@ -187,16 +193,16 @@ class Shape:
             feature = Shape("labeled", (feature, name))
         return Shape(operation, (self, feature))
 
-    def add(self, feature, *, on=None, child=Anchor.BOTTOM,
+    def add(self, feature, *, on=None, at=None, child=Anchor.BOTTOM,
             offset=(0, 0), name=None):
         """Add a CAD feature, including native Hole features that cut material."""
-        return self._apply_feature(feature, "union", on=on, child=child,
+        return self._apply_feature(feature, "union", on=on, at=at, child=child,
                                    offset=offset, name=name)
 
-    def cut(self, feature, *, on=None, child=Anchor.BOTTOM,
+    def cut(self, feature, *, on=None, at=None, child=Anchor.BOTTOM,
             offset=(0, 0), name=None):
         """Remove material using a cutter or an explicitly sketched extrusion."""
-        return self._apply_feature(feature, "difference", on=on, child=child,
+        return self._apply_feature(feature, "difference", on=on, at=at, child=child,
                                    offset=offset, name=name)
 
     def move(self, x=0, y=0, z=0):
