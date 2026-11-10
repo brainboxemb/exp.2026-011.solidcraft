@@ -13,7 +13,7 @@ class Enclosure:
         lip = Lip(width=1, height=2).attach(
             enclosure,
             parent=Anchor.TOP,
-            offset=(Bounds.MIN + 1, Bounds.CENTER),
+            offset=(X.MIN + 1, Y.CENTER),
         )
         enclosure = enclosure + lip
 
@@ -27,21 +27,21 @@ class Enclosure:
         ).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.CENTER, Bounds.MAX - 6),
+            offset=(X.CENTER, Y.MAX - 6),
         )
         enclosure = enclosure + snap
 
         boss1 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.MIN + 10, Bounds.MIN + 10),
+            offset=(X.MIN + 10, Y.MIN + 10),
         )
         enclosure = enclosure + boss1
 
         boss2 = Boss(d=7, h=12, hole_d=2.5).attach(
             enclosure,
             parent=Anchor.INNER_BOTTOM,
-            offset=(Bounds.MAX - 10, Bounds.MAX - 10),
+            offset=(X.MAX - 10, Y.MAX - 10),
         )
         enclosure = enclosure + boss2
 
