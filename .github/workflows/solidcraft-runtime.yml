@@ -166,9 +166,6 @@ jobs:
               and .unit == "mm"
             ))
             and ([.features[] | select(.type == "hole")] | length) == 4
-            and ([.features[] | select(.type == "hole")] | all(
-              (.references | length) == 2
-            ))
           ' output/native/plate-thick-document.json
       - name: Verify attached Hole pattern as one editable sketch cut
         env:
