@@ -64,6 +64,17 @@ def run_script(path: str | Path) -> dict:
         "Y": core.Y,
         "Z": core.Z,
     }
+    # SCPF convenience: a model function ending in a bare Shape expression
+    # implicitly returns that expression. Normal Python does not do this.
+    # Explicit 'return' remains supported and assignment-only functions
+    # still require it to avoid guessing which variable is the model.
+    for item in syntax.body:
+        if isinstance(item, ast.FunctionDef) and item.name == name:
+            if item.body and isinstance(item.body[-1], ast.Expr):
+                item.body[-1] = ast.copy_location(
+                    ast.Return(value=item.body[-1].value), item.body[-1]
+                )
+
     ast.fix_missing_locations(syntax)
     exec(compile(syntax, str(path), "exec"), context)
     context[name] = _model_function(context[name])
