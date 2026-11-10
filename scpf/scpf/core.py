@@ -4,12 +4,19 @@ All unadorned numerical values are millimetres. Model function arguments
 become named parameters by the runner, not by user-written decorators.
 """
 from dataclasses import dataclass
+from enum import Enum
 from math import isfinite
 from typing import Any
 
 
 def number_text(value: float) -> str:
     return format(value, "g")
+
+
+class Direction(str, Enum):
+    """Extrusion direction relative to the sketch plane normal."""
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
 
 
 @dataclass(frozen=True)
@@ -130,12 +137,14 @@ class Shape:
             raise ValueError("move() currently supports only CSG shapes")
         return Shape("translated", (self, offsets))
 
-    def extrude(self, distance, *, direction="positive"):
+    def extrude(self, distance, *, direction=Direction.POSITIVE):
         if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
             raise ValueError("extrude() requires a 2D profile")
-        if direction not in ("positive", "negative"):
-            raise ValueError("extrude direction must be positive or negative")
-        return Shape("extrusion", (self, distance, direction))
+        try:
+            direction = Direction(direction)
+        except ValueError as exc:
+            raise ValueError("extrude direction must be Direction.POSITIVE or Direction.NEGATIVE") from exc
+        return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges="vertical"):
         if edges != "vertical":

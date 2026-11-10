@@ -108,6 +108,22 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
         self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
 
+    def test_direction_enum_compiles_to_solidcraft_strings(self):
+        from scpf.core import Circle2D, Direction
+        from scpf.compiler import compile_model
+        self.assertEqual(Direction.POSITIVE.value, "positive")
+        self.assertEqual(Direction.NEGATIVE.value, "negative")
+        shape = Circle2D(d=8).extrude(8, direction=Direction.NEGATIVE)
+        self.assertEqual(shape.data[2], "negative")
+        self.assertEqual(
+            Circle2D(d=8).extrude(8, direction="negative").data[2], "negative"
+        )
+        self.assertEqual(
+            Circle2D(d=8).extrude(8).data[2], "positive"
+        )
+        with self.assertRaises(ValueError):
+            Circle2D(d=8).extrude(8, direction="sideways")
+
     def test_cylinder_keyword_form_is_direct_3d_primitive(self):
         from scpf.core import Cylinder
         self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder3d")
