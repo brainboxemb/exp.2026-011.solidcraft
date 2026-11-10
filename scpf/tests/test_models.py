@@ -117,6 +117,23 @@ class SCPFExamples(unittest.TestCase):
         )
         self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
 
+    def test_anchored_holes_example_compiles_to_one_holes_sketch(self):
+        commands = run_script(
+            ROOT / "examples/anchored-holes/scpf/model.py")["commands"]
+        self.assertEqual(
+            [c["params"]["name"] for c in commands
+             if c["command"] == "sketch.create"],
+            ["Base", "Holes"],
+        )
+        self.assertEqual(
+            [c["params"]["center"] for c in commands
+             if c["command"] == "sketch.circle.center"],
+            [[50, 10], [50, 50]],
+        )
+        self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
+        self.assertEqual(commands[-1]["command"], "solid.extrude")
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
+
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
         body = Box(80, 50, 8)
