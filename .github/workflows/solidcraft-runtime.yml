@@ -425,6 +425,16 @@ jobs:
           mkdir -p output/native/corner-bracket
           python -m scpf examples/corner-bracket/scpf/model.py \
             --out output/native/corner-bracket/commands.json
+          jq '{
+            commands: (
+              .commands[:24] +
+              [{"command":"model.edges","params":{"body":"CornerBracket"}}]
+            )
+          }' output/native/corner-bracket/commands.json \
+            > output/native/corner-bracket/pre-chamfer-edges.json
+          solidcraft-cli run output/native/corner-bracket/pre-chamfer-edges.json \
+            --results \
+            --json-out output/native/corner-bracket/pre-chamfer-results.json
           jq -e '
             ([.commands[] | select(.command == "solid.fillet")] | length) == 1
             and ([.commands[] | select(.command == "solid.chamfer")] | length) == 2
