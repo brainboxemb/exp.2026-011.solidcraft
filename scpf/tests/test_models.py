@@ -192,11 +192,15 @@ class SCPFExamples(unittest.TestCase):
         boss = Cylinder(d=24, h=14).attach(
             base, parent=Anchor.TOP, child=Anchor.BOTTOM)
         commands = compile_model(base + boss, "Plate")["commands"]
-        cylinder = commands[-1]["params"]
-        self.assertEqual(cylinder["operation"], "join")
-        self.assertEqual(cylinder["base"], [40, 25, 8])
-        self.assertEqual(cylinder["references"][0]["distance"], "(width / 2)")
-        self.assertEqual(cylinder["references"][1]["distance"], "(depth / 2)")
+        self.assertEqual(commands[-1]["command"], "solid.extrude")
+        self.assertEqual(commands[-1]["params"]["operation"], "join")
+        sketches = [c["params"] for c in commands if c["command"] == "sketch.create"]
+        self.assertEqual(sketches[-1]["name"], "Boss")
+        self.assertEqual(sketches[-1]["offset"], "thickness")
+        boss_circle = [c["params"] for c in commands
+                       if c["command"] == "sketch.circle.center"][-1]
+        self.assertEqual(boss_circle["diameter"], 24)
+        self.assertEqual(boss_circle["center"], [40, 25])
 
     def test_relative_anchor_rejects_unsupported_usage(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D, Sphere
