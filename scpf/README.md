@@ -102,6 +102,22 @@ canonical comparison fixture is retained at
 `examples/bracket/scpf/solidcraft.json`. The uploaded original is at
 `examples/bracket/source/bracket.json`.
 
+**Replay an existing SolidCraft command JSON directly** (no conversion):
+
+```powershell
+python -m scpf replay examples/bracket/source/bracket.json
+```
+
+This sends the JSON commands **unchanged** to the open SolidCraft app.
+You may also pass `--connect` and an explicit port, but normally neither
+is needed. The original Bracket JSON starts with `parameters.change`;
+create `width` and `thickness` in the current design first. For a
+**new empty document** use the standalone SCPF-generated JSON instead:
+
+```powershell
+python -m scpf replay examples/bracket/scpf/solidcraft.json
+```
+
 **2. Execute in the currently running SolidCraft GUI** (live):
 
 ```powershell
