@@ -131,8 +131,8 @@ class Shape:
         return Shape("translated", (self, offsets))
 
     def extrude(self, distance, *, direction="positive"):
-        if self.kind not in ("polygon", "rectangle"):
-            raise ValueError("extrude() requires a Polygon or Rectangle")
+        if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
+            raise ValueError("extrude() requires a 2D profile")
         if direction not in ("positive", "negative"):
             raise ValueError("extrude direction must be positive or negative")
         return Shape("extrusion", (self, distance, direction))
@@ -155,17 +155,15 @@ class Shape:
             raise ValueError("holes require at least one (x, y) centre")
         return Shape("holes", (self, positions, diameter, depth, plane))
 
-    def boss(self, *, center, diameter, height):
-        """Join a circular boss on the top of an extruded XY plate."""
-        if len(center) != 2:
-            raise ValueError("boss requires an XY centre")
-        return Shape("boss", (self, tuple(center), diameter, height))
+    def at(self, x=0, y=0, z=0):
+        """Place a 2D profile in world coordinates.
 
-    def bore(self, *, center, diameter, depth=None):
-        """Drill down from the top of the boss through its underlying plate."""
-        if len(center) != 2:
-            raise ValueError("bore requires an XY centre")
-        return Shape("bore", (self, tuple(center), diameter, depth))
+        For XY sketches, x and y locate the profile on its sketch plane;
+        z offsets the sketch plane. The profile remains a reusable Shape.
+        """
+        if self.kind not in ("circle", "rectangle", "polygon", "positioned"):
+            raise ValueError("at() currently supports planar profiles")
+        return Shape("positioned", (self, x, y, z))
 
     def pattern(self, *, x, y):
         if self.kind != "cylinder":
@@ -191,6 +189,14 @@ def _shape(value):
 def Rectangle(width, depth):
     """Create a parameterized XY rectangle, anchored at the origin."""
     return Shape("rectangle", (width, depth))
+
+
+def Circle(*, d=None, r=None):
+    """2D circle specified by diameter (d) or radius (r), as in BOSL2."""
+    if (d is None) == (r is None):
+        raise ValueError("Circle requires exactly one of d= or r=")
+    diameter = d if d is not None else r * 2
+    return Shape("circle", (diameter,))
 
 
 def Polygon(points, *, plane="XY"):
