@@ -199,9 +199,11 @@ The [reconstructed SCPF class](../examples/sample-plate/scpf/model.py)
 now follows the original **four sketches and nine features**:
 `Base` → Extrude → Fillet → `Holes` → Cut → `Boss` → Join →
 `Bore` → Cut. This matters for editable history, not merely matching the
-final shape. The two mounting holes, boss and bore use `Circle2D` sketches;
-the boss and bore sketches keep a symbolic plane offset based on
-`thickness`. The original saved design is kept unchanged.
+final shape. The mounting holes use `Circle2D`. The boss and bore use
+`Cylinder(...).attach(plate, parent=..., child=...)` in Python;
+the adapter creates their native circle sketches and extrusions internally,
+with sketch plane offsets linked to `thickness`. No explicit Boss or Bore
+sketch is needed in the Python script. The original saved design is kept unchanged.
 
 The **separate** [anchored-holes example](../examples/anchored-holes/scpf/model.py)
 demonstrates native `solid.hole` with edge references. That is a different
