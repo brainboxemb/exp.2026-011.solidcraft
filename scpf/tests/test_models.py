@@ -712,6 +712,21 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(holes[1]["params"]["depth"], 1.0)
         self.assertEqual(holes[1]["params"]["position"], [-20, 0, 6])
 
+    def test_bracket_countersink_position_has_no_zero_offsets(self):
+        # A recessed axial hole must not add head_recess * 0 to X or Y.
+        import json
+        commands = run_script(
+            ROOT / "examples/corner-bracket/scpf/model.py"
+        )["commands"]
+        self.assertNotIn("head_recess * 0", json.dumps(commands))
+        holes = [c for c in commands if c["command"] == "solid.hole"]
+        countersinks = [c for c in holes if
+                        c["params"].get("type") == "countersink"]
+        self.assertEqual(len(countersinks), 4)
+        for hole in countersinks:
+            self.assertTrue(all("* 0" not in str(x)
+                                for x in hole["params"]["position"]))
+
     def test_production_corner_bracket_compiles_to_native_feature_history(self):
         commands = run_script(
             ROOT / "examples/corner-bracket/scpf/model.py"
