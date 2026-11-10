@@ -31,27 +31,23 @@ CsgCube(50mm);
 That supports our goal: callers should see Part, Hole and Fillet,
 never `sketch.finish` or command IDs.
 
-### 2. Give physical quantities explicit types and units
+### 2. Keep dimensions and parameter expressions explicit
 
-µcad uses `Length` and values like `50mm`. Our Rust PoP now also
-has a deliberately minimal domain type:
+µcad uses typed quantities such as `50mm`. SCPF currently uses Python
+numbers in millimetres and binds dataclass fields to named SolidCraft
+parameters. We have not introduced a full physical-unit type system.
 
-```rust
-use scrf::cad::{Length, Part, Hole};
+```python
+@dataclass
+class Plate:
+    width: float = 100
+    thickness: float = 10
 
-let part = Part::box_with_units(
-    Length::mm(100.0), Length::inches(2.0), Length::mm(10.0)
-)?;
-let hole = Hole::with_units(
-    Length::mm(0.0), Length::mm(0.0), Length::mm(8.0)
-)?;
+    def build(self):
+        Rectangle2D(self.width, 60).extrude(self.thickness)
+
+Plate()
 ```
-
-These typed calls normalize to millimeters *in the CAD domain* and
-reject invalid sizes in the downstream constructors. They are an optional
-alternative to the first PoP's f64-in-mm shortcut, not yet a complete
-physical quantities system. Angle, area, volume and expressions remain
-future work.
 
 ### 3. Separate Part, Sketch and Operation as domain concepts
 
@@ -70,7 +66,7 @@ Borrow the *principle* of µcad's definition/evaluation separation,
 without creating a new language or geometry kernel:
 
 ```text
-Rust Part / Sketch / parameters (declarative CAD intent)
+Python objects / named parameters (declarative CAD intent)
          ↓
 Domain checks, dimensions and named references
          ↓
@@ -99,8 +95,7 @@ engines is in our implementation.
 
 ## Validation and next step
 
-Check typed length conversion in Rust CI, then **qualify our existing
-semantic box/fillet/holes fixture on SolidCraft 0.30.1** before adding
-more abstraction. The difficult next problem is reliable, CAD-semantic
+Qualify Python-native Hole and attachment features with SolidCraft
+before introducing more abstractions. The difficult next problem is reliable, CAD-semantic
 face and edge selection against SolidCraft's actual topology, and
 preserving named parameters in an editable native design.
