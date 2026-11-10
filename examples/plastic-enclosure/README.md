@@ -27,11 +27,18 @@ The original SolidCraft history contains **no sketches**.
 enclosure = Box(self.length, self.width, self.height)
 enclosure = enclosure.shell(self.wall, open=Faces.TOP)
 
-enclosure = enclosure + Lip(width=1, height=2).at(...)
-enclosure = enclosure + SnapFit(...).at(...)
-enclosure = enclosure + Boss(d=7, h=12, hole_d=2.5).at(...)
-enclosure = enclosure + Boss(d=7, h=12, hole_d=2.5).at(...)
-enclosure + Rest(width=16, length=24, height=3).at(...)
+enclosure = enclosure + Lip(width=1, height=2).attach(
+    enclosure, parent=Anchor.TOP, offset=(...)
+)
+enclosure = enclosure + SnapFit(...).attach(
+    enclosure, parent=Anchor.INNER_BOTTOM, offset=(...)
+)
+enclosure = enclosure + Boss(...).attach(
+    enclosure, parent=Anchor.INNER_BOTTOM, offset=(...)
+)
+enclosure + Rest(...).attach(
+    enclosure, parent=Anchor.INNER_BOTTOM
+)
 ```
 
 `Faces.TOP` is a face selector for `shell()`. It is deliberately separate
@@ -42,6 +49,9 @@ corner at `[0, 0, 0]`. The feature pick coordinates are therefore translated
 by `[-40, -25, 0]`; the enclosure dimensions and relative feature locations
 remain the same.
 
-The native CI qualification verifies the saved feature sequence and names,
-checks that the resulting body is closed, and explicitly checks that no
-sketches were created.
+The uploaded SolidCraft source contains no sketches. SCPF deliberately keeps
+its normal `Box` representation instead: one footprint sketch plus an
+extrusion, followed by the native Shell/Lip/SnapFit/Boss/Rest features.
+
+The native CI qualification verifies that history, checks that the resulting
+body is closed, and checks that exactly one base sketch is present.
