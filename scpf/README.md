@@ -208,3 +208,12 @@ python -m scpf examples/sample-plate/scpf/model.py --connect
 The live command requires a new empty SolidCraft design; the generated
 command plan creates its own parameters. Native validation is required
 before accepting this reconstruction as geometrically equivalent.
+
+## SCPF API cheatsheet
+
+The generated results site includes a [SCPF cheatsheet](../site/) under
+`/cheatsheet/`. It separates 2D profiles (`Rectangle2D`, `Circle2D`,
+`Polygon2D`) from direct 3D primitives (`Box3D`, `Cylinder3D`, `Sphere3D`),
+and documents operations, run commands and the scope of future anchors.
+Existing shorter names remain compatible. `Cylinder3D` uses a **base**
+placement, while the older `Cylinder` is height-centered.

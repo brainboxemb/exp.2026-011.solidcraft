@@ -23,8 +23,15 @@ def check(site, commit):
     homepage = site / "index.html"
     assert homepage.is_file()
     assert (site / "results.css").is_file()
+    cheatsheet = site / "cheatsheet" / "index.html"
+    assert cheatsheet.is_file()
+    guide = cheatsheet.read_text(encoding="utf-8")
+    for term in ("Rectangle2D", "Circle2D", "Cylinder3D", "extrude", "issue #5"):
+        assert term in guide, term
+
     text = homepage.read_text(encoding="utf-8")
     assert commit in text, "site must identify its source commit"
+    assert 'href="cheatsheet/"' in text
     assert "SCPF" in text and "SCRF" in text
     for slug in ("plate", "csg-cube", "bracket", "sample-plate"):
         model = site / "models" / slug

@@ -92,6 +92,26 @@ def _to_commands(shape, body_name):
     if shape.kind in ("union", "difference"):
         original, cutter = shape.data
         steps, base = _to_commands(original, body_name)
+        # A native 3D cylinder does not require a 2D sketch or extrusion.
+        if cutter.kind in ("cylinder3d", "placed3d"):
+            if cutter.kind == "placed3d":
+                primitive, x, y, z = cutter.data
+            else:
+                primitive, x, y, z = cutter, 0, 0, 0
+            if primitive.kind != "cylinder3d":
+                raise ModelError("Only cylinders can join/cut this feature chain")
+            height, diameter = primitive.data
+            _require_positive(height, "cylinder height")
+            _require_positive(diameter, "cylinder diameter")
+            return steps + [
+                _command("solid.cylinder",
+                         height=command_value(height),
+                         diameter=command_value(diameter),
+                         base=[command_value(x), command_value(y), command_value(z)],
+                         axis="Z",
+                         operation="join" if shape.kind == "union" else "cut",
+                         targets=[body_name])
+            ], base
         if cutter.kind != "extrusion":
             raise ModelError("Boolean feature must use an extruded 2D sketch")
         profiles, distance, direction = cutter.data

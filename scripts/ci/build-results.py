@@ -94,7 +94,7 @@ def layout(title, body, css_path, home_path):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · SolidCraft CAD experiments</title><link rel="stylesheet" href="{esc(css_path)}"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="{esc(home_path)}">SolidCraft · CAD experiments</a>
-<a href="{esc(home_path)}">Models</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<a href="{esc(home_path)}">Models</a><a href="{esc(home_path)}cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 {body}<footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
 </body></html>"""
 
@@ -192,8 +192,8 @@ Native qualification is reported only when the matching verified image exists.</
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
     home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SCRF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore three small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
-<main class="wrap"><section class="intro"><h2>Model catalog</h2>
+<p>Explore four small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
+<main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. A rendered preview is shown only after a matching native SolidCraft run.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
 <div class="grid">{''.join(cards)}</div><h2>How it works</h2>
@@ -205,9 +205,90 @@ Native qualification is reported only when the matching verified image exists.</
     (out / "index.html").write_text(
         layout("Models", home, "results.css", "./"), encoding="utf-8"
     )
+    make_cheatsheet(out)
     (out / ".nojekyll").write_text("", encoding="utf-8")
     print(f"Built {len(MODELS)} CAD result pages in {out} ({verified_count} native screenshots)")
 
+
+
+def make_cheatsheet(out):
+    """Quick reference reflects implemented SCPF APIs, not BOSL2's full API."""
+    sections = [
+        ("2D shapes · sketches", [
+            ("Rectangle2D(width, depth)", "XY rectangle whose lower-left corner is at (0, 0).",
+             "Rectangle2D(80, 50)"),
+            ("Circle2D(d=... or r=...)", "Circle with diameter or radius; use it in a sketch.",
+             "Circle2D(d=8).at(12, 25)"),
+            ("Polygon2D(points, plane='XY')", "Closed planar polygon; XY, XZ or YZ.",
+             "Polygon2D([(0, 0), (40, 0), (0, 30)])"),
+        ]),
+        ("3D shapes · volumes", [
+            ("Box3D(length, width, height)", "3D box alias. Current Box API uses a centered footprint.",
+             "Box3D(80, 50, 8)"),
+            ("Cylinder3D(d=..., h=...)", "Direct cylinder; z=0 is its bottom face.",
+             "Cylinder3D(d=24, h=14).at(40, 25, 8)"),
+            ("Sphere3D(radius)", "3D sphere centered on the origin.",
+             "Sphere3D(20)"),
+            ("Cube(size)", "Cube centered on the origin.",
+             "Cube(50)"),
+        ]),
+        ("Operations", [
+            ("shape.at(x, y, z)", "Place a Circle2D, Rectangle2D or Cylinder3D; 2D z offsets the sketch plane.",
+             "Circle2D(d=8).at(12, 25)"),
+            ("profile.extrude(distance)", "Extrude a planar sketch into a 3D solid.",
+             "Rectangle2D(80, 50).extrude(8)"),
+            ("profile.extrude(distance, direction='negative')", "Extrude towards negative sketch normal.",
+             "Circle2D(d=8).extrude(8, direction='negative')"),
+            ("a + b", "Union/join. An extruded circular sketch or direct Cylinder3D can join a rectangular base.",
+             "plate + Cylinder3D(d=24, h=14).at(40, 25, 8)"),
+            ("a - b", "Difference/cut. Keep the original left-hand solid.",
+             "plate - Cylinder3D(d=12, h=22).at(40, 25, 0)"),
+            ("a & b", "Intersection for supported CSG primitives.",
+             "Sphere3D(30) & Cube(50)"),
+            ("solid.fillet(radius, edges='vertical')", "Round four vertical edges of an extruded rectangular base.",
+             "plate.fillet(6, edges='vertical')"),
+        ]),
+        ("Run and inspect", [
+            ("python -m scpf model.py --out out.json", "Compile commands without starting SolidCraft.",
+             "python -m scpf examples/sample-plate/scpf/model.py --out output/sample.json"),
+            ("python -m scpf model.py --connect", "Apply commands to an already open, empty SolidCraft GUI document.",
+             "python -m scpf examples/sample-plate/scpf/model.py --connect"),
+            ("python -m scpf replay file.json", "Execute an existing command JSON unchanged in SolidCraft.",
+             "python -m scpf replay examples/bracket/scpf/solidcraft.json"),
+        ]),
+    ]
+    blocks = []
+    for heading, entries in sections:
+        cards = "".join(
+            '<article class="panel"><h3><code>' + esc(api) + '</code></h3>'
+            '<p>' + esc(description) + '</p><pre><code>' + esc(example) +
+            '</code></pre></article>'
+            for api, description, example in entries
+        )
+        blocks.append('<section><h2>' + esc(heading) +
+                      '</h2><div class="cheatsheet-grid">' + cards +
+                      '</div></section>')
+    body = (
+        '<section class="hero"><div class="wrap"><div class="eyebrow">SCPF / API reference</div>'
+        '<h1>SCPF cheatsheet</h1><p>2D sketches, 3D volumes and native SolidCraft operations.</p></div></section>'
+        '<main class="wrap"><div class="notice">Only a subset of the generic API is implemented.'
+        ' Older names <code>Rectangle</code>, <code>Circle</code>, <code>Polygon</code>,'
+        ' <code>Box</code>, <code>Cylinder</code> and <code>Sphere</code> remain for compatibility.'
+        ' <code>Cylinder</code> uses an older centered-height convention;'
+        ' <code>Cylinder3D</code> starts at its base. Examples describe the API,'
+        ' not guarantees that every combination of operations is supported.</div>'
+        + "".join(blocks) +
+        '<section><h2>Next iteration · not implemented</h2><p>Generic object-relative anchors,'
+        ' face/edge references and fully associative SolidCraft constraints are tracked in'
+        ' <a href="https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/5">issue #5</a>.'
+        ' The current coordinate-based examples are not equivalent to fully constrained features.</p></section>'
+        '<p><a href="../">← Back to model catalog</a></p></main>'
+    )
+    dest = out / "cheatsheet"
+    dest.mkdir(parents=True, exist_ok=True)
+    (dest / "index.html").write_text(
+        layout("SCPF cheatsheet", body, "../results.css", "../"), encoding="utf-8"
+    )
 
 def main():
     parser = argparse.ArgumentParser()

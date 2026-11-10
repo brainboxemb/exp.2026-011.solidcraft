@@ -98,6 +98,14 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0)):
         params = dict(radius=command_value(radius), center=list(offset),
                       operation=operation)
         command = "solid.sphere"
+    elif kind == "cylinder3d":
+        height, diameter = data
+        _require_positive(height, "cylinder height")
+        _require_positive(diameter, "cylinder diameter")
+        params = dict(height=command_value(height),
+                      diameter=command_value(diameter),
+                      base=list(offset), axis="Z", operation=operation)
+        command = "solid.cylinder"
     elif kind == "cylinder":
         height, diameter = data
         _require_positive(height, "cylinder height")
@@ -136,10 +144,15 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
 
 
 def _csg_new(shape, name, offset=(0, 0, 0)):
+    if shape.kind == "placed3d":
+        child, x, y, z = shape.data
+        if child.kind != "cylinder3d":
+            raise ModelError("Only Cylinder3D is supported by 3D placement")
+        return _csg_new(child, name, (command_value(x), command_value(y), command_value(z)))
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_new(child, name, _shift(offset, delta))
-    if shape.kind in ("cube", "sphere", "cylinder"):
+    if shape.kind in ("cube", "sphere", "cylinder", "cylinder3d"):
         return [_csg_primitive(shape, name, "new", offset=offset)]
     if shape.kind == "intersection":
         left, right = shape.data

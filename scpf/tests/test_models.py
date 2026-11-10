@@ -62,57 +62,69 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
-    def test_sample_plate_reconstructed_from_saved_history(self):
-        source = json.loads((ROOT / "examples/sample-plate/source/Sample Plate.json").read_text())
-        generated = run_script(ROOT / "examples/sample-plate/scpf/model.py")
-        steps = generated["commands"]
-        self.assertEqual([p["name"] for p in source["params"][:3]],
-                         ["width", "depth", "thickness"])
-        self.assertEqual(
-            [p["params"]["name"] for p in steps if p["command"] == "parameters.add"],
-            ["width", "depth", "thickness"],
+    def test_sample_plate_uses_generic_2d_and_3d_operations(self):
+        source = json.loads(
+            (ROOT / "examples/sample-plate/source/Sample Plate.json").read_text()
         )
+        generated = run_script(ROOT / "examples/sample-plate/scpf/model.py")
+        commands = generated["commands"]
         self.assertEqual(len(source["features"]), 9)
         self.assertEqual(
-            [x["type"] for x in source["features"]],
-            ["sketch", "extrude", "fillet", "sketch", "extrude",
-             "sketch", "extrude", "sketch", "extrude"],
+            [c["params"]["name"] for c in commands if c["command"] == "sketch.create"],
+            ["Base", "Holes"],
         )
         self.assertEqual(
-            [x["params"]["name"] for x in steps if x["command"] == "sketch.create"],
-            ["Base", "Holes", "Boss", "Bore"],
+            [c["params"]["diameter"] for c in commands
+             if c["command"] == "sketch.circle.center"], [8, 8],
         )
+        cylinders = [c["params"] for c in commands if c["command"] == "solid.cylinder"]
+        self.assertEqual(len(cylinders), 2)
+        self.assertEqual([c["operation"] for c in cylinders], ["join", "cut"])
+        self.assertEqual([c["diameter"] for c in cylinders], [24, 12])
+        self.assertEqual([c["height"] for c in cylinders],
+                         [14, "thickness + 14 mm"])
+        self.assertEqual([c["base"] for c in cylinders],
+                         [[40, 25, "thickness"], [40, 25, 0]])
         self.assertEqual(
-            [x["params"]["diameter"] for x in steps
-             if x["command"] == "sketch.circle.center"], [8, 8, 24, 12],
+            [c["params"]["expression"] for c in commands[:3]], ["80", "50", "8"]
         )
-        self.assertEqual(
-            [x["params"]["operation"] for x in steps
-             if x["command"] == "solid.extrude" and "operation" in x["params"]],
-            ["cut", "join", "cut"],
-        )
-        self.assertEqual(
-            [x["params"]["offset"] for x in steps
-             if x["command"] == "sketch.create" and "offset" in x["params"]],
-            ["thickness", "thickness + 14 mm"],
-        )
-        self.assertEqual(steps[-1]["params"]["distance"], "thickness + 14 mm")
-        self.assertEqual(steps[-1]["params"]["direction"], "negative")
 
-    def test_sample_plate_parameter_override_updates_native_sketch(self):
+    def test_sample_plate_parameter_override_updates_native_commands(self):
         with tempfile.TemporaryDirectory() as directory:
-            src = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
-            file = Path(directory) / "model.py"
-            file.write_text(src.replace("SamplePlate()",
-                                        "SamplePlate(width=100, depth=60, thickness=10)"))
-            generated = run_script(file)
-        self.assertEqual(
-            [x["params"]["expression"] for x in generated["commands"][:3]],
-            ["100", "60", "10"],
-        )
-        rect = next(x for x in generated["commands"]
-                    if x["command"] == "sketch.rectangle.two_point")
-        self.assertEqual(rect["params"]["p1"], ["width", "depth"])
+            source = (ROOT / "examples/sample-plate/scpf/model.py").read_text()
+            script = Path(directory) / "model.py"
+            script.write_text(
+                source.replace("SamplePlate()",
+                               "SamplePlate(width=100, depth=60, thickness=10)")
+            )
+            commands = run_script(script)["commands"]
+        self.assertEqual([c["params"]["expression"] for c in commands[:3]],
+                         ["100", "60", "10"])
+        rectangle = next(c for c in commands
+                         if c["command"] == "sketch.rectangle.two_point")
+        self.assertEqual(rectangle["params"]["p1"], ["width", "depth"])
+        cylinders = [c["params"] for c in commands
+                     if c["command"] == "solid.cylinder"]
+        self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
+        self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
+
+    def test_cylinder3d_standalone_native_command(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "model.py"
+            script.write_text(
+                "@dataclass\\n"
+                "class Pin:\\n"
+                "    diameter: float = 12\\n"
+                "    def build(self):\\n"
+                "        Cylinder3D(d=self.diameter, h=20).at(10, 5, 3)\\n"
+                "Pin()\\n"
+            )
+            commands = run_script(script)["commands"]
+        cylinder = commands[-1]
+        self.assertEqual(cylinder["command"], "solid.cylinder")
+        self.assertEqual(cylinder["params"]["base"], [10, 5, 3])
+        self.assertEqual(cylinder["params"]["diameter"], "diameter")
+        self.assertEqual(cylinder["params"]["operation"], "new")
 
     def test_frozen_dataclass_build_with_implicit_shape(self):
         with tempfile.TemporaryDirectory() as directory:

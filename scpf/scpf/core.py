@@ -161,9 +161,9 @@ class Shape:
         For XY sketches, x and y locate the profile on its sketch plane;
         z offsets the sketch plane. The profile remains a reusable Shape.
         """
-        if self.kind not in ("circle", "rectangle", "polygon", "positioned"):
+        if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d"):
             raise ValueError("at() currently supports planar profiles")
-        return Shape("positioned", (self, x, y, z))
+        return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
 
     def pattern(self, *, x, y):
         if self.kind != "cylinder":
@@ -197,6 +197,31 @@ def Circle(*, d=None, r=None):
         raise ValueError("Circle requires exactly one of d= or r=")
     diameter = d if d is not None else r * 2
     return Shape("circle", (diameter,))
+
+
+def Rectangle2D(width, depth):
+    return Rectangle(width, depth)
+
+
+def Circle2D(*, d=None, r=None):
+    return Circle(d=d, r=r)
+
+
+def Cylinder3D(*, d, h):
+    """Cylinder with its lower face at z=0; use .at() to place it."""
+    return Shape("cylinder3d", (h, d))
+
+
+def Polygon2D(points, *, plane="XY"):
+    return Polygon(points, plane=plane)
+
+
+def Box3D(length, width, height):
+    return Box(length, width, height)
+
+
+def Sphere3D(radius):
+    return Sphere(radius)
 
 
 def Polygon(points, *, plane="XY"):
