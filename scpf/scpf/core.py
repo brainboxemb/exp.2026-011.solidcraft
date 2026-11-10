@@ -17,6 +17,7 @@ class Direction(str, Enum):
     """Extrusion direction relative to the sketch plane normal."""
     POSITIVE = "positive"
     NEGATIVE = "negative"
+    SYMMETRIC = "symmetric"
 
 
 class Anchor(str, Enum):
@@ -243,7 +244,9 @@ class Shape:
         try:
             direction = Direction(direction)
         except ValueError as exc:
-            raise ValueError("extrude direction must be Direction.POSITIVE or Direction.NEGATIVE") from exc
+            raise ValueError(
+                "extrude direction must be POSITIVE, NEGATIVE or SYMMETRIC"
+            ) from exc
         return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges=Edges.VERTICAL):
@@ -403,7 +406,7 @@ def Cylinder(*, d, h):
 
 
 def Hole(*, d, depth=Depth.THROUGH_ALL, direction=None,
-         countersink_d=None, countersink_angle=90):
+         countersink_d=None, countersink_angle=90, countersink_recess=0):
     """Hole intent, optionally directional and countersunk.
 
     Simple attached holes keep the sketch/cut history used by existing SCPF
@@ -427,9 +430,16 @@ def Hole(*, d, depth=Depth.THROUGH_ALL, direction=None,
         angle = value_of(countersink_angle)
         if not isfinite(angle) or angle <= 0 or angle >= 180:
             raise ValueError("countersink angle must be between 0 and 180 degrees")
+        if value_of(countersink_recess) < 0:
+            raise ValueError("countersink recess cannot be negative")
+    elif value_of(countersink_recess) != 0:
+        raise ValueError("countersink recess requires countersink_d")
     return Shape(
         "hole",
-        (d, depth, direction, countersink_d, countersink_angle),
+        (
+            d, depth, direction, countersink_d, countersink_angle,
+            countersink_recess,
+        ),
     )
 
 
