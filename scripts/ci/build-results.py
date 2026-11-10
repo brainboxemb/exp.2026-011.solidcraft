@@ -282,12 +282,10 @@ def make_cheatsheet(out):
     body = (
         '<section class="hero"><div class="wrap"><div class="eyebrow">SCPF / API reference</div>'
         '<h1>SCPF cheatsheet</h1><p>2D sketches, 3D volumes and native SolidCraft operations.</p></div></section>'
-        '<main class="wrap"><div class="notice">Only a subset of the generic API is implemented.'
-        ' Older names <code>Rectangle</code>, <code>Circle</code>, <code>Polygon</code>,'
-        ' <code>Box3D</code>, <code>Cylinder3D</code> and <code>Sphere3D</code> are temporary aliases.'
-        ' Legacy <code>Cylinder(height, diameter)</code> is centered vertically;'
-        ' new <code>Cylinder(d=..., h=...)</code> starts at its base. Examples describe the API,'
-        ' not guarantees that every combination of operations is supported.</div>'
+        '<main class="wrap"><div class="notice">SCPF is an experimental API: some combinations are not yet supported.'
+        ' <code>Cylinder(d=..., h=...)</code> starts at its base;'
+        ' the older positional <code>Cylinder(height, diameter)</code> is centered vertically.'
+        ' See the examples for supported operations.</div>'
         + "".join(blocks) +
         '<section><h2>Next iteration · not implemented</h2><p>Generic object-relative anchors,'
         ' face/edge references and fully associative SolidCraft constraints are tracked in'
