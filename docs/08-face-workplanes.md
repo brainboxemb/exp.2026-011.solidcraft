@@ -8,12 +8,8 @@ Python model. Currently supported anchor selectors are intentionally narrow:
 
 ```python
 plate = Rectangle2D(80, 50).extrude(8)
-boss = Cylinder(d=24, h=14).attach(
-    plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
-plate = plate + boss
-
-bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(plate, Anchor.TOP)
-plate + bore
+plate = plate.add(Cylinder(d=24, h=14), on=Anchor.TOP)
+plate = plate.add(Hole(d=12, depth=Depth.THROUGH_ALL), on=Anchor.TOP)
 ```
 
 The adapter compiles `boss` into a circle sketch and join extrusion.
@@ -42,7 +38,7 @@ From the repository root:
 ```powershell
 python -m pip install -e ./scpf
 python -m unittest discover -s scpf/tests -v
-python -m scpf examples/sample-plate/scpf/model.py --out output/sample-plate.json
+python -m scpf examples/sample-plate/scpf/native-holes.py --out output/sample-plate.json
 code output/sample-plate.json
 solidcraft-cli run output/sample-plate.json --param-check strict --results --save output/sample-plate.sc --out output/sample-plate.step
 solidcraft-cli eval output/sample-plate.sc --json-out output/sample-plate-measurements.json
