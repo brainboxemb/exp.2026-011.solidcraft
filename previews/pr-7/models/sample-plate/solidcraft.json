@@ -106,7 +106,7 @@
       "command": "sketch.circle.center",
       "params": {
         "center": [
-          68,
+          68.0,
           25.0
         ],
         "diameter": 8

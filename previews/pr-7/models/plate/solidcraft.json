@@ -90,29 +90,11 @@
         "position": [
           -35.0,
           -15.0,
-          10.0
+          10
         ],
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50.0,
-              0.0,
-              10
-            ],
-            "distance": "(length / 2) + (-35 mm)"
-          },
-          {
-            "edge": [
-              0.0,
-              -30.0,
-              10
-            ],
-            "distance": "(width / 2) + (-15 mm)"
-          }
         ]
       }
     },
@@ -122,29 +104,11 @@
         "position": [
           35.0,
           -15.0,
-          10.0
+          10
         ],
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50.0,
-              0.0,
-              10
-            ],
-            "distance": "(length / 2) + (35 mm)"
-          },
-          {
-            "edge": [
-              0.0,
-              -30.0,
-              10
-            ],
-            "distance": "(width / 2) + (-15 mm)"
-          }
         ]
       }
     },
@@ -154,29 +118,11 @@
         "position": [
           35.0,
           15.0,
-          10.0
+          10
         ],
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50.0,
-              0.0,
-              10
-            ],
-            "distance": "(length / 2) + (35 mm)"
-          },
-          {
-            "edge": [
-              0.0,
-              -30.0,
-              10
-            ],
-            "distance": "(width / 2) + (15 mm)"
-          }
         ]
       }
     },
@@ -186,29 +132,11 @@
         "position": [
           -35.0,
           15.0,
-          10.0
+          10
         ],
         "diameter": 8,
         "targets": [
           "Plate"
-        ],
-        "references": [
-          {
-            "edge": [
-              -50.0,
-              0.0,
-              10
-            ],
-            "distance": "(length / 2) + (-35 mm)"
-          },
-          {
-            "edge": [
-              0.0,
-              -30.0,
-              10
-            ],
-            "distance": "(width / 2) + (15 mm)"
-          }
         ]
       }
     }

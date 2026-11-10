@@ -1,6 +1,6 @@
 @dataclass
 class SamplePlate:
-    """Reproduce the four editable sketches in the original SolidCraft sample."""
+    """Build the sample plate from object-level CAD intent."""
 
     width: float = 80
     depth: float = 50
@@ -10,27 +10,25 @@ class SamplePlate:
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges=Edges.VERTICAL)
 
-        # Original source history uses a HoleS SKETCH and one extruded cut.
-        holes = (
-            Circle2D(d=8).at(12, self.depth / 2)
-            + Circle2D(d=8).at(self.width - 12, self.depth / 2)
-        )
-        plate = plate.cut(holes.extrude(self.thickness), name="Holes")
+        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+            count=2,
+            spacing=self.width - 24,
+            axis=Axis.X,
+        ).attach(plate, parent=Anchor.TOP)
+        plate = plate + holes
 
-        # Original source history uses a BOSS SKETCH and joined extrusion.
-        boss = Circle2D(d=24).at(
-            self.width / 2, self.depth / 2, self.thickness
+        boss = Cylinder(d=24, h=14).attach(
+            plate,
+            parent=Anchor.TOP,
+            child=Anchor.BOTTOM,
         )
-        plate = plate.add(boss.extrude(14), name="Boss")
+        plate = plate + boss
 
-        # Original source history uses a BORE SKETCH and downward cut.
-        bore = Circle2D(d=12).at(
-            self.width / 2, self.depth / 2, self.thickness + 14
+        bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
+            plate,
+            parent=Anchor.TOP,
         )
-        plate.cut(
-            bore.extrude(self.thickness + 14, direction=Direction.NEGATIVE),
-            name="Bore",
-        )
+        plate + bore
 
 
 SamplePlate()

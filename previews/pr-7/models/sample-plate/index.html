@@ -9,7 +9,7 @@
 <span class="badge">21 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
-<p>Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. A separate native-holes.py example produces the same geometry using SolidCraft Hole features (only two sketches).</p></section>
+<p>Recreates the original saved SolidCraft construction history with four named sketches and sketch-based cuts. The object-level Hole and Cylinder intent is compiled to the four editable sketches and matching cut/join history.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
 </div>
@@ -17,7 +17,7 @@
 <h3>Construction stages</h3><ol><li>Sketch XY rectangle (80 × 50)</li><li>Extrude base by 8 mm</li><li>Fillet four vertical corners, R6</li><li>Cut two mounting holes Ø8</li><li>Join Ø24 boss above plate, height 14</li><li>Cut central Ø12 bore through full 22 mm</li></ol></section></div>
 <h2>Python model</h2><pre><code>@dataclass
 class SamplePlate:
-    &quot;&quot;&quot;Reproduce the four editable sketches in the original SolidCraft sample.&quot;&quot;&quot;
+    &quot;&quot;&quot;Build the sample plate from object-level CAD intent.&quot;&quot;&quot;
 
     width: float = 80
     depth: float = 50
@@ -27,27 +27,25 @@ class SamplePlate:
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges=Edges.VERTICAL)
 
-        # Original source history uses a HoleS SKETCH and one extruded cut.
-        holes = (
-            Circle2D(d=8).at(12, self.depth / 2)
-            + Circle2D(d=8).at(self.width - 12, self.depth / 2)
-        )
-        plate = plate.cut(holes.extrude(self.thickness), name=&quot;Holes&quot;)
+        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+            count=2,
+            spacing=self.width - 24,
+            axis=Axis.X,
+        ).attach(plate, parent=Anchor.TOP)
+        plate = plate + holes
 
-        # Original source history uses a BOSS SKETCH and joined extrusion.
-        boss = Circle2D(d=24).at(
-            self.width / 2, self.depth / 2, self.thickness
+        boss = Cylinder(d=24, h=14).attach(
+            plate,
+            parent=Anchor.TOP,
+            child=Anchor.BOTTOM,
         )
-        plate = plate.add(boss.extrude(14), name=&quot;Boss&quot;)
+        plate = plate + boss
 
-        # Original source history uses a BORE SKETCH and downward cut.
-        bore = Circle2D(d=12).at(
-            self.width / 2, self.depth / 2, self.thickness + 14
+        bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
+            plate,
+            parent=Anchor.TOP,
         )
-        plate.cut(
-            bore.extrude(self.thickness + 14, direction=Direction.NEGATIVE),
-            name=&quot;Bore&quot;,
-        )
+        plate + bore
 
 
 SamplePlate()
@@ -158,7 +156,7 @@ SamplePlate()
   &quot;command&quot;: &quot;sketch.circle.center&quot;,
   &quot;params&quot;: {
     &quot;center&quot;: [
-      68,
+      68.0,
       25.0
     ],
     &quot;diameter&quot;: 8
