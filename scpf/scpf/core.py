@@ -207,6 +207,7 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
 class Shape:
     kind: str
     data: Any
+    history: Any = None
 
     def __and__(self, other):
         return Shape("intersection", (self, _shape(other)))
@@ -333,7 +334,11 @@ class Shape:
                     raise ValueError("bound offset must be finite")
             else:
                 value_of(value)
-        return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
+        return Shape(
+            "anchored",
+            (self, target, parent_anchor, child_anchor, tuple(offset)),
+            self.history,
+        )
 
     def orient(self, *axes):
         if self.kind != "cylinder":
@@ -427,7 +432,13 @@ def Boss(*, d, h, hole_d=None, direction=None):
         direction = tuple(direction)
         if len(direction) != 3:
             raise ValueError("Boss direction must be a 3D direction")
-    return Shape("boss", (d, h, hole_d, direction))
+    from .history import History, active_history
+    history = active_history()
+    return Shape(
+        "boss",
+        (d, h, hole_d, direction),
+        None if history is History.AUTO else history,
+    )
 
 
 def Rest(*, width, height, length=None, along=None, direction=None):
