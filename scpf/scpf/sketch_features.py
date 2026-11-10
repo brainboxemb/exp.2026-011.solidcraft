@@ -168,8 +168,13 @@ def _anchored_features(shape):
             ]
         else:
             refs = None
-        position = [value_of(xx), value_of(yy), value_of(base_z)] if refs else [
-            command_value(xx), command_value(yy), command_value(base_z)]
+        # Native solid.hole uses a numeric authoring pick. For holes on the
+        # joined circular boss no stable straight-edge references exist yet.
+        # Do not pass unevaluated expressions as its position coordinates.
+        if feature.kind == "hole" or refs:
+            position = [value_of(xx), value_of(yy), value_of(base_z)]
+        else:
+            position = [command_value(xx), command_value(yy), command_value(base_z)]
         result.append((feature, position, refs))
     return result
 
