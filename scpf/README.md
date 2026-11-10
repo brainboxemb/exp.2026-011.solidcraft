@@ -23,9 +23,13 @@ class Plate:
     thickness: float = 10
 
     def build(self):
-        body = Box(self.length, self.width, self.thickness).fillet(2)
-        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
-        body - holes
+        body = Box(self.length, self.width, self.thickness)
+        body = body.fillet(2, edges=Edges.VERTICAL)
+        for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
+            hole = Hole(d=8, depth=Depth.THROUGH_ALL).on(
+                body, Anchor.TOP, offset=(x, y))
+            body = body + hole
+        body
 
 Plate()
 ```
@@ -36,10 +40,11 @@ numeric model fields to SolidCraft parameters, and calls `build()`.
 `@dataclass(frozen=True)` is also supported. The last-expression behavior
 is an SCPF convention, not normal Python behavior.
 
-Three CAD examples:
+Four CAD examples:
 - [Plate](../examples/plate/scpf/model.py): rounded box with holes.
 - [CsgCube](../examples/csg-cube/scpf/model.py): intersect and cut solids.
-- [Bracket](../examples/bracket/scpf/model.py): polygon extrusion, fillet and holes.
+- [Bracket](../examples/bracket/scpf/model.py): polygon extrusion, fillet and native Hole features.
+- [Sample Plate](../examples/sample-plate/scpf/model.py): boss, bore, and mounting holes.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
@@ -172,22 +177,38 @@ stages and schematic illustrations. Native CAD screenshots are only
 included if their verification metadata matches the exact source
 commit; unverified previews are explicitly labelled.
 
+## Code organization
+
+The compiler is divided by **responsibility**, not by example model:
+
+- `core.py`: user-facing Python shapes, parameters, anchors, operations.
+- `compiler.py`: small entry point and parameter collection.
+- `sketches.py`: native sketch and base-extrusion commands for 2D profiles and Box.
+- `features.py`: generic Fillet, Hole, Cylinder additions/cuts and feature order.
+- `placement.py`: relative anchors and parametric edge references.
+- `csg.py`: primitive solids and Boolean operations for CSG compositions.
+- `runner.py`: loads a trusted Python script and executes its model definition.
+
+All three examples Plate, Bracket and Sample Plate use the **same**
+`features.py` implementation for `Hole` and `Fillet`. No special
+compiler function is selected by the model's name.
+
 ## Current limits
 
-- Supported primitives: box (feature model), cube, sphere, cylinder.
-- CSG: intersection, union, difference, and oriented cylinder cutters.
-- Feature model: box, vertical-edge fillet, rectangular pattern of four
-  through-cylinder cutters. These are exact native SolidCraft features
-  after running the resulting commands.
-- This is an explicit, narrow translation layer: arbitrary Python code
-  can execute, but not every shape composition can be compiled into
-  SolidCraft commands yet.
-- Positioning: `Shape.move(x=..., y=..., z=...)` now translates
-  native CSG primitives and composite CSG shapes without changing dimensions.
-  More general positioning (including feature-based box placement),
-  rotations, face/edge selectors, arbitrary patterns, richer dimensional
-  arithmetic and model reuse are future work.
-- SolidCraft, not SCPF, remains responsible for topology, solving and geometry.
+- Supported 3D objects: `Box`, `Cylinder`, `Sphere`; there is no `Cube`
+  constructor or `Cylinder3D` alias.
+- Supported profiles: `Rectangle2D`, `Circle2D`, `Polygon2D`, extruded
+  implicitly through native SolidCraft sketches.
+- Native CAD features: `Hole` (blind or through-all), `.fillet()` and
+  positive/negative extrusion. Hole patterns expand to individual Hole features.
+- `+`, `-` and `&` describe Boolean operations where supported;
+  `+` on a Hole means adding the *feature* (which removes material).
+- CSG translation supports intersection, union, difference and oriented cylinders.
+- Anchor references are currently reliable on the supported rectangular bases;
+  a joined cylindrical boss uses a numeric top-face pick for its bore.
+- Arbitrary shape graphs, general topology queries, rotations, assemblies,
+  solver constraints and arbitrary workplanes are not yet supported.
+- SolidCraft, not SCPF, owns the geometry and native feature history.
 
 ## Sample Plate reconstruction
 
@@ -222,8 +243,8 @@ The generated results website includes a `/cheatsheet/` page.
 2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
 `Polygon2D`. 3D solids use plain names: `Box`, `Cylinder`
 and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
-`pattern()` and `orient()` helpers center generated cutter cylinders on
-their respective axes, preserving the Plate and CsgCube command fixtures.
+`pattern()` and `orient()` helpers place repeated or oriented cylinders;
+Hole patterns use native `solid.hole` features.
 The old positional constructor and 3D-suffixed aliases are not supported.
 
 ## Edge selection
@@ -250,7 +271,7 @@ plate - holes
 `on()` aligns the child center with the parent anchor.
 `attach(target, parent=Anchor.TOP, child=Anchor.BOTTOM)` connects two
 explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
-Currently supported: Rectangle2D extrusion base; `Anchor.CENTER`,
+Currently supported: Box or Rectangle2D extrusion bases; `Anchor.CENTER`,
 `Anchor.TOP`, `Anchor.BOTTOM`; and XY linear patterns of cylinders.
 
 For `Anchor.TOP` and `Anchor.BOTTOM`, the native adapter now emits
@@ -283,9 +304,7 @@ reference edges. The `pattern(count=2, spacing=..., axis=...)` form
 currently expands to two individual native Hole features, **not** to one
 constraint-driven point sketch or one native pattern feature.
 
-A named, reusable SCPF `Sketch` object with construction lines,
-constraints, point layouts, and workplanes attached to faces is planned
-in [issue #9](https://github.com/brainboxemb/exp.2026-011.solidcraft/issues/9).
-For now, do **not** interpret `Circle2D` as a fully constrained sketch.
-This deliberate distinction keeps the current anchor work separate from
-a larger sketch/solver abstraction.
+The user-facing Python model does **not** need to create `Sketch` objects.
+The adapter creates sketches where SolidCraft requires them; they remain
+editable in the native design. Full sketch constraints and arbitrary
+workplanes are separate capabilities, not prerequisites for this API.
