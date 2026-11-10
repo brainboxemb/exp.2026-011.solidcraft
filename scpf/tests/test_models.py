@@ -35,7 +35,7 @@ class SCPFExamples(unittest.TestCase):
                           [35, 15, 10], [-35, 15, 10]])
         self.assertTrue(all(c["diameter"] == 8 for c in holes))
         self.assertTrue(all(c["targets"] == ["Plate"] for c in holes))
-        self.assertTrue(all(len(c["references"]) == 2 for c in holes))
+        self.assertTrue(all("references" not in c for c in holes))
         self.assertFalse(any(c["command"] == "solid.cylinder" for c in commands))
         self.assertEqual([c["command"] for c in commands].count("solid.fillet"), 1)
 
