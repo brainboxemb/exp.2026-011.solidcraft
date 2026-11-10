@@ -9,7 +9,7 @@ class SamplePlate:
     def build(self):
         # An XY sketch becomes a solid base.
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
-        plate = plate.fillet(6, edges="vertical")
+        plate = plate.fillet(6, edges=Edges.VERTICAL)
 
         # Two mounting holes follow the original sketch-and-cut history.
         holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
