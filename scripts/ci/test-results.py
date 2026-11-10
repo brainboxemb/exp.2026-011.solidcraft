@@ -26,7 +26,7 @@ def check(site, commit):
     cheatsheet = site / "cheatsheet" / "index.html"
     assert cheatsheet.is_file()
     guide = cheatsheet.read_text(encoding="utf-8")
-    for term in ("Rectangle2D", "Circle2D", "Cylinder3D", "extrude", "issue #5"):
+    for term in ("Rectangle2D", "Circle2D", "Cylinder(d=", "extrude", "issue #5"):
         assert term in guide, term
 
     text = homepage.read_text(encoding="utf-8")

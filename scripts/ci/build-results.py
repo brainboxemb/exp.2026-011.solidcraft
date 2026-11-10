@@ -233,14 +233,14 @@ def make_cheatsheet(out):
             ("Polygon2D(points, plane='XY')", "Closed planar polygon; XY, XZ or YZ.",
              "Polygon2D([(0, 0), (40, 0), (0, 30)])"),
         ]),
-        ("3D shapes · volumes", [
-            ("Box3D(length, width, height)", "3D box alias. Current Box API uses a centered footprint.",
-             "Box3D(80, 50, 8)"),
-            ("Cylinder3D(d=..., h=...)", "Direct cylinder; z=0 is its bottom face.",
-             "Cylinder3D(d=24, h=14).at(40, 25, 8)"),
-            ("Sphere3D(radius)", "3D sphere centered on the origin.",
-             "Sphere3D(20)"),
-            ("Cube(size)", "Cube centered on the origin.",
+        ("3D shapes · volumes (no suffix)", [
+            ("Box(length, width, height)", "Rectangular 3D box; in SCPF it is centered in X/Y and starts at Z=0.",
+             "Box(80, 50, 8)"),
+            ("Cylinder(d=..., h=...)", "Direct 3D cylinder, positioned by the center of its bottom face.",
+             "Cylinder(d=24, h=14).at(40, 25, 8)"),
+            ("Sphere(radius)", "3D sphere centered on the origin.",
+             "Sphere(20)"),
+            ("Cube(size)", "A special case of Box with three equal sides, centered on the origin. OpenSCAD also uses cube([x, y, z]) for rectangular boxes.",
              "Cube(50)"),
         ]),
         ("Operations", [
@@ -251,11 +251,11 @@ def make_cheatsheet(out):
             ("profile.extrude(distance, direction='negative')", "Extrude towards negative sketch normal.",
              "Circle2D(d=8).extrude(8, direction='negative')"),
             ("a + b", "Union/join. An extruded circular sketch or direct Cylinder3D can join a rectangular base.",
-             "plate + Cylinder3D(d=24, h=14).at(40, 25, 8)"),
+             "plate + Cylinder(d=24, h=14).at(40, 25, 8)"),
             ("a - b", "Difference/cut. Keep the original left-hand solid.",
-             "plate - Cylinder3D(d=12, h=22).at(40, 25, 0)"),
+             "plate - Cylinder(d=12, h=22).at(40, 25, 0)"),
             ("a & b", "Intersection for supported CSG primitives.",
-             "Sphere3D(30) & Cube(50)"),
+             "Sphere(30) & Cube(50)"),
             ("solid.fillet(radius, edges='vertical')", "Round four vertical edges of an extruded rectangular base.",
              "plate.fillet(6, edges='vertical')"),
         ]),
@@ -284,9 +284,9 @@ def make_cheatsheet(out):
         '<h1>SCPF cheatsheet</h1><p>2D sketches, 3D volumes and native SolidCraft operations.</p></div></section>'
         '<main class="wrap"><div class="notice">Only a subset of the generic API is implemented.'
         ' Older names <code>Rectangle</code>, <code>Circle</code>, <code>Polygon</code>,'
-        ' <code>Box</code>, <code>Cylinder</code> and <code>Sphere</code> remain for compatibility.'
-        ' <code>Cylinder</code> uses an older centered-height convention;'
-        ' <code>Cylinder3D</code> starts at its base. Examples describe the API,'
+        ' <code>Box3D</code>, <code>Cylinder3D</code> and <code>Sphere3D</code> are temporary aliases.'
+        ' Legacy <code>Cylinder(height, diameter)</code> is centered vertically;'
+        ' new <code>Cylinder(d=..., h=...)</code> starts at its base. Examples describe the API,'
         ' not guarantees that every combination of operations is supported.</div>'
         + "".join(blocks) +
         '<section><h2>Next iteration · not implemented</h2><p>Generic object-relative anchors,'

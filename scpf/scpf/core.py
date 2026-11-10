@@ -209,7 +209,7 @@ def Circle2D(*, d=None, r=None):
 
 def Cylinder3D(*, d, h):
     """Cylinder with its lower face at z=0; use .at() to place it."""
-    return Shape("cylinder3d", (h, d))
+    return Cylinder(d=d, h=h)
 
 
 def Polygon2D(points, *, plane="XY"):
@@ -246,8 +246,20 @@ def Sphere(radius):
     return Shape("sphere", (radius,))
 
 
-def Cylinder(height, diameter):
-    return Shape("cylinder", (height, diameter))
+def Cylinder(*args, d=None, h=None):
+    """Create a cylinder.
+
+    Cylinder(d=24, h=14) uses its base as the origin (like a directly
+    placed SolidCraft cylinder). Older Cylinder(height, diameter) scripts
+    retain the original centered-height convention for compatibility.
+    """
+    if args:
+        if len(args) != 2 or d is not None or h is not None:
+            raise TypeError("Cylinder accepts (height, diameter) or d=, h=")
+        return Shape("cylinder", tuple(args))
+    if d is None or h is None:
+        raise TypeError("Cylinder requires both d= and h=")
+    return Shape("cylinder3d", (h, d))
 
 
 X, Y, Z = "X", "Y", "Z"

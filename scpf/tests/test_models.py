@@ -108,6 +108,12 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(cylinders[0]["base"], [40, 25, "thickness"])
         self.assertEqual(cylinders[1]["height"], "thickness + 14 mm")
 
+    def test_cylinder_keyword_form_is_direct_3d_primitive(self):
+        from scpf.core import Cylinder
+        self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder3d")
+        self.assertEqual(Cylinder(14, 24).kind, "cylinder")
+        self.assertEqual(Cylinder(d=24, h=14).at(40, 25, 8).kind, "placed3d")
+
     def test_cylinder3d_standalone_native_command(self):
         with tempfile.TemporaryDirectory() as directory:
             script = Path(directory) / "model.py"
