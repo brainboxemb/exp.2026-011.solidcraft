@@ -23,7 +23,7 @@ MODELS = {
                    "Sketch four hole centres", "Cut the holes"],
     },
     "csg-cube": {
-        "title": "CsgCube", "tagline": "A cube, sphere and three crossing bores",
+        "title": "CsgCube", "tagline": "A box, sphere and three crossing bores",
         "description": "A constructive solid geometry demonstration: intersect a cube with a sphere, then subtract cylinders along three axes.",
         "parameters": "50 mm cube; three crossing cylindrical cuts",
         "diagram": "csg",
@@ -245,8 +245,6 @@ def make_cheatsheet(out):
              "Cylinder(d=24, h=14).at(40, 25, 8)"),
             ("Sphere(radius)", "3D sphere centered on the origin.",
              "Sphere(20)"),
-            ("Cube(size)", "A special case of Box with three equal sides, centered on the origin. OpenSCAD also uses cube([x, y, z]) for rectangular boxes.",
-             "Cube(50)"),
         ]),
         ("Relative placement · experimental", [
             ("child.attach(parent, parent=..., child=...)", "Join two anchor positions. Native output is resolved parameter expressions, not a persistent face constraint.",
@@ -268,7 +266,7 @@ def make_cheatsheet(out):
             ("a - b", "Difference/cut. Keep the original left-hand solid.",
              "plate - Cylinder(d=12, h=22).at(40, 25, 0)"),
             ("a & b", "Intersection for supported CSG primitives.",
-             "Sphere(30) & Cube(50)"),
+             "Sphere(30) & Box(50, 50, 50)"),
             ("solid.fillet(radius, edges=Edges.VERTICAL)", "Round vertical edges of a supported 3D body. Explicit 3D edge points are also accepted.",
              "plate.fillet(6, edges=Edges.VERTICAL)"),
         ]),
