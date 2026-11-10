@@ -409,6 +409,13 @@ jobs:
             --out output/native/sample-plate-native-holes/model.png \
             --no-grid --no-axes
           test -s output/native/sample-plate-native-holes/model.png
+          # Both strategies must produce the same final solid, even though
+          # the editable feature histories intentionally differ.
+          jq -e -s '
+            (.[0].total.volume_mm3 - .[1].total.volume_mm3 | abs) < 0.001
+            and .[0].bodies[0].bbox == .[1].bodies[0].bbox
+          ' output/native/sample-plate/measurements.json \
+            output/native/sample-plate-native-holes/measurements.json
       - name: Render CSG cube preview
         shell: bash
         continue-on-error: true
