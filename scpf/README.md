@@ -49,7 +49,7 @@ CSG primitives and complete CSG combinations can be repositioned in mm:
 
 ```python
 def MovedCube(size=50):
-    body = Sphere(size / 1.5) & Cube(size)
+    body = Sphere(size / 1.5) & Box(size, size, size)
     return body.move(x=10, y=20, z=30)
 
 MovedCube()
@@ -220,7 +220,7 @@ before accepting this reconstruction as geometrically equivalent.
 
 The generated results website includes a `/cheatsheet/` page.
 2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
-`Polygon2D`. 3D solids use plain names: `Box`, `Cube`, `Cylinder`
+`Polygon2D`. 3D solids use plain names: `Box`, `Cylinder`
 and `Sphere`. The direct `Cylinder(d=..., h=...)` starts at its lower face. The
 `pattern()` and `orient()` helpers center generated cutter cylinders on
 their respective axes, preserving the Plate and CsgCube command fixtures.
