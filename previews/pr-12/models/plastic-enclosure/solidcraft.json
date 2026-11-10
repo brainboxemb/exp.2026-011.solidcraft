@@ -1,0 +1,141 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "length",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "width",
+        "expression": "50",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "height",
+        "expression": "30",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "wall",
+        "expression": "2",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": "length",
+        "width": "width",
+        "height": "height",
+        "corner": [
+          "(-(length)) / 2",
+          "(-(width)) / 2",
+          0
+        ],
+        "operation": "new",
+        "body_name": "PlasticEnclosure"
+      }
+    },
+    {
+      "command": "solid.shell",
+      "params": {
+        "faces": [
+          [
+            0.0,
+            0.0,
+            30.0
+          ]
+        ],
+        "thickness": "wall",
+        "body": "PlasticEnclosure"
+      }
+    },
+    {
+      "command": "plastic.lip",
+      "params": {
+        "face": [
+          -39.0,
+          0.0,
+          30
+        ],
+        "width": 1,
+        "height": 2,
+        "body": "PlasticEnclosure"
+      }
+    },
+    {
+      "command": "plastic.snap_fit",
+      "params": {
+        "position": [
+          0.0,
+          19.0,
+          2
+        ],
+        "hook": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "length": 14,
+        "thickness": 1.5,
+        "width": 6,
+        "catch_depth": 1,
+        "catch_length": 2,
+        "body": "PlasticEnclosure"
+      }
+    },
+    {
+      "command": "plastic.boss",
+      "params": {
+        "position": [
+          -30.0,
+          -15.0,
+          2
+        ],
+        "diameter": 7,
+        "height": 12,
+        "body": "PlasticEnclosure",
+        "hole_diameter": 2.5
+      }
+    },
+    {
+      "command": "plastic.boss",
+      "params": {
+        "position": [
+          30.0,
+          15.0,
+          2
+        ],
+        "diameter": 7,
+        "height": 12,
+        "body": "PlasticEnclosure",
+        "hole_diameter": 2.5
+      }
+    },
+    {
+      "command": "plastic.rest",
+      "params": {
+        "position": [
+          0.0,
+          0.0,
+          2
+        ],
+        "width": 16,
+        "height": 3,
+        "body": "PlasticEnclosure",
+        "length": 24
+      }
+    }
+  ]
+}
