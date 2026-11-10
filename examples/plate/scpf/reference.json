@@ -85,68 +85,56 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.hole",
       "params": {
-        "plane": {
-          "face": [
-            0,
-            0,
-            10
-          ]
-        },
-        "name": "Plate top-face holes"
-      }
-    },
-    {
-      "command": "sketch.circle.center",
-      "params": {
-        "center": [
+        "position": [
           -35,
-          -15
+          -15,
+          10
         ],
-        "diameter": 8
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ]
       }
     },
     {
-      "command": "sketch.circle.center",
+      "command": "solid.hole",
       "params": {
-        "center": [
+        "position": [
           35,
-          -15
+          -15,
+          10
         ],
-        "diameter": 8
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ]
       }
     },
     {
-      "command": "sketch.circle.center",
+      "command": "solid.hole",
       "params": {
-        "center": [
+        "position": [
           35,
-          15
+          15,
+          10
         ],
-        "diameter": 8
+        "diameter": 8,
+        "targets": [
+          "Plate"
+        ]
       }
     },
     {
-      "command": "sketch.circle.center",
+      "command": "solid.hole",
       "params": {
-        "center": [
+        "position": [
           -35,
-          15
+          15,
+          10
         ],
-        "diameter": 8
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "thickness",
-        "direction": "negative",
-        "operation": "cut",
+        "diameter": 8,
         "targets": [
           "Plate"
         ]

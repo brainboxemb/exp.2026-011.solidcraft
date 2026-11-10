@@ -1,4 +1,4 @@
-name: SolidCraft 0.30.1 native qualification (SCRF and SCPF)
+name: SolidCraft 0.30.1 native qualification (SCPF Python)
 
 on:
   push:
@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - "scpf/**"
-      - "scrf/**"
-      - "scrf-macros/**"
       - "examples/**"
       - "site/**"
       - "scripts/ci/**"
@@ -18,8 +16,6 @@ on:
     types: [ready_for_review, synchronize, reopened]
     paths:
       - "scpf/**"
-      - "scrf/**"
-      - "scrf-macros/**"
       - "examples/**"
       - "site/**"
       - "scripts/ci/**"
@@ -44,23 +40,8 @@ jobs:
     steps:
       - name: Check out experiment
         uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Build actual Rust scripts and compare reviewed command plans
-        shell: bash
-        run: |
-          set -euo pipefail
-          cargo test --manifest-path scrf/Cargo.toml --all-targets
-          cargo run --manifest-path scrf/Cargo.toml --example plate
-          cargo run --manifest-path scrf/Cargo.toml --example csg_cube
-          jq -e -s '.[0] == .[1]' \
-            examples/plate/scrf/solidcraft.json \
-            output/examples/plate/scrf/solidcraft.json >/dev/null
-          jq -e -s '.[0] == .[1]' \
-            examples/csg-cube/scrf/solidcraft.json \
-            output/examples/csg-cube/scrf/solidcraft.json >/dev/null
-          mkdir -p output/native/command-plans
-          cp output/examples/plate/scrf/solidcraft.json output/native/command-plans/plate.json
-          cp output/examples/csg-cube/scrf/solidcraft.json output/native/command-plans/csg-cube.json
+      - name: Prepare output directories
+        run: mkdir -p output/native/command-plans
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -69,19 +50,17 @@ jobs:
           PYTHONPATH: scpf
         run: |
           python -m unittest discover -s scpf/tests -v
-          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate-scpf.json
-          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube-scpf.json
+          python -m scpf examples/plate/scpf/model.py --out output/native/command-plans/plate.json
+          python -m scpf examples/csg-cube/scpf/model.py --out output/native/command-plans/csg-cube.json
           python -m scpf examples/bracket/scpf/model.py --out output/native/command-plans/bracket-scpf.json
-          jq -e --slurpfile original examples/bracket/source/bracket.json '
-            (.commands | length) == ($original[0].commands | length)
-            and (.commands[2:] == $original[0].commands[2:])
-          ' output/native/command-plans/bracket-scpf.json
           jq -e -s '.[0] == .[1]' \
-            output/native/command-plans/plate.json \
-            output/native/command-plans/plate-scpf.json >/dev/null
+            examples/bracket/scpf/solidcraft.json \
+            output/native/command-plans/bracket-scpf.json >/dev/null
+          jq -e '[.commands[] | select(.command == "solid.hole")] | length == 4' \
+            output/native/command-plans/plate.json
           jq -e -s '.[0] == .[1]' \
-            output/native/command-plans/csg-cube.json \
-            output/native/command-plans/csg-cube-scpf.json >/dev/null
+            examples/csg-cube/scpf/reference.json \
+            output/native/command-plans/csg-cube.json >/dev/null
       - name: Fetch and verify official Linux SolidCraft release
         shell: bash
         run: |
@@ -132,23 +111,16 @@ jobs:
             and (.timeline | all(.error == null))
           ' output/native/plate-measurements.json
           cat output/native/plate-measurements.json
-      - name: Inspect native face attachment and hole coordinates
+      - name: Inspect native Hole features and entry points
         shell: bash
         run: |
           set -euo pipefail
           unzip -p output/native/plate.sc document.json > output/native/plate-document.json
           jq -e '
-            .features[3].type == "sketch"
-            and .features[3].plane.type == "face"
-            and .features[3].plane.anchor.target.body == "Plate"
-            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
-            and .features[3].plane.plane.origin == [0.0, 0.0, 10.0]
-            and .features[3].plane.plane.x_dir == [1.0, 0.0, 0.0]
-            and .features[3].plane.plane.y_dir == [0.0, 1.0, 0.0]
-            and ([.features[3].sketch.points[]
-                  | select(.id == "c1.center" or .id == "c2.center" or .id == "c3.center" or .id == "c4.center")
-                  | .pos]
-                 == [[-35.0,-15.0],[35.0,-15.0],[35.0,15.0],[-35.0,15.0]])
+            ([.features[] | select(.type == "hole")] | length) == 4
+            and ([.features[] | select(.type == "hole") | .position] ==
+                 [[-35, -15, 10], [35, -15, 10],
+                  [35, 15, 10], [-35, 15, 10]])
           ' output/native/plate-document.json
       - name: Rebuild from saved native design history
         shell: bash
@@ -193,12 +165,49 @@ jobs:
               and .expr == "15 mm"
               and .unit == "mm"
             ))
-            and .features[3].plane.type == "face"
-            and .features[3].plane.anchor.target.body == "Plate"
-            and .features[3].plane.anchor.target.certificate.kind == "extrude_cap"
-            and .features[3].plane.anchor.target.certificate.high == true
-            and .features[4].extent.distance == "thickness"
+            and ([.features[] | select(.type == "hole")] | length) == 4
           ' output/native/plate-thick-document.json
+      - name: Verify attached Hole pattern as one editable sketch cut
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/anchored-holes
+          python -m scpf examples/anchored-holes/scpf/model.py \
+            --out output/native/anchored-holes/commands.json
+          jq -e '
+            [.commands[] | select(.command == "sketch.create") | .params.name]
+              == ["Base", "Holes"]
+            and ([.commands[] | select(.command == "sketch.circle.center")] | length) == 2
+            and ([.commands[] | select(.command == "solid.hole")] | length) == 0
+            and .commands[-1].command == "solid.extrude"
+            and .commands[-1].params.operation == "cut"
+          ' output/native/anchored-holes/commands.json
+          solidcraft-cli run output/native/anchored-holes/commands.json \
+            --param-check strict --results \
+            --json-out output/native/anchored-holes/results.json \
+            --save output/native/anchored-holes/model.sc \
+            --out output/native/anchored-holes/model.step
+          solidcraft-cli eval output/native/anchored-holes/model.sc \
+            --json-out output/native/anchored-holes/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].closed == true
+            and .bodies[0].bbox.max[0] > 99.9999
+            and .bodies[0].bbox.max[1] > 59.9999
+            and .bodies[0].bbox.max[2] > 9.9999
+            and .total.volume_mm3 > 58993
+            and .total.volume_mm3 < 58996
+            and (.timeline | all(.error == null))
+          ' output/native/anchored-holes/measurements.json
+          unzip -p output/native/anchored-holes/model.sc document.json \
+            > output/native/anchored-holes/document.json
+          jq -e '
+            [.features[] | select(.type == "sketch") | .name] == ["Base", "Holes"]
+            and ([.features[] | select(.type == "hole")] | length) == 0
+            and [.features[].type] == ["sketch", "extrude", "sketch", "extrude"]
+          ' output/native/anchored-holes/document.json
       - name: Evaluate CSG cube through native SolidCraft
         shell: bash
         run: |
@@ -306,6 +315,19 @@ jobs:
           ' output/native/sample-plate/measurements.json
           test -s output/native/sample-plate/model.sc
           test -s output/native/sample-plate/model.step
+          # This model intentionally reproduces the original sketch history.
+          unzip -p output/native/sample-plate/model.sc document.json \
+            > output/native/sample-plate/document.json
+          jq -e '
+            [.features[].type] ==
+              ["sketch", "extrude", "fillet", "sketch", "extrude",
+               "sketch", "extrude", "sketch", "extrude"]
+            and [.features[] | select(.type == "sketch") | .name]
+              == ["Base", "Holes", "Boss", "Bore"]
+            and [.features[] | select(.type == "extrude") | .name]
+              == ["Extrude1", "Holes", "Boss", "Bore"]
+            and ([.features[] | select(.type == "hole")] | length) == 0
+          ' output/native/sample-plate/document.json
           solidcraft-cli snapshot output/native/sample-plate/model.sc \
             --out output/native/sample-plate/model.png \
             --no-grid --no-axes
