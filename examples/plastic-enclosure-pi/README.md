@@ -27,7 +27,7 @@ retained only for comparison.
 
 [`scpf/model.py`](scpf/model.py) now describes:
 
-1. 95 × 66 × 24 mm shell, 2 mm wall, R5 vertical corners, and R1 top rim.
+1. `board_w = 85` and `board_d = 56` parameters, with a 95 × 66 × 24 mm derived shell, 2 mm wall, R5 vertical corners, and R1 top rim.
 2. Four Ø6 mm bosses with Ø2.5 mm holes at the source's initial 58 × 49 mm pattern locations.
 3. Three openings on the front (-Y) face (USB-C and two micro-HDMI).
 4. One 50 × 14 mm combined USB/Ethernet opening at the right (+X) end.
