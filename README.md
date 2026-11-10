@@ -10,8 +10,8 @@ Open PowerShell in the **repository root**. Python 3.12 and the
 official SolidCraft 0.30.1 CLI are used in CI.
 
 ```powershell
-# Install the Python scripting package
-python -m pip install -e ./scpf
+# Use the SCPF package directly from this checkout
+$env:PYTHONPATH = "scpf"
 
 # Run tests
 python -m unittest discover -s scpf/tests -v
