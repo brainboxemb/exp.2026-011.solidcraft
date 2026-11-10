@@ -14,6 +14,8 @@ from pathlib import Path
 from . import core
 from .compiler import compile_model
 from .core import Parameter, Shape
+from .assembly import compile_assembly
+from .model_objects import Assembly, ModelDefinition, ModelInstance
 
 
 def _symbolic(value, name):
@@ -49,8 +51,8 @@ def _plain_model_fields(cls):
     ]
 
 
-def _plain_model_instance(cls, *args, **kwargs):
-    """Instantiate a plain SCPF model class without requiring @dataclass."""
+def _plain_model_data(cls, *args, **kwargs):
+    """Instantiate a plain model and return its concrete parameter values."""
     fields = _plain_model_fields(cls)
     names = [name for name, _ in fields]
     if len(args) > len(fields):
@@ -77,45 +79,85 @@ def _plain_model_instance(cls, *args, **kwargs):
         assigned.add(name)
 
     instance = cls()
+    concrete = []
     for name in names:
         value = values[name]
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise TypeError(f"{name} must be a numeric model parameter")
+        concrete.append((name, float(value)))
         object.__setattr__(instance, name, _symbolic(value, name))
-    return instance
+    return instance, tuple(concrete)
 
 
-def _design_object(cls, *args, **kwargs):
-    """Build a dataclass or plain SCPF model object.
+def _plain_model_instance(cls, *args, **kwargs):
+    """Instantiate a plain SCPF model class without requiring @dataclass."""
+    return _plain_model_data(cls, *args, **kwargs)[0]
 
-    Plain classes use numeric class attributes as implicit CAD parameters.
-    Dataclasses remain supported for compatibility and custom validation.
-    """
-    if is_dataclass(cls):
-        # Construct normally first so dataclass validation sees plain values.
-        instance = cls(*args, **kwargs)
-        signature = inspect.signature(cls)
-        bound = signature.bind(*args, **kwargs)
-        bound.apply_defaults()
-        for name, value in bound.arguments.items():
-            if name not in vars(instance):
-                continue
-            symbolic = _symbolic(value, name)
-            if symbolic is not value:
-                object.__setattr__(instance, name, symbolic)
-    else:
-        instance = _plain_model_instance(cls, *args, **kwargs)
 
+def _parameterized_instance(cls, *args, **kwargs):
+    """Construct one model object and retain concrete values for reuse."""
+    if not is_dataclass(cls):
+        return _plain_model_data(cls, *args, **kwargs)
+
+    instance = cls(*args, **kwargs)
+    signature = inspect.signature(cls)
+    bound = signature.bind(*args, **kwargs)
+    bound.apply_defaults()
+    concrete = []
+    for name, value in bound.arguments.items():
+        if name not in vars(instance):
+            continue
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            concrete.append((name, float(value)))
+            object.__setattr__(instance, name, _symbolic(value, name))
+    return instance, tuple(concrete)
+
+
+def _build_object(cls, *args, **kwargs):
+    """Build one user model and return its result plus concrete parameters."""
+    instance, concrete = _parameterized_instance(cls, *args, **kwargs)
     build = getattr(instance, "build", None)
     if not callable(build):
         raise TypeError(f"{cls.__name__} must define build()")
+    return build(), concrete
 
-    result = build()
-    if not isinstance(result, Shape):
+
+def _design_object(cls, *args, **kwargs):
+    """Build the root model object.
+
+    A root model may still produce one Shape, or it may compose reusable model
+    instances into an Assembly.
+    """
+    result, _ = _build_object(cls, *args, **kwargs)
+    if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
-            f"{cls.__name__}.build() must finish with a Shape expression"
+            f"{cls.__name__}.build() must finish with CAD geometry or an assembly"
         )
     return result
+
+
+def _reusable_model_object(cls, *args, **kwargs):
+    """Build a nested user model as a reusable component definition."""
+    result, concrete = _build_object(cls, *args, **kwargs)
+    if not isinstance(result, Shape):
+        raise TypeError(
+            f"{cls.__name__}.build() must produce one Shape when reused as a component"
+        )
+    return ModelInstance(
+        ModelDefinition(
+            class_name=cls.__name__,
+            parameters=concrete,
+            shape=result,
+        )
+    )
+
+
+def _model_factory(cls):
+    """Replace a nested class name with a transparent reusable-model factory."""
+    @functools.wraps(cls)
+    def factory(*args, **kwargs):
+        return _reusable_model_object(cls, *args, **kwargs)
+    return factory
 
 
 def _implicit_shape(body):
@@ -175,14 +217,31 @@ def run_script(path: str | Path) -> dict:
     }
     if isinstance(definition, ast.FunctionDef):
         _implicit_shape(definition.body)
-    else:
-        for item in definition.body:
-            if isinstance(item, ast.FunctionDef) and item.name == "build":
-                _implicit_shape(item.body)
-                break
+
+    model_classes = {}
+    for item in syntax.body:
+        if not isinstance(item, ast.ClassDef):
+            continue
+        build_method = next(
+            (
+                member for member in item.body
+                if isinstance(member, ast.FunctionDef) and member.name == "build"
+            ),
+            None,
+        )
+        if build_method is not None:
+            _implicit_shape(build_method.body)
+            model_classes[item.name] = item
 
     ast.fix_missing_locations(syntax)
     exec(compile(syntax, str(path), "exec"), context)
+
+    final_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
+    for class_name in model_classes:
+        if class_name == name and final_class is not None:
+            continue
+        context[class_name] = _model_factory(context[class_name])
+
     if isinstance(definition, ast.FunctionDef):
         context[name] = _model_function(context[name])
         result = eval(
@@ -194,15 +253,18 @@ def run_script(path: str | Path) -> dict:
         # calling build().
         constructor = ast.Call(
             func=ast.Name(id="_scpf_design_object", ctx=ast.Load()),
-            args=[ast.Name(id=name, ctx=ast.Load()), *last.value.args],
+            args=[ast.Name(id="_scpf_root_class", ctx=ast.Load()), *last.value.args],
             keywords=last.value.keywords,
         )
         context["_scpf_design_object"] = _design_object
+        context["_scpf_root_class"] = final_class
         ast.fix_missing_locations(constructor)
         result = eval(
             compile(ast.Expression(body=constructor), str(path), "eval"),
             context,
         )
-    if not isinstance(result, Shape):
-        raise TypeError(f"{name}() must produce a Shape")
-    return compile_model(result, name)
+    if isinstance(result, Shape):
+        return compile_model(result, name)
+    if isinstance(result, (ModelInstance, Assembly)):
+        return compile_assembly(result, name)
+    raise TypeError(f"{name}() must produce CAD geometry or an assembly")
