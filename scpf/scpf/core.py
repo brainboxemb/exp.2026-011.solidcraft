@@ -434,14 +434,31 @@ def Circle2D(*, d=None, r=None):
     return Shape("circle", (d if d is not None else r * 2,))
 
 
-def Polygon2D(points, *, plane="XY"):
-    """A closed 2D polygon on XY, XZ or YZ."""
+def Polygon2D(points, *, plane="XY", ids=None):
+    """Closed 2D polygon with optional named sketch segments.
+
+    Each id names the segment from points[i] to points[(i + 1) % len(points)].
+    SolidCraft stores these as sketch-curve IDs, not 3D solid-edge names.
+    """
     coordinates = tuple(tuple(p) for p in points)
     if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
         raise ValueError("Polygon2D requires at least three 2D points")
     if plane not in ("XY", "XZ", "YZ"):
         raise ValueError("unsupported sketch plane")
-    return Shape("polygon", (coordinates, plane))
+    if ids is not None:
+        if isinstance(ids, (str, bytes)) or not isinstance(ids, (tuple, list)):
+            raise ValueError("polygon ids must be a sequence of segment names")
+        if len(ids) != len(coordinates):
+            raise ValueError("closed polygon needs exactly one id per segment")
+        if any(not isinstance(tag, str) or not tag or
+               not tag[0].isalpha() or
+               not all(c.isalnum() or c == "_" for c in tag)
+               for tag in ids):
+            raise ValueError("polygon ids must be non-empty alphanumeric identifiers")
+        if len(set(ids)) != len(ids):
+            raise ValueError("polygon ids must be unique")
+        ids = tuple(ids)
+    return Shape("polygon", (coordinates, plane, ids))
 
 
 def Box(length, width, thickness):

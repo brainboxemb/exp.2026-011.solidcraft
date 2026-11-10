@@ -90,7 +90,7 @@ def compile_base(shape, name):
                 "thickness": distance, "origin": (x, y, z)}
 
     if profile.kind == "polygon":
-        points, plane = profile.data
+        points, plane, segment_ids = profile.data
         concrete = [tuple(value_of(v) for v in point) for point in points]
         if not all(isfinite(v) for point in concrete for v in point):
             raise ModelError("non-finite polygon coordinate")
@@ -109,7 +109,8 @@ def compile_base(shape, name):
             _command("sketch.create", plane=plane, name="Profile"),
             _command("sketch.line",
                      points=symbolic, closed=True,
-                     ids=[chr(ord("a") + i) for i in range(len(points))]),
+                     ids=list(segment_ids) if segment_ids is not None else
+                         [chr(ord("a") + i) for i in range(len(points))]),
             _command("sketch.finish"),
             _command("solid.extrude", distance=command_value(distance),
                      direction=direction, body_name=name),

@@ -56,7 +56,27 @@ class CornerBracketFast:
             (0, -v + ef),
             (0, 0),
         ]
-        profile = Polygon2D([(x, -z) for x, z in outline_xz], plane="XZ")
+        # Sketch IDs identify the edge that STARTS at each profile point.
+        # They document the shape; 3D chamfer picks still use coordinates
+        # until SCPF can resolve profile IDs to solid edges.
+        segment_ids = [
+            "tip_horizontal_relief",
+            "outer_horizontal_end",
+            "outer_horizontal_end_bevel",
+            "outer_horizontal_face",
+            "outer_corner_bevel",
+            "outer_vertical_face",
+            "outer_vertical_end_bevel",
+            "outer_vertical_end",
+            "tip_vertical_relief",
+            "inside_vertical",
+            "inside_horizontal",
+        ]
+        profile = Polygon2D(
+            [(x, -z) for x, z in outline_xz],
+            plane="XZ",
+            ids=segment_ids,
+        )
         body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
         body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 

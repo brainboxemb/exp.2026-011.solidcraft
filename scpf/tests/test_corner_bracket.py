@@ -19,6 +19,27 @@ class CornerBracketTests(unittest.TestCase):
         # 19 params + 4 sketch+extrude + 3 edge modifiers + 4 holes.
         self.assertEqual(len(commands), 29)
 
+    def test_polygon_segments_have_meaningful_sketch_ids(self):
+        commands = run_script(EXAMPLE / "model.py")["commands"]
+        sketch = next(c for c in commands if c["command"] == "sketch.line")
+        self.assertEqual(
+            sketch["params"]["ids"],
+            [
+                "tip_horizontal_relief", "outer_horizontal_end",
+                "outer_horizontal_end_bevel", "outer_horizontal_face",
+                "outer_corner_bevel", "outer_vertical_face",
+                "outer_vertical_end_bevel", "outer_vertical_end",
+                "tip_vertical_relief", "inside_vertical", "inside_horizontal",
+            ],
+        )
+
+    def test_polygon_segment_ids_are_checked(self):
+        from scpf.core import Polygon2D
+        points = [(0, 0), (10, 0), (10, 10)]
+        for tags in (["a", "b"], ["a", "a", "c"], ["a", "bad id", "c"]):
+            with self.subTest(tags=tags), self.assertRaises(ValueError):
+                Polygon2D(points, ids=tags)
+
     def test_outer_chamfer_picks_match_original_geometry(self):
         """Refactoring edge selection must not change the native CAD shape."""
         commands = run_script(EXAMPLE / "model.py")["commands"]
