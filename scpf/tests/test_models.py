@@ -566,7 +566,9 @@ class SCPFExamples(unittest.TestCase):
              "sketch.create", "sketch.rectangle.two_point",
              "sketch.rectangle.two_point", "sketch.rectangle.two_point",
              "sketch.rectangle.two_point", "sketch.rectangle.two_point",
-             "sketch.finish", "solid.extrude"],
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
         )
         self.assertEqual(features[4]["params"]["radius"], 5.0)
         self.assertEqual(features[6]["params"]["radius"], 1.0)
@@ -581,13 +583,21 @@ class SCPFExamples(unittest.TestCase):
             [c["params"]["name"] for c in features
              if c["command"] == "sketch.create"],
             ["PlasticEnclosurePi footprint", "Pi ports",
-             "USB and Ethernet", "Floor vents"],
+             "USB and Ethernet", "Floor vents", "Pi 4 engraving"],
         )
         cuts = [c for c in features if c["command"] == "solid.extrude"
                 and c["params"].get("operation") == "cut"]
-        self.assertEqual(len(cuts), 3)
+        self.assertEqual(len(cuts), 4)
         self.assertEqual([c["params"]["direction"] for c in cuts],
-                         ["negative", "negative", "negative"])
+                         ["negative", "negative", "negative", "negative"])
+        self.assertEqual(
+            [c["command"] for c in features[-6:]],
+            ["sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
+        )
+        self.assertEqual(features[-5]["params"]["text"], "Pi 4")
+        self.assertEqual(features[-2]["params"]["density_g_cm3"], 1.27)
+        self.assertEqual(features[-1]["params"]["material"], "PETG")
 
     def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
