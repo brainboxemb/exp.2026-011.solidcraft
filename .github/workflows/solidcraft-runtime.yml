@@ -28,18 +28,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
-          cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
-          cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
+          cargo test --manifest-path scrf/Cargo.toml --all-targets
+          cargo run --manifest-path scrf/Cargo.toml --example plate
+          cargo run --manifest-path scrf/Cargo.toml --example csg_cube
           jq -e -s '.[0] == .[1]' \
-            examples/plate/solidcraftforge/solidcraft.json \
-            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
+            examples/plate/scrf/solidcraft.json \
+            output/examples/plate/scrf/solidcraft.json >/dev/null
           jq -e -s '.[0] == .[1]' \
-            examples/csg-cube/solidcraftforge/solidcraft.json \
-            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+            examples/csg-cube/scrf/solidcraft.json \
+            output/examples/csg-cube/scrf/solidcraft.json >/dev/null
           mkdir -p output/native/command-plans
-          cp output/examples/plate/solidcraftforge/solidcraft.json output/native/command-plans/plate.json
-          cp output/examples/csg-cube/solidcraftforge/solidcraft.json output/native/command-plans/csg-cube.json
+          cp output/examples/plate/scrf/solidcraft.json output/native/command-plans/plate.json
+          cp output/examples/csg-cube/scrf/solidcraft.json output/native/command-plans/csg-cube.json
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
