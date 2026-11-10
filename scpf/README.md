@@ -80,60 +80,83 @@ operations only.
 Plain numbers mean millimetres. SCPF scripts are real Python: only execute
 trusted model files.
 
-## Run
+## Run and inspect the Bracket
 
-From the repository root, with Python >=3.10 (no third-party runtime dependencies):
+Run commands below from the repository root in PowerShell. The Python
+environment must be active, or install the package with
+`python -m pip install -e ./scpf`. Alternatively set the package path:
 
 ```powershell
 $env:PYTHONPATH = "scpf"
+```
+
+**1. Generate and inspect the native command JSON** (does not open the GUI):
+
+```powershell
+python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
+code output/examples/bracket/scpf/solidcraft.json
+```
+
+The `--out` path is under `output/`, which is excluded by Git. The
+canonical comparison fixture is retained at
+`examples/bracket/scpf/solidcraft.json`. The uploaded original is at
+`examples/bracket/source/bracket.json`.
+
+**2. Execute in the currently running SolidCraft GUI** (live):
+
+```powershell
+python -m scpf examples/bracket/scpf/model.py --connect
+```
+
+Start with a **new empty document** and enable external Assistant control
+inside SolidCraft. `--connect` executes a batch directly and **does not
+write a command JSON file**. The default connection uses the local GUI
+control port and authentication token. The existing document is modified;
+the batch requests rollback if a step fails. Close/recreate the document
+before repeating a complete standalone model, otherwise `parameters.add`
+may fail with an already-existing `width` or `thickness` parameter.
+A local fake control server is used in CI; the real GUI is tested manually.
+
+**3. Execute without connecting to a running GUI**:
+
+```powershell
+python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
+solidcraft-cli run output/examples/bracket/scpf/solidcraft.json --param-check strict --save output/bracket.sc
+```
+
+Open the resulting `output/bracket.sc` in the SolidCraft GUI. Or use
+the helper `./scripts/open-solidcraft-json.ps1` on Windows with `-Script`
+set to the generated command file.
+
+**4. Run regression tests**:
+
+```powershell
 python -m unittest discover -s scpf/tests -v
-python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
-python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
 ```
 
-On Windows, use the project-local Python executable if preferred.
-Alternatively, install the package with `python -m pip install -e ./scpf`.
+The source command JSON uses `parameters.change` because it assumes
+`width` and `thickness` already exist in an open SolidCraft design.
+SCPF produces a **standalone command plan** starting with
+`parameters.add`; those two differences are intentional. The remaining
+geometry operations (XZ sketch, extrusion, fillet, two XY holes and cut)
+are checked against the uploaded source. SolidCraft maps XZ sketch
+vertical coordinates into **negative world Z**, so the bracket's fillet
+edge is at `[40, -30, -6]` and the hole cut uses
+`direction: "negative"`. An earlier SCPF version incorrectly used
+positive Z; this has been corrected following a real GUI error.
 
-The Rust predecessor is **SCRF** (SolidCraft Rust Forge); SCPF is the Python successor. The Rust implementation and its fixtures now live under `scrf/` and `examples/{plate,csg-cube}/scrf/`. The old directory layout is preserved only in Git history.
+The Rust predecessor is **SCRF** (SolidCraft Rust Forge), stored under
+`scrf/` and `examples/{plate,csg-cube}/scrf/`.
 
-The tests compare each generated command document with the
-reviewed SCRF reference JSON. CI keeps the two SCPF JSON
-documents as artifacts; the integrated build workflow also includes them
-in the orphan `bld` branch after all build checks pass. The native
-qualification pipeline keeps verified SolidCraft outputs in `vrf`.
+## Results website
 
-The previously agreed `generated-examples` branch remains gated by
-verification of the comparison implementations.
-
-## Open generated JSON in the SolidCraft desktop GUI
-
-SCPF generates a **command script**, not an already saved SolidCraft design.
-The GUI's File > Open reads design files (including self-contained design
-JSON), but does not treat a command script as a saved design. Execute the
-commands with the CLI first, then open the resulting native `.sc`:
-
-```powershell
-.\scripts\open-solidcraft-json.ps1 -Script "output/examples/plate/scpf/solidcraft.json"
-```
-
-This helper validates parameters strictly, saves a native `.sc` alongside
-the command JSON and launches SolidCraft. It uses `solidcraft-cli` and
-`solidcraft` from PATH or the default Windows installation directory. If
-necessary pass `-Cli` and `-Gui` with explicit executable paths, or use
-`-NoOpen` for headless execution.
-
-Equivalent manual command:
-
-```powershell
-solidcraft-cli run examples/plate/scrf/solidcraft.json --param-check strict --save plate.sc
-solidcraft plate.sc
-```
-
-The original bracket reference contains `parameters.change` without
-preceding `parameters.add`. It therefore expects an existing SolidCraft
-document with those parameters; use the generated standalone SCPF bracket
-command plan instead. Its corrected fillet and cut direction still require
-native qualification.
+The CAD results website is built by
+`scripts/ci/build-results.py` and published from GitHub Actions to
+GitHub Pages, with a PR-specific preview. It contains separate pages
+for Plate, CsgCube and Bracket, code, command JSON, construction
+stages and schematic illustrations. Native CAD screenshots are only
+included if their verification metadata matches the exact source
+commit; unverified previews are explicitly labelled.
 
 ## Current limits
 
