@@ -429,14 +429,10 @@ jobs:
             --out output/native/plastic-enclosure-pi/commands.json
           jq -e '
             [.commands[] | select(.command == "sketch.create") | .params.name]
-              == ["PlasticEnclosurePi footprint", "USB port"]
-            and ([.commands[] | select(.command == "plastic.boss")] | length) == 4
-            and ([.commands[] | select(
-              .command == "solid.extrude"
-              and .params.name == "USB port"
-              and .params.operation == "cut"
-              and .params.through_all == true
-            )] | length) == 1
+              == ["PlasticEnclosurePi footprint"]
+            and [.commands[] | select(.command != "parameters.add") | .command]
+              == ["sketch.create", "sketch.rectangle.two_point", "sketch.finish",
+                  "solid.extrude", "solid.fillet", "solid.shell"]
           ' output/native/plastic-enclosure-pi/commands.json
           solidcraft-cli run output/native/plastic-enclosure-pi/commands.json \
             --param-check strict --results \
@@ -449,21 +445,20 @@ jobs:
             .body_count == 1
             and .bodies[0].name == "PlasticEnclosurePi"
             and .bodies[0].closed == true
-            and .bodies[0].bbox.min == [-40, -30, 0]
-            and .bodies[0].bbox.max == [40, 30, 30]
-            and (.sketches | length) == 2
+            and .bodies[0].bbox.min == [-47.5, -33, 0]
+            and .bodies[0].bbox.max == [47.5, 33, 24]
+            and (.sketches | length) == 1
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure-pi/measurements.json
           unzip -p output/native/plastic-enclosure-pi/model.sc document.json \
             > output/native/plastic-enclosure-pi/document.json
           jq -e '
             [.features[].type] ==
-              ["sketch", "extrude", "fillet", "shell",
-               "sketch", "extrude", "boss", "boss", "boss", "boss"]
+              ["sketch", "extrude", "fillet", "shell"]
           ' output/native/plastic-enclosure-pi/document.json
           cat > output/native/plastic-enclosure-pi/change-width.json <<'JSON'
           {"commands":[
-            {"command":"parameters.change","params":{"name":"width","expression":"100 mm"}}
+            {"command":"parameters.change","params":{"name":"width","expression":"115 mm"}}
           ]}
           JSON
           solidcraft-cli run output/native/plastic-enclosure-pi/change-width.json \
@@ -474,8 +469,8 @@ jobs:
             --json-out output/native/plastic-enclosure-pi/measurements-wide.json
           jq -e '
             .body_count == 1
-            and .bodies[0].bbox.min[0] == -50
-            and .bodies[0].bbox.max[0] == 50
+            and .bodies[0].bbox.min[0] == -57.5
+            and .bodies[0].bbox.max[0] == 57.5
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure-pi/measurements-wide.json
           solidcraft-cli snapshot output/native/plastic-enclosure-pi/model.sc \
