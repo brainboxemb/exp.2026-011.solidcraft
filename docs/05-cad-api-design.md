@@ -51,9 +51,10 @@ plate + bore
 - `Anchor.INNER_BOTTOM` refers to the inner floor of a shelled body,
   so enclosure details can be placed relative to the shell wall instead of
   hard-coded world Z coordinates.
-- `Bounds.MIN`, `Bounds.CENTER` and `Bounds.MAX` describe X/Y
-  placement relative to the parent bounds, for example
-  `offset=(Bounds.MIN + 10, Bounds.MAX - 6)`.
+- `X.MIN/CENTER/MAX` and `Y.MIN/CENTER/MAX` describe placement relative
+  to the corresponding parent bounds. For example
+  `offset=(X.MIN + 10, Y.MAX - 6)` means 10 mm from the minimum X edge
+  and 6 mm from the maximum Y edge.
 
 ## Responsibility boundaries
 
