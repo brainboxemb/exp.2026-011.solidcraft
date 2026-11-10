@@ -98,10 +98,13 @@ def compile_base(shape, name):
             raise ModelError("duplicate polygon vertices")
         if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
             raise ModelError("zero-length polygon edge")
-        symbolic = [
-            [command_value(v) for v in point]
-            for point in points
-        ]
+        # Preserve existing (non-symmetric) SCPF JSON fixtures.
+        # Symmetric bracket extrusions need named coordinates so their
+        # profile continues to follow editable native CAD parameters.
+        symbolic = (
+            [[command_value(v) for v in point] for point in points]
+            if direction == "symmetric" else [list(p) for p in concrete]
+        )
         return [
             _command("sketch.create", plane=plane, name="Profile"),
             _command("sketch.line",
