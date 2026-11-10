@@ -19,6 +19,12 @@ class Direction(str, Enum):
     NEGATIVE = "negative"
 
 
+class Anchor(str, Enum):
+    """Anchors for locating features relative to an existing body."""
+    TOP = "top"
+    BOTTOM = "bottom"
+
+
 class Edges(Enum):
     """Named edge selections used by feature operations.
 
@@ -181,6 +187,26 @@ class Shape:
         if self.kind not in ("circle", "rectangle", "polygon", "positioned", "cylinder3d"):
             raise ValueError("at() currently supports planar profiles")
         return Shape("placed3d" if self.kind == "cylinder3d" else "positioned", (self, x, y, z))
+
+    def attach(self, parent, *, parent_anchor=None, child_anchor=None, **anchors):
+        """Attach a cylinder to an existing body's vertical anchor.
+
+        The script describes alignment; the adapter later creates the native
+        SolidCraft sketch and extrusion at the resolved position.
+        """
+        parent_anchor = anchors.pop("parent", parent_anchor)
+        child_anchor = anchors.pop("child", child_anchor)
+        if anchors:
+            raise TypeError(f"unknown attachment arguments: {', '.join(anchors)}")
+        if self.kind != "cylinder3d":
+            raise ValueError("attach() currently supports cylindrical features")
+        if not isinstance(parent, Shape):
+            raise TypeError("attachment parent must be a Shape")
+        try:
+            parent_anchor, child_anchor = Anchor(parent_anchor), Anchor(child_anchor)
+        except ValueError as exc:
+            raise ValueError("attach() requires Anchor.TOP or Anchor.BOTTOM") from exc
+        return Shape("attached", (self, parent, parent_anchor, child_anchor))
 
     def pattern(self, *, x, y):
         if self.kind != "cylinder3d":
