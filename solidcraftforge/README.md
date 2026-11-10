@@ -1,4 +1,4 @@
-# SolidCraftForge
+# SCRF — SolidCraft Rust Forge
 
 The experimental crate has **four technical layers**, but only one public modeling direction:
 
@@ -36,7 +36,7 @@ CsgCube::new(50.0)
 
 The Plate model uses ordinary numbers in millimetres, creates a set of
 cylindrical cutters, and subtracts them from the solid. The error-aware
-builder is internal to SolidCraftForge:
+builder is internal to SCRF:
 
 ```rust
 pub struct Plate;
@@ -61,7 +61,7 @@ impl Plate {
 Plate::new(100.0, 60.0, 10.0)
 ```
 
-The external runner automatically imports common SolidCraftForge types.
+The external runner automatically imports common SCRF types.
 No `use`, `Result`, `?`, `main`, or output plumbing is required in the
 model file. The adapter still preserves SolidCraft's native sketch/history.
 
@@ -114,9 +114,13 @@ Second compiles the expression-based Plate script and generates ignored `output/
 
 See [the experiment plan](../docs/00-plan.md) for qualification cases.
 
+## Rust prototype naming
+
+The Rust crate is named **`scrf`** (SolidCraft Rust Forge). Legacy source and JSON fixture directories retain their `solidcraftforge/` paths so the completed PR #2 evidence, CI commands, and historical links remain reproducible. **SCPF** is the separate, primary Python experiment.
+
 ## Build and verification results
 
-A successful offline SolidCraftForge workflow publishes its generated JSON
+A successful offline SCRF workflow publishes its generated JSON
 command plans to an orphan `bld` branch (and retains an Actions artifact).
 Successful native SolidCraft qualification publishes STEP, native `.sc`,
 previews when available, and verification JSON to an orphan `vrf` branch.
