@@ -12,7 +12,7 @@
 <p>A constructive solid geometry demonstration: intersect a cube with a sphere, then subtract cylinders along three axes.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
-<a class="btn secondary" href="model.rs">SCRF source</a></div>
+</div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
 <h3>Construction stages</h3><ol><li>Create the sphere</li><li>Intersect with a cube</li><li>Cut along X, Y and Z</li></ol></section></div>
 <h2>Python model</h2><pre><code>@dataclass
@@ -27,14 +27,97 @@ class CsgCube:
 
 CsgCube()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: size</small></li>
-<li><strong>Sphere primitive</strong><small>solid.sphere · operation: new, body_name: CsgCube</small></li>
-<li><strong>Box primitive</strong><small>solid.box · operation: intersect</small></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li>
-<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li></ol></section>
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: size</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;size&quot;,
+    &quot;expression&quot;: &quot;50&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Sphere primitive</strong><small>solid.sphere · operation: new, body_name: CsgCube</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.sphere&quot;,
+  &quot;params&quot;: {
+    &quot;radius&quot;: &quot;size / 1.5&quot;,
+    &quot;center&quot;: [
+      0,
+      0,
+      0
+    ],
+    &quot;operation&quot;: &quot;new&quot;,
+    &quot;body_name&quot;: &quot;CsgCube&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Box primitive</strong><small>solid.box · operation: intersect</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.box&quot;,
+  &quot;params&quot;: {
+    &quot;length&quot;: &quot;size&quot;,
+    &quot;width&quot;: &quot;size&quot;,
+    &quot;height&quot;: &quot;size&quot;,
+    &quot;center&quot;: [
+      0,
+      0,
+      0
+    ],
+    &quot;operation&quot;: &quot;intersect&quot;,
+    &quot;targets&quot;: [
+      &quot;CsgCube&quot;
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.cylinder&quot;,
+  &quot;params&quot;: {
+    &quot;height&quot;: &quot;size&quot;,
+    &quot;diameter&quot;: &quot;size / 1.5&quot;,
+    &quot;base&quot;: [
+      &quot;-(size) / 2&quot;,
+      0,
+      0
+    ],
+    &quot;axis&quot;: &quot;X&quot;,
+    &quot;operation&quot;: &quot;cut&quot;,
+    &quot;targets&quot;: [
+      &quot;CsgCube&quot;
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.cylinder&quot;,
+  &quot;params&quot;: {
+    &quot;height&quot;: &quot;size&quot;,
+    &quot;diameter&quot;: &quot;size / 1.5&quot;,
+    &quot;base&quot;: [
+      0,
+      &quot;-(size) / 2&quot;,
+      0
+    ],
+    &quot;axis&quot;: &quot;Y&quot;,
+    &quot;operation&quot;: &quot;cut&quot;,
+    &quot;targets&quot;: [
+      &quot;CsgCube&quot;
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.cylinder&quot;,
+  &quot;params&quot;: {
+    &quot;height&quot;: &quot;size&quot;,
+    &quot;diameter&quot;: &quot;size / 1.5&quot;,
+    &quot;base&quot;: [
+      0,
+      0,
+      &quot;-(size) / 2&quot;
+    ],
+    &quot;axis&quot;: &quot;Z&quot;,
+    &quot;operation&quot;: &quot;cut&quot;,
+    &quot;targets&quot;: [
+      &quot;CsgCube&quot;
+    ]
+  }
+}</code></pre></details></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
-<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
+<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
 </body></html>

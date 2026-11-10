@@ -6,7 +6,7 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / sample-plate</div>
 <h1>SamplePlate</h1><p>Rounded plate with two holes, boss and through-bore</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">21 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
+<span class="badge">15 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.</p></section>
@@ -28,49 +28,223 @@ class SamplePlate:
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges=Edges.VERTICAL)
 
-        # Two mounting holes follow the original sketch-and-cut history.
-        holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
-        plate = plate - holes.extrude(self.thickness)
+        # Hole is a native SolidCraft feature; + adds the feature to the model.
+        # Two holes at (12, 25) and (68, 25), centered on the plate.
+        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+            count=2, spacing=self.width - 24, axis=Axis.X
+        ).on(plate, Anchor.TOP)
+        plate = plate + holes
 
-        # Match the source SolidCraft feature history:
-        # two more sketches, one for the joined boss and one for the cut bore.
-        # Sketch planes remain linked to thickness by a native expression.
-        cx, cy = self.width / 2, self.depth / 2
+        # Object-level attachment; adapter builds native Boss sketch + join.
+        boss = Cylinder(d=24, h=14).attach(
+            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
+        plate = plate + boss
 
-        boss_profile = Circle2D(d=24).at(cx, cy, self.thickness)
-        plate = plate + boss_profile.extrude(14)
-
-        bore_profile = Circle2D(d=12).at(cx, cy, self.thickness + 14)
-        plate - bore_profile.extrude(
-            self.thickness + 14, direction=Direction.NEGATIVE
-        )
+        # A native through-hole is placed on the joined boss&#x27;s top face.
+        bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(plate, Anchor.TOP)
+        plate + bore
 
 
 SamplePlate()
 </code></pre>
-<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: depth</small></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Base, plane: XY</small></li>
-<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, body_name: SamplePlate</small></li>
-<li><strong>Rounded edge</strong><small>solid.fillet</small></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Holes, plane: XY</small></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: cut</small></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: join</small></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Bore, plane: XY</small></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, operation: cut</small></li></ol></section>
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: width</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;width&quot;,
+    &quot;expression&quot;: &quot;80&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: depth</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;depth&quot;,
+    &quot;expression&quot;: &quot;50&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: thickness</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;thickness&quot;,
+    &quot;expression&quot;: &quot;8&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Base, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Base&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
+  &quot;params&quot;: {
+    &quot;p0&quot;: [
+      0,
+      0
+    ],
+    &quot;p1&quot;: [
+      &quot;width&quot;,
+      &quot;depth&quot;
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></details></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, body_name: SamplePlate</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.extrude&quot;,
+  &quot;params&quot;: {
+    &quot;distance&quot;: &quot;thickness&quot;,
+    &quot;direction&quot;: &quot;positive&quot;,
+    &quot;body_name&quot;: &quot;SamplePlate&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Rounded edge</strong><small>solid.fillet</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.fillet&quot;,
+  &quot;params&quot;: {
+    &quot;edges&quot;: [
+      [
+        0.0,
+        0.0,
+        4.0
+      ],
+      [
+        80.0,
+        0.0,
+        4.0
+      ],
+      [
+        80.0,
+        50.0,
+        4.0
+      ],
+      [
+        0.0,
+        50.0,
+        4.0
+      ]
+    ],
+    &quot;radius&quot;: 6.0,
+    &quot;body&quot;: &quot;SamplePlate&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      12.0,
+      25.0,
+      8
+    ],
+    &quot;diameter&quot;: 8,
+    &quot;targets&quot;: [
+      &quot;SamplePlate&quot;
+    ],
+    &quot;references&quot;: [
+      {
+        &quot;edge&quot;: [
+          0.0,
+          25.0,
+          8
+        ],
+        &quot;distance&quot;: &quot;(width / 2) + ((width - 24 mm) * -0.5)&quot;
+      },
+      {
+        &quot;edge&quot;: [
+          40.0,
+          0.0,
+          8
+        ],
+        &quot;distance&quot;: &quot;(depth / 2)&quot;
+      }
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      68.0,
+      25.0,
+      8
+    ],
+    &quot;diameter&quot;: 8,
+    &quot;targets&quot;: [
+      &quot;SamplePlate&quot;
+    ],
+    &quot;references&quot;: [
+      {
+        &quot;edge&quot;: [
+          0.0,
+          25.0,
+          8
+        ],
+        &quot;distance&quot;: &quot;(width / 2) + ((width - 24 mm) * 0.5)&quot;
+      },
+      {
+        &quot;edge&quot;: [
+          40.0,
+          0.0,
+          8
+        ],
+        &quot;distance&quot;: &quot;(depth / 2)&quot;
+      }
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Boss&quot;,
+    &quot;offset&quot;: &quot;thickness&quot;
+  }
+}</code></pre></details></li>
+<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.circle.center&quot;,
+  &quot;params&quot;: {
+    &quot;center&quot;: [
+      40.0,
+      25.0
+    ],
+    &quot;diameter&quot;: 24
+  }
+}</code></pre></details></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></details></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: join</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.extrude&quot;,
+  &quot;params&quot;: {
+    &quot;distance&quot;: 14,
+    &quot;direction&quot;: &quot;positive&quot;,
+    &quot;operation&quot;: &quot;join&quot;,
+    &quot;targets&quot;: [
+      &quot;SamplePlate&quot;
+    ]
+  }
+}</code></pre></details></li>
+<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      40.0,
+      25.0,
+      22.0
+    ],
+    &quot;diameter&quot;: 12,
+    &quot;targets&quot;: [
+      &quot;SamplePlate&quot;
+    ]
+  }
+}</code></pre></details></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
-<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
+<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
 </body></html>

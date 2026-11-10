@@ -11,22 +11,21 @@ class SamplePlate:
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         plate = plate.fillet(6, edges=Edges.VERTICAL)
 
-        # Two mounting holes follow the original sketch-and-cut history.
-        holes = Circle2D(d=8).at(12, 25) + Circle2D(d=8).at(68, 25)
-        plate = plate - holes.extrude(self.thickness)
+        # Hole is a native SolidCraft feature; + adds the feature to the model.
+        # Two holes at (12, 25) and (68, 25), centered on the plate.
+        holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
+            count=2, spacing=self.width - 24, axis=Axis.X
+        ).on(plate, Anchor.TOP)
+        plate = plate + holes
 
-        # Match the source SolidCraft feature history:
-        # two more sketches, one for the joined boss and one for the cut bore.
-        # Sketch planes remain linked to thickness by a native expression.
-        cx, cy = self.width / 2, self.depth / 2
+        # Object-level attachment; adapter builds native Boss sketch + join.
+        boss = Cylinder(d=24, h=14).attach(
+            plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
+        plate = plate + boss
 
-        boss_profile = Circle2D(d=24).at(cx, cy, self.thickness)
-        plate = plate + boss_profile.extrude(14)
-
-        bore_profile = Circle2D(d=12).at(cx, cy, self.thickness + 14)
-        plate - bore_profile.extrude(
-            self.thickness + 14, direction=Direction.NEGATIVE
-        )
+        # A native through-hole is placed on the joined boss's top face.
+        bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(plate, Anchor.TOP)
+        plate + bore
 
 
 SamplePlate()
