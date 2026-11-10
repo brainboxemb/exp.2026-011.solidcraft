@@ -127,11 +127,21 @@ def _fillet_command(base, radius, edges, name):
             raise ModelError("vertical fillet of shifted base not supported")
         picks = [[x + dx, y + dy, h / 2]
                  for dx, dy in ((0, 0), (w, 0), (w, d), (0, d))]
-        return _command("solid.fillet", edges=picks, radius=r, body=name)
+        return _command(
+            "solid.fillet",
+            edges=picks,
+            radius=command_value(radius),
+            body=name,
+        )
     picks = [[value_of(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
-    return _command("solid.fillet", edges=picks, radius=r)
+    return _command(
+        "solid.fillet",
+        edges=picks,
+        radius=command_value(radius),
+        body=name,
+    )
 
 
 def _chamfer_command(distance, edges, name):
