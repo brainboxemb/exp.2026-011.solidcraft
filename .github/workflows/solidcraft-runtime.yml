@@ -355,7 +355,7 @@ jobs:
             and .bodies[0].closed == true
             and .bodies[0].bbox.min == [-40, -25, 0]
             and .bodies[0].bbox.max == [40, 25, 32]
-            and (.sketches | length) == 0
+            and (.sketches | length) == 1
             and (.timeline | all(.error == null))
           ' output/native/plastic-enclosure/measurements.json
           test -s output/native/plastic-enclosure/model.sc
@@ -364,9 +364,10 @@ jobs:
             > output/native/plastic-enclosure/document.json
           jq -e '
             [.features[].type] ==
-              ["box", "shell", "lip", "snap_fit", "boss", "boss", "rest"]
+              ["sketch", "extrude", "shell", "lip", "snap_fit", "boss", "boss", "rest"]
             and [.features[].name] ==
-              ["Box1", "Shell1", "Lip1", "SnapFit1", "Boss1", "Boss2", "Rest1"]
+              ["Enclosure footprint", "Extrude1", "Shell1", "Lip1",
+               "SnapFit1", "Boss1", "Boss2", "Rest1"]
           ' output/native/plastic-enclosure/document.json
           solidcraft-cli snapshot output/native/plastic-enclosure/model.sc \
             --out output/native/plastic-enclosure/model.png \
