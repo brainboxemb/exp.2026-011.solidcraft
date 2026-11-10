@@ -41,17 +41,23 @@ generated JSON. Use `--out` first to inspect the exact sequence.
 
 ## Examples
 
-- [Sample Plate](examples/sample-plate/scpf/model.py): plate, fillets,
-  mounting `Hole` features, joined `Cylinder` boss, and a top-face bore.
+- [Sample Plate — original history](examples/sample-plate/scpf/model.py):
+  four named sketches (`Base`, `Holes`, `Boss`, `Bore`) and matching
+  sketch-based cut/extrusion operations.
+- [Sample Plate — native Hole alternative](examples/sample-plate/scpf/native-holes.py):
+  the same nominal shape expressed with three native `Hole` features and
+  only two sketches.
 - [Plate](examples/plate/scpf/model.py): rectangular mounting plate.
 - [Bracket](examples/bracket/scpf/model.py): polygon-based angle bracket.
 - [CSG Cube](examples/csg-cube/scpf/model.py): primitive Boolean operations.
 - [Anchored Holes](examples/anchored-holes/scpf/model.py): repeated
   native holes positioned relative to the plate.
 
-A native `Hole` uses SolidCraft's `solid.hole` command. In Python,
-`plate + hole` means **add the Hole feature**, although the feature removes
-material. The user does not create intermediate sketches explicitly.
+A native `Hole` uses SolidCraft's `solid.hole` command. Use
+`plate = plate.add(Hole(d=8), on=Anchor.TOP)` to position and apply it in
+one operation. For accurate reconstruction of the original Sample Plate
+feature history, `model.py` uses `Circle2D` profiles and `.cut()` instead.
+Neither form requires creating a `Sketch` object explicitly.
 
 See the [SCPF guide](scpf/README.md) for models, parameters, placement,
 the live GUI connection and limitations.
