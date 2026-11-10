@@ -1,2 +1,3 @@
 Request preview for PR #4 (Sample Plate and SCPF cheatsheet)
 The workflow deliberately runs only when this request marker is changed.
+Refresh after configuring read-only PR lookup and preserving root site.
