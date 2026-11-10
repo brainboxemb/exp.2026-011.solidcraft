@@ -95,7 +95,7 @@ def layout(title, body, css_path, home_path):
 <title>{esc(title)} · SolidCraft CAD experiments</title><link rel="stylesheet" href="{esc(css_path)}"></head>
 <body><header class="top"><div class="wrap"><nav><a class="brand" href="{esc(home_path)}">SolidCraft · CAD experiments</a>
 <a href="{esc(home_path)}">Models</a><a href="{esc(home_path)}cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
-{body}<footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
+{body}<footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
 </body></html>"""
 
 
@@ -112,6 +112,7 @@ def command_stages(commands):
         "solid.box": "Box primitive",
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",
+        "solid.hole": "Native Hole feature",
     }
     items = []
     for entry in commands:
@@ -122,9 +123,15 @@ def command_stages(commands):
         for key in ("name", "plane", "direction", "operation", "body_name"):
             if key in params:
                 details.append(f"{key}: {params[key]}")
-        items.append(f'<li><strong>{esc(description)}</strong><small>{esc(kind)}'
-                     + (f' · {esc(", ".join(details))}' if details else "")
-                     + '</small></li>')
+        items.append(
+            f'<li><strong>{esc(description)}</strong>'
+            f'<small>{esc(kind)}'
+            + (f' · {esc(", ".join(details))}' if details else "")
+            + '</small>'
+            + '<details><summary>Show exact command and parameters</summary>'
+            + f'<pre><code>{esc(json.dumps(entry, indent=2))}</code></pre>'
+            + '</details></li>'
+        )
     return "\n".join(items)
 
 
@@ -149,8 +156,6 @@ def build(out, commit, native_root=None, generated_root=None, previous_site=None
         commands = read_json(command_file)["commands"]
         copy_if_exists(source, work / "model.py")
         copy_if_exists(command_file, work / "solidcraft.json")
-        if (ROOT / "examples" / slug / "scrf" / "model.rs").exists():
-            copy_if_exists(ROOT / "examples" / slug / "scrf" / "model.rs", work / "model.rs")
         screenshot = screenshot_info(native_root, commit, slug)
         has_native = screenshot is not None
         # A lightweight preview may reuse a published render as an illustration,
@@ -183,7 +188,7 @@ def build(out, commit, native_root=None, generated_root=None, previous_site=None
 <p>{esc(info["description"])}</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
-{'<a class="btn secondary" href="model.rs">SCRF source</a>' if (work / "model.rs").exists() else ''}</div>
+</div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
 <h3>Construction stages</h3><ol>{stage_summary}</ol></section></div>
 <h2>Python model</h2><pre><code>{script}</code></pre>
@@ -201,9 +206,9 @@ Native qualification is reported only when the matching verified image exists.</
 <h3><a href="models/{slug}/">{esc(info["title"])}</a></h3><p>{esc(info["tagline"])}</p>
 <p class="small muted">{esc(info["parameters"])}</p>
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
-    home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SCRF · SolidCraft</div>
+    home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore four small CAD designs and their construction stages. Python SCPF and Rust SCRF emit native SolidCraft commands; SolidCraft itself creates the final BRep model.</p></div></section>
+<p>Explore four small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>
