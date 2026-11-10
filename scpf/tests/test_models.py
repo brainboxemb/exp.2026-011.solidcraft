@@ -125,6 +125,7 @@ class SCPFExamples(unittest.TestCase):
         centers = [c["params"]["center"] for c in commands
                    if c["command"] == "sketch.circle.center"]
         self.assertEqual(centers[-2:], [[50, 30], [50, 30]])
+        self.assertFalse(any(c["command"] == "solid.cylinder" for c in commands))
 
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
