@@ -248,8 +248,8 @@ def _to_commands(shape, body_name):
                         elif shape.kind == "difference" and child_anchor is Anchor.BOTTOM:
                             # The cylinder starts at its bottom; cut downwards
                             # from its top to retain the full cutter extent.
-                            sketch_z = _combine(origin_z if parent_anchor is Anchor.BOTTOM
-                                                else thickness, height)
+                            anchor_z = origin_z if parent_anchor is Anchor.BOTTOM else thickness
+                            sketch_z = height if value_of(anchor_z) == 0 else _combine(anchor_z, height)
                             direction = "negative"
                         else:
                             raise ModelError(
