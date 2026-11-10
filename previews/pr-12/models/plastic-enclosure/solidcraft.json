@@ -44,7 +44,7 @@
           0
         ],
         "operation": "new",
-        "body_name": "PlasticEnclosure"
+        "body_name": "Enclosure"
       }
     },
     {
@@ -58,7 +58,7 @@
           ]
         ],
         "thickness": "wall",
-        "body": "PlasticEnclosure"
+        "body": "Enclosure"
       }
     },
     {
@@ -71,7 +71,7 @@
         ],
         "width": 1,
         "height": 2,
-        "body": "PlasticEnclosure"
+        "body": "Enclosure"
       }
     },
     {
@@ -92,7 +92,7 @@
         "width": 6,
         "catch_depth": 1,
         "catch_length": 2,
-        "body": "PlasticEnclosure"
+        "body": "Enclosure"
       }
     },
     {
@@ -105,7 +105,7 @@
         ],
         "diameter": 7,
         "height": 12,
-        "body": "PlasticEnclosure",
+        "body": "Enclosure",
         "hole_diameter": 2.5
       }
     },
@@ -119,7 +119,7 @@
         ],
         "diameter": 7,
         "height": 12,
-        "body": "PlasticEnclosure",
+        "body": "Enclosure",
         "hole_diameter": 2.5
       }
     },
@@ -133,7 +133,7 @@
         ],
         "width": 16,
         "height": 3,
-        "body": "PlasticEnclosure",
+        "body": "Enclosure",
         "length": 24
       }
     }

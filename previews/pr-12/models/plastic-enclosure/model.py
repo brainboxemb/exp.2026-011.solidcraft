@@ -1,5 +1,5 @@
 @dataclass
-class PlasticEnclosure:
+class Enclosure:
     """Rebuild the SolidCraft plastic enclosure with native plastic features."""
 
     length: float = 80
@@ -54,4 +54,4 @@ class PlasticEnclosure:
         enclosure + rest
 
 
-PlasticEnclosure()
+Enclosure()
