@@ -586,7 +586,8 @@ class SCPFExamples(unittest.TestCase):
         cuts = [c for c in features if c["command"] == "solid.extrude"
                 and c["params"].get("operation") == "cut"]
         self.assertEqual(len(cuts), 3)
-        self.assertTrue(all(c["params"]["direction"] == "negative" for c in cuts))
+        self.assertEqual([c["params"]["direction"] for c in cuts],
+                         ["positive", "negative", "negative"])
 
     def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
