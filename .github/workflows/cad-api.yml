@@ -1,0 +1,76 @@
+name: SolidCraftForge offline
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/issue-1-python-interface'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  verify-rust-cad-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust CAD domain and adapter tests
+        run: cargo test --manifest-path solidcraftforge/Cargo.toml --all-targets
+      - name: Generate semantic CAD script
+        run: cargo run --manifest-path solidcraftforge/Cargo.toml --example plate
+      - name: Validate generated JSON
+        run: jq empty output/examples/plate/solidcraftforge/solidcraft.json
+      - name: Fixture matches generated CAD plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e -s '.[0] == .[1]' \
+            examples/plate/solidcraftforge/solidcraft.json \
+            output/examples/plate/solidcraftforge/solidcraft.json >/dev/null
+
+      - name: Generate CSG cube script from clean Rust model
+        run: cargo run --manifest-path solidcraftforge/Cargo.toml --example csg_cube
+      - name: CSG cube output is valid and matches reviewed SolidCraft plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq empty output/examples/csg-cube/solidcraftforge/solidcraft.json
+          jq -e -s '.[0] == .[1]' \
+            examples/csg-cube/solidcraftforge/solidcraft.json \
+            output/examples/csg-cube/solidcraftforge/solidcraft.json >/dev/null
+
+      - name: Show and identify generated command plans
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -n --arg commit "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
+            '{source_commit:$commit, workflow_run:$run, artifacts:["plate/solidcraftforge/solidcraft.json","csg-cube/solidcraftforge/solidcraft.json"]}' \
+            > output/examples/build.json
+          echo "--- Plate commands ---"
+          jq . output/examples/plate/solidcraftforge/solidcraft.json
+          echo "--- CSG cube commands ---"
+          jq . output/examples/csg-cube/solidcraftforge/solidcraft.json
+      - name: Retain generated SolidCraftForge JSON as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solidcraftforge-bld-json
+          path: |
+            output/examples/plate/solidcraftforge/solidcraft.json
+            output/examples/csg-cube/solidcraftforge/solidcraft.json
+            output/examples/build.json
+          if-no-files-found: error
+      - name: Publish successful generated commands to orphan bld branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/issue-1-python-interface'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: bld
+          publish_dir: ./output/examples
+          keep_files: true
+          force_orphan: true
+          commit_message: "SolidCraftForge generated command plans from ${{ github.sha }}"

@@ -1,0 +1,182 @@
+name: Plate fillet comparison
+
+on:
+  push:
+    branches:
+      - main
+      - feature/issue-1-python-interface
+  workflow_dispatch: {}
+
+jobs:
+  cadquery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip cadquery==2.8.0
+      - name: Execute CadQuery plate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/plate/cadquery
+          python - <<'PY'
+          import json, runpy
+          import cadquery as cq
+          result = runpy.run_path("examples/plate/cadquery/model.py")["result"]
+          solid = result.val()
+          bb = solid.BoundingBox()
+          m = {
+              "bbox": {"min":[bb.xmin,bb.ymin,bb.zmin], "max":[bb.xmax,bb.ymax,bb.zmax]},
+              "volume_mm3": solid.Volume(),
+          }
+          cq.exporters.export(result, "output/examples/plate/cadquery/model.step")
+          cq.exporters.export(result, "output/examples/plate/cadquery/model.stl")
+          json.dump(m, open("output/examples/plate/cadquery/measurements.json","w"), indent=2)
+          assert abs(bb.xmin + 50) < 1e-6 and abs(bb.xmax - 50) < 1e-6
+          assert abs(bb.ymin + 30) < 1e-6 and abs(bb.ymax - 30) < 1e-6
+          assert abs(bb.zmin) < 1e-6 and abs(bb.zmax - 10) < 1e-6
+          assert 57950 < m["volume_mm3"] < 57960, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-cadquery
+          path: output/examples/plate/cadquery/
+
+  pythonscad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pythonscad==1.1.2
+      - name: Execute PythonSCAD plate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/examples/plate/pythonscad
+          python - <<'PY'
+          import runpy
+          result = runpy.run_path("examples/plate/pythonscad/model.py")["result"]
+          result.export("output/examples/plate/pythonscad/model.stl")
+          PY
+          python scripts/measure_stl.py output/examples/plate/pythonscad/model.stl > output/examples/plate/pythonscad/measurements.json
+          python - <<'PY'
+          import json
+          m=json.load(open("output/examples/plate/pythonscad/measurements.json"))
+          assert abs(m["bbox"]["min"][0] + 50) < 0.2 and abs(m["bbox"]["max"][0] - 50) < 0.2, m
+          assert abs(m["bbox"]["min"][1] + 30) < 0.2 and abs(m["bbox"]["max"][1] - 30) < 0.2, m
+          assert abs(m["bbox"]["min"][2]) < 0.2 and abs(m["bbox"]["max"][2] - 10) < 0.2, m
+          assert 57500 < m["volume_mm3"] < 58400, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-pythonscad
+          path: output/examples/plate/pythonscad/
+
+  microcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install µcad 0.6.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          cargo install mucad --version 0.6.0 --locked
+      - name: Check and export µcad plate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mucad check examples/plate/microcad/model.mu
+          mucad export examples/plate/microcad/model.mu
+          mkdir -p output/examples/plate/microcad
+          cp examples/plate/microcad/model.stl output/examples/plate/microcad/model.stl
+          python scripts/measure_stl.py output/examples/plate/microcad/model.stl > output/examples/plate/microcad/measurements.json
+          python - <<'PY'
+          import json
+          m=json.load(open("output/examples/plate/microcad/measurements.json"))
+          assert abs(m["bbox"]["min"][0] + 50) < 0.2 and abs(m["bbox"]["max"][0] - 50) < 0.2, m
+          assert abs(m["bbox"]["min"][1] + 30) < 0.2 and abs(m["bbox"]["max"][1] - 30) < 0.2, m
+          assert abs(m["bbox"]["min"][2]) < 0.2 and abs(m["bbox"]["max"][2] - 10) < 0.2, m
+          assert 57500 < m["volume_mm3"] < 58400, m
+          print(json.dumps(m, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-microcad
+          path: output/examples/plate/microcad/
+
+  vcad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Execute pinned vcad 0.11 development kernel plate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/vcad-plate/src" output/examples/plate/vcad
+          cat > "$RUNNER_TEMP/vcad-plate/Cargo.toml" <<'TOML'
+          [package]
+          name = "plate-vcad-runner"
+          version = "0.0.0"
+          edition = "2021"
+          publish = false
+          [dependencies]
+          vcad-kernel = { git = "https://github.com/muni-works/vcad.git", rev = "b44f7bfd00402a45675a59b160b3d33b32a2d626", default-features = false }
+          serde_json = "1"
+          [patch.crates-io]
+          kosm-render = { git = "https://github.com/ecto/kosm", rev = "59b1d03ec45cf9e9a04ccbbbef0bcc06d8f559d4" }
+          TOML
+          cat > "$RUNNER_TEMP/vcad-plate/src/main.rs" <<'RS'
+          use std::fs;
+          use vcad_kernel::vcad_kernel_fillet::{BlendKey, BlendSection, EdgeQuery};
+          use vcad_kernel::vcad_kernel_math::Vec3;
+          use vcad_kernel::Solid;
+          fn model() -> Solid {
+              include!(concat!(env!("GITHUB_WORKSPACE"), "/examples/plate/vcad/model.rs"))
+          }
+          fn main() {
+              let model = model();
+              let output=std::env::var("VCAD_OUTPUT").unwrap();
+              fs::create_dir_all(&output).unwrap();
+              let (min,max)=model.bounding_box();
+              let m=serde_json::json!({
+                  "bbox":{"min":min,"max":max},
+                  "volume_mm3":model.volume(),
+                  "degradations":model.degradations().len(),
+                  "wrong_geometry_events":model.wrong_geometry_events().count(),
+                  "why_not_brep":model.why_not_brep()
+              });
+              fs::write(format!("{output}/measurements.json"),serde_json::to_vec_pretty(&m).unwrap()).unwrap();
+              println!("{}",serde_json::to_string_pretty(&m).unwrap());
+              assert_eq!(model.wrong_geometry_events().count(),0);
+              assert_eq!(model.degradations().len(),0);
+              model.to_step(format!("{output}/model.step")).unwrap();
+          }
+          RS
+          GITHUB_WORKSPACE="$GITHUB_WORKSPACE" VCAD_OUTPUT="$GITHUB_WORKSPACE/output/examples/plate/vcad"             cargo run --manifest-path "$RUNNER_TEMP/vcad-plate/Cargo.toml" --release
+          python - <<'PY'
+          import json
+          m=json.load(open("output/examples/plate/vcad/measurements.json"))
+          assert abs(m["bbox"]["min"][0] + 50) < 0.2 and abs(m["bbox"]["max"][0] - 50) < 0.2, m
+          assert abs(m["bbox"]["min"][1] + 30) < 0.2 and abs(m["bbox"]["max"][1] - 30) < 0.2, m
+          assert abs(m["bbox"]["min"][2]) < 0.2 and abs(m["bbox"]["max"][2] - 10) < 0.2, m
+          assert 57500 < m["volume_mm3"] < 58400, m
+          assert m["degradations"] == 0 and m["wrong_geometry_events"] == 0 and m["why_not_brep"] is None, m
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plate-vcad
+          path: output/examples/plate/vcad/
