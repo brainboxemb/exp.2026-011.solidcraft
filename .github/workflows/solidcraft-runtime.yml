@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - example/corner-bracket
     paths:
       - "scpf/**"
       - "examples/**"
