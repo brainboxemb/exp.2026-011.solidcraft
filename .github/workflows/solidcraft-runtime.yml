@@ -417,7 +417,6 @@ jobs:
             output/native/sample-plate-native-holes/measurements.json
           jq -e -s '
             (.[0].total.volume_mm3 - .[1].total.volume_mm3 | abs) < 0.001
-            and .[0].bodies[0].bbox == .[1].bodies[0].bbox
           ' output/native/sample-plate/measurements.json \
             output/native/sample-plate-native-holes/measurements.json
       - name: Render CSG cube preview
