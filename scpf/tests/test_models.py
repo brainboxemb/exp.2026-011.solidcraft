@@ -133,6 +133,27 @@ class SCPFExamples(unittest.TestCase):
                           if c["command"] == "solid.extrude" and
                           "operation" in c["params"]], ["join"])
 
+    def test_fluent_add_and_cut_match_legacy_composition(self):
+        from scpf.core import Anchor, Hole, Rectangle2D, Circle2D
+        from scpf.compiler import compile_model
+        plate = Rectangle2D(80, 50).extrude(8)
+        old = plate + Hole(d=8).on(plate, Anchor.TOP)
+        compact = plate.add(Hole(d=8), on=Anchor.TOP)
+        self.assertEqual(compile_model(old, "Plate"),
+                         compile_model(compact, "Plate"))
+
+        with self.assertRaises(ValueError):
+            plate.add(Hole(d=8), on=Anchor.TOP, at=(12, 25, 8))
+        with self.assertRaises(ValueError):
+            plate.add(Hole(d=8), at=(12, 25))
+        sketch_cut = plate.cut(
+            Circle2D(d=8).at(40, 25).extrude(8), name="Holes")
+        commands = compile_model(sketch_cut, "Plate")["commands"]
+        self.assertEqual([c["params"]["name"] for c in commands
+                          if c["command"] == "sketch.create"],
+                         ["Base", "Holes"])
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
+
     def test_named_edge_selection_and_explicit_edge_points(self):
         from scpf.core import Box, Edges
         body = Box(80, 50, 8)
