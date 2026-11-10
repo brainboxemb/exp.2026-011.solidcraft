@@ -5,11 +5,17 @@ class Plate:
     thickness: float = 10
 
     def build(self):
-        body = Box(self.length, self.width, self.thickness).fillet(
-            2, edges=Edges.VERTICAL
-        )
-        holes = Cylinder(d=8, h=self.thickness).pattern(x=70, y=30)
-        body - holes
+        # A Box is a native CAD solid; keep it as an object.
+        body = Box(self.length, self.width, self.thickness)
+        body = body.fillet(2, edges=Edges.VERTICAL)
+
+        # Four native SolidCraft Hole features, relative to the box top.
+        # Their nominal centres are (+/-35, +/-15) mm.
+        for x, y in ((-35, -15), (35, -15), (35, 15), (-35, 15)):
+            hole = Hole(d=8, depth=Depth.THROUGH_ALL).on(
+                body, Anchor.TOP, offset=(x, y))
+            body = body + hole
+        body
 
 
 Plate()

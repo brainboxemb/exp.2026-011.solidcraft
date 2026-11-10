@@ -6,7 +6,7 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / bracket</div>
 <h1>Bracket</h1><p>An L-shaped extrusion with two mounting holes</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">12 commands</span><span class="badge">60 mm wide; 6 mm wall; two Ø8 mm holes</span></div>
+<span class="badge">9 commands</span><span class="badge">60 mm wide; 6 mm wall; two Ø8 mm holes</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>An XZ polygon extruded along Y, with an edge fillet and an XY sketch for the two mounting holes.</p></section>
@@ -29,7 +29,11 @@ class Bracket:
         )
         body = profile.extrude(self.width, direction=Direction.NEGATIVE)
         body = body.fillet(2, edges=[(40, -self.width / 2, -self.thickness)])
-        body.holes([(25, -15), (25, -45)], diameter=8, depth=self.thickness)
+        # Native Hole features on the upper face (world Z = 0).
+        # The XZ profile grows towards negative Z in SolidCraft.
+        for y in (-15, -45):
+            body = body + Hole(d=8, depth=self.thickness).at(25, y, 0)
+        body
 
 
 Bracket()
@@ -122,43 +126,34 @@ Bracket()
     &quot;radius&quot;: 2.0
   }
 }</code></pre></details></li>
-<li><strong>Create sketch</strong><small>sketch.create · name: Holes, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
-  &quot;command&quot;: &quot;sketch.create&quot;,
+<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
-    &quot;plane&quot;: &quot;XY&quot;,
-    &quot;name&quot;: &quot;Holes&quot;
-  }
-}</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
-  &quot;command&quot;: &quot;sketch.circle.center&quot;,
-  &quot;params&quot;: {
-    &quot;center&quot;: [
+    &quot;position&quot;: [
       25.0,
-      -15.0
+      -15.0,
+      0.0
     ],
-    &quot;diameter&quot;: 8.0
+    &quot;diameter&quot;: 8,
+    &quot;targets&quot;: [
+      &quot;Bracket&quot;
+    ],
+    &quot;depth&quot;: &quot;thickness&quot;
   }
 }</code></pre></details></li>
-<li><strong>Circle</strong><small>sketch.circle.center</small><details><summary>Show exact command and parameters</summary><pre><code>{
-  &quot;command&quot;: &quot;sketch.circle.center&quot;,
+<li><strong>Native Hole feature</strong><small>solid.hole</small><details><summary>Show exact command and parameters</summary><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
   &quot;params&quot;: {
-    &quot;center&quot;: [
+    &quot;position&quot;: [
       25.0,
-      -45.0
+      -45.0,
+      0.0
     ],
-    &quot;diameter&quot;: 8.0
-  }
-}</code></pre></details></li>
-<li><strong>Finish sketch</strong><small>sketch.finish</small><details><summary>Show exact command and parameters</summary><pre><code>{
-  &quot;command&quot;: &quot;sketch.finish&quot;,
-  &quot;params&quot;: {}
-}</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
-  &quot;command&quot;: &quot;solid.extrude&quot;,
-  &quot;params&quot;: {
-    &quot;distance&quot;: &quot;thickness&quot;,
-    &quot;direction&quot;: &quot;negative&quot;,
-    &quot;operation&quot;: &quot;cut&quot;
+    &quot;diameter&quot;: 8,
+    &quot;targets&quot;: [
+      &quot;Bracket&quot;
+    ],
+    &quot;depth&quot;: &quot;thickness&quot;
   }
 }</code></pre></details></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
