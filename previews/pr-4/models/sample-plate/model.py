@@ -16,11 +16,11 @@ class SamplePlate:
         plate = plate - holes.extrude(self.thickness)
 
         # Direct 3D primitives; SolidCraft emits solid.cylinder, not a sketch.
-        boss = Cylinder3D(d=24, h=14).at(40, 25, self.thickness)
+        boss = Cylinder(d=24, h=14).at(40, 25, self.thickness)
         plate = plate + boss
 
         # Its base is at z=0; the full 22 mm height is removed.
-        bore = Cylinder3D(d=12, h=self.thickness + 14).at(40, 25, 0)
+        bore = Cylinder(d=12, h=self.thickness + 14).at(40, 25, 0)
         plate - bore
 
 

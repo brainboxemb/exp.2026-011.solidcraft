@@ -5,10 +5,10 @@
 <a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / sample-plate</div>
 <h1>SamplePlate</h1><p>Rounded plate with two holes, boss and through-bore</p></div></section>
-<main class="wrap"><div class="metadata"><span class="badge pending">Generated command plan · native render not verified for this commit</span>
+<main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
 <span class="badge">15 commands</span><span class="badge">80 × 50 × 8 mm; R6; Ø24 × 14 boss</span></div>
-<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><svg role="img" aria-label="Schematic illustration; not a native CAD render" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg"><path d="M65 115 300 50 425 100 185 175Z" fill="#bcd4ee" stroke="#285785" stroke-width="5"/><path d="M65 115 V160 L185 222 V175 M185 222 425 150 V100" fill="#8eb5db" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="100" rx="62" ry="39" fill="#5f92c6" stroke="#285785" stroke-width="4"/><path d="M231 100 V60 A62 39 0 0 1 355 60 V100" fill="#b4d0e9" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="60" rx="62" ry="39" fill="#d1e4f4" stroke="#285785" stroke-width="4"/><ellipse cx="293" cy="60" rx="29" ry="18" fill="#edf4fb" stroke="#285785" stroke-width="4"/><ellipse cx="130" cy="116" rx="15" ry="10" fill="#edf4fb" stroke="#285785" stroke-width="4"/><ellipse cx="385" cy="129" rx="15" ry="10" fill="#edf4fb" stroke="#285785" stroke-width="4"/></svg></div>
-<p class="small muted">Schematic drawing only; it is not a SolidCraft geometry render.</p>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
+<p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>Reverse engineered from a saved SolidCraft design: rectangle, positive extrusion, four R6 vertical fillets, two Ø8 mounting holes, an offset Ø24 boss and a central Ø12 bore.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
@@ -33,11 +33,11 @@ class SamplePlate:
         plate = plate - holes.extrude(self.thickness)
 
         # Direct 3D primitives; SolidCraft emits solid.cylinder, not a sketch.
-        boss = Cylinder3D(d=24, h=14).at(40, 25, self.thickness)
+        boss = Cylinder(d=24, h=14).at(40, 25, self.thickness)
         plate = plate + boss
 
         # Its base is at z=0; the full 22 mm height is removed.
-        bore = Cylinder3D(d=12, h=self.thickness + 14).at(40, 25, 0)
+        bore = Cylinder(d=12, h=self.thickness + 14).at(40, 25, 0)
         plate - bore
 
 
@@ -58,7 +58,7 @@ SamplePlate()
 <li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: cut</small></li>
 <li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: join</small></li>
 <li><strong>Cylinder primitive</strong><small>solid.cylinder · operation: cut</small></li></ol></section>
-<div class="notice"><strong>Verification:</strong> Generated command plan · native render not verified for this commit.
+<div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
 The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
 Native qualification is reported only when the matching verified image exists.</div>
 <p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF (Python) and SCRF (Rust) produce native SolidCraft command plans. All geometry is built by SolidCraft.</div></footer>
