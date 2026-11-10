@@ -6,15 +6,15 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / plastic-enclosure</div>
 <h1>Plastic Enclosure</h1><p>A shelled enclosure with native plastic design features</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">11 commands</span><span class="badge">80 × 50 × 30 mm; 2 mm wall; two Ø7 × 12 bosses</span></div>
+<span class="badge">14 commands</span><span class="badge">80 × 50 × 30 mm; 2 mm wall; two Ø7 × 12 bosses</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
-<p>Reverse-engineers the supplied SolidCraft enclosure using native Shell, Lip, Snap Fit, Boss and Rest features.</p></section>
+<p>Rebuilds the supplied enclosure with the normal SCPF Box sketch/extrusion, followed by native Shell, Lip, Snap Fit, Boss and Rest features.</p></section>
 <section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
 <div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
 </div>
 <p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
-<h3>Construction stages</h3><ol><li>Box1 — create the 80 × 50 × 30 mm solid</li><li>Shell1 — hollow to 2 mm with the top open</li><li>Lip1 — add a 1 × 2 mm rim lip</li><li>SnapFit1 — add the 14 mm cantilever snap</li><li>Boss1 / Boss2 — add two Ø7 × 12 mm screw bosses</li><li>Rest1 — add the 16 × 24 × 3 mm centre rest</li></ol></section></div>
+<h3>Construction stages</h3><ol><li>Enclosure footprint — sketch the 80 × 50 mm base</li><li>Extrude1 — create the 30 mm solid</li><li>Shell1 — hollow to 2 mm with the top open</li><li>Lip1 — add a 1 × 2 mm rim lip</li><li>SnapFit1 — add the 14 mm cantilever snap</li><li>Boss1 / Boss2 — add two Ø7 × 12 mm screw bosses</li><li>Rest1 — add the 16 × 24 × 3 mm centre rest</li></ol></section></div>
 <h2>Python model</h2><pre><code>@dataclass
 class Enclosure:
     &quot;&quot;&quot;Rebuild the SolidCraft plastic enclosure with native plastic features.&quot;&quot;&quot;
@@ -28,10 +28,10 @@ class Enclosure:
         enclosure = Box(self.length, self.width, self.height)
         enclosure = enclosure.shell(self.wall, open=Faces.TOP)
 
-        lip = Lip(width=1, height=2).at(
-            -(self.length / 2) + 1,
-            0,
-            self.height,
+        lip = Lip(width=1, height=2).attach(
+            enclosure,
+            parent=Anchor.TOP,
+            offset=(-(self.length / 2) + 1, 0),
         )
         enclosure = enclosure + lip
 
@@ -42,31 +42,36 @@ class Enclosure:
             catch_depth=1,
             catch_length=2,
             hook=(0, -1, 0),
-        ).at(
-            0,
-            self.width / 2 - 6,
-            self.wall,
+        ).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(0, self.width / 2 - 6),
         )
         enclosure = enclosure + snap
 
-        boss1 = Boss(d=7, h=12, hole_d=2.5).at(
-            -(self.length / 2) + 10,
-            -(self.width / 2) + 10,
-            self.wall,
+        boss1 = Boss(d=7, h=12, hole_d=2.5).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(
+                -(self.length / 2) + 10,
+                -(self.width / 2) + 10,
+            ),
         )
         enclosure = enclosure + boss1
 
-        boss2 = Boss(d=7, h=12, hole_d=2.5).at(
-            self.length / 2 - 10,
-            self.width / 2 - 10,
-            self.wall,
+        boss2 = Boss(d=7, h=12, hole_d=2.5).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(
+                self.length / 2 - 10,
+                self.width / 2 - 10,
+            ),
         )
         enclosure = enclosure + boss2
 
-        rest = Rest(width=16, length=24, height=3).at(
-            0,
-            0,
-            self.wall,
+        rest = Rest(width=16, length=24, height=3).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
         )
         enclosure + rest
 
@@ -105,18 +110,34 @@ Enclosure()
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
-<li><strong>Box primitive</strong><small>solid.box · operation: new, body_name: Enclosure</small><pre><code>{
-  &quot;command&quot;: &quot;solid.box&quot;,
+<li><strong>Create sketch</strong><small>sketch.create · name: Enclosure footprint, plane: XY</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
   &quot;params&quot;: {
-    &quot;length&quot;: &quot;length&quot;,
-    &quot;width&quot;: &quot;width&quot;,
-    &quot;height&quot;: &quot;height&quot;,
-    &quot;corner&quot;: [
-      &quot;(-(length)) / 2&quot;,
-      &quot;(-(width)) / 2&quot;,
-      0
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Enclosure footprint&quot;
+  }
+}</code></pre></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
+  &quot;params&quot;: {
+    &quot;p0&quot;: [
+      &quot;-length / 2&quot;,
+      &quot;-width / 2&quot;
     ],
-    &quot;operation&quot;: &quot;new&quot;,
+    &quot;p1&quot;: [
+      &quot;length / 2&quot;,
+      &quot;width / 2&quot;
+    ]
+  }
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · body_name: Enclosure</small><pre><code>{
+  &quot;command&quot;: &quot;solid.extrude&quot;,
+  &quot;params&quot;: {
+    &quot;distance&quot;: &quot;height&quot;,
     &quot;body_name&quot;: &quot;Enclosure&quot;
   }
 }</code></pre></li>
@@ -140,7 +161,7 @@ Enclosure()
     &quot;face&quot;: [
       -39.0,
       0.0,
-      30
+      30.0
     ],
     &quot;width&quot;: 1,
     &quot;height&quot;: 2,
@@ -153,7 +174,7 @@ Enclosure()
     &quot;position&quot;: [
       0.0,
       19.0,
-      2
+      2.0
     ],
     &quot;hook&quot;: [
       0.0,
@@ -174,7 +195,7 @@ Enclosure()
     &quot;position&quot;: [
       -30.0,
       -15.0,
-      2
+      2.0
     ],
     &quot;diameter&quot;: 7,
     &quot;height&quot;: 12,
@@ -188,7 +209,7 @@ Enclosure()
     &quot;position&quot;: [
       30.0,
       15.0,
-      2
+      2.0
     ],
     &quot;diameter&quot;: 7,
     &quot;height&quot;: 12,
@@ -202,7 +223,7 @@ Enclosure()
     &quot;position&quot;: [
       0.0,
       0.0,
-      2
+      2.0
     ],
     &quot;width&quot;: 16,
     &quot;height&quot;: 3,

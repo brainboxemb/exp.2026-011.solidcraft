@@ -11,10 +11,10 @@ class Enclosure:
         enclosure = Box(self.length, self.width, self.height)
         enclosure = enclosure.shell(self.wall, open=Faces.TOP)
 
-        lip = Lip(width=1, height=2).at(
-            -(self.length / 2) + 1,
-            0,
-            self.height,
+        lip = Lip(width=1, height=2).attach(
+            enclosure,
+            parent=Anchor.TOP,
+            offset=(-(self.length / 2) + 1, 0),
         )
         enclosure = enclosure + lip
 
@@ -25,31 +25,36 @@ class Enclosure:
             catch_depth=1,
             catch_length=2,
             hook=(0, -1, 0),
-        ).at(
-            0,
-            self.width / 2 - 6,
-            self.wall,
+        ).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(0, self.width / 2 - 6),
         )
         enclosure = enclosure + snap
 
-        boss1 = Boss(d=7, h=12, hole_d=2.5).at(
-            -(self.length / 2) + 10,
-            -(self.width / 2) + 10,
-            self.wall,
+        boss1 = Boss(d=7, h=12, hole_d=2.5).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(
+                -(self.length / 2) + 10,
+                -(self.width / 2) + 10,
+            ),
         )
         enclosure = enclosure + boss1
 
-        boss2 = Boss(d=7, h=12, hole_d=2.5).at(
-            self.length / 2 - 10,
-            self.width / 2 - 10,
-            self.wall,
+        boss2 = Boss(d=7, h=12, hole_d=2.5).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
+            offset=(
+                self.length / 2 - 10,
+                self.width / 2 - 10,
+            ),
         )
         enclosure = enclosure + boss2
 
-        rest = Rest(width=16, length=24, height=3).at(
-            0,
-            0,
-            self.wall,
+        rest = Rest(width=16, length=24, height=3).attach(
+            enclosure,
+            parent=Anchor.INNER_BOTTOM,
         )
         enclosure + rest
 

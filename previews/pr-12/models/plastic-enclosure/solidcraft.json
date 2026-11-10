@@ -33,17 +33,33 @@
       }
     },
     {
-      "command": "solid.box",
+      "command": "sketch.create",
       "params": {
-        "length": "length",
-        "width": "width",
-        "height": "height",
-        "corner": [
-          "(-(length)) / 2",
-          "(-(width)) / 2",
-          0
+        "plane": "XY",
+        "name": "Enclosure footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-length / 2",
+          "-width / 2"
         ],
-        "operation": "new",
+        "p1": [
+          "length / 2",
+          "width / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "height",
         "body_name": "Enclosure"
       }
     },
@@ -67,7 +83,7 @@
         "face": [
           -39.0,
           0.0,
-          30
+          30.0
         ],
         "width": 1,
         "height": 2,
@@ -80,7 +96,7 @@
         "position": [
           0.0,
           19.0,
-          2
+          2.0
         ],
         "hook": [
           0.0,
@@ -101,7 +117,7 @@
         "position": [
           -30.0,
           -15.0,
-          2
+          2.0
         ],
         "diameter": 7,
         "height": 12,
@@ -115,7 +131,7 @@
         "position": [
           30.0,
           15.0,
-          2
+          2.0
         ],
         "diameter": 7,
         "height": 12,
@@ -129,7 +145,7 @@
         "position": [
           0.0,
           0.0,
-          2
+          2.0
         ],
         "width": 16,
         "height": 3,
