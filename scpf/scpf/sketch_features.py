@@ -213,6 +213,9 @@ def _to_commands(shape, body_name):
                 features = _anchored_features(cutter)
             except (ValueError, TypeError) as exc:
                 raise ModelError(str(exc)) from exc
+            child, target, parent_anchor, child_anchor, offset = cutter.data
+            if target != original:
+                raise ModelError("attached feature target must be the current body")
             for feature, position, refs in features:
                 if feature.kind == "hole":
                     if shape.kind != "difference":
@@ -232,15 +235,53 @@ def _to_commands(shape, body_name):
                     height, diameter = feature.data
                     _require_positive(height, "cylinder height")
                     _require_positive(diameter, "cylinder diameter")
-                    params = dict(
-                        height=command_value(height),
-                        diameter=command_value(diameter), base=position,
-                        axis="Z",
-                        operation="join" if shape.kind == "union" else "cut",
-                        targets=[body_name])
-                    if refs:
-                        params["references"] = refs
-                    steps.append(_command("solid.cylinder", **params))
+                    # A single attached cylinder is a user-facing object, but
+                    # its native SolidCraft construction is a circle sketch
+                    # plus an extrusion. Leave linear patterns on the existing
+                    # direct-cylinder path until sketch pattern support exists.
+                    if child.kind == "cylinder3d":
+                        from .core import Anchor
+                        (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
+                        if shape.kind == "union" and child_anchor is Anchor.BOTTOM:
+                            sketch_z = thickness if parent_anchor is Anchor.TOP else origin_z
+                            direction = "positive"
+                        elif shape.kind == "difference" and child_anchor is Anchor.BOTTOM:
+                            # The cylinder starts at its bottom; cut downwards
+                            # from its top to retain the full cutter extent.
+                            sketch_z = _combine(origin_z if parent_anchor is Anchor.BOTTOM
+                                                else thickness, height)
+                            direction = "negative"
+                        else:
+                            raise ModelError(
+                                "attached sketch cylinders currently support a bottom-anchored "
+                                "join or cut; use a direct cylinder for other placements")
+                        sketch_names = [s["params"].get("name") for s in steps
+                                        if s["command"] == "sketch.create"]
+                        feature_name = ("Boss" if shape.kind == "union" else
+                                        ("Bore" if "Boss" in sketch_names else "Holes"))
+                        plane = dict(plane="XY", name=feature_name)
+                        if value_of(sketch_z):
+                            plane["offset"] = command_value(sketch_z)
+                        steps.extend([
+                            _command("sketch.create", **plane),
+                            _command("sketch.circle.center",
+                                     center=position[:2], diameter=command_value(diameter)),
+                            _command("sketch.finish"),
+                            _command("solid.extrude", distance=command_value(height),
+                                     direction=direction,
+                                     operation="join" if shape.kind == "union" else "cut",
+                                     targets=[body_name]),
+                        ])
+                    else:
+                        params = dict(
+                            height=command_value(height),
+                            diameter=command_value(diameter), base=position,
+                            axis="Z",
+                            operation="join" if shape.kind == "union" else "cut",
+                            targets=[body_name])
+                        if refs:
+                            params["references"] = refs
+                        steps.append(_command("solid.cylinder", **params))
             return steps, base
         # A native 3D cylinder does not require a 2D sketch or extrusion.
         if cutter.kind in ("cylinder3d", "placed3d"):
