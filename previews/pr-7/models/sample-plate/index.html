@@ -166,7 +166,7 @@ SamplePlate()
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
 }</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Holes, direction: positive, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;thickness&quot;,
@@ -174,7 +174,8 @@ SamplePlate()
     &quot;operation&quot;: &quot;cut&quot;,
     &quot;targets&quot;: [
       &quot;SamplePlate&quot;
-    ]
+    ],
+    &quot;name&quot;: &quot;Holes&quot;
   }
 }</code></pre></details></li>
 <li><strong>Create sketch</strong><small>sketch.create · name: Boss, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
@@ -199,7 +200,7 @@ SamplePlate()
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
 }</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: positive, operation: join</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Boss, direction: positive, operation: join</small><details><summary>Show exact command and parameters</summary><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: 14,
@@ -207,7 +208,8 @@ SamplePlate()
     &quot;operation&quot;: &quot;join&quot;,
     &quot;targets&quot;: [
       &quot;SamplePlate&quot;
-    ]
+    ],
+    &quot;name&quot;: &quot;Boss&quot;
   }
 }</code></pre></details></li>
 <li><strong>Create sketch</strong><small>sketch.create · name: Bore, plane: XY</small><details><summary>Show exact command and parameters</summary><pre><code>{
@@ -232,7 +234,7 @@ SamplePlate()
   &quot;command&quot;: &quot;sketch.finish&quot;,
   &quot;params&quot;: {}
 }</code></pre></details></li>
-<li><strong>Extrusion / cut</strong><small>solid.extrude · direction: negative, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
+<li><strong>Extrusion / cut</strong><small>solid.extrude · name: Bore, direction: negative, operation: cut</small><details><summary>Show exact command and parameters</summary><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
     &quot;distance&quot;: &quot;thickness + 14 mm&quot;,
@@ -240,7 +242,8 @@ SamplePlate()
     &quot;operation&quot;: &quot;cut&quot;,
     &quot;targets&quot;: [
       &quot;SamplePlate&quot;
-    ]
+    ],
+    &quot;name&quot;: &quot;Bore&quot;
   }
 }</code></pre></details></li></ol></section>
 <div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.

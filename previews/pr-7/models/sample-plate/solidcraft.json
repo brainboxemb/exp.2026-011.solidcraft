@@ -124,7 +124,8 @@
         "operation": "cut",
         "targets": [
           "SamplePlate"
-        ]
+        ],
+        "name": "Holes"
       }
     },
     {
@@ -157,7 +158,8 @@
         "operation": "join",
         "targets": [
           "SamplePlate"
-        ]
+        ],
+        "name": "Boss"
       }
     },
     {
@@ -190,7 +192,8 @@
         "operation": "cut",
         "targets": [
           "SamplePlate"
-        ]
+        ],
+        "name": "Bore"
       }
     }
   ]
