@@ -137,6 +137,26 @@ operations only.
 Plain numbers mean millimetres. SCPF scripts are real Python: only execute
 trusted model files.
 
+## Running from a model subfolder
+
+The normal live GUI workflow is `python -m scpf model.py --connect`.
+A project model can import shared classes via `from models.components... import ...`
+even when you run the command **inside** `models/<slug>/scpf/`.
+SCPF temporarily resolves the project root based on the `models/`
+directory and restores Python's import path after compiling. No manual
+`PYTHONPATH` is needed.
+
+Open SolidCraft, create a fresh empty design, enable
+**Preferences → Assistant → Let AI agents connect**, then:
+
+```powershell
+# From models/hub75-wood-frame/scpf/
+python -m scpf model.py --connect
+```
+
+This sends native commands to the **active** SolidCraft design, but does not
+create or save a document. `--out` is only for JSON generation.
+
 ## Run and inspect a CAD model
 
 Use the [CAD project repository](https://github.com/brainboxemb/2026-011-02.cad.solidcraft)
