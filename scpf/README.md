@@ -168,8 +168,11 @@ publishes model source, generated command plans, and native SolidCraft renders
 with source-matched verification. The CAD project, not the Python library,
 owns `scripts/ci/build-results.py`, `site/` and its publication workflows.
 
-The old experiment result pages are retained as historical GitHub Pages content;
-new model output and qualification are owned by the CAD project.
+The [library website](https://brainboxemb.github.io/lib.py.solidcraft/)
+publishes a cheatsheet and just three small, source-matched command examples
+(SimpleBox, AnchoredHoles, TwoBlocks). The full model gallery, render evidence
+and native qualification remain in the CAD project. Old experiment pages
+are retained in Git history, not copied to the active library site.
 
 ## Code organization
 
