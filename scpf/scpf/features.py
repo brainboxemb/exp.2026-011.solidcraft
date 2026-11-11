@@ -17,7 +17,7 @@ from .sketches import compile_base, _circle_profiles
 def _is_feature_tree(shape):
     if not isinstance(shape, Shape):
         return False
-    if shape.kind == "box":
+    if shape.kind in ("box", "tapered_box"):
         return True
     if shape.kind == "extrusion":
         profile = shape.data[0]
@@ -715,7 +715,7 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
 
 
 def _to_commands(shape, name):
-    if shape.kind in ("box", "extrusion"):
+    if shape.kind in ("box", "extrusion", "tapered_box"):
         return compile_base(shape, name)
     if shape.kind == "material_assignment":
         base_shape, material, density, color = shape.data

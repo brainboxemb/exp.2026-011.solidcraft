@@ -59,6 +59,10 @@ SolidCraft qualification verifies the saved component occurrences and joint.
 - [Plate](examples/plate/scpf/model.py): rectangular mounting plate.
 - [Bracket](examples/bracket/scpf/model.py): polygon-based angle bracket.
 - [CSG Cube](examples/csg-cube/scpf/model.py): primitive Boolean operations.
+- [HUB75 panel pair](examples/hub75-panel/scpf/model.py): first measured
+  159.70 × 319.71 mm portrait panel component with mounting holes and two
+  native occurrences at a 160 mm pitch. This is an envelope reference, not yet
+  the full electronic/structural model. See [limitations](examples/hub75-panel/README.md).
 - [Anchored Holes](examples/anchored-holes/scpf/model.py): repeated
   Hole intent attached to the plate and compiled as one editable sketch cut.
 - [Plastic Enclosure](examples/plastic-enclosure/scpf/model.py): native

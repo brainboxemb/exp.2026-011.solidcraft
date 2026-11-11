@@ -60,6 +60,65 @@ def compile_base(shape, name):
                        "depth": width, "thickness": height,
                        "origin": (-length / 2, -width / 2, 0)}
 
+    if shape.kind == "tapered_box":
+        # A straight front mask and a long, smoothly tapered rear housing.
+        # The two section sketches are left in the native model history.
+        original, start, inset = shape.data
+        width, height, depth = original.data
+        _require_positive(width, "taper width")
+        _require_positive(height, "taper height")
+        _require_positive(depth, "taper depth")
+        if not 0 < value_of(start) < value_of(depth):
+            raise ModelError("taper start lies outside the box")
+        if not 0 < 2 * value_of(inset) < min(value_of(width), value_of(height)):
+            raise ModelError("taper inset is too large")
+
+        x0, x1 = _half(width, True), _half(width)
+        y0, y1 = _half(height, True), _half(height)
+
+        def shifted(edge, inward):
+            offset = command_value(inset)
+            if isinstance(edge, str) or isinstance(offset, str):
+                return f"({edge}) {'+' if inward else '-'} ({offset})"
+            return edge + offset if inward else edge - offset
+
+        front = f"{name} footprint"
+        rear_start = f"{name} rear start"
+        rear_end = f"{name} rear perimeter"
+
+        def sketch_rectangle(sketch_name, offset, a, b):
+            plane = dict(plane="XY", name=sketch_name)
+            if offset is not None:
+                plane["offset"] = command_value(offset)
+            return [
+                _command("sketch.create", **plane),
+                _command("sketch.rectangle.two_point", p0=a, p1=b),
+                _command("sketch.finish"),
+            ]
+
+        steps = sketch_rectangle(front, None, [x0, y0], [x1, y1])
+        steps.append(_command(
+            "solid.extrude", distance=command_value(start), body_name=name,
+        ))
+        steps.extend(sketch_rectangle(
+            rear_start, start, [x0, y0], [x1, y1],
+        ))
+        steps.extend(sketch_rectangle(
+            rear_end, depth,
+            [shifted(x0, True), shifted(y0, True)],
+            [shifted(x1, False), shifted(y1, False)],
+        ))
+        steps.append(_command(
+            "solid.loft",
+            sections=[{"sketch": rear_start}, {"sketch": rear_end}],
+            operation="join", targets=[name],
+        ))
+        return steps, {
+            "profile": "rectangle", "width": width, "depth": height,
+            "thickness": depth,
+            "origin": (-value_of(width) / 2, -value_of(height) / 2, 0),
+        }
+
     if shape.kind != "extrusion":
         raise ModelError(f"Expected a solid base, got {shape.kind}")
     profile, distance, direction = shape.data

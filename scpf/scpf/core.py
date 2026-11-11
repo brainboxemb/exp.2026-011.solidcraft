@@ -293,6 +293,21 @@ class Shape:
             raise ValueError("move() currently supports only primitive and CSG shapes")
         return Shape("translated", (self, offsets))
 
+    def taper(self, *, from_z, inset):
+        """Make a box with a flat front and continuously tapered rear walls.
+
+        The rear perimeter retreats by inset per side, from from_z to the
+        box's full height. This produces native editable sketches and loft.
+        """
+        if self.kind != "box":
+            raise ValueError("taper() currently requires a Box")
+        width, height, depth = self.data
+        if not 0 < value_of(from_z) < value_of(depth):
+            raise ValueError("taper from_z must lie within the box depth")
+        if not 0 < value_of(inset) * 2 < min(value_of(width), value_of(height)):
+            raise ValueError("taper inset must be below half the footprint")
+        return Shape("tapered_box", (self, from_z, inset))
+
     def extrude(self, distance, *, direction=Direction.POSITIVE):
         if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
             raise ValueError("extrude() requires a 2D profile")

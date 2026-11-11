@@ -64,6 +64,19 @@ MODELS = {
                    "Chamfer — print-face elephant-foot relief",
                    "Four countersinks — single hole feature per location"],
     },
+    "hub75-panel": {
+        "title": "TwoHub75Panels",
+        "tagline": "Two occurrences of one measured P5 HUB75 panel component",
+        "description": "First reusable panel assembly from the existing OpenSCAD reference: a 159.70 × 319.71 × 14.50 mm envelope with six Ø3 mounting-hole centres and a grey housing material. Two native occurrences at 160 mm pitch; rear details, PCB, connectors and rotations are future steps.",
+        "parameters": "159.70 × 319.71 × 14.50 mm; six Ø3 holes; two occurrences at 160 mm pitch",
+        "diagram": "hub75",
+        "stages": ["Create Hub75Panel component",
+                   "Sketch and extrude the physical front envelope",
+                   "Cut six Ø3 mounting holes",
+                   "Assign grey housing material",
+                   "Copy the component occurrence",
+                   "Place the second occurrence at nominal 160 mm X pitch"],
+    },
     "plastic-enclosure-pi": {
         "title": "Plastic Enclosure Pi",
         "tagline": "Raspberry Pi 4 case with connectors, vents and engraving",
@@ -104,6 +117,7 @@ DIAGRAMS = {
     "plate": """<rect x="95" y="25" width="310" height="165" rx="16" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M95 175 145 218 H420 V65 L405 25" fill="#99bad9" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="78" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/><ellipse cx="345" cy="151" rx="12" ry="10" fill="#fff" stroke="#285785" stroke-width="4"/>""",
     "csg": """<path d="M130 68 250 15 376 68 376 188 250 241 130 188Z" fill="#d6e4f5" stroke="#285785" stroke-width="5"/><path d="M130 68 250 125 376 68 M250 125 V241" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="250" cy="129" rx="39" ry="37" fill="#f1f6fc" stroke="#285785" stroke-width="5"/><ellipse cx="250" cy="130" rx="14" ry="34" fill="#acc6e3" stroke="#285785" stroke-width="3"/><path d="M196 90 307 162 M185 155 310 100" stroke="#285785" stroke-width="4" stroke-dasharray="8 8"/>""",
     "bracket": """<path d="M104 195 104 34 145 34 145 163 388 163 388 207 104 207Z" fill="#b4cde9" stroke="#285785" stroke-width="5"/><path d="M145 163 174 188 407 188 388 163 M388 207 407 188" fill="none" stroke="#285785" stroke-width="4"/><ellipse cx="230" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/><ellipse cx="330" cy="187" rx="14" ry="8" fill="#f4f7fc" stroke="#285785" stroke-width="4"/>""",
+    "hub75": """<rect x="130" y="28" width="112" height="205" rx="2" fill="#b8b8b8" stroke="#374151" stroke-width="4"/><rect x="250" y="28" width="112" height="205" rx="2" fill="#b8b8b8" stroke="#374151" stroke-width="4"/><g fill="#f5f5f5" stroke="#374151" stroke-width="2"><circle cx="145" cy="42" r="3"/><circle cx="227" cy="42" r="3"/><circle cx="145" cy="130" r="3"/><circle cx="227" cy="130" r="3"/><circle cx="145" cy="218" r="3"/><circle cx="227" cy="218" r="3"/><circle cx="265" cy="42" r="3"/><circle cx="347" cy="42" r="3"/><circle cx="265" cy="130" r="3"/><circle cx="347" cy="130" r="3"/><circle cx="265" cy="218" r="3"/><circle cx="347" cy="218" r="3"/></g>""",
     "plastic-enclosure": """<path d="M82 78 250 25 420 78 420 185 250 238 82 185Z" fill="#a8c5e2" stroke="#285785" stroke-width="5"/><path d="M107 91 250 48 394 91 394 169 250 211 107 169Z" fill="#eef4fb" stroke="#285785" stroke-width="4"/><path d="M82 78 107 91 M420 78 394 91 M82 185 107 169 M420 185 394 169" stroke="#285785" stroke-width="4"/><ellipse cx="155" cy="153" rx="13" ry="9" fill="#7ba4cc" stroke="#285785" stroke-width="3"/><ellipse cx="345" cy="118" rx="13" ry="9" fill="#7ba4cc" stroke="#285785" stroke-width="3"/><rect x="218" y="128" width="64" height="38" rx="5" fill="#8db2d5" stroke="#285785" stroke-width="3"/><path d="M248 70 V128 M248 70 266 77 266 91" fill="none" stroke="#285785" stroke-width="5"/>""",
 }
 
@@ -125,7 +139,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "corner-bracket": "corner-bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "corner-bracket": "corner-bracket/model.png", "hub75-panel": "hub75-panel/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -161,6 +175,13 @@ def command_stages(commands):
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",
         "solid.hole": "Native Hole feature",
+        "component.create": "Create reusable component",
+        "component.activate": "Activate component / root",
+        "occurrence.copy": "Copy component occurrence",
+        "occurrence.move": "Move component occurrence",
+        "material.create": "Create physical material",
+        "material.assign": "Assign material",
+        "joint.create": "Assembly joint",
         "solid.shell": "Shell / hollow body",
         "plastic.lip": "Plastic lip",
         "plastic.snap_fit": "Plastic snap fit",
