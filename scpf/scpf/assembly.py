@@ -237,7 +237,13 @@ def compile_assembly(value, name):
                                    else first.translation)
                 source_pose = _pose(copied_position, first.rotation)
                 target_pose = _pose(instance.translation, instance.rotation)
-                relative = _times(target_pose, _inverse(source_pose))
+                # The native engine applies the CLI delta to the LEFT in
+                # column-vector form. Its saved document.json stores the
+                # transpose, so row-vector poses compose source * delta.
+                # Therefore delta = inverse(source) * target, NOT
+                # target * inverse(source); the latter reverses the
+                # alternating HUB75 panel about the wrong axis.
+                relative = _times(_inverse(source_pose), target_pose)
                 commands.append(_command(
                     "occurrence.move",
                     occurrence=new_occurrence,
