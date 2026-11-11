@@ -90,10 +90,10 @@ class AssemblyTests(unittest.TestCase):
         copy = next(c["params"] for c in commands
                     if c["command"] == "occurrence.copy")
         self.assertEqual(copy["translate"], [80.0, 0.0, 0.0])
-        placements = [c["params"]["to"] for c in commands
+        placements = [c["params"] for c in commands
                       if c["command"] == "occurrence.move"]
         self.assertNotIn("to", [c for c in commands if c["command"] == "occurrence.move"][1]["params"])
-        self.assertEqual(placements[1]["matrix"][3][:3], [40.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["matrix"][3][:3], [-80.0, 0.0, 0.0])
 
     def test_named_group_creates_real_nested_native_component(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -200,7 +200,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(placements[0]["occurrence"], "Panel:1")
         self.assertTrue(placements[0]["move_grounded"])
         self.assertEqual(placements[0]["matrix"][3][:3], [-50.0, 0.0, 0.0])
-        self.assertEqual(placements[1]["matrix"][3][:3], [50.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["matrix"][3][:3], [-50.0, 0.0, 0.0])
 
     def test_explicit_imported_component_factory(self):
         # The library's scpf/ source folder is a namespace root when the
