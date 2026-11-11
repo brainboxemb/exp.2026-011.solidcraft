@@ -6,10 +6,12 @@ Within the model's build() or final function, a last geometry expression
 acts as an implicit return. No show() or main() is required.
 """
 import ast
+from contextlib import contextmanager
 from dataclasses import dataclass, is_dataclass
 import functools
 import inspect
 from pathlib import Path
+import sys
 
 from . import core
 from .compiler import compile_model
@@ -185,9 +187,38 @@ def _implicit_shape(body):
         body[-1] = ast.copy_location(ast.Return(value=body[-1].value), body[-1])
 
 
+@contextmanager
+def _model_import_context(path: Path):
+    """Make project-local component imports available for a model script.
+
+    A script in `<project>/models/<slug>/scpf/model.py` may import
+    `models.components.*`. This must work whether the user runs SCPF from
+    the repository root or from the script's own directory.
+
+    Only the execution of this trusted script receives these import paths.
+    Restore sys.path afterwards; do not require user-set PYTHONPATH.
+    """
+    roots = [path.parent]
+    for ancestor in path.parents:
+        if ancestor.name == "models":
+            roots.append(ancestor.parent)
+            break
+
+    original = sys.path[:]
+    try:
+        for root in reversed(roots):
+            folder = str(root)
+            if folder in sys.path:
+                sys.path.remove(folder)
+            sys.path.insert(0, folder)
+        yield
+    finally:
+        sys.path[:] = original
+
+
 def run_script(path: str | Path) -> dict:
     """Run a trusted SCPF script and return its native command document."""
-    path = Path(path)
+    path = Path(path).resolve()
     syntax = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     if not syntax.body or not isinstance(syntax.body[-1], ast.Expr):
         raise SyntaxError("SCPF script must end with a model expression")
@@ -251,34 +282,35 @@ def run_script(path: str | Path) -> dict:
             model_classes[item.name] = item
 
     ast.fix_missing_locations(syntax)
-    exec(compile(syntax, str(path), "exec"), context)
+    with _model_import_context(path):
+        exec(compile(syntax, str(path), "exec"), context)
 
-    root_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
-    for class_name in model_classes:
-        if class_name != name:
-            context[class_name] = _model_factory(context[class_name])
+        root_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
+        for class_name in model_classes:
+            if class_name != name:
+                context[class_name] = _model_factory(context[class_name])
 
-    if isinstance(definition, ast.FunctionDef):
-        context[name] = _model_function(context[name])
-        result = eval(
-            compile(ast.Expression(body=last.value), str(path), "eval"), context
-        )
-    else:
-        # Evaluate the final class construction with ordinary Python semantics,
-        # then let SCPF convert the resulting object's numeric fields before
-        # calling build().
-        constructor = ast.Call(
-            func=ast.Name(id="_scpf_design_object", ctx=ast.Load()),
-            args=[ast.Name(id="_scpf_root_class", ctx=ast.Load()), *last.value.args],
-            keywords=last.value.keywords,
-        )
-        context["_scpf_design_object"] = _design_object
-        context["_scpf_root_class"] = root_class
-        ast.fix_missing_locations(constructor)
-        result = eval(
-            compile(ast.Expression(body=constructor), str(path), "eval"),
-            context,
-        )
+        if isinstance(definition, ast.FunctionDef):
+            context[name] = _model_function(context[name])
+            result = eval(
+                compile(ast.Expression(body=last.value), str(path), "eval"), context
+            )
+        else:
+            # Evaluate the final class construction with ordinary Python semantics,
+            # then let SCPF convert the resulting object's numeric fields before
+            # calling build().
+            constructor = ast.Call(
+                func=ast.Name(id="_scpf_design_object", ctx=ast.Load()),
+                args=[ast.Name(id="_scpf_root_class", ctx=ast.Load()), *last.value.args],
+                keywords=last.value.keywords,
+            )
+            context["_scpf_design_object"] = _design_object
+            context["_scpf_root_class"] = root_class
+            ast.fix_missing_locations(constructor)
+            result = eval(
+                compile(ast.Expression(body=constructor), str(path), "eval"),
+                context,
+            )
     if isinstance(result, Shape):
         return compile_model(result, name)
     if isinstance(result, (ModelInstance, Assembly)):

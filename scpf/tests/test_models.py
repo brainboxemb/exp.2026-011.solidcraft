@@ -1,5 +1,7 @@
 """Regression tests against reviewed SolidCraft 0.30.1 command fixtures."""
 import json
+import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +14,45 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class SCPFExamples(unittest.TestCase):
+    def test_model_imports_shared_components_when_run_from_nested_directory(self):
+        """The CLI accepts 'model.py' while cwd is models/<name>/scpf."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            components = root / "models" / "components"
+            components.mkdir(parents=True)
+            (components / "tiny.py").write_text(
+                "from scpf.core import Box\\n"
+                "class TinyPanel:\\n"
+                "    def build(self):\\n"
+                "        return Box(20, 10, 2)\\n",
+                encoding="utf-8",
+            )
+            model_dir = root / "models" / "screen" / "scpf"
+            model_dir.mkdir(parents=True)
+            (model_dir / "model.py").write_text(
+                "from scpf.runner import component\\n"
+                "from models.components.tiny import TinyPanel\\n"
+                "class Screen:\\n"
+                "    def build(self):\\n"
+                "        return component(TinyPanel)()\\n"
+                "Screen()\\n",
+                encoding="utf-8",
+            )
+            original_cwd = Path.cwd()
+            original_paths = sys.path[:]
+            try:
+                os.chdir(model_dir)
+                command_plan = run_script("model.py")
+                names = [row["command"] for row in command_plan["commands"]]
+                self.assertEqual(names.count("component.create"), 1)
+                self.assertIn("solid.box", names)
+                self.assertEqual(sys.path, original_paths)
+            finally:
+                os.chdir(original_cwd)
+                for module in ("models.components.tiny", "models.components", "models"):
+                    sys.modules.pop(module, None)
+
+
     def test_anchored_holes_example_compiles_to_one_holes_sketch(self):
         commands = run_script(
             ROOT / "examples/anchored-holes/scpf/model.py")["commands"]
