@@ -16,7 +16,7 @@ class CornerBracketFast:
     arm_end_chamfer = 3.0
     side_edge_chamfer = 2.0
     elephant_foot_relief = 0.6
-    i_corner_radius = 4.0
+    inside_corner_radius = 4.0
 
     plywood_thickness = 12.0
     bolt_offset = 12.0
@@ -56,7 +56,7 @@ class CornerBracketFast:
         # Round the inside, then remove printing relief from the two tip
         # edges (parallel to the extrusion direction).
         body = body.fillet(
-            self.i_corner_radius,
+            self.inside_corner_radius,
             edges=Edges.from_vertices("i_corner"),
         )
         body = body.chamfer(
