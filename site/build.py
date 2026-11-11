@@ -87,6 +87,23 @@ CHEATSHEET = [
 ]
 
 
+# A deliberately simple, labelled fallback for local/offline site builds.
+# Production GitHub Pages uses real native SolidCraft snapshots from CI.
+SCHEMATICS = {
+  "simple-box": "<path d=\"M95 76 231 30 368 81 232 129Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M95 76 232 129 V222 L95 168Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M232 129 368 81 V169 L232 222Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>",
+  "anchored-holes": "<path d=\"M68 116 286 42 430 104 207 189Z\" fill=\"#bbd9f1\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M68 116 V143 L207 216 V189Z\" fill=\"#6f9fc9\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M207 189 430 104 V131 L207 216Z\" fill=\"#8bb8dc\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<ellipse cx=\"175\" cy=\"111\" rx=\"18\" ry=\"10\" fill=\"#f6faff\" stroke=\"#31577c\" stroke-width=\"3\"/>\n<ellipse cx=\"321\" cy=\"117\" rx=\"18\" ry=\"10\" fill=\"#f6faff\" stroke=\"#31577c\" stroke-width=\"3\"/>",
+  "components": "<path d=\"M50 113 137 83 223 113 136 143Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M50 113 V183 L136 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M136 143 223 113 V183 L136 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 325 83 412 113 325 143Z\" fill=\"#b9d6f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 V183 L325 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M325 143 412 113 V183 L325 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>"
+}
+
+
+def schematic(slug):
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 260" '
+        'role="img" aria-label="Schematic preview; not a SolidCraft render">'
+        + SCHEMATICS[slug] + '</svg>'
+    )
+
+
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -111,7 +128,25 @@ def text(path):
     return path.read_text(encoding="utf-8")
 
 
-def build(out, sha):
+def build(out, sha, native_root=None):
+    """Compile three examples and attach verified native screenshots if available.
+
+    A .png is accepted only when the native verification file identifies the
+    exact source SHA and the expected SolidCraft runtime. Outside native CI,
+    emit plainly labelled SVG schematics rather than pretending a render.
+    """
+    verified = False
+    if native_root is not None:
+        meta_file = native_root / "verification.json"
+        if not meta_file.is_file():
+            raise ValueError("Native directory is missing verification.json")
+        metadata = json.loads(meta_file.read_text(encoding="utf-8"))
+        verified = (metadata.get("source_commit") == sha
+                    and metadata.get("verified") is True
+                    and metadata.get("solidcraft_version") == "0.30.1")
+        if not verified:
+            raise ValueError("Native screenshots do not match this source commit")
+
     out.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / "site" / "style.css", out / "style.css")
     (out / ".nojekyll").write_text("", encoding="utf-8")
@@ -127,16 +162,33 @@ def build(out, sha):
         (dest / "model.py").write_text(source, encoding="utf-8")
         (dest / "commands.json").write_text(json.dumps(commands, indent=2) + "\n", encoding="utf-8")
         count = len(commands["commands"])
+        screenshot = native_root / slug / "model.png" if verified else None
+        if screenshot is not None:
+            if not screenshot.is_file() or screenshot.stat().st_size == 0:
+                raise ValueError(f"Native screenshot missing or empty: {screenshot}")
+            shutil.copyfile(screenshot, dest / "preview.png")
+            preview_path = "preview.png"
+            preview_kind = "native-snapshot"
+            preview_caption = "Native SolidCraft 0.30.1 render, verified against this source commit."
+        else:
+            (dest / "preview.svg").write_text(schematic(slug), encoding="utf-8")
+            preview_path = "preview.svg"
+            preview_kind = "schematic"
+            preview_caption = "Schematic illustration only; run the native CI job for a SolidCraft render."
         manifest["examples"][slug] = {"source": f"examples/{slug}/model.py",
                                       "commands": f"examples/{slug}/commands.json",
-                                      "command_count": count}
+                                      "command_count": count,
+                                      "preview": f"examples/{slug}/{preview_path}",
+                                      "preview_kind": preview_kind}
         kinds = [row["command"] for row in commands["commands"]]
         timeline = "".join(f"<li><code>{escape(kind)}</code></li>" for kind in kinds)
         source_url = f"{LIBRARY_URL}/blob/main/examples/{slug}/scpf/model.py"
         body = f"""<main class="wrap"><div class="crumb"><a href="../../">← Examples</a> / {escape(info['title'])}</div>
 <section class="hero small"><p class="eyebrow">Small API regression fixture</p>
 <h1>{escape(info['title'])}</h1><p>{escape(info['description'])}</p>
-<p class="meta"><span>Compiled: {count} native commands</span><span>Not a native BRep render</span></p></section>
+<p class="meta"><span>Compiled: {count} native commands</span><span>{escape(preview_caption)}</span></p></section>
+<figure class="example-image"><img src="{preview_path}" alt="{escape(info['title'])}: {escape(preview_caption)}" loading="lazy">
+<figcaption>{escape(preview_caption)}</figcaption></figure>
 <div class="twocol"><section class="panel"><h2>Python source</h2><pre><code>{escape(source)}</code></pre>
 <a href="{escape(source_url)}">Open the editable source in GitHub →</a></section>
 <section class="panel"><h2>Generated command sequence</h2><ol class="commands">{timeline}</ol>
@@ -148,11 +200,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             page(info["title"], body, stylesheet="../../style.css", home="../../", cheatsheet="../../cheatsheet/"),
             encoding="utf-8")
         tags = "".join(f'<span class="tag">{escape(x)}</span>' for x in info["concepts"])
-        cards.append(f"""<article class="card"><p class="eyebrow">Regression example</p>
+        cards.append(f"""<article class="card"><a href="examples/{slug}/" class="card-image" aria-label="View {escape(info['title'])}"><img src="examples/{slug}/{preview_path}" alt="{escape(info['title'])} preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
 <h2><a href="examples/{slug}/">{escape(info['title'])}</a></h2>
 <p>{escape(info['description'])}</p><div class="tags">{tags}</div>
 <p class="meta">{count} generated SolidCraft commands</p>
-<a class="button" href="examples/{slug}/">View source and command steps →</a></article>""")
+<a class="button" href="examples/{slug}/">View source and command steps →</a></div></article>""")
 
     sections = []
     for heading, items in CHEATSHEET:
@@ -202,6 +254,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=ROOT / "output" / "site")
     parser.add_argument("--source-sha", required=True)
+    parser.add_argument("--native", type=Path, help="Source-matched native screenshot directory")
     options = parser.parse_args()
-    build(options.out, options.source_sha)
+    build(options.out, options.source_sha, native_root=options.native)
     print(f"Built independent SCPF library site: {options.out}")
