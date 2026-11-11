@@ -78,6 +78,27 @@ like a model class declared in the same script. No source-copying or
 private runner hooks are required. The import module must be available in
 Python's usual import path.
 
+## Named subassemblies in the SolidCraft browser
+
+A set of reused component occurrences can be placed under one **real
+nested SolidCraft component** using `.group("HUB75Panels")`:
+
+```python
+first = Hub75Panel()
+panels = (first + first.copy().move(x=160)).group("HUB75Panels")
+return panels + WoodenFrame()
+```
+
+SolidCraft receives `component.create(name="HUB75Panels", activate=False)`,
+then creates the panel's shared definition **with parent HUB75Panels**.
+The browser shows one expandable group rather than five top-level panels.
+The member occurrences still share one editable native definition.
+
+Current limit: one shared component definition must have all its
+occurrences under the same parent group (or all at the root); placing the
+same definition under multiple different groups is not supported yet.
+Grouping itself does not apply an extra transform or rigid joint.
+
 ## Native component occurrence rotation
 
 A reusable model definition can be placed more than once without duplicating

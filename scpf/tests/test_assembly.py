@@ -46,6 +46,53 @@ class AssemblyTests(unittest.TestCase):
             {"occurrence": "Block:2", "face": [20.0, 0.0, 5.0]},
         )
 
+    def test_named_group_creates_real_nested_native_component(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "group.py"
+            path.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(10, 2, 20)\n"
+                "class Frame:\n"
+                "    def build(self):\n"
+                "        return Box(35, 10, 40)\n"
+                "class Display:\n"
+                "    def build(self):\n"
+                "        left = Panel()\n"
+                "        group = (left + left.copy().move(x=11)).group('HUB75Panels')\n"
+                "        return group + Frame().move(y=20)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(path)["commands"]
+        created = [c["params"] for c in commands
+                   if c["command"] == "component.create"]
+        self.assertEqual([c["name"] for c in created],
+                         ["HUB75Panels", "Panel", "Frame"])
+        self.assertEqual(created[0]["activate"], False)
+        self.assertTrue(created[0]["grounded"])
+        self.assertEqual(created[1]["parent"], "HUB75Panels")
+        self.assertFalse(created[1]["grounded"])
+        self.assertNotIn("parent", created[2])
+        copies = [c for c in commands if c["command"] == "occurrence.copy"]
+        self.assertEqual(len(copies), 1)
+        self.assertEqual(copies[0]["params"]["component"], "Panel")
+
+    def test_group_name_conflicts_and_multi_parent_definitions_rejected(self):
+        from scpf.core import Box
+        from scpf.model_objects import ModelDefinition, ModelInstance
+        from scpf.assembly import compile_assembly
+        from scpf.compiler import ModelError
+        panel = ModelInstance(ModelDefinition("Panel", (), Box(10, 2, 20)))
+        with self.assertRaisesRegex(ValueError, "non-empty"):
+            panel.group("")
+        with self.assertRaisesRegex(ValueError, "multiple groups"):
+            panel.group("One").group("Two")
+        with self.assertRaisesRegex(ModelError, "multiple assembly parents"):
+            compile_assembly(panel.group("A") + panel.copy(), "Display")
+        with self.assertRaisesRegex(ModelError, "conflicts"):
+            compile_assembly(panel.group("Panel"), "Display")
+
     def test_rotation_is_an_independent_occurrence_placement(self):
         from scpf.core import Box
         from scpf.model_objects import ModelDefinition, ModelInstance

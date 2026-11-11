@@ -98,6 +98,15 @@ class ModelInstance:
     translation: tuple[float, float, float] = (0.0, 0.0, 0.0)
     attachment: Attachment | None = None
     rotation: tuple[tuple[float, float, float], float] | None = None
+    group_name: str | None = None
+
+    def group(self, name):
+        """Keep this occurrence in a named native subassembly component."""
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("group name must be non-empty text")
+        if self.group_name is not None and self.group_name != name:
+            raise ValueError("an occurrence cannot belong to multiple groups")
+        return replace(self, group_name=name)
 
     def copy(self):
         """Another occurrence of the same component, without rebuilding its shape.
@@ -183,6 +192,14 @@ class ModelInstance:
                 offset=face_offset,
             ),
         )
+
+    def group(self, name):
+        """Wrap these occurrences in one named native browser component.
+
+        A component definition is still created once and reused for all
+        occurrences in the group; this creates an actual browser hierarchy.
+        """
+        return Assembly(tuple(instance.group(name) for instance in self.instances))
 
     def __add__(self, other):
         return Assembly((self,)) + other
