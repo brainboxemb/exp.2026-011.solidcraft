@@ -10,11 +10,11 @@ The L outline is defined **once**, in a single `Polygon2D` table of `("name", (x
 
 ```python
 profile = Polygon2D([
+    ("i_corner", (0, 0)),  # start at the sketch origin
     ("o_hor_tip", (h, 0)),
     ("o_hor_bevel", (h, w - end)),
     # ... the rest of the contour ...
     ("v_tip", (0, -v)),
-    ("i_corner", (0, 0)),
 ], plane="XZ", world=True)
 ```
 

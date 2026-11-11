@@ -39,13 +39,15 @@ class CornerBracketTests(unittest.TestCase):
     def test_polygon_segments_have_meaningful_sketch_ids(self):
         commands = run_script(EXAMPLE / "model.py")["commands"]
         sketch = next(c for c in commands if c["command"] == "sketch.line")
+        # Start drafting at I: the inside corner is the sketch origin.
+        self.assertEqual(sketch["params"]["points"][0], [0, 0])
         self.assertEqual(
             sketch["params"]["ids"],
             [
-                "o_hor_tip", "o_hor_bevel",
+                "i_corner", "o_hor_tip", "o_hor_bevel",
                 "o_hor", "o_corner",
                 "o_vert", "o_vert_bevel",
-                "o_vert_end", "v_tip", "i_corner",
+                "o_vert_end", "v_tip",
             ],
         )
 
