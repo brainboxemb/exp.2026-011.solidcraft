@@ -474,6 +474,19 @@ def Rectangle2D(width, depth):
     return Shape("rectangle", (width, depth))
 
 
+def RoundedRectangle2D(width, depth, radius):
+    """One native rounded-rectangle profile for a named explicit Sketch.
+
+    Four true circular sketch arcs; not a polygonal approximation.
+    Current support is for Sketch.add(...), not standalone extrusion.
+    """
+    if value_of(width) <= 0 or value_of(depth) <= 0:
+        raise ValueError("RoundedRectangle2D width and depth must be positive")
+    if not 0 < value_of(radius) * 2 < min(value_of(width), value_of(depth)):
+        raise ValueError("RoundedRectangle2D radius must be below half the shorter side")
+    return Shape("rounded_rectangle", (width, depth, radius))
+
+
 def Circle2D(*, d=None, r=None):
     """An XY circle with diameter d or radius r."""
     if (d is None) == (r is None):

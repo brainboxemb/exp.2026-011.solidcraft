@@ -429,6 +429,32 @@ class SCPFExamples(unittest.TestCase):
             ],
         )
 
+    def test_rounded_rectangle_sketch_compiles_to_true_native_arcs(self):
+        from scpf.core import Box, RoundedRectangle2D, Direction
+        from scpf.explicit_sketch import Sketch
+        from scpf.compiler import compile_model
+
+        panel = Box(159.7, 319.71, 14.5).taper(from_z=2, inset=1.25)
+        with Sketch(name="Rounded rear bays", on=panel) as bays:
+            for y in (-120, -40, 40, 120):
+                bays.add(RoundedRectangle2D(134.7, 59, 5),
+                         offset=(-67.35, y - 29.5))
+        panel = panel - bays.extrude(12.5, direction=Direction.NEGATIVE)
+        commands = compile_model(panel, "Panel")["commands"]
+        rounded = [cmd["params"] for cmd in commands
+                   if cmd["command"] == "sketch.rectangle.rounded"]
+        self.assertEqual(len(rounded), 4)
+        self.assertTrue(all(part["radius"] == 5 for part in rounded))
+        self.assertEqual(rounded[0]["p0"], [-67.35, -149.5])
+        self.assertEqual(rounded[3]["p1"], [67.35, 149.5])
+        self.assertEqual([cmd["command"] for cmd in commands].count("solid.loft"), 1)
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
+
+        for size in ((100, 60, 0), (100, 60, 30), (100, 60, -1),
+                     (100, 60, 31), (0, 60, 5)):
+            with self.subTest(size=size), self.assertRaises(ValueError):
+                RoundedRectangle2D(*size)
+
     def test_explicit_rear_bay_sketch_on_tapered_box(self):
         """Four rear window pockets retain the front plate and the editable loft."""
         from scpf.core import Box, Rectangle2D, Direction
