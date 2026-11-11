@@ -54,8 +54,26 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # One named polygon: the actual L profile, without print reliefs.
-        # Each name identifies a vertex and the segment starting there.
+        # L profile in the XZ plane (+Z up, +X right; not to scale):
+        #
+        #       D--------------------------------C
+        #      /                                  \
+        #     E                                    B
+        #     |                                    |
+        #     |         I--------------------------A
+        #     |         |
+        #     |         |
+        #     F         |
+        #      \        |
+        #       G-------H
+        #
+        # A o_hor_tip    B o_hor_bevel  C o_hor
+        # D o_corner     E o_vert       F o_vert_bevel
+        # G o_vert_end   H v_tip        I i_corner
+        #
+        # Polygon order: A -&gt; B -&gt; C -&gt; D -&gt; E -&gt; F -&gt; G -&gt; H -&gt; I -&gt; A.
+        # Each label names its point and the segment starting at that point.
+        # Elephant-foot relief is NOT part of this sketch: it comes later.
         profile = Polygon2D([
             (&quot;o_hor_tip&quot;, (h, 0)),
             (&quot;o_hor_bevel&quot;, (h, w - end)),
