@@ -120,7 +120,19 @@ def compile_assembly(value, name):
         first = instances[0]
         first_occurrence = f"{component_name}:1"
         occurrence_names[id(first)] = first_occurrence
-        if any(first.translation):
+        if first.rotation is not None:
+            axis, angle = first.rotation
+            commands.append(_command(
+                "occurrence.move",
+                occurrence=first_occurrence,
+                to={
+                    "position": list(first.translation),
+                    "axis": list(axis),
+                    "angle": f"{angle:g} deg",
+                },
+                move_grounded=first_is_root,
+            ))
+        elif any(first.translation):
             commands.append(_command(
                 "occurrence.move",
                 occurrence=first_occurrence,
@@ -133,7 +145,19 @@ def compile_assembly(value, name):
             if any(instance.translation):
                 params["translate"] = list(instance.translation)
             commands.append(_command("occurrence.copy", **params))
-            occurrence_names[id(instance)] = f"{component_name}:{index}"
+            new_occurrence = f"{component_name}:{index}"
+            occurrence_names[id(instance)] = new_occurrence
+            if instance.rotation is not None:
+                axis, angle = instance.rotation
+                commands.append(_command(
+                    "occurrence.move",
+                    occurrence=new_occurrence,
+                    to={
+                        "position": list(instance.translation),
+                        "axis": list(axis),
+                        "angle": f"{angle:g} deg",
+                    },
+                ))
 
     for instance in assembly.instances:
         attachment = instance.attachment

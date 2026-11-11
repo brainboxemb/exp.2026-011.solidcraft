@@ -97,6 +97,7 @@ class ModelInstance:
     definition: ModelDefinition
     translation: tuple[float, float, float] = (0.0, 0.0, 0.0)
     attachment: Attachment | None = None
+    rotation: tuple[tuple[float, float, float], float] | None = None
 
     def copy(self):
         """Another occurrence of the same component, without rebuilding its shape.
@@ -118,6 +119,26 @@ class ModelInstance:
             translation=tuple(current[i] + delta[i] for i in range(3)),
             attachment=None,
         )
+
+    def rotate(self, *, axis=(0, 0, 1), degrees):
+        """Set this occurrence's absolute local-axis orientation in degrees.
+
+        Rotates only the placement of the shared component definition.
+        The pivot is the component's local origin; translation is preserved.
+        One axis-angle orientation is supported, not chained Euler rotations.
+        """
+        if (not isinstance(axis, (tuple, list)) or len(axis) != 3):
+            raise ValueError("model rotate() axis must be an XYZ triple")
+        try:
+            values = tuple(float(value_of(value)) for value in axis)
+            angle = float(value_of(degrees))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("model rotate() requires numeric axis and degrees") from exc
+        if not all(isfinite(v) for v in (*values, angle)):
+            raise ValueError("model rotate() requires finite coordinates and angle")
+        if sum(v * v for v in values) <= 0:
+            raise ValueError("model rotate() axis must be non-zero")
+        return replace(self, rotation=(values, angle), attachment=None)
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
                offset=(0, 0)):

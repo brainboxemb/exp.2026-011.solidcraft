@@ -61,6 +61,43 @@ Bracket and HUB75 Panel. The library retains only lightweight API fixtures.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
+## Imported reusable model classes
+
+When two project scripts need the same component, keep its class in **one**
+Python module and explicitly wrap the imported class:
+
+```python
+from scpf import component
+from models.hub75_panel import Hub75Panel as PanelDefinition
+
+Hub75Panel = component(PanelDefinition)
+```
+
+Then `Hub75Panel()` produces a reusable native component instance, just
+like a model class declared in the same script. No source-copying or
+private runner hooks are required. The import module must be available in
+Python's usual import path.
+
+## Native component occurrence rotation
+
+A reusable model definition can be placed more than once without duplicating
+its editable SolidCraft feature history. Use `copy()`, `move()`, and a
+single absolute axis-angle `rotate()` for each placement:
+
+```python
+first = Hub75Panel()
+second = first.copy().move(x=160).rotate(axis=(0, 0, 1), degrees=180)
+return first + second
+```
+
+SCPF compiles a rotated placement to native `occurrence.move` with an
+absolute `to: {position, axis, angle}` pose. Rotation is about the component's
+local origin and is independent of the definition. The current API supports
+one axis-angle orientation per occurrence, not chained Euler rotations,
+rotation of arbitrary Shapes, or associative sketch constraints.
+For real geometry and native CI results see the
+[CAD project](https://github.com/brainboxemb/2026-011-02.cad.solidcraft).
+
 ## Positioning
 
 CSG primitives and complete CSG combinations can be repositioned in mm:

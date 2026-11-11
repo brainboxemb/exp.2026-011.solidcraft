@@ -46,6 +46,104 @@ class AssemblyTests(unittest.TestCase):
             {"occurrence": "Block:2", "face": [20.0, 0.0, 5.0]},
         )
 
+    def test_rotation_is_an_independent_occurrence_placement(self):
+        from scpf.core import Box
+        from scpf.model_objects import ModelDefinition, ModelInstance
+
+        first = ModelInstance(ModelDefinition("Panel", (), Box(20, 10, 2)))
+        second = first.copy().move(x=30).rotate(axis=(0, 0, 1), degrees=180)
+        self.assertIs(first.definition, second.definition)
+        self.assertIsNone(first.rotation)
+        self.assertEqual(second.translation, (30, 0, 0))
+        self.assertEqual(second.rotation, ((0.0, 0.0, 1.0), 180.0))
+        self.assertIsNone(second.attachment)
+        self.assertEqual(second.copy().rotation, second.rotation)
+        self.assertEqual(second.move(x=10).translation, (40, 0, 0))
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rotation.py"
+            path.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n"
+                "class Display:\n"
+                "    def build(self):\n"
+                "        first = Panel()\n"
+                "        return first + first.copy().move(x=30).rotate(degrees=180)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(path)["commands"]
+
+        self.assertEqual(len([c for c in commands if c["command"] == "component.create"]), 1)
+        self.assertEqual(len([c for c in commands if c["command"] == "occurrence.copy"]), 1)
+        rotated = [c["params"] for c in commands if c["command"] == "occurrence.move"]
+        self.assertEqual(rotated, [{
+            "occurrence": "Panel:2",
+            "to": {"position": [30.0, 0.0, 0.0], "axis": [0.0, 0.0, 1.0],
+                   "angle": "180 deg"},
+        }])
+
+    def test_first_grounded_occurrence_can_have_absolute_rotation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "root_rotation.py"
+            path.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n"
+                "class Display:\n"
+                "    def build(self):\n"
+                "        first = Panel().move(x=-50).rotate(degrees=180)\n"
+                "        return first + first.copy().move(x=50).rotate(degrees=0)\n"
+                "Display()\n", encoding="utf-8",
+            )
+            commands = run_script(path)["commands"]
+        placements = [c["params"] for c in commands if c["command"] == "occurrence.move"]
+        self.assertEqual(len(placements), 2)
+        self.assertEqual(placements[0]["occurrence"], "Panel:1")
+        self.assertTrue(placements[0]["move_grounded"])
+        self.assertEqual(placements[0]["to"]["position"], [-50.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["to"]["position"], [0.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["to"]["angle"], "0 deg")
+
+    def test_explicit_imported_component_factory(self):
+        # The library's scpf/ source folder is a namespace root when the
+        # test runner executes from the repository root. Import the module
+        # directly here; the external-package public import is checked in CI.
+        from scpf.runner import component
+        from scpf.model_objects import ModelInstance
+
+        class LibraryPanel:
+            width = 20
+
+            def build(self):
+                from scpf.core import Box
+                return Box(self.width, 10, 2)
+
+        Panel = component(LibraryPanel)
+        first = Panel()
+        second = Panel().move(x=20)
+        self.assertIsInstance(first, ModelInstance)
+        self.assertIsInstance(second, ModelInstance)
+        self.assertEqual(first.definition.key, second.definition.key)
+        self.assertEqual(second.translation, (20, 0, 0))
+        with self.assertRaisesRegex(TypeError, "model class"):
+            component(42)
+
+    def test_rotation_rejects_undefined_and_nonfinite_axis_angle(self):
+        from scpf.core import Box
+        from scpf.model_objects import ModelDefinition, ModelInstance
+
+        panel = ModelInstance(ModelDefinition("Panel", (), Box(2, 2, 1)))
+        for kwargs in (
+            {"axis": (0, 0, 0), "degrees": 90},
+            {"axis": (0, 1), "degrees": 90},
+            {"axis": (0, float("nan"), 1), "degrees": 90},
+            {"axis": (0, 0, 1), "degrees": float("inf")},
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                panel.rotate(**kwargs)
+
     def test_component_attach_rejects_non_associative_offset_for_now(self):
         from scpf.core import Anchor
         from scpf.model_objects import ModelDefinition, ModelInstance
