@@ -10,17 +10,17 @@ The L outline is defined **once**, in a single `Polygon2D` table of `("name", (x
 
 ```python
 profile = Polygon2D([
-    ("outer_horizontal_tip", (h, 0)),
-    ("outer_horizontal_end_bevel", (h, w - end)),
+    ("o_hor_tip", (h, 0)),
+    ("o_hor_bevel", (h, w - end)),
     # ... the rest of the contour ...
-    ("vertical_tip", (0, -v)),
-    ("inside_corner", (0, 0)),
+    ("v_tip", (0, -v)),
+    ("i_corner", (0, 0)),
 ], plane="XZ", world=True)
 ```
 
 The name belongs to the **vertex** and becomes the sketch-line ID for the **segment beginning at that vertex**. `world=True` means the XZ coordinates are ordinary world (x, z); SCPF performs SolidCraft's local-sketch axis conversion.
 
-`Edges.from_profile("outer_*")` selects named profile segments on the two broad faces. `Edges.from_vertices("outer_horizontal_tip", "vertical_tip")` instead selects the extrusion-direction edges starting at those vertices. SCPF translates both selectors to edge-pick points because SolidCraft 0.30.1's fillet/chamfer commands do not directly accept sketch-line IDs.
+`Edges.from_profile("o_*")` selects named profile segments on the two broad faces. `Edges.from_vertices("o_hor_tip", "v_tip")` instead selects the extrusion-direction edges starting at those vertices. SCPF translates both selectors to edge-pick points because SolidCraft 0.30.1's fillet/chamfer commands do not directly accept sketch-line IDs.
 
 The original 0.6 mm **tip elephant-foot cuts are not in the polygon**: a separate native chamfer removes them at the two tip edges. Another chamfer produces the relief along the inside horizontal edge. The inside fillet, both reliefs, side chamfers, and holes remain separate editable features.
 

@@ -42,10 +42,10 @@ class CornerBracketTests(unittest.TestCase):
         self.assertEqual(
             sketch["params"]["ids"],
             [
-                "outer_horizontal_tip", "outer_horizontal_end_bevel",
-                "outer_horizontal_face", "outer_corner_bevel",
-                "outer_vertical_face", "outer_vertical_end_bevel",
-                "outer_vertical_end", "vertical_tip", "inside_corner",
+                "o_hor_tip", "o_hor_bevel",
+                "o_hor", "o_corner",
+                "o_vert", "o_vert_bevel",
+                "o_vert_end", "v_tip", "i_corner",
             ],
         )
 
@@ -97,7 +97,7 @@ class CornerBracketTests(unittest.TestCase):
             plane="XZ",
             ids=["bottom", "right", "top", "left"],
         ).extrude(10, direction=Direction.SYMMETRIC)
-        shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
+        shape = shape.chamfer(1, edges=Edges.from_profile("o_*"))
         with self.assertRaisesRegex(ModelError, "no polygon segment or vertex matches"):
             compile_features(shape, "Square")
 
@@ -110,7 +110,7 @@ class CornerBracketTests(unittest.TestCase):
             [(0, 0), (10, 0), (10, 10), (0, 10)],
             plane="XZ",
         ).extrude(10, direction=Direction.SYMMETRIC)
-        shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
+        shape = shape.chamfer(1, edges=Edges.from_profile("o_*"))
         with self.assertRaisesRegex(ModelError, "must define ids"):
             compile_features(shape, "Square")
 
