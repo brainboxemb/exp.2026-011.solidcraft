@@ -93,7 +93,7 @@ class AssemblyTests(unittest.TestCase):
         placements = [c["params"] for c in commands
                       if c["command"] == "occurrence.move"]
         self.assertNotIn("to", [c for c in commands if c["command"] == "occurrence.move"][1]["params"])
-        self.assertEqual(placements[1]["matrix"][3][:3], [-80.0, 0.0, 0.0])
+        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [-80.0, 0.0, 0.0])
 
     def test_named_group_creates_real_nested_native_component(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -199,8 +199,8 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(len(placements), 2)
         self.assertEqual(placements[0]["occurrence"], "Panel:1")
         self.assertTrue(placements[0]["move_grounded"])
-        self.assertEqual(placements[0]["matrix"][3][:3], [-50.0, 0.0, 0.0])
-        self.assertEqual(placements[1]["matrix"][3][:3], [-50.0, 0.0, 0.0])
+        self.assertEqual([row[3] for row in placements[0]["matrix"][:3]], [-50.0, 0.0, 0.0])
+        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [-50.0, 0.0, 0.0])
 
     def test_explicit_imported_component_factory(self):
         # The library's scpf/ source folder is a namespace root when the
@@ -239,6 +239,14 @@ class AssemblyTests(unittest.TestCase):
         for row, want in zip(rebuilt, expected):
             for value, target in zip(row, want):
                 self.assertAlmostEqual(value, target, places=9)
+
+    def test_wire_matrix_is_affine_with_last_column_translation(self):
+        from scpf.assembly import _pose, _clean_pose
+        emitted = _clean_pose(_pose((5, 7, 160), ((1, 0, 0), 90)))
+        self.assertEqual(emitted[3], [0., 0., 0., 1.])
+        self.assertEqual([emitted[i][3] for i in range(3)], [5., 7., 160.])
+        self.assertAlmostEqual(emitted[1][2], -1.)
+        self.assertAlmostEqual(emitted[2][1], 1.)
 
     def test_rotation_rejects_undefined_and_nonfinite_axis_angle(self):
         from scpf.core import Box

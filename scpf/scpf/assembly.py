@@ -80,10 +80,10 @@ def _definition_names(assembly):
 
 
 def _pose(position, rotation):
-    """Row-vector 4x4 SolidCraft pose: translation in the final row.
+    """Internal row-vector pose, matching saved native document.json.
 
-    v0.30.1 accepts an occurrence.move 'matrix' (relative), NOT a 'to'
-    (absolute) placement. This layout matches the saved document.json.
+    For the CLI wire-format matrix, _clean_pose() transposes this into
+    a conventional last-column-translation affine matrix.
     """
     if rotation is None:
         r = ((1., 0., 0.), (0., 1., 0.), (0., 0., 1.))
@@ -114,8 +114,17 @@ def _inverse(p):
 
 
 def _clean_pose(p):
+    """Encode internal row-vector pose into the native CLI's column layout.
+
+    SolidCraft document.json stores a TRANSPOSED row-vector transform, with
+    translation in the bottom row. But v0.30.1's occurrence.move(matrix=...)
+    accepts conventional affine matrices with the LAST COLUMN translation
+    and a literal fourth row [0,0,0,1]. Passing a stored document matrix
+    directly back to the command is rejected as non-affine.
+    """
+    wire = [[p[j][i] for j in range(4)] for i in range(4)]
     return [[0. if abs(v) < 1e-11 else round(v, 12) for v in row]
-            for row in p]
+            for row in wire]
 
 
 def compile_assembly(value, name):
