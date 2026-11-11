@@ -4,7 +4,8 @@ Works on Box, Rectangle2D/Circle2D/Polygon2D extrusions. Every feature
 is compiled from its operation, not from a named example such as Plate.
 """
 from math import isfinite
-from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, value_of, command_value
+from fnmatch import fnmatchcase
+from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, _ProfileEdgeSelection, value_of, command_value
 from .history import History
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
 from .placement import (
@@ -132,6 +133,54 @@ def _hole_commands(feature, position, name, refs=None):
         return [commands[-1], *commands[:-1]]
     return commands
 
+
+
+def _resolve_profile_edges(base, selection):
+    """Translate named sketch segments/vertices to native SolidCraft edge picks.
+
+    A named segment selects its top and bottom extrusion-face edges. A named
+    vertex selects the perpendicular sweep edge through its midpoint. These
+    selectors intentionally target symmetric XZ polygon extrusions only.
+    """
+    if not isinstance(selection, _ProfileEdgeSelection):
+        return selection
+    if (base.get("profile") != "polygon" or
+            base.get("sketch_plane") != "XZ" or
+            base.get("extrusion_direction") != "symmetric"):
+        raise ModelError("named profile edges currently require a symmetric XZ polygon extrusion")
+    points = base["profile_points"]
+    names = base["profile_ids"]
+    if names is None:
+        raise ModelError("Polygon2D must define ids= or named points to select profile edges")
+    for pattern in selection.patterns:
+        if not any(fnmatchcase(label, pattern) for label in names):
+            raise ModelError(f"no polygon segment or vertex matches {pattern!r}")
+
+    matches = [
+        i for i, label in enumerate(names)
+        if any(fnmatchcase(label, pattern) for pattern in selection.patterns)
+    ]
+    if selection.kind == "vertices":
+        # For an XZ profile extruded symmetrically along Y, the sweep edge
+        # passes through (x, 0, z) at the original sketch vertex.
+        return [
+            (value_of(points[i][0]), 0, -value_of(points[i][1]))
+            for i in matches
+        ]
+    if selection.kind != "segments":
+        raise ModelError(f"unsupported profile edge selection: {selection.kind}")
+
+    half_width = value_of(base["thickness"]) / 2
+    picks = []
+    for y in (-half_width, half_width):
+        for i in matches:
+            a, b = points[i], points[(i + 1) % len(points)]
+            picks.append((
+                (value_of(a[0]) + value_of(b[0])) / 2,
+                y,
+                -(value_of(a[1]) + value_of(b[1])) / 2,
+            ))
+    return picks
 
 
 def _fillet_command(base, radius, edges, name):
@@ -685,11 +734,11 @@ def _to_commands(shape, name):
     if shape.kind == "fillet":
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
-        return steps + [_fillet_command(base, radius, edges, name)], base
+        return steps + [_fillet_command(base, radius, _resolve_profile_edges(base, edges), name)], base
     if shape.kind == "chamfer":
         original, distance, edges = shape.data
         steps, base = _to_commands(original, name)
-        return steps + [_chamfer_command(distance, edges, name)], base
+        return steps + [_chamfer_command(distance, _resolve_profile_edges(base, edges), name)], base
     if shape.kind in ("union", "difference"):
         original, added = shape.data
         steps, base = _to_commands(original, name)

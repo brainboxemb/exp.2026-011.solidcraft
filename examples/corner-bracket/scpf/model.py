@@ -37,45 +37,58 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # SolidCraft's XZ sketch local vertical axis points toward world -Z.
-        outline_xz = [
-            (h - ef, 0),
-            (h, ef),
-            (h, w - end),
-            (h - end, w),
-            (-w + outer, w),
-            (-w, w - outer),
-            (-w, -v + end),
-            (-w + end, -v),
-            (-ef, -v),
-            (0, -v + ef),
-            (0, 0),
-        ]
-        profile = Polygon2D([(x, -z) for x, z in outline_xz], plane="XZ")
-        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
-        body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
+        # L profile in the XZ plane (+Z up, +X right; not to scale):
+        #
+        #       D--------------------------------C
+        #      /                                  \
+        #     E                                    B
+        #     |                                    |
+        #     |         I--------------------------A
+        #     |         |
+        #     |         |
+        #     F         |
+        #      \        |
+        #       G-------H
+        #
+        # A o_hor_tip    B o_hor_bevel  C o_hor
+        # D o_corner     E o_vert       F o_vert_bevel
+        # G o_vert_end   H v_tip        I i_corner
+        #
+        # Polygon order: A -> B -> C -> D -> E -> F -> G -> H -> I -> A.
+        # Each label names its point and the segment starting at that point.
+        # Elephant-foot relief is NOT part of this sketch: it comes later.
+        profile = Polygon2D([
+            ("o_hor_tip", (h, 0)),
+            ("o_hor_bevel", (h, w - end)),
+            ("o_hor", (h - end, w)),
+            ("o_corner", (-w + outer, w)),
+            ("o_vert", (-w, w - outer)),
+            ("o_vert_bevel", (-w, -v + end)),
+            ("o_vert_end", (-w + end, -v)),
+            ("v_tip", (0, -v)),
+            ("i_corner", (0, 0)),
+        ], plane="XZ", world=True)
 
-        y0 = self.bracket_width / 2
-        outer_edges = [
-            (h, (ef + w - end) / 2),
-            (h - end / 2, w - end / 2),
-            ((h - end - w + outer) / 2, w),
-            (-w + outer / 2, w - outer / 2),
-            (-w, (w - outer - v + end) / 2),
-            (-w + end / 2, -v + end / 2),
-            ((-w + end - ef) / 2, -v),
-        ]
-        body = body.chamfer(
-            self.side_edge_chamfer,
-            edges=[
-                (x, side * y0, z)
-                for side in (-1, 1)
-                for x, z in outer_edges
-            ],
+        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
+
+        # Round the inside, then remove printing relief from the two tip
+        # edges (parallel to the extrusion direction).
+        body = body.fillet(
+            self.inside_corner_radius,
+            edges=Edges.from_vertices("i_corner"),
         )
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=[(h / 2, -y0, 0), (h / 2, y0, 0)],
+            edges=Edges.from_vertices("o_hor_tip", "v_tip"),
+        )
+        body = body.chamfer(
+            self.side_edge_chamfer,
+            edges=Edges.from_profile("o_*", sides="both"),
+        )
+        # Inner relief along both broad faces, independent of the 2D outline.
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_profile("i_corner", sides="both"),
         )
 
         # A single 90-degree countersink avoids coincident circle/face cuts.
@@ -103,7 +116,7 @@ class CornerBracketFast:
                 direction=(1, 0, 0),
             ).at(-w, -self.bolt_y_offset, z)
 
-        body
+        return body
 
 
 CornerBracketFast()
