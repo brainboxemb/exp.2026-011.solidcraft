@@ -167,14 +167,28 @@ def compile_assembly(value, name):
             ))
 
         for index, instance in enumerate(instances[1:], start=2):
+            # Native occurrence.copy inherits the source occurrence's effective
+            # transform; its translate is a DELTA, not an absolute position.
+            # ModelInstance.translation stores an absolute local placement.
+            # Without this subtraction a sidewall at X=-437 followed by a
+            # sidewall at X=+437 mistakenly copies to the middle (X=0).
+            delta = tuple(
+                instance.translation[i] - first.translation[i]
+                for i in range(3)
+            )
             params = {"component": component_name}
-            if any(instance.translation):
-                params["translate"] = list(instance.translation)
+            if any(delta):
+                params["translate"] = list(delta)
             commands.append(_command("occurrence.copy", **params))
             new_occurrence = f"{component_name}:{index}"
             occurrence_names[id(instance)] = new_occurrence
-            if instance.rotation is not None:
-                axis, angle = instance.rotation
+            # A copy inherits orientation too. Reset it to unrotated when
+            # no rotation is requested but the original was rotated.
+            if instance.rotation is not None or first.rotation is not None:
+                axis, angle = (
+                    instance.rotation
+                    if instance.rotation is not None else ((0.0, 0.0, 1.0), 0.0)
+                )
                 commands.append(_command(
                     "occurrence.move",
                     occurrence=new_occurrence,
