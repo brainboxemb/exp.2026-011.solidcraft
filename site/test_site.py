@@ -43,7 +43,7 @@ def check(site: Path, sha: str, require_native: bool = False):
             assert info["preview_kind"] == "native-snapshot", slug
         if info["preview_kind"] == "native-snapshot":
             assert image.suffix == ".png"
-            assert image.read_bytes().startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+            assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
             assert "Native SolidCraft 0.30.1 render" in page
         else:
             assert image.suffix == ".svg"
