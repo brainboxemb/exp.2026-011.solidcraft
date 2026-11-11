@@ -78,22 +78,6 @@ def _definition_names(assembly):
     return names
 
 
-def _rotation_command(occurrence, rotation, origin, *, inverse=False):
-    """Rotate an existing occurrence around its current assembly position.
-
-    SolidCraft 0.30.1 supports these native occurrence.move parameters.
-    There is no need to calculate a rotation matrix in Python.
-    """
-    axis, degrees = rotation
-    return _command(
-        "occurrence.move",
-        occurrence=occurrence,
-        axis=list(axis),
-        angle=f"{-degrees if inverse else degrees:g} deg",
-        origin=list(origin),
-    )
-
-
 def compile_assembly(value, name):
     """Compile a root assembly into reusable components and occurrences."""
     assembly = _as_assembly(value)
@@ -159,59 +143,38 @@ def compile_assembly(value, name):
         commands.extend(geometry_commands)
         commands.append(_command("component.activate", component="root"))
 
-        first = instances[0]
-        first_occurrence = f"{component_name}:1"
-        occurrence_names[id(first)] = first_occurrence
-        if first.rotation is not None:
-            # Rotation and translation are native SolidCraft parameters.
-            # 'to' was silently ignored by 0.30.1; matrices are unnecessary.
-            axis, degrees = first.rotation
+        # Start every occurrence at the component's native origin and
+        # orientation. Copies are created BEFORE we move the first one.
+        # This avoids inheriting a moved/rotated source placement, and
+        # avoids any manual matrix, inverse or rotation composition.
+        occurrences = []
+        for index, instance in enumerate(instances, start=1):
+            native_name = f"{component_name}:{index}"
+            occurrence_names[id(instance)] = native_name
+            occurrences.append((instance, native_name))
+            if index > 1:
+                commands.append(_command(
+                    "occurrence.copy",
+                    component=component_name,
+                ))
+
+        # Each occurrence now starts at identity. SolidCraft itself applies
+        # the requested translation and axis-angle rotation directly.
+        # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
+        # The model's move() values are absolute from the component origin.
+        for instance, native_name in occurrences:
+            if instance.rotation is None and not any(instance.translation):
+                continue
             params = {
-                "occurrence": first_occurrence,
-                "axis": list(axis),
-                "angle": f"{degrees:g} deg",
-                "move_grounded": first_is_root,
+                "occurrence": native_name,
+                "translate": list(instance.translation),
             }
-            if any(first.translation):
-                params["translate"] = list(first.translation)
+            if instance.rotation is not None:
+                axis, degrees = instance.rotation
+                params.update(axis=list(axis), angle=f"{degrees:g} deg")
+            if instance is assembly.instances[0] and parent_name is None:
+                params["move_grounded"] = True
             commands.append(_command("occurrence.move", **params))
-        elif any(first.translation):
-            commands.append(_command(
-                "occurrence.move",
-                occurrence=first_occurrence,
-                translate=list(first.translation),
-                move_grounded=first_is_root,
-            ))
-
-        for index, instance in enumerate(instances[1:], start=2):
-            # SolidCraft copies a reusable component definition's FIRST
-            # occurrence. The native copy translate is a world-space DELTA.
-            # ModelInstance.move() stores an absolute desired placement.
-            delta = tuple(
-                instance.translation[i] - first.translation[i]
-                for i in range(3)
-            )
-            params = {"component": component_name}
-            if any(delta):
-                params["translate"] = list(delta)
-            commands.append(_command("occurrence.copy", **params))
-            new_occurrence = f"{component_name}:{index}"
-            occurrence_names[id(instance)] = new_occurrence
-
-            if instance.rotation != first.rotation:
-                # The copy inherits the source orientation. Restore the
-                # component's unrotated axes, then apply the target rotation.
-                # Both are SolidCraft's own native rotations about the
-                # copy's current pivot; no Python matrix algebra is involved.
-                if first.rotation is not None:
-                    commands.append(_rotation_command(
-                        new_occurrence, first.rotation, instance.translation,
-                        inverse=True,
-                    ))
-                if instance.rotation is not None:
-                    commands.append(_rotation_command(
-                        new_occurrence, instance.rotation, instance.translation,
-                    ))
 
     for instance in assembly.instances:
         attachment = instance.attachment
