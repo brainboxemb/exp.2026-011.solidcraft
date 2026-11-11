@@ -15,7 +15,7 @@ from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
 
 ROOT = Path(__file__).resolve().parents[1]
-LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft"
+LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
 CAD_SITE = "https://brainboxemb.github.io/2026-011-02.cad.solidcraft/"
 
 # Keep the public catalog deliberately small; advanced tests remain in the repo.
@@ -276,7 +276,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
         page("Cheatsheet", cheat, stylesheet="../style.css", home="../", cheatsheet="./"),
         encoding="utf-8")
 
-    home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft / reusable Python interface</p>
+    home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft.forge / Python Forge</p>
 <h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: {TESTED_SOLIDCRAFT_VERSION} · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
 <div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
