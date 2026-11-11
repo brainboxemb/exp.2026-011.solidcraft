@@ -47,13 +47,54 @@ jobs:
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
+      - name: Install official SolidCraft 0.30.1 (checksum-verified)
+        shell: bash
+        env:
+          SOLIDCRAFT_VERSION: "0.30.1"
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          base="https://github.com/tangency-labs/solidcraft/releases/download/v${SOLIDCRAFT_VERSION}"
+          archive="solidcraft-${SOLIDCRAFT_VERSION}-linux-x86_64.tar.gz"
+          curl --fail --location --retry 3 --silent --show-error "$base/SHA256SUMS.txt" --output SHA256SUMS.txt
+          curl --fail --location --retry 3 --silent --show-error "$base/$archive" --output "$archive"
+          grep -F " $archive" SHA256SUMS.txt | sha256sum --check
+          tar -xzf "$archive"
+          echo "$RUNNER_TEMP/solidcraft-${SOLIDCRAFT_VERSION}-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Render each tiny API example in native SolidCraft
+        shell: bash
+        env:
+          SOLIDCRAFT_GPU: cpu
+        run: |
+          set -euo pipefail
+          unset PYTHONPATH
+          solidcraft-cli --version
+          mkdir -p output/native
+          for model in simple-box anchored-holes components; do
+            mkdir -p "output/native/$model"
+            solidcraft-cli run "output/$model.json" \
+              --param-check strict --results \
+              --json-out "output/native/$model/results.json" \
+              --save "output/native/$model/model.sc" \
+              --out "output/native/$model/model.step"
+            solidcraft-cli eval "output/native/$model/model.sc" \
+              --json-out "output/native/$model/measurements.json"
+            jq -e '(.timeline | all(.error == null))' "output/native/$model/measurements.json"
+            test -s "output/native/$model/model.step"
+            solidcraft-cli snapshot "output/native/$model/model.sc" \
+              --out "output/native/$model/model.png" --no-grid --no-axes
+            test -s "output/native/$model/model.png"
+          done
+          jq -n --arg source "$GITHUB_SHA" \
+            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \
+            > output/native/verification.json
       - name: Build the lightweight library Pages site
         shell: bash
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          python site/build.py --out output/site --source-sha "$GITHUB_SHA"
-          python site/test_site.py output/site "$GITHUB_SHA"
+          python site/build.py --out output/site --source-sha "$GITHUB_SHA" --native output/native
+          python site/test_site.py output/site "$GITHUB_SHA" --require-native
       - name: Upload library site preview
         uses: actions/upload-artifact@v4
         with:
