@@ -54,9 +54,7 @@ or `axis` / `angle` / `translate` parameters. It does **not**
 support the later absolute `to: {position, axis, angle}` representation.
 Older versions may silently ignore unknown `to` fields without error.
 SCPF therefore compiles a native **relative 4×4 rigid matrix** and
-native CI must inspect saved occurrence transforms. The matrix is
-row-vector form (translation in the final row), not an ordinary JSON
-pose dict.
+native CI must inspect saved occurrence transforms. The API `matrix` is a conventional affine 4×4 matrix (**translation in the\nlast column**, final row `[0,0,0,1]`). Saved SolidCraft `document.json`\noccurrence transforms are transposed into the **row-vector** internal form\n(translation in the final row). Mixing those representations causes a native\nvalidation error.
 
 ## Model objects
 
