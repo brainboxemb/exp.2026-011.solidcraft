@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 
 from scpf.runner import run_script
+from guides import GUIDES
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft"
@@ -116,7 +117,7 @@ def page(title, body, *, stylesheet, home, cheatsheet):
 <link rel="stylesheet" href="{escape(stylesheet)}"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="{escape(home)}">SCPF <span>Python library</span></a>
-<nav aria-label="Main"><a href="{escape(home)}">Examples</a><a href="{escape(cheatsheet)}">Cheatsheet</a>
+<nav aria-label="Main"><a href="{escape(home)}">Examples</a><a href="{escape(home)}guide/">API Guide</a><a href="{escape(cheatsheet)}">Cheatsheet</a>
 <a href="{LIBRARY_URL}">Source</a></nav></div></header>
 {body}
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
@@ -206,6 +207,53 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 <p class="meta">{count} generated SolidCraft commands</p>
 <a class="button" href="examples/{slug}/">View source and command steps →</a></div></article>""")
 
+    # Expanded, navigable documentation remains separate from tiny smoke-test
+    # examples and from the quick cheatsheet.
+    guide_root = out / "guide"
+    guide_root.mkdir(exist_ok=True)
+    guide_cards = []
+    for chapter in GUIDES:
+        slug = chapter["slug"]
+        dest = guide_root / slug
+        dest.mkdir(exist_ok=True)
+        aside = "".join(
+            f'<a href="../{escape(item["slug"])}/">{escape(item["title"])}</a>'
+            for item in GUIDES
+        )
+        body = (
+            '<main class="wrap guide-layout"><aside class="guide-sidebar">'
+            '<h2>API Guide</h2><a href="../">All chapters</a>'
+            + aside + '</aside><article class="guide-article">'
+            + f'<p class="crumb"><a href="../">← API Guide</a> / {escape(chapter["title"])}</p>'
+            + f'<h1>{escape(chapter["title"])}</h1>'
+            + f'<p class="guide-lead">{escape(chapter["summary"])}</p>'
+            + chapter["body"] + '</article></main>'
+        )
+        (dest / "index.html").write_text(
+            page(chapter["title"], body, stylesheet="../../style.css",
+                 home="../../", cheatsheet="../../cheatsheet/"),
+            encoding="utf-8",
+        )
+        guide_cards.append(
+            f'<article class="reference"><h2><a href="{escape(slug)}/">'
+            f'{escape(chapter["title"])}</a></h2>'
+            f'<p>{escape(chapter["summary"])}</p></article>'
+        )
+    guide_index = (
+        '<main class="wrap"><section class="hero small">'
+        '<p class="eyebrow">Detailed SCPF documentation</p>'
+        '<h1>API Guide</h1>'
+        '<p>Learn the concepts, understand the generated native commands, '
+        'and check current support and limitations. '
+        'The cheatsheet is a quick lookup, not a substitute for this guide.</p>'
+        '</section><div class="reference-grid">'
+        + "".join(guide_cards) + '</div></main>'
+    )
+    (guide_root / "index.html").write_text(
+        page("API Guide", guide_index, stylesheet="../style.css",
+             home="../", cheatsheet="../cheatsheet/"), encoding="utf-8"
+    )
+
     sections = []
     for heading, items in CHEATSHEET:
         boxes = []
@@ -217,8 +265,8 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         sections.append(f'<section><h2>{escape(heading)}</h2><div class="reference-grid">{"".join(boxes)}</div></section>')
     cheat = f"""<main class="wrap"><div class="crumb"><a href="../">← Library</a> / Cheatsheet</div>
 <section class="hero small"><p class="eyebrow">SCPF reference</p><h1>Cheatsheet</h1>
-<p>Common SCPF syntax alongside tiny examples that CI compiles. Advanced features belong in
-<a href="{LIBRARY_URL}/blob/main/scpf/README.md">the API guide</a>.</p></section>
+<p>Common SCPF syntax alongside tiny examples that CI compiles. For explanations, examples and limitations, read the
+<a href="../guide/">full API Guide</a>.</p></section>
 <div class="notice"><strong>What is verified?</strong> The linked examples and API unit tests run in GitHub Actions.
 Cheatsheet fragments describe API calls; a fragment alone is not a complete runnable model.</div>
 {"".join(sections)}</main>"""
@@ -230,7 +278,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
     home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft / reusable Python interface</p>
 <h1>SCPF examples & API cheatsheet</h1><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
-<div class="actions"><a class="button primary" href="cheatsheet/">Open cheatsheet →</a>
+<div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
 <a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
 <section class="section-heading"><h2>Three small examples</h2><p>Each source produces its own native-command JSON.
 Source and commands are regenerated together by CI.</p></section>
