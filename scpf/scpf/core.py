@@ -457,17 +457,36 @@ def Circle2D(*, d=None, r=None):
     return Shape("circle", (d if d is not None else r * 2,))
 
 
-def Polygon2D(points, *, plane="XY", ids=None):
-    """Closed 2D polygon with optional named sketch segments.
+def Polygon2D(points, *, plane="XY", ids=None, world=False):
+    """A closed polygon. Rows may be (name, (u, v)) or plain (u, v).
 
-    Each id names the segment from points[i] to points[(i + 1) % len(points)].
-    SolidCraft stores these as sketch-curve IDs, not 3D solid-edge names.
+    A name belongs to the vertex AND the segment starting at that vertex;
+    sketch.line uses these names as segment IDs. On the XZ plane, world=True
+    lets model code specify intuitive (x, z) instead of sketch-local (x, -z).
     """
-    coordinates = tuple(tuple(p) for p in points)
+    rows = tuple(points)
+    named = [
+        isinstance(row, (tuple, list)) and len(row) == 2
+        and isinstance(row[0], str) and isinstance(row[1], (tuple, list))
+        for row in rows
+    ]
+    if any(named):
+        if not all(named):
+            raise ValueError("all polygon vertices must be named, or none")
+        if ids is not None:
+            raise ValueError("named polygon points cannot also specify ids")
+        ids = tuple(row[0] for row in rows)
+        coordinates = tuple(tuple(row[1]) for row in rows)
+    else:
+        coordinates = tuple(tuple(p) for p in rows)
     if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
         raise ValueError("Polygon2D requires at least three 2D points")
     if plane not in ("XY", "XZ", "YZ"):
         raise ValueError("unsupported sketch plane")
+    if world:
+        if plane != "XZ":
+            raise ValueError("world=True currently supports only plane='XZ'")
+        coordinates = tuple((x, -z) for x, z in coordinates)
     if ids is not None:
         if isinstance(ids, (str, bytes)) or not isinstance(ids, (tuple, list)):
             raise ValueError("polygon ids must be a sequence of segment names")

@@ -37,46 +37,21 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # Consecutive points describe the seven outer edges to bevel.
-        # These are also used by the sketch: one source of geometry.
-        outer_path_xz = [
-            (h, ef),
-            (h, w - end),
-            (h - end, w),
-            (-w + outer, w),
-            (-w, w - outer),
-            (-w, -v + end),
-            (-w + end, -v),
-            (-ef, -v),
-        ]
-        # SolidCraft's XZ sketch local vertical axis points toward world -Z.
-        outline_xz = [
-            (h - ef, 0),
-            *outer_path_xz,
-            (0, -v + ef),
-            (0, 0),
-        ]
-        # Sketch IDs identify the edge that STARTS at each profile point.
-        # Chamfer selection below refers to these IDs, not to hand-written
-        # midpoint coordinates. SCPF resolves them for SolidCraft.
-        segment_ids = [
-            "tip_horizontal_relief",
-            "outer_horizontal_end",
-            "outer_horizontal_end_bevel",
-            "outer_horizontal_face",
-            "outer_corner_bevel",
-            "outer_vertical_face",
-            "outer_vertical_end_bevel",
-            "outer_vertical_end",
-            "tip_vertical_relief",
-            "inside_vertical",
-            "inside_horizontal",
-        ]
-        profile = Polygon2D(
-            [(x, -z) for x, z in outline_xz],
-            plane="XZ",
-            ids=segment_ids,
-        )
+        # One named XZ outline. Each label identifies the vertex and the
+        # profile segment leading from it to the next vertex.
+        profile = Polygon2D([
+            ("tip_horizontal_relief", (h - ef, 0)),
+            ("outer_horizontal_end", (h, ef)),
+            ("outer_horizontal_end_bevel", (h, w - end)),
+            ("outer_horizontal_face", (h - end, w)),
+            ("outer_corner_bevel", (-w + outer, w)),
+            ("outer_vertical_face", (-w, w - outer)),
+            ("outer_vertical_end_bevel", (-w, -v + end)),
+            ("outer_vertical_end", (-w + end, -v)),
+            ("tip_vertical_relief", (-ef, -v)),
+            ("inside_vertical", (0, -v + ef)),
+            ("inside_horizontal", (0, 0)),
+        ], plane="XZ", world=True)
         body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
         body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 

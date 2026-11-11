@@ -19,6 +19,23 @@ class CornerBracketTests(unittest.TestCase):
         # 19 params + 4 sketch+extrude + 3 edge modifiers + 4 holes.
         self.assertEqual(len(commands), 29)
 
+    def test_named_polygon_vertices_generate_sketch_ids(self):
+        from scpf.core import Polygon2D
+        profile = Polygon2D([
+            ("bottom", (0, 0)), ("right", (10, 0)),
+            ("top", (10, 8)), ("left", (0, 8)),
+        ], plane="XZ", world=True)
+        points, plane, ids = profile.data
+        self.assertEqual(plane, "XZ")
+        self.assertEqual(points, ((0, 0), (10, 0), (10, -8), (0, -8)))
+        self.assertEqual(ids, ("bottom", "right", "top", "left"))
+
+        with self.assertRaisesRegex(ValueError, "all polygon vertices"):
+            Polygon2D([("a", (0, 0)), (10, 0), (10, 10)])
+        with self.assertRaisesRegex(ValueError, "cannot also specify ids"):
+            Polygon2D([("a", (0, 0)), ("b", (10, 0)), ("c", (0, 10))],
+                      ids=["a", "b", "c"])
+
     def test_polygon_segments_have_meaningful_sketch_ids(self):
         commands = run_script(EXAMPLE / "model.py")["commands"]
         sketch = next(c for c in commands if c["command"] == "sketch.line")
