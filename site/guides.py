@@ -393,6 +393,9 @@ that the final solid occupies the correct plane or has no collision.</p>
 <p>When new shorthand syntax (such as <code>rotate(Z, 180)</code>) or
 chained rotation is implemented, add tests for the exact generated
 native commands <em>before</em> documenting it as supported.
-Until then, describe the current limit explicitly.</p>""",
+Until then, describe the current limit explicitly.</p>
+<p>For a plain-language explanation of the implementation and its
+boundaries, read
+<a href="https://github.com/brainboxemb/lib.py.solidcraft/blob/main/scpf/docs/architecture.md">How SCPF works (without building a second CAD engine)</a>.</p>""",
     },
 ]
