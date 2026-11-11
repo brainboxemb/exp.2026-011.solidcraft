@@ -1,5 +1,5 @@
 {
-  "library_commit": "26b3eb2a89d7f2f2bc415661ec6ca3f8c04c521f",
+  "library_commit": "f9ee5ce2b95f42f7547b208c6c934d7d85d2e2b3",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
@@ -19,7 +19,7 @@
     "components": {
       "source": "examples/components/model.py",
       "commands": "examples/components/commands.json",
-      "command_count": 11,
+      "command_count": 12,
       "preview": "examples/components/preview.png",
       "preview_kind": "native-snapshot"
     }

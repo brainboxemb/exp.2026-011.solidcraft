@@ -43,7 +43,10 @@ first = BlockComponent()
 second = first.copy().move(x=50)
 assembly = first + second</code></pre>
 <p>The two occurrences share the same <code>Block</code> definition.
-<code>copy()</code> does not duplicate its features.</p>
+<code>copy()</code> does not duplicate its features. The compiler creates
+all native occurrences in place first, then sends their individual
+placement commands to SolidCraft. This keeps rotations and offsets
+independent.</p>
 <h2 id="groups">Groups are actual native parent components</h2>
 <pre><code>blocks = (first + second).group(&quot;Blocks&quot;)</code></pre>
 <p>Grouping changes the browser hierarchy, not the geometry's orientation.

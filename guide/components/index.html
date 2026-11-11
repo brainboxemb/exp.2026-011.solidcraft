@@ -24,10 +24,13 @@ assembly = (left + right).group(&quot;Beams&quot;)</code></pre>
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
 <h2 id="placement">Occurrence placement</h2>
-<p>Copying a model reuses its source placement. Placing an already shifted
-master and shifting the copy may produce an unintended offset. For regular
-arrays, use a central master at the origin, then distribute copies by their
-intended world-space offsets.</p>
+<p><code>copy()</code> in Python retains the source's intended position
+and orientation. <code>move()</code> then adds the given displacement.
+For example, moving a copy by X=120 after its source already sits at X=50
+makes the copy's intended X position 170. This is normal Python-side behavior.
+When compiling, SCPF first creates all native occurrences at the origin and
+asks SolidCraft to position each one <em>once</em>. No previous native
+transform needs to be undone, and no inverse matrix is calculated.</p>
 <pre><code>center = BeamComponent()
 array = center
 for x in (-240, -120, 120, 240):
@@ -42,7 +45,8 @@ multiple levels of independent shared parent groups are not yet available.</p>
 <h2 id="verify">What to test in an assembly</h2>
 <p>Check the native command list for one <code>component.create</code>
 per shared definition, expected <code>occurrence.copy</code> counts,
-and full poses for rotated occurrences. Separately verify native SolidCraft
+and native <code>translate</code>, <code>axis</code> and <code>angle</code>
+parameters for rotated occurrences. Separately verify native SolidCraft
 geometry and its bounding dimensions before trusting an assembly image.</p></article></main>
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>

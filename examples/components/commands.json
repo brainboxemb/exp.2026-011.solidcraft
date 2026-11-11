@@ -71,7 +71,13 @@
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "Block",
+        "component": "Block"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Block:2",
         "translate": [
           40.0,
           0.0,
