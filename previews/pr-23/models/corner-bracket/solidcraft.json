@@ -194,15 +194,15 @@
         ],
         "closed": true,
         "ids": [
-          "outer_horizontal_tip",
-          "outer_horizontal_end_bevel",
-          "outer_horizontal_face",
-          "outer_corner_bevel",
-          "outer_vertical_face",
-          "outer_vertical_end_bevel",
-          "outer_vertical_end",
-          "vertical_tip",
-          "inside_corner"
+          "o_hor_tip",
+          "o_hor_bevel",
+          "o_hor",
+          "o_corner",
+          "o_vert",
+          "o_vert_bevel",
+          "o_vert_end",
+          "v_tip",
+          "i_corner"
         ]
       }
     },

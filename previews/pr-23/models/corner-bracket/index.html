@@ -57,15 +57,15 @@ class CornerBracketFast:
         # One named polygon: the actual L profile, without print reliefs.
         # Each name identifies a vertex and the segment starting there.
         profile = Polygon2D([
-            (&quot;outer_horizontal_tip&quot;, (h, 0)),
-            (&quot;outer_horizontal_end_bevel&quot;, (h, w - end)),
-            (&quot;outer_horizontal_face&quot;, (h - end, w)),
-            (&quot;outer_corner_bevel&quot;, (-w + outer, w)),
-            (&quot;outer_vertical_face&quot;, (-w, w - outer)),
-            (&quot;outer_vertical_end_bevel&quot;, (-w, -v + end)),
-            (&quot;outer_vertical_end&quot;, (-w + end, -v)),
-            (&quot;vertical_tip&quot;, (0, -v)),
-            (&quot;inside_corner&quot;, (0, 0)),
+            (&quot;o_hor_tip&quot;, (h, 0)),
+            (&quot;o_hor_bevel&quot;, (h, w - end)),
+            (&quot;o_hor&quot;, (h - end, w)),
+            (&quot;o_corner&quot;, (-w + outer, w)),
+            (&quot;o_vert&quot;, (-w, w - outer)),
+            (&quot;o_vert_bevel&quot;, (-w, -v + end)),
+            (&quot;o_vert_end&quot;, (-w + end, -v)),
+            (&quot;v_tip&quot;, (0, -v)),
+            (&quot;i_corner&quot;, (0, 0)),
         ], plane=&quot;XZ&quot;, world=True)
 
         body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
@@ -74,20 +74,20 @@ class CornerBracketFast:
         # edges (parallel to the extrusion direction).
         body = body.fillet(
             self.inside_corner_radius,
-            edges=Edges.from_vertices(&quot;inside_corner&quot;),
+            edges=Edges.from_vertices(&quot;i_corner&quot;),
         )
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=Edges.from_vertices(&quot;outer_horizontal_tip&quot;, &quot;vertical_tip&quot;),
+            edges=Edges.from_vertices(&quot;o_hor_tip&quot;, &quot;v_tip&quot;),
         )
         body = body.chamfer(
             self.side_edge_chamfer,
-            edges=Edges.from_profile(&quot;outer_*&quot;, sides=&quot;both&quot;),
+            edges=Edges.from_profile(&quot;o_*&quot;, sides=&quot;both&quot;),
         )
         # Inner relief along both broad faces, independent of the 2D outline.
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=Edges.from_profile(&quot;inside_corner&quot;, sides=&quot;both&quot;),
+            edges=Edges.from_profile(&quot;i_corner&quot;, sides=&quot;both&quot;),
         )
 
         # A single 90-degree countersink avoids coincident circle/face cuts.
@@ -314,15 +314,15 @@ CornerBracketFast()
     ],
     &quot;closed&quot;: true,
     &quot;ids&quot;: [
-      &quot;outer_horizontal_tip&quot;,
-      &quot;outer_horizontal_end_bevel&quot;,
-      &quot;outer_horizontal_face&quot;,
-      &quot;outer_corner_bevel&quot;,
-      &quot;outer_vertical_face&quot;,
-      &quot;outer_vertical_end_bevel&quot;,
-      &quot;outer_vertical_end&quot;,
-      &quot;vertical_tip&quot;,
-      &quot;inside_corner&quot;
+      &quot;o_hor_tip&quot;,
+      &quot;o_hor_bevel&quot;,
+      &quot;o_hor&quot;,
+      &quot;o_corner&quot;,
+      &quot;o_vert&quot;,
+      &quot;o_vert_bevel&quot;,
+      &quot;o_vert_end&quot;,
+      &quot;v_tip&quot;,
+      &quot;i_corner&quot;
     ]
   }
 }</code></pre></li>
