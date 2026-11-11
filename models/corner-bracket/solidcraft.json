@@ -156,6 +156,10 @@
       "params": {
         "points": [
           [
+            0,
+            0
+          ],
+          [
             "horizontal_arm_length",
             0
           ],
@@ -186,14 +190,11 @@
           [
             0,
             "-(-(vertical_arm_length))"
-          ],
-          [
-            0,
-            0
           ]
         ],
         "closed": true,
         "ids": [
+          "i_corner",
           "o_hor_tip",
           "o_hor_bevel",
           "o_hor",
@@ -201,8 +202,7 @@
           "o_vert",
           "o_vert_bevel",
           "o_vert_end",
-          "v_tip",
-          "i_corner"
+          "v_tip"
         ]
       }
     },

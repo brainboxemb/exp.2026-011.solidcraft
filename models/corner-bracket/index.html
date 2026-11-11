@@ -71,10 +71,12 @@ class CornerBracketFast:
         # D o_corner     E o_vert       F o_vert_bevel
         # G o_vert_end   H v_tip        I i_corner
         #
-        # Polygon order: A -&gt; B -&gt; C -&gt; D -&gt; E -&gt; F -&gt; G -&gt; H -&gt; I -&gt; A.
+        # Start at I, the inside corner and sketch origin (0, 0).
+        # Polygon order: I -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E -&gt; F -&gt; G -&gt; H -&gt; I.
         # Each label names its point and the segment starting at that point.
         # Elephant-foot relief is NOT part of this sketch: it comes later.
         profile = Polygon2D([
+            (&quot;i_corner&quot;, (0, 0)),
             (&quot;o_hor_tip&quot;, (h, 0)),
             (&quot;o_hor_bevel&quot;, (h, w - end)),
             (&quot;o_hor&quot;, (h - end, w)),
@@ -83,7 +85,6 @@ class CornerBracketFast:
             (&quot;o_vert_bevel&quot;, (-w, -v + end)),
             (&quot;o_vert_end&quot;, (-w + end, -v)),
             (&quot;v_tip&quot;, (0, -v)),
-            (&quot;i_corner&quot;, (0, 0)),
         ], plane=&quot;XZ&quot;, world=True)
 
         body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
@@ -294,6 +295,10 @@ CornerBracketFast()
   &quot;params&quot;: {
     &quot;points&quot;: [
       [
+        0,
+        0
+      ],
+      [
         &quot;horizontal_arm_length&quot;,
         0
       ],
@@ -324,14 +329,11 @@ CornerBracketFast()
       [
         0,
         &quot;-(-(vertical_arm_length))&quot;
-      ],
-      [
-        0,
-        0
       ]
     ],
     &quot;closed&quot;: true,
     &quot;ids&quot;: [
+      &quot;i_corner&quot;,
       &quot;o_hor_tip&quot;,
       &quot;o_hor_bevel&quot;,
       &quot;o_hor&quot;,
@@ -339,8 +341,7 @@ CornerBracketFast()
       &quot;o_vert&quot;,
       &quot;o_vert_bevel&quot;,
       &quot;o_vert_end&quot;,
-      &quot;v_tip&quot;,
-      &quot;i_corner&quot;
+      &quot;v_tip&quot;
     ]
   }
 }</code></pre></li>

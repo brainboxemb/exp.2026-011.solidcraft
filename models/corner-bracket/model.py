@@ -54,10 +54,12 @@ class CornerBracketFast:
         # D o_corner     E o_vert       F o_vert_bevel
         # G o_vert_end   H v_tip        I i_corner
         #
-        # Polygon order: A -> B -> C -> D -> E -> F -> G -> H -> I -> A.
+        # Start at I, the inside corner and sketch origin (0, 0).
+        # Polygon order: I -> A -> B -> C -> D -> E -> F -> G -> H -> I.
         # Each label names its point and the segment starting at that point.
         # Elephant-foot relief is NOT part of this sketch: it comes later.
         profile = Polygon2D([
+            ("i_corner", (0, 0)),
             ("o_hor_tip", (h, 0)),
             ("o_hor_bevel", (h, w - end)),
             ("o_hor", (h - end, w)),
@@ -66,7 +68,6 @@ class CornerBracketFast:
             ("o_vert_bevel", (-w, -v + end)),
             ("o_vert_end", (-w + end, -v)),
             ("v_tip", (0, -v)),
-            ("i_corner", (0, 0)),
         ], plane="XZ", world=True)
 
         body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
