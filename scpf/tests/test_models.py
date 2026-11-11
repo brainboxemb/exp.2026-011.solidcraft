@@ -429,6 +429,38 @@ class SCPFExamples(unittest.TestCase):
             ],
         )
 
+    def test_explicit_rear_bay_sketch_on_tapered_box(self):
+        """Four rear window pockets retain the front plate and the editable loft."""
+        from scpf.core import Box, Rectangle2D, Direction
+        from scpf.explicit_sketch import Sketch
+        from scpf.compiler import compile_model
+
+        panel = Box(159.7, 319.71, 14.5).taper(from_z=2, inset=1.25)
+        with Sketch(name="Rear electronics bays", on=panel, plane="XY",
+                    origin=(0, 0, 14.5)) as rear:
+            for center_y in (-120, -40, 40, 120):
+                rear.add(Rectangle2D(134.7, 60.0),
+                         offset=(-67.35, center_y - 30))
+        panel = panel - rear.extrude(12.5, direction=Direction.NEGATIVE)
+        commands = compile_model(panel, "Panel")["commands"]
+        names = [cmd["command"] for cmd in commands]
+        self.assertEqual(names.count("solid.loft"), 1)
+        self.assertEqual(names.count("sketch.rectangle.two_point"), 6)
+        pocket = next(i for i, cmd in enumerate(commands)
+                      if cmd["command"] == "sketch.create"
+                      and cmd["params"]["name"] == "Rear electronics bays")
+        sketch = commands[pocket]["params"]
+        self.assertEqual(sketch["plane"]["origin"], [0, 0, 14.5])
+        rectangles = [cmd for cmd in commands[pocket + 1:]
+                      if cmd["command"] == "sketch.rectangle.two_point"]
+        self.assertEqual(len(rectangles), 4)
+        self.assertEqual(rectangles[0]["params"]["p0"], [-67.35, -150])
+        self.assertEqual(rectangles[-1]["params"]["p1"], [67.35, 150])
+        self.assertEqual(commands[-1]["command"], "solid.extrude")
+        self.assertEqual(commands[-1]["params"]["operation"], "cut")
+        self.assertEqual(commands[-1]["params"]["direction"], "negative")
+        self.assertEqual(commands[-1]["params"]["distance"], 12.5)
+
     def test_explicit_sketch_scope_requires_profiles_and_closes_before_extrude(self):
         from scpf.core import Box, Circle2D
         from scpf.explicit_sketch import Sketch
