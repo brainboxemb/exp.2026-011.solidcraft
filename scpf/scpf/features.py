@@ -633,20 +633,28 @@ def _explicit_sketch_commands(shape, original, feature, name):
             )
             continue
 
-        if profile.kind == "rectangle":
-            rectangle_width, rectangle_height = profile.data
+        if profile.kind in ("rectangle", "rounded_rectangle"):
+            rectangle_width, rectangle_height = profile.data[:2]
             _require_positive(rectangle_width, "sketch rectangle width")
             _require_positive(rectangle_height, "sketch rectangle height")
-            commands.append(
-                _command(
-                    "sketch.rectangle.two_point",
-                    p0=[command_value(ox), command_value(oy)],
-                    p1=[
-                        command_value(_combine(ox, rectangle_width)),
-                        command_value(_combine(oy, rectangle_height)),
-                    ],
-                )
+            params = dict(
+                p0=[command_value(ox), command_value(oy)],
+                p1=[
+                    command_value(_combine(ox, rectangle_width)),
+                    command_value(_combine(oy, rectangle_height)),
+                ],
             )
+            if profile.kind == "rounded_rectangle":
+                radius = profile.data[2]
+                _require_positive(radius, "sketch rounded rectangle radius")
+                if value_of(radius) * 2 >= min(
+                        value_of(rectangle_width), value_of(rectangle_height)):
+                    raise ModelError("rounded rectangle radius exceeds half the shorter side")
+                params["radius"] = command_value(radius)
+                command = "sketch.rectangle.rounded"
+            else:
+                command = "sketch.rectangle.two_point"
+            commands.append(_command(command, **params))
             continue
 
         if profile.kind == "text":
@@ -658,7 +666,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
                 height=command_value(height), font=font,
             ))
             continue
-        raise ModelError("explicit Sketch supports Circle2D, Rectangle2D or Text2D")
+        raise ModelError("explicit Sketch supports Circle2D, Rectangle2D, RoundedRectangle2D or Text2D")
 
     commands.append(_command("sketch.finish"))
 
