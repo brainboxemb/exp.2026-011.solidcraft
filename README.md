@@ -1,6 +1,10 @@
 # SCPF — SolidCraft Python Forge
 
-`lib.py.solidcraft` owns the **reusable Python API, native command compiler, runner and unit tests** for the [SolidCraft](https://github.com/tangency-labs/solidcraft) CAD engine.
+**Repository:** `brainboxemb/lib.py.solidcraft.forge` (previously `lib.py.solidcraft`).
+**Python package and command:** still `scpf`; no code-level rename required.
+**Companion native-command library:** [SCPC](https://github.com/brainboxemb/lib.py.solidcraft.cmd), with package/command `scpc`.
+
+`lib.py.solidcraft.forge` owns the **reusable Python API, native command compiler, runner and unit tests** for the [SolidCraft](https://github.com/tangency-labs/solidcraft) CAD engine.
 
 SCPF models are plain Python classes with a `build()` method. The package
 compiles these to **native SolidCraft command JSON**. The SolidCraft engine,
@@ -16,10 +20,10 @@ python -m unittest discover -s scpf/tests -v
 ```
 
 There is no mandatory `main()` or `show()`. The tiny
-[examples and SCPF cheatsheet](https://brainboxemb.github.io/lib.py.solidcraft/)
+[examples and SCPF cheatsheet](https://brainboxemb.github.io/lib.py.solidcraft.forge/)
 are generated from source, command-compiled, **rendered by native SolidCraft**
 and regression-checked in CI.
-The library website also provides a [full, multi-chapter API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/) covering geometry, transforms, native features, reusable components and verification.
+The library website also provides a [full, multi-chapter API Guide](https://brainboxemb.github.io/lib.py.solidcraft.forge/guide/) covering geometry, transforms, native features, reusable components and verification.
 [Why SCPF delegates geometry to SolidCraft](scpf/docs/architecture.md) explains the code structure, native component placement and verification.
 
 SolidCraft compatibility: **0.30.1 tested**; older versions are refused by the native-version guard, newer ones generate a warning. See the
@@ -54,7 +58,7 @@ in Git history. The **CAD project** is the current owner, while the
 library's `gh-pages` branch now publishes only three tiny API examples and
 the cheatsheet (no duplicate native CAD gallery).
 
-The migration is tracked in [issue #25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25).
+The migration is tracked in [issue #25](https://github.com/brainboxemb/lib.py.solidcraft.forge/issues/25).
 
 ## License
 

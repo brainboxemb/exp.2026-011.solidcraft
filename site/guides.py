@@ -22,7 +22,7 @@ It is not a replacement CAD kernel. You describe a model using ordinary Python;
 SolidCraft executes the generated commands and owns the final geometry and
 feature history.</p>
 <h2 id="install">Install the library</h2>
-<p>In the <code>lib.py.solidcraft</code> repository and an active Python environment:</p>
+<p>In the <code>lib.py.solidcraft.forge</code> repository and an active Python environment:</p>
 """ + code("""python -m pip install -e ./scpf
 python -m unittest discover -s scpf/tests -v""") + """
 <h2 id="first-model">Your first model</h2>
@@ -396,6 +396,6 @@ native commands <em>before</em> documenting it as supported.
 Until then, describe the current limit explicitly.</p>
 <p>For a plain-language explanation of the implementation and its
 boundaries, read
-<a href="https://github.com/brainboxemb/lib.py.solidcraft/blob/main/scpf/docs/architecture.md">How SCPF works (without building a second CAD engine)</a>.</p>""",
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge/blob/main/scpf/docs/architecture.md">How SCPF works (without building a second CAD engine)</a>.</p>""",
     },
 ]
