@@ -4,6 +4,28 @@ The default `scpf/model.py` is the **fast four-hole version**, using one native 
 
 The original 42-command experiment is retained as `scpf/model_reference.py`. It is **not used as the default**. The fast countersink has a larger tapered opening and does not reproduce the original flat-bottom head recess or the tiny 0.2 mm hole-edge reliefs exactly.
 
+## Named profile and explicit reliefs
+
+The L outline is defined **once**, in a single `Polygon2D` table of `("name", (x, z))` rows:
+
+```python
+profile = Polygon2D([
+    ("outer_horizontal_tip", (h, 0)),
+    ("outer_horizontal_end_bevel", (h, w - end)),
+    # ... the rest of the contour ...
+    ("vertical_tip", (0, -v)),
+    ("inside_corner", (0, 0)),
+], plane="XZ", world=True)
+```
+
+The name belongs to the **vertex** and becomes the sketch-line ID for the **segment beginning at that vertex**. `world=True` means the XZ coordinates are ordinary world (x, z); SCPF performs SolidCraft's local-sketch axis conversion.
+
+`Edges.from_profile("outer_*")` selects named profile segments on the two broad faces. `Edges.from_vertices("outer_horizontal_tip", "vertical_tip")` instead selects the extrusion-direction edges starting at those vertices. SCPF translates both selectors to edge-pick points because SolidCraft 0.30.1's fillet/chamfer commands do not directly accept sketch-line IDs.
+
+The original 0.6 mm **tip elephant-foot cuts are not in the polygon**: a separate native chamfer removes them at the two tip edges. Another chamfer produces the relief along the inside horizontal edge. The inside fillet, both reliefs, side chamfers, and holes remain separate editable features.
+
+Named-edge selection is currently implemented for **symmetric XZ polygon extrusions only**. The remaining irregularities at the arm tips are a separate follow-up in issue #20.
+
 For local GUI testing from the repository root:
 
 ```powershell
