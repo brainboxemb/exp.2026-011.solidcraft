@@ -21,21 +21,21 @@ class SCPFExamples(unittest.TestCase):
             components = root / "models" / "components"
             components.mkdir(parents=True)
             (components / "tiny.py").write_text(
-                "from scpf.core import Box\\n"
-                "class TinyPanel:\\n"
-                "    def build(self):\\n"
-                "        return Box(20, 10, 2)\\n",
+                "from scpf.core import Box\n"
+                "class TinyPanel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n",
                 encoding="utf-8",
             )
             model_dir = root / "models" / "screen" / "scpf"
             model_dir.mkdir(parents=True)
             (model_dir / "model.py").write_text(
-                "from scpf.runner import component\\n"
-                "from models.components.tiny import TinyPanel\\n"
-                "class Screen:\\n"
-                "    def build(self):\\n"
-                "        return component(TinyPanel)()\\n"
-                "Screen()\\n",
+                "from scpf.runner import component\n"
+                "from models.components.tiny import TinyPanel\n"
+                "class Screen:\n"
+                "    def build(self):\n"
+                "        return component(TinyPanel)()\n"
+                "Screen()\n",
                 encoding="utf-8",
             )
             original_cwd = Path.cwd()
@@ -45,7 +45,7 @@ class SCPFExamples(unittest.TestCase):
                 command_plan = run_script("model.py")
                 names = [row["command"] for row in command_plan["commands"]]
                 self.assertEqual(names.count("component.create"), 1)
-                self.assertIn("solid.box", names)
+                self.assertIn("solid.extrude", names)
                 self.assertEqual(sys.path, original_paths)
             finally:
                 os.chdir(original_cwd)
