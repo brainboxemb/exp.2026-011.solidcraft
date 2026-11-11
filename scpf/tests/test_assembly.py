@@ -89,7 +89,7 @@ class AssemblyTests(unittest.TestCase):
             commands = run_script(script)["commands"]
         copy = next(c["params"] for c in commands
                     if c["command"] == "occurrence.copy")
-        self.assertEqual(copy["translate"], [80.0, 0.0, 0.0])
+        self.assertNotIn("translate", copy)  # Rotated master: exact relative matrix move follows
         placements = [c["params"] for c in commands
                       if c["command"] == "occurrence.move"]
         self.assertNotIn("to", [c for c in commands if c["command"] == "occurrence.move"][1]["params"])
@@ -179,7 +179,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertNotIn("to", rotated[0])
         self.assertEqual(rotated[0]["matrix"],
                          [[-1.0, 0.0, 0.0, 0.0], [0.0, -1.0, 0.0, 0.0],
-                          [0.0, 0.0, 1.0, 0.0], [60.0, 0.0, 0.0, 1.0]])
+                          [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
 
     def test_first_grounded_occurrence_can_have_absolute_rotation(self):
         with tempfile.TemporaryDirectory() as directory:
