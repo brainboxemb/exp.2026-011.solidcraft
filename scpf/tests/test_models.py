@@ -430,7 +430,8 @@ class SCPFExamples(unittest.TestCase):
         )
 
     def test_rounded_rectangle_sketch_compiles_to_true_native_arcs(self):
-        from scpf import Box, RoundedRectangle2D, Sketch, Direction
+        from scpf.core import Box, RoundedRectangle2D, Direction
+        from scpf.explicit_sketch import Sketch
         from scpf.compiler import compile_model
 
         panel = Box(159.7, 319.71, 14.5).taper(from_z=2, inset=1.25)
