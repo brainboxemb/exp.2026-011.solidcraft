@@ -224,22 +224,24 @@ copying and moving it again needs care to avoid double offsets.
 For predictable arrays, start with a master at the origin.</p>
 <h2 id="json">How to verify the generated native command</h2>
 <p>Unit tests compile a tiny model and inspect the
-<code>occurrence.move</code> command. A rotation uses native
-<code>to.position</code>, <code>to.axis</code> and
-<code>to.angle</code> fields. The following is an
-<strong>illustrative command fragment</strong>:</p>
+<code>occurrence.move</code> command. For SolidCraft 0.30.1 a rotation uses a relative native
+<code>matrix</code>, <strong>not</strong> the later absolute
+<code>to</code> parameter (which that version silently ignores).
+The input matrix is conventional affine form with translation in the
+last column. The following is an <strong>illustrative command fragment</strong>:</p>
 """ + code("""{
   "command": "occurrence.move",
   "params": {
     "occurrence": "Panel:2",
-    "to": {
-      "position": [160, 0, 0],
-      "axis": [0, 0, 1],
-      "angle": "180 deg"
-    }
+    "matrix": [
+      [-1, 0, 0, 160],
+      [0, -1, 0, 0],
+      [0, 0, 1, 0],
+      [0, 0, 0, 1]
+    ]
   }
 }""") + """
-<p>Compiler tests confirm the command shape, but native CAD evaluation
+<p>Saved SolidCraft document transforms use a transposed matrix with the\ntranslation in the last row. Compiler tests confirm the command shape, but native CAD evaluation
 and an actual geometry screenshot are still necessary to verify
 that a full assembly is physically upright.</p>
 <h2 id="limitations">Current support summary</h2>
