@@ -15,7 +15,10 @@ python -m pip install -e ./scpf
 python -m unittest discover -s scpf/tests -v
 ```
 
-There is no mandatory `main()` or `show()`. See the
+There is no mandatory `main()` or `show()`. The tiny
+[examples and SCPF cheatsheet](https://brainboxemb.github.io/lib.py.solidcraft/)
+are generated from source, command-compiled and regression-checked in CI.
+See the
 [SCPF API guide](scpf/README.md) for parameters, placement, sketches, features,
 reusable components, and GUI/CLI execution.
 
@@ -43,7 +46,9 @@ preserving its issues, pull requests and history. The CAD repository is
 separate and has passed its first Python, native SolidCraft and Pages build
 checks. Only the small, independent API fixtures remain under `examples/` on
 `main`. Historical CAD models and the old results website remain in Git history
-and the retained `gh-pages` branch; the **CAD project** is the current owner.
+in Git history. The **CAD project** is the current owner, while the
+library's `gh-pages` branch now publishes only three tiny API examples and
+the cheatsheet (no duplicate native CAD gallery).
 
 The migration is tracked in [issue #25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25).
 

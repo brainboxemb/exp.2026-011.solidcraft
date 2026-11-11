@@ -6,6 +6,8 @@ on:
     paths:
       - "scpf/**"
       - "examples/**"
+      - "site/**"
+      - "README.md"
       - ".github/workflows/scpf.yml"
   push:
     branches: [main]
@@ -16,7 +18,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package:
@@ -39,7 +41,29 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in anchored-holes components history-policy plate bracket; do
+          for model in simple-box anchored-holes components history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
+      - name: Build the lightweight library Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset PYTHONPATH
+          python site/build.py --out output/site --source-sha "$GITHUB_SHA"
+          python site/test_site.py output/site "$GITHUB_SHA"
+      - name: Upload library site preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: scpf-library-site
+          path: output/site
+          if-no-files-found: error
+      - name: Publish clean library site (after passing regression tests)
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          keep_files: false
+          commit_message: "Verified SCPF library site at ${{ github.sha }}"
