@@ -19,14 +19,6 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "elephant_foot_relief",
-        "expression": "0.6",
-        "unit": "mm"
-      }
-    },
-    {
-      "command": "parameters.add",
-      "params": {
         "name": "wall_thickness",
         "expression": "12",
         "unit": "mm"
@@ -61,6 +53,14 @@
       "params": {
         "name": "inside_corner_radius",
         "expression": "4",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "elephant_foot_relief",
+        "expression": "0.6",
         "unit": "mm"
       }
     },
@@ -156,12 +156,8 @@
       "params": {
         "points": [
           [
-            "horizontal_arm_length - (elephant_foot_relief)",
-            0
-          ],
-          [
             "horizontal_arm_length",
-            "-(elephant_foot_relief)"
+            0
           ],
           [
             "horizontal_arm_length",
@@ -188,12 +184,8 @@
             "-(-(vertical_arm_length))"
           ],
           [
-            "-(elephant_foot_relief)",
-            "-(-(vertical_arm_length))"
-          ],
-          [
             0,
-            "-((-(vertical_arm_length)) + (elephant_foot_relief))"
+            "-(-(vertical_arm_length))"
           ],
           [
             0,
@@ -202,17 +194,15 @@
         ],
         "closed": true,
         "ids": [
-          "tip_horizontal_relief",
-          "outer_horizontal_end",
+          "outer_horizontal_tip",
           "outer_horizontal_end_bevel",
           "outer_horizontal_face",
           "outer_corner_bevel",
           "outer_vertical_face",
           "outer_vertical_end_bevel",
           "outer_vertical_end",
-          "tip_vertical_relief",
-          "inside_vertical",
-          "inside_horizontal"
+          "vertical_tip",
+          "inside_corner"
         ]
       }
     },
@@ -235,7 +225,7 @@
           [
             0.0,
             0.0,
-            0.0
+            -0.0
           ]
         ],
         "radius": 4.0,
@@ -248,8 +238,27 @@
         "edges": [
           [
             60.0,
+            0.0,
+            -0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -60.0
+          ]
+        ],
+        "distance": "elephant_foot_relief",
+        "body": "CornerBracketFast"
+      }
+    },
+    {
+      "command": "solid.chamfer",
+      "params": {
+        "edges": [
+          [
+            60.0,
             -12.0,
-            4.8
+            4.5
           ],
           [
             58.5,
@@ -277,14 +286,14 @@
             -58.5
           ],
           [
-            -4.8,
+            -4.5,
             -12.0,
             -60.0
           ],
           [
             60.0,
             12.0,
-            4.8
+            4.5
           ],
           [
             58.5,
@@ -312,7 +321,7 @@
             -58.5
           ],
           [
-            -4.8,
+            -4.5,
             12.0,
             -60.0
           ]
@@ -328,12 +337,12 @@
           [
             30.0,
             -12.0,
-            0.0
+            -0.0
           ],
           [
             30.0,
             12.0,
-            0.0
+            -0.0
           ]
         ],
         "distance": "elephant_foot_relief",

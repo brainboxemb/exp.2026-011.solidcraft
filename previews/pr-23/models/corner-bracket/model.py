@@ -37,33 +37,40 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # One named XZ outline. Each label identifies the vertex and the
-        # profile segment leading from it to the next vertex.
+        # One named polygon: the actual L profile, without print reliefs.
+        # Each name identifies a vertex and the segment starting there.
         profile = Polygon2D([
-            ("tip_horizontal_relief", (h - ef, 0)),
-            ("outer_horizontal_end", (h, ef)),
+            ("outer_horizontal_tip", (h, 0)),
             ("outer_horizontal_end_bevel", (h, w - end)),
             ("outer_horizontal_face", (h - end, w)),
             ("outer_corner_bevel", (-w + outer, w)),
             ("outer_vertical_face", (-w, w - outer)),
             ("outer_vertical_end_bevel", (-w, -v + end)),
             ("outer_vertical_end", (-w + end, -v)),
-            ("tip_vertical_relief", (-ef, -v)),
-            ("inside_vertical", (0, -v + ef)),
-            ("inside_horizontal", (0, 0)),
+            ("vertical_tip", (0, -v)),
+            ("inside_corner", (0, 0)),
         ], plane="XZ", world=True)
-        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
-        body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 
-        y0 = self.bracket_width / 2
-        # SCPF resolves named sketch segments into native SolidCraft edges.
+        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
+
+        # Round the inside, then remove printing relief from the two tip
+        # edges (parallel to the extrusion direction).
+        body = body.fillet(
+            self.inside_corner_radius,
+            edges=Edges.from_vertices("inside_corner"),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_vertices("outer_horizontal_tip", "vertical_tip"),
+        )
         body = body.chamfer(
             self.side_edge_chamfer,
             edges=Edges.from_profile("outer_*", sides="both"),
         )
+        # Inner relief along both broad faces, independent of the 2D outline.
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=[(h / 2, -y0, 0), (h / 2, y0, 0)],
+            edges=Edges.from_profile("inside_corner", sides="both"),
         )
 
         # A single 90-degree countersink avoids coincident circle/face cuts.

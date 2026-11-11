@@ -6,7 +6,7 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / corner-bracket</div>
 <h1>CornerBracket</h1><p>24 mm plywood corner bracket with four countersunk mounting holes</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">29 commands</span><span class="badge">24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes</span></div>
+<span class="badge">30 commands</span><span class="badge">24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>The default SCPF model uses one native 90° countersink per hole. The old recessed-hole experiment remains as model_reference.py; this fast variant has a larger tapered opening instead of a flat-bottom head seat. Remaining arm-end points are tracked in issue #20.</p></section>
@@ -54,33 +54,40 @@ class CornerBracketFast:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # One named XZ outline. Each label identifies the vertex and the
-        # profile segment leading from it to the next vertex.
+        # One named polygon: the actual L profile, without print reliefs.
+        # Each name identifies a vertex and the segment starting there.
         profile = Polygon2D([
-            (&quot;tip_horizontal_relief&quot;, (h - ef, 0)),
-            (&quot;outer_horizontal_end&quot;, (h, ef)),
+            (&quot;outer_horizontal_tip&quot;, (h, 0)),
             (&quot;outer_horizontal_end_bevel&quot;, (h, w - end)),
             (&quot;outer_horizontal_face&quot;, (h - end, w)),
             (&quot;outer_corner_bevel&quot;, (-w + outer, w)),
             (&quot;outer_vertical_face&quot;, (-w, w - outer)),
             (&quot;outer_vertical_end_bevel&quot;, (-w, -v + end)),
             (&quot;outer_vertical_end&quot;, (-w + end, -v)),
-            (&quot;tip_vertical_relief&quot;, (-ef, -v)),
-            (&quot;inside_vertical&quot;, (0, -v + ef)),
-            (&quot;inside_horizontal&quot;, (0, 0)),
+            (&quot;vertical_tip&quot;, (0, -v)),
+            (&quot;inside_corner&quot;, (0, 0)),
         ], plane=&quot;XZ&quot;, world=True)
-        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
-        body = body.fillet(self.inside_corner_radius, edges=[(0, 0, 0)])
 
-        y0 = self.bracket_width / 2
-        # SCPF resolves named sketch segments into native SolidCraft edges.
+        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
+
+        # Round the inside, then remove printing relief from the two tip
+        # edges (parallel to the extrusion direction).
+        body = body.fillet(
+            self.inside_corner_radius,
+            edges=Edges.from_vertices(&quot;inside_corner&quot;),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_vertices(&quot;outer_horizontal_tip&quot;, &quot;vertical_tip&quot;),
+        )
         body = body.chamfer(
             self.side_edge_chamfer,
             edges=Edges.from_profile(&quot;outer_*&quot;, sides=&quot;both&quot;),
         )
+        # Inner relief along both broad faces, independent of the 2D outline.
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=[(h / 2, -y0, 0), (h / 2, y0, 0)],
+            edges=Edges.from_profile(&quot;inside_corner&quot;, sides=&quot;both&quot;),
         )
 
         # A single 90-degree countersink avoids coincident circle/face cuts.
@@ -129,14 +136,6 @@ CornerBracketFast()
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
-<li><strong>Named CAD parameter</strong><small>parameters.add · name: elephant_foot_relief</small><pre><code>{
-  &quot;command&quot;: &quot;parameters.add&quot;,
-  &quot;params&quot;: {
-    &quot;name&quot;: &quot;elephant_foot_relief&quot;,
-    &quot;expression&quot;: &quot;0.6&quot;,
-    &quot;unit&quot;: &quot;mm&quot;
-  }
-}</code></pre></li>
 <li><strong>Named CAD parameter</strong><small>parameters.add · name: wall_thickness</small><pre><code>{
   &quot;command&quot;: &quot;parameters.add&quot;,
   &quot;params&quot;: {
@@ -174,6 +173,14 @@ CornerBracketFast()
   &quot;params&quot;: {
     &quot;name&quot;: &quot;inside_corner_radius&quot;,
     &quot;expression&quot;: &quot;4&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: elephant_foot_relief</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;elephant_foot_relief&quot;,
+    &quot;expression&quot;: &quot;0.6&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
@@ -269,12 +276,8 @@ CornerBracketFast()
   &quot;params&quot;: {
     &quot;points&quot;: [
       [
-        &quot;horizontal_arm_length - (elephant_foot_relief)&quot;,
-        0
-      ],
-      [
         &quot;horizontal_arm_length&quot;,
-        &quot;-(elephant_foot_relief)&quot;
+        0
       ],
       [
         &quot;horizontal_arm_length&quot;,
@@ -301,12 +304,8 @@ CornerBracketFast()
         &quot;-(-(vertical_arm_length))&quot;
       ],
       [
-        &quot;-(elephant_foot_relief)&quot;,
-        &quot;-(-(vertical_arm_length))&quot;
-      ],
-      [
         0,
-        &quot;-((-(vertical_arm_length)) + (elephant_foot_relief))&quot;
+        &quot;-(-(vertical_arm_length))&quot;
       ],
       [
         0,
@@ -315,17 +314,15 @@ CornerBracketFast()
     ],
     &quot;closed&quot;: true,
     &quot;ids&quot;: [
-      &quot;tip_horizontal_relief&quot;,
-      &quot;outer_horizontal_end&quot;,
+      &quot;outer_horizontal_tip&quot;,
       &quot;outer_horizontal_end_bevel&quot;,
       &quot;outer_horizontal_face&quot;,
       &quot;outer_corner_bevel&quot;,
       &quot;outer_vertical_face&quot;,
       &quot;outer_vertical_end_bevel&quot;,
       &quot;outer_vertical_end&quot;,
-      &quot;tip_vertical_relief&quot;,
-      &quot;inside_vertical&quot;,
-      &quot;inside_horizontal&quot;
+      &quot;vertical_tip&quot;,
+      &quot;inside_corner&quot;
     ]
   }
 }</code></pre></li>
@@ -348,7 +345,7 @@ CornerBracketFast()
       [
         0.0,
         0.0,
-        0.0
+        -0.0
       ]
     ],
     &quot;radius&quot;: 4.0,
@@ -361,8 +358,27 @@ CornerBracketFast()
     &quot;edges&quot;: [
       [
         60.0,
+        0.0,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -60.0
+      ]
+    ],
+    &quot;distance&quot;: &quot;elephant_foot_relief&quot;,
+    &quot;body&quot;: &quot;CornerBracketFast&quot;
+  }
+}</code></pre></li>
+<li><strong>Chamfered edge</strong><small>solid.chamfer</small><pre><code>{
+  &quot;command&quot;: &quot;solid.chamfer&quot;,
+  &quot;params&quot;: {
+    &quot;edges&quot;: [
+      [
+        60.0,
         -12.0,
-        4.8
+        4.5
       ],
       [
         58.5,
@@ -390,14 +406,14 @@ CornerBracketFast()
         -58.5
       ],
       [
-        -4.8,
+        -4.5,
         -12.0,
         -60.0
       ],
       [
         60.0,
         12.0,
-        4.8
+        4.5
       ],
       [
         58.5,
@@ -425,7 +441,7 @@ CornerBracketFast()
         -58.5
       ],
       [
-        -4.8,
+        -4.5,
         12.0,
         -60.0
       ]
@@ -441,12 +457,12 @@ CornerBracketFast()
       [
         30.0,
         -12.0,
-        0.0
+        -0.0
       ],
       [
         30.0,
         12.0,
-        0.0
+        -0.0
       ]
     ],
     &quot;distance&quot;: &quot;elephant_foot_relief&quot;,
