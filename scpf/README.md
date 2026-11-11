@@ -9,8 +9,6 @@ The objective is a compact model language with useful CSG and CAD features:
 readability first, fewer nested operations than OpenSCAD, while preserving
 native SolidCraft feature history when possible.
 
-## Model objects
-
 ## External package installation
 
 The current checkout already contains a Python package definition in
@@ -25,10 +23,11 @@ the external installation command will be
 `python -m pip install -e ./ext/scpf/scpf`. Avoid checking copied library
 source into project repositories. See issue #25 for the split plan.
 
+## Model objects
 
 The preferred SCPF style is a plain Python class. Numeric class fields are
-CAD parameters, and `build()` constructs the model. The last Shape
-expression in `build()` is the result: no `return`, `show()` or `main()`.
+CAD parameters, and `build()` constructs the model. An explicit `return` makes the resulting Shape clear to ordinary Python
+readers; there is no need for `show()` or `main()`.
 
 ```python
 class Plate:
@@ -39,7 +38,7 @@ class Plate:
     def build(self):
         body = Box(self.length, self.width, self.thickness)
         body = body.fillet(2, edges=Edges.VERTICAL)
-        body
+        return body
 
 Plate()
 ```
@@ -47,8 +46,8 @@ Plate()
 SCPF promotes those numeric class fields to SolidCraft parameters and also
 allows overrides such as `Plate(width=80.0)` without requiring a handwritten
 `__init__`. Existing `@dataclass` models remain supported, including
-`@dataclass(frozen=True)` and `__post_init__` validation. The
-last-expression behavior is an SCPF convention, not normal Python behavior.
+`@dataclass(frozen=True)` and `__post_init__` validation. An implicit final Shape expression remains supported for older scripts,
+but examples now prefer ordinary Python `return` syntax.
 
 Five CAD examples:
 - [Plate](../examples/plate/scpf/model.py): rounded box with holes.
