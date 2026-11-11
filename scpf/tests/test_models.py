@@ -445,7 +445,7 @@ class SCPFExamples(unittest.TestCase):
         commands = compile_model(panel, "Panel")["commands"]
         names = [cmd["command"] for cmd in commands]
         self.assertEqual(names.count("solid.loft"), 1)
-        self.assertEqual(names.count("sketch.rectangle.two_point"), 6)
+        self.assertEqual(names.count("sketch.rectangle.two_point"), 7)
         pocket = next(i for i, cmd in enumerate(commands)
                       if cmd["command"] == "sketch.create"
                       and cmd["params"]["name"] == "Rear electronics bays")
