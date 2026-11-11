@@ -24,7 +24,7 @@ class Hub75PanelTests(unittest.TestCase):
         self.assertEqual(
             [c["name"] for c in of("parameters.add")],
             ["Hub75Panel_width", "Hub75Panel_height", "Hub75Panel_depth",
-             "Hub75Panel_mount_x", "Hub75Panel_mount_y", "Hub75Panel_hole_diameter"],
+             "Hub75Panel_hole_diameter", "Hub75Panel_mount_x", "Hub75Panel_mount_y"],
         )
 
     def test_mount_positions_match_source_drawing(self):
