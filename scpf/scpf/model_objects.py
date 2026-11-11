@@ -98,6 +98,15 @@ class ModelInstance:
     translation: tuple[float, float, float] = (0.0, 0.0, 0.0)
     attachment: Attachment | None = None
 
+    def copy(self):
+        """Another occurrence of the same component, without rebuilding its shape.
+
+        The copy starts at the same placement; move() it to a new position.
+        The shared definition is compiled once, then SolidCraft receives
+        occurrence.copy. Attachments are intentionally not inherited.
+        """
+        return replace(self, attachment=None)
+
     def move(self, x=0, y=0, z=0):
         """Translate this occurrence without changing shared component geometry."""
         delta = tuple(value_of(v) for v in (x, y, z))
