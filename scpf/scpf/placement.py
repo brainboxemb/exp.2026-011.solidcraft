@@ -23,6 +23,12 @@ def _base_rectangle(shape):
         length, width, height = shape.data
         # Box uses the SolidCraft convention: centered in XY, bottom at Z=0.
         return (length, width), (-length / 2, -width / 2, 0), height
+    if shape.kind == "tapered_box":
+        # A tapered Box keeps its original front XY footprint and Z datum.
+        # Explicit rear-plane sketches use this nominal reference, NOT the
+        # smaller rear-face perimeter, and SolidCraft owns the actual BRep.
+        parent, from_z, inset = shape.data
+        return _base_rectangle(parent)
     if shape.kind == "positioned":
         child, x, y, z = shape.data
         if child.kind == "rectangle":
@@ -37,7 +43,7 @@ def _base_rectangle(shape):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])
-    raise ValueError("anchor target must be a supported extruded Rectangle2D")
+    raise ValueError("anchor target must be a supported Box, tapered Box or extruded Rectangle2D")
 
 
 def _shell_thickness(shape):

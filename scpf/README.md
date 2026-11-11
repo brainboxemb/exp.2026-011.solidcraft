@@ -317,3 +317,7 @@ The user-facing Python model does **not** need to create `Sketch` objects.
 The adapter creates sketches where SolidCraft requires them; they remain
 editable in the native design. Full sketch constraints and arbitrary
 workplanes are separate capabilities, not prerequisites for this API.
+
+## Rear-plane sketches on tapered solids
+
+A `Box(...).taper(...)` can accept a named `Sketch` with an explicit rear XY origin and a negative finite-depth pocket; it retains the front mask. Complex rounded openings and multiple physical materials require additional native geometry.
