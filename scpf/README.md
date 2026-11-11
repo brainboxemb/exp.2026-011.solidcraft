@@ -61,6 +61,23 @@ Bracket and HUB75 Panel. The library retains only lightweight API fixtures.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
+## Imported reusable model classes
+
+When two project scripts need the same component, keep its class in **one**
+Python module and explicitly wrap the imported class:
+
+```python
+from scpf import component
+from models.hub75_panel import Hub75Panel as PanelDefinition
+
+Hub75Panel = component(PanelDefinition)
+```
+
+Then `Hub75Panel()` produces a reusable native component instance, just
+like a model class declared in the same script. No source-copying or
+private runner hooks are required. The import module must be available in
+Python's usual import path.
+
 ## Native component occurrence rotation
 
 A reusable model definition can be placed more than once without duplicating

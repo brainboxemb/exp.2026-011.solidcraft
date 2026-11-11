@@ -63,14 +63,14 @@ class AssemblyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "rotation.py"
             path.write_text(
-                "class Panel:\\n"
-                "    def build(self):\\n"
-                "        return Box(20, 10, 2)\\n"
-                "class Display:\\n"
-                "    def build(self):\\n"
-                "        first = Panel()\\n"
-                "        return first + first.copy().move(x=30).rotate(degrees=180)\\n"
-                "Display()\\n",
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n"
+                "class Display:\n"
+                "    def build(self):\n"
+                "        first = Panel()\n"
+                "        return first + first.copy().move(x=30).rotate(degrees=180)\n"
+                "Display()\n",
                 encoding="utf-8",
             )
             commands = run_script(path)["commands"]
@@ -88,14 +88,14 @@ class AssemblyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "root_rotation.py"
             path.write_text(
-                "class Panel:\\n"
-                "    def build(self):\\n"
-                "        return Box(20, 10, 2)\\n"
-                "class Display:\\n"
-                "    def build(self):\\n"
-                "        first = Panel().move(x=-50).rotate(degrees=180)\\n"
-                "        return first + first.copy().move(x=50).rotate(degrees=0)\\n"
-                "Display()\\n", encoding="utf-8",
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n"
+                "class Display:\n"
+                "    def build(self):\n"
+                "        first = Panel().move(x=-50).rotate(degrees=180)\n"
+                "        return first + first.copy().move(x=50).rotate(degrees=0)\n"
+                "Display()\n", encoding="utf-8",
             )
             commands = run_script(path)["commands"]
         placements = [c["params"] for c in commands if c["command"] == "occurrence.move"]
@@ -105,6 +105,27 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(placements[0]["to"]["position"], [-50.0, 0.0, 0.0])
         self.assertEqual(placements[1]["to"]["position"], [0.0, 0.0, 0.0])
         self.assertEqual(placements[1]["to"]["angle"], "0 deg")
+
+    def test_explicit_imported_component_factory(self):
+        from scpf import component
+        from scpf.model_objects import ModelInstance
+
+        class LibraryPanel:
+            width = 20
+
+            def build(self):
+                from scpf.core import Box
+                return Box(self.width, 10, 2)
+
+        Panel = component(LibraryPanel)
+        first = Panel()
+        second = Panel().move(x=20)
+        self.assertIsInstance(first, ModelInstance)
+        self.assertIsInstance(second, ModelInstance)
+        self.assertEqual(first.definition.key, second.definition.key)
+        self.assertEqual(second.translation, (20, 0, 0))
+        with self.assertRaisesRegex(TypeError, "model class"):
+            component(42)
 
     def test_rotation_rejects_undefined_and_nonfinite_axis_angle(self):
         from scpf.core import Box

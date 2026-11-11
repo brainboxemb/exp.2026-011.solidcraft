@@ -162,6 +162,18 @@ def _model_factory(cls):
     return factory
 
 
+def component(cls):
+    """Declare an imported CAD model class as a reusable SCPF component.
+
+    Nested model classes in a script are wrapped automatically. An external
+    class imported from another Python file needs explicit component(...).
+    Both paths share the same native definition and occurrence compilation.
+    """
+    if not isinstance(cls, type) or not callable(getattr(cls, "build", None)):
+        raise TypeError("component() expects a model class with build()")
+    return _model_factory(cls)
+
+
 def _implicit_shape(body):
     """Turn a trailing expression into an implicit return.
 
