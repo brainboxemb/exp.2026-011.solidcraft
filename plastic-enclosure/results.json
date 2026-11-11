@@ -1,0 +1,191 @@
+[
+  {
+    "display_value": 80.0,
+    "name": "length",
+    "unit": "mm",
+    "value": 80.0
+  },
+  {
+    "display_value": 50.0,
+    "name": "width",
+    "unit": "mm",
+    "value": 50.0
+  },
+  {
+    "display_value": 30.0,
+    "name": "height",
+    "unit": "mm",
+    "value": 30.0
+  },
+  {
+    "display_value": 2.0,
+    "name": "wall",
+    "unit": "mm",
+    "value": 2.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Enclosure footprint",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Enclosure"
+    ],
+    "feature": 2,
+    "ms": 0.770154,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 2.200917,
+    "name": "Shell1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 2.5634059999999996,
+    "name": "Lip1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 7.9392000000000005,
+    "name": "SnapFit1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 6,
+    "ms": 173.952675,
+    "name": "Boss1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 7,
+    "ms": 220.50018,
+    "name": "Boss2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Enclosure"
+    ],
+    "changed_bodies": [
+      "Enclosure"
+    ],
+    "created_bodies": [],
+    "feature": 8,
+    "ms": 70.875245,
+    "name": "Rest1",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

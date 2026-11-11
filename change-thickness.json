@@ -1,0 +1,3 @@
+{"commands":[
+  {"command":"parameters.change","params":{"name":"thickness","expression":"15 mm"}}
+]}

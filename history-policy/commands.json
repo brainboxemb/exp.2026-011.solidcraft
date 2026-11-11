@@ -1,0 +1,159 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "size",
+        "expression": "50",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "HistoryPolicyBoss footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-size / 2",
+          "-size / 2"
+        ],
+        "p1": [
+          "size / 2",
+          "size / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 6.0,
+        "body_name": "HistoryPolicyBoss"
+      }
+    },
+    {
+      "command": "plastic.boss",
+      "params": {
+        "position": [
+          -10.0,
+          0.0,
+          6.0
+        ],
+        "diameter": 12.0,
+        "height": 10.0,
+        "body": "HistoryPolicyBoss",
+        "hole_diameter": 4.0
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Boss",
+        "offset": 6.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          10.0,
+          0.0
+        ],
+        "diameter": 12.0
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 10.0,
+        "direction": "positive",
+        "operation": "join",
+        "targets": [
+          "HistoryPolicyBoss"
+        ],
+        "name": "Boss"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Boss hole",
+        "offset": 16.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          10.0,
+          0.0
+        ],
+        "diameter": 4.0
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 10.0,
+        "direction": "negative",
+        "operation": "cut",
+        "targets": [
+          "HistoryPolicyBoss"
+        ],
+        "name": "Boss hole"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Explicit pad",
+        "offset": 6.0
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          "((-(size)) / 2) + (size / 2)",
+          "((-(size)) / 2) + (size / 2) + (-15 mm)"
+        ],
+        "diameter": 10.0
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "operation": "join",
+        "targets": [
+          "HistoryPolicyBoss"
+        ],
+        "name": "Explicit pad",
+        "distance": 6.0,
+        "direction": "positive"
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 13697.988029194887,
+      "bbox": {
+        "max": [
+          25.00000000515622,
+          25.00000000473348,
+          25.00000000499854
+        ],
+        "min": [
+          -25.00000000515088,
+          -25.000000004932286,
+          -25.000000003983608
+        ]
+      },
+      "center_of_mass": [
+        2.1498326224221935e-6,
+        6.95262995432362e-8,
+        7.093553369207127e-8
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 24,
+      "face_types": {
+        "cylinder": 6,
+        "plane": 6,
+        "sphere": 1
+      },
+      "faces": 13,
+      "kernel": {
+        "edges": 70,
+        "faces": 24,
+        "shells": 1,
+        "vertices": 50
+      },
+      "mass_g": 47.24723642319877,
+      "material": "Default",
+      "name": "CsgCube",
+      "vertices": 20,
+      "volume_mm3": 36625.76466914634
+    }
+  ],
+  "body_count": 1,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "50",
+      "model": false,
+      "name": "size",
+      "unit": "mm",
+      "value": 50.0
+    }
+  ],
+  "sketches": [],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 9.058709,
+      "name": "Sphere1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "SphereFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 1262.888948,
+      "name": "Box1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 1.9831981746663645,
+            "rotation_rad": 0.0,
+            "strategy": "coplanar_separation",
+            "tolerance_mm": 0.0,
+            "translation_mm": 0.0
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 545.2368309999999,
+      "name": "Cylinder1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 0.0,
+            "rotation_rad": 0.0,
+            "strategy": "shifted_operands",
+            "tolerance_mm": 0.17320508075688773,
+            "translation_mm": 0.8504599593749256
+          },
+          {
+            "face_shift_mm": 1.9831981746663645,
+            "rotation_rad": 0.0,
+            "strategy": "coplanar_separation",
+            "tolerance_mm": 0.0,
+            "translation_mm": 0.0
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 4387.237141,
+      "name": "Cylinder2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 1.9831981746663645,
+            "rotation_rad": 0.0,
+            "strategy": "coplanar_separation",
+            "tolerance_mm": 0.0,
+            "translation_mm": 0.0
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 5,
+      "ms": 6718.574835,
+      "name": "Cylinder3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 13697.988029194887,
+    "edges": 24,
+    "faces": 13,
+    "mass_g": 47.24723642319877,
+    "open_bodies_skipped": 0,
+    "vertices": 20,
+    "volume_mm3": 36625.76466914634
+  }
+}

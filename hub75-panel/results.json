@@ -1,0 +1,393 @@
+[
+  {
+    "display_value": 159.7,
+    "name": "Hub75Panel_width",
+    "unit": "mm",
+    "value": 159.7
+  },
+  {
+    "display_value": 319.71,
+    "name": "Hub75Panel_height",
+    "unit": "mm",
+    "value": 319.71
+  },
+  {
+    "display_value": 14.5,
+    "name": "Hub75Panel_depth",
+    "unit": "mm",
+    "value": 14.5
+  },
+  {
+    "display_value": 2.0,
+    "name": "Hub75Panel_front_depth",
+    "unit": "mm",
+    "value": 2.0
+  },
+  {
+    "display_value": 1.25,
+    "name": "Hub75Panel_rear_inset",
+    "unit": "mm",
+    "value": 1.25
+  },
+  {
+    "display_value": 3.0,
+    "name": "Hub75Panel_hole_diameter",
+    "unit": "mm",
+    "value": 3.0
+  },
+  {
+    "display_value": 72.0,
+    "name": "Hub75Panel_mount_x",
+    "unit": "mm",
+    "value": 72.0
+  },
+  {
+    "display_value": 152.0,
+    "name": "Hub75Panel_mount_y",
+    "unit": "mm",
+    "value": 152.0
+  },
+  {
+    "component": 1,
+    "grounded": true,
+    "name": "Hub75Panel",
+    "occurrence": 2,
+    "parent": 0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Hub75Panel footprint",
+    "projected": null,
+    "sketch": 3
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 3
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Hub75Panel"
+    ],
+    "feature": 4,
+    "ms": 0.792781,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Hub75Panel rear start",
+    "projected": null,
+    "sketch": 5
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 5
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Hub75Panel rear perimeter",
+    "projected": null,
+    "sketch": 6
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 6
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 7,
+    "ms": 10.709476,
+    "name": "Loft1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 8,
+    "ms": 114.66579300000001,
+    "name": "Hole1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 9,
+    "ms": 136.456929,
+    "name": "Hole2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 10,
+    "ms": 156.29055499999998,
+    "name": "Hole3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 11,
+    "ms": 192.71759999999998,
+    "name": "Hole4",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 12,
+    "ms": 214.681285,
+    "name": "Hole5",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "changed_bodies": [
+      "Hub75Panel"
+    ],
+    "created_bodies": [],
+    "feature": 13,
+    "ms": 254.71413599999997,
+    "name": "Hole6",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "appearance": {
+      "color": "#b8b8b8",
+      "name": "HUB75 housing",
+      "opacity": 1.0
+    },
+    "density_g_cm3": 1.2,
+    "name": "HUB75 housing",
+    "user": true
+  },
+  {
+    "bodies": [
+      "Hub75Panel"
+    ],
+    "material": "HUB75 housing"
+  },
+  {
+    "active": 0
+  },
+  {
+    "component": 1,
+    "occurrence": 14
+  }
+]

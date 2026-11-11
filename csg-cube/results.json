@@ -1,0 +1,78 @@
+[
+  {
+    "display_value": 50.0,
+    "name": "size",
+    "unit": "mm",
+    "value": 50.0
+  },
+  {
+    "bodies": [
+      "CsgCube"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "CsgCube"
+    ],
+    "feature": 1,
+    "ms": 9.169805,
+    "name": "Sphere1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CsgCube"
+    ],
+    "changed_bodies": [
+      "CsgCube"
+    ],
+    "created_bodies": [],
+    "feature": 2,
+    "ms": 1281.97392,
+    "name": "Box1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CsgCube"
+    ],
+    "changed_bodies": [
+      "CsgCube"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 556.235831,
+    "name": "Cylinder1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CsgCube"
+    ],
+    "changed_bodies": [
+      "CsgCube"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 4352.650886,
+    "name": "Cylinder2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CsgCube"
+    ],
+    "changed_bodies": [
+      "CsgCube"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 7539.629363999999,
+    "name": "Cylinder3",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

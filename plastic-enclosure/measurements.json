@@ -1,0 +1,216 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 24799.67303464397,
+      "bbox": {
+        "max": [
+          40.0,
+          25.0,
+          32.0
+        ],
+        "min": [
+          -40.0,
+          -25.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        -5.660158273530537e-9,
+        0.10529301781838515,
+        10.562420348200211
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 74,
+      "face_types": {
+        "cylinder": 4,
+        "plane": 32
+      },
+      "faces": 36,
+      "kernel": {
+        "edges": 90,
+        "faces": 40,
+        "shells": 1,
+        "vertices": 60
+      },
+      "mass_g": 31.860088870825972,
+      "material": "Default",
+      "name": "Enclosure",
+      "vertices": 52,
+      "volume_mm3": 24697.743310717808
+    }
+  ],
+  "body_count": 1,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "80",
+      "model": false,
+      "name": "length",
+      "unit": "mm",
+      "value": 80.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "50",
+      "model": false,
+      "name": "width",
+      "unit": "mm",
+      "value": 50.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "30",
+      "model": false,
+      "name": "height",
+      "unit": "mm",
+      "value": 30.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "2",
+      "model": false,
+      "name": "wall",
+      "unit": "mm",
+      "value": 2.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 1,
+      "name": "Enclosure footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 0.191292,
+      "name": "Enclosure footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 0.730366,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 2.183276,
+      "name": "Shell1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ShellFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 2.696001,
+      "name": "Lip1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "LipFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 5,
+      "ms": 8.299506,
+      "name": "SnapFit1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "SnapFitFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 6,
+      "ms": 172.156579,
+      "name": "Boss1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 220.299565,
+      "name": "Boss2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 75.18040199999999,
+      "name": "Rest1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "RestFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 24799.67303464397,
+    "edges": 74,
+    "faces": 36,
+    "mass_g": 31.860088870825972,
+    "open_bodies_skipped": 0,
+    "vertices": 52,
+    "volume_mm3": 24697.743310717808
+  }
+}

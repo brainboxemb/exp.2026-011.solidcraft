@@ -1,0 +1,300 @@
+[
+  {
+    "display_value": 24.0,
+    "name": "bracket_width",
+    "unit": "mm",
+    "value": 24.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "horizontal_arm_length",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 12.0,
+    "name": "wall_thickness",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
+    "display_value": 3.0,
+    "name": "arm_end_chamfer",
+    "unit": "mm",
+    "value": 3.0
+  },
+  {
+    "display_value": 6.0,
+    "name": "outer_corner_chamfer",
+    "unit": "mm",
+    "value": 6.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "vertical_arm_length",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 4.0,
+    "name": "inside_corner_radius",
+    "unit": "mm",
+    "value": 4.0
+  },
+  {
+    "display_value": 0.6,
+    "name": "elephant_foot_relief",
+    "unit": "mm",
+    "value": 0.6
+  },
+  {
+    "display_value": 2.0,
+    "name": "side_edge_chamfer",
+    "unit": "mm",
+    "value": 2.0
+  },
+  {
+    "display_value": 5.0,
+    "name": "bolt_diameter",
+    "unit": "mm",
+    "value": 5.0
+  },
+  {
+    "display_value": 0.4,
+    "name": "bolt_clearance",
+    "unit": "mm",
+    "value": 0.4
+  },
+  {
+    "display_value": 10.0,
+    "name": "head_diameter",
+    "unit": "mm",
+    "value": 10.0
+  },
+  {
+    "display_value": 0.4,
+    "name": "head_clearance",
+    "unit": "mm",
+    "value": 0.4
+  },
+  {
+    "display_value": 1.0,
+    "name": "head_recess",
+    "unit": "mm",
+    "value": 1.0
+  },
+  {
+    "display_value": 12.0,
+    "name": "plywood_thickness",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
+    "display_value": 12.0,
+    "name": "bolt_offset",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
+    "display_value": 0.0,
+    "name": "bolt_y_offset",
+    "unit": "mm",
+    "value": 0.0
+  },
+  {
+    "display_value": 18.0,
+    "name": "bolt_spacing",
+    "unit": "mm",
+    "value": 18.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Profile",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1"
+    ],
+    "created": {
+      "constraints": [
+        "k1"
+      ],
+      "curves": [
+        "i_corner",
+        "o_hor_tip",
+        "o_hor_bevel",
+        "o_hor",
+        "o_corner",
+        "o_vert",
+        "o_vert_bevel",
+        "o_vert_end",
+        "v_tip"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+        "p6",
+        "p7",
+        "p8",
+        "i_corner.start"
+      ]
+    },
+    "curves": [
+      "i_corner",
+      "o_hor_tip",
+      "o_hor_bevel",
+      "o_hor",
+      "o_corner",
+      "o_vert",
+      "o_vert_bevel",
+      "o_vert_end",
+      "v_tip"
+    ],
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "CornerBracketFast"
+    ],
+    "feature": 2,
+    "ms": 1.00466,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 15.353993,
+    "name": "Fillet1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 59.769989,
+    "name": "Chamfer1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 307.263175,
+    "name": "Chamfer2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 6,
+    "ms": 117.489624,
+    "name": "Chamfer3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 7,
+    "ms": 568.9088519999999,
+    "name": "Hole1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 8,
+    "ms": 722.367741,
+    "name": "Hole2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 9,
+    "ms": 830.0431040000001,
+    "name": "Hole3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CornerBracketFast"
+    ],
+    "changed_bodies": [
+      "CornerBracketFast"
+    ],
+    "created_bodies": [],
+    "feature": 10,
+    "ms": 967.477249,
+    "name": "Hole4",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

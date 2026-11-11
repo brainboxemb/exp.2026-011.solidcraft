@@ -1,0 +1,125 @@
+[
+  {
+    "display_value": 60.0,
+    "name": "width",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 6.0,
+    "name": "thickness",
+    "unit": "mm",
+    "value": 6.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Profile",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1"
+    ],
+    "created": {
+      "constraints": [
+        "k1"
+      ],
+      "curves": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
+      "dimensions": [],
+      "points": [
+        "a.start",
+        "a.end",
+        "b.end",
+        "c.end",
+        "d.end",
+        "e.end"
+      ]
+    },
+    "curves": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "sketch": {
+      "dof": 10,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "Bracket"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Bracket"
+    ],
+    "feature": 2,
+    "ms": 0.900989,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Bracket"
+    ],
+    "changed_bodies": [
+      "Bracket"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 15.546284,
+    "name": "Fillet1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Bracket"
+    ],
+    "changed_bodies": [
+      "Bracket"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 141.646037,
+    "name": "Hole1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "Bracket"
+    ],
+    "changed_bodies": [
+      "Bracket"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 163.666485,
+    "name": "Hole2",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

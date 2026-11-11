@@ -1,0 +1,940 @@
+[
+  {
+    "display_value": 85.0,
+    "name": "board_w",
+    "unit": "mm",
+    "value": 85.0
+  },
+  {
+    "display_value": 56.0,
+    "name": "board_d",
+    "unit": "mm",
+    "value": 56.0
+  },
+  {
+    "display_value": 24.0,
+    "name": "height",
+    "unit": "mm",
+    "value": 24.0
+  },
+  {
+    "display_value": 2.0,
+    "name": "wall",
+    "unit": "mm",
+    "value": 2.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "PlasticEnclosurePi footprint",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "feature": 2,
+    "ms": 0.7729889999999999,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 41.103766,
+    "name": "Fillet1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 20.563499999999998,
+    "name": "Shell1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 38.913625,
+    "name": "Fillet2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 6,
+    "ms": 352.750677,
+    "name": "Boss1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 7,
+    "ms": 391.51333999999997,
+    "name": "Boss2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 8,
+    "ms": 432.734264,
+    "name": "Boss3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 9,
+    "ms": 464.968255,
+    "name": "Boss4",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "frame": "world",
+    "name": "Pi ports",
+    "projected": null,
+    "sketch": 10
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 4,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k5",
+      "k6",
+      "k7",
+      "k8"
+    ],
+    "corners": {
+      "bottom_left": "p5",
+      "bottom_right": "p6",
+      "top_left": "p8",
+      "top_right": "p7"
+    },
+    "created": {
+      "constraints": [
+        "k5",
+        "k6",
+        "k7",
+        "k8"
+      ],
+      "curves": [
+        "l5",
+        "l6",
+        "l7",
+        "l8"
+      ],
+      "dimensions": [],
+      "points": [
+        "p5",
+        "p6",
+        "p7",
+        "p8"
+      ]
+    },
+    "curves": [
+      "l5",
+      "l6",
+      "l7",
+      "l8"
+    ],
+    "sides": {
+      "bottom": "l5",
+      "left": "l8",
+      "right": "l6",
+      "top": "l7"
+    },
+    "sketch": {
+      "dof": 8,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k9",
+      "k10",
+      "k11",
+      "k12"
+    ],
+    "corners": {
+      "bottom_left": "p9",
+      "bottom_right": "p10",
+      "top_left": "p12",
+      "top_right": "p11"
+    },
+    "created": {
+      "constraints": [
+        "k9",
+        "k10",
+        "k11",
+        "k12"
+      ],
+      "curves": [
+        "l9",
+        "l10",
+        "l11",
+        "l12"
+      ],
+      "dimensions": [],
+      "points": [
+        "p9",
+        "p10",
+        "p11",
+        "p12"
+      ]
+    },
+    "curves": [
+      "l9",
+      "l10",
+      "l11",
+      "l12"
+    ],
+    "sides": {
+      "bottom": "l9",
+      "left": "l12",
+      "right": "l10",
+      "top": "l11"
+    },
+    "sketch": {
+      "dof": 12,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 3,
+    "sketch": 10
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 11,
+    "ms": 205.366525,
+    "name": "Pi ports",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "frame": "world",
+    "name": "USB and Ethernet",
+    "projected": null,
+    "sketch": 12
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 4,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 12
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 13,
+    "ms": 178.514354,
+    "name": "USB and Ethernet",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "frame": "world",
+    "name": "Floor vents",
+    "projected": null,
+    "sketch": 14
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 4,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k5",
+      "k6",
+      "k7",
+      "k8"
+    ],
+    "corners": {
+      "bottom_left": "p5",
+      "bottom_right": "p6",
+      "top_left": "p8",
+      "top_right": "p7"
+    },
+    "created": {
+      "constraints": [
+        "k5",
+        "k6",
+        "k7",
+        "k8"
+      ],
+      "curves": [
+        "l5",
+        "l6",
+        "l7",
+        "l8"
+      ],
+      "dimensions": [],
+      "points": [
+        "p5",
+        "p6",
+        "p7",
+        "p8"
+      ]
+    },
+    "curves": [
+      "l5",
+      "l6",
+      "l7",
+      "l8"
+    ],
+    "sides": {
+      "bottom": "l5",
+      "left": "l8",
+      "right": "l6",
+      "top": "l7"
+    },
+    "sketch": {
+      "dof": 8,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k9",
+      "k10",
+      "k11",
+      "k12"
+    ],
+    "corners": {
+      "bottom_left": "p9",
+      "bottom_right": "p10",
+      "top_left": "p12",
+      "top_right": "p11"
+    },
+    "created": {
+      "constraints": [
+        "k9",
+        "k10",
+        "k11",
+        "k12"
+      ],
+      "curves": [
+        "l9",
+        "l10",
+        "l11",
+        "l12"
+      ],
+      "dimensions": [],
+      "points": [
+        "p9",
+        "p10",
+        "p11",
+        "p12"
+      ]
+    },
+    "curves": [
+      "l9",
+      "l10",
+      "l11",
+      "l12"
+    ],
+    "sides": {
+      "bottom": "l9",
+      "left": "l12",
+      "right": "l10",
+      "top": "l11"
+    },
+    "sketch": {
+      "dof": 12,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k13",
+      "k14",
+      "k15",
+      "k16"
+    ],
+    "corners": {
+      "bottom_left": "p13",
+      "bottom_right": "p14",
+      "top_left": "p16",
+      "top_right": "p15"
+    },
+    "created": {
+      "constraints": [
+        "k13",
+        "k14",
+        "k15",
+        "k16"
+      ],
+      "curves": [
+        "l13",
+        "l14",
+        "l15",
+        "l16"
+      ],
+      "dimensions": [],
+      "points": [
+        "p13",
+        "p14",
+        "p15",
+        "p16"
+      ]
+    },
+    "curves": [
+      "l13",
+      "l14",
+      "l15",
+      "l16"
+    ],
+    "sides": {
+      "bottom": "l13",
+      "left": "l16",
+      "right": "l14",
+      "top": "l15"
+    },
+    "sketch": {
+      "dof": 16,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [
+      "k17",
+      "k18",
+      "k19",
+      "k20"
+    ],
+    "corners": {
+      "bottom_left": "p17",
+      "bottom_right": "p18",
+      "top_left": "p20",
+      "top_right": "p19"
+    },
+    "created": {
+      "constraints": [
+        "k17",
+        "k18",
+        "k19",
+        "k20"
+      ],
+      "curves": [
+        "l17",
+        "l18",
+        "l19",
+        "l20"
+      ],
+      "dimensions": [],
+      "points": [
+        "p17",
+        "p18",
+        "p19",
+        "p20"
+      ]
+    },
+    "curves": [
+      "l17",
+      "l18",
+      "l19",
+      "l20"
+    ],
+    "sides": {
+      "bottom": "l17",
+      "left": "l20",
+      "right": "l18",
+      "top": "l19"
+    },
+    "sketch": {
+      "dof": 20,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 5,
+    "sketch": 14
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 15,
+    "ms": 242.20168,
+    "name": "Floor vents",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "frame": "world",
+    "name": "Pi 4 engraving",
+    "projected": null,
+    "sketch": 16
+  },
+  {
+    "created": {
+      "constraints": [],
+      "curves": [
+        "l1",
+        "n1",
+        "n2",
+        "n3",
+        "n4",
+        "l2",
+        "l3",
+        "l4",
+        "l5",
+        "l6",
+        "l7",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "l8",
+        "l9",
+        "l10",
+        "l11",
+        "l12",
+        "l13",
+        "l14",
+        "l15",
+        "l16",
+        "l17",
+        "l18",
+        "l19",
+        "l20",
+        "l21",
+        "l22",
+        "l23",
+        "l24",
+        "l25",
+        "l26",
+        "l27",
+        "l28",
+        "l29",
+        "l30"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+        "p6",
+        "p7",
+        "p8",
+        "p9",
+        "p10",
+        "p11",
+        "p12",
+        "p13",
+        "p14",
+        "p15",
+        "p16",
+        "p17",
+        "p18",
+        "p19",
+        "p20",
+        "p21",
+        "p22",
+        "p23",
+        "p24",
+        "p25",
+        "p26",
+        "p27",
+        "p28",
+        "p29",
+        "p30",
+        "p31",
+        "p32",
+        "p33",
+        "p34",
+        "p35",
+        "p36",
+        "p37",
+        "p38",
+        "p39",
+        "p40",
+        "p41",
+        "p42",
+        "p43",
+        "p44",
+        "p45",
+        "p46"
+      ]
+    },
+    "curves": [
+      "l1",
+      "n1",
+      "n2",
+      "n3",
+      "n4",
+      "l2",
+      "l3",
+      "l4",
+      "l5",
+      "l6",
+      "l7",
+      "n5",
+      "n6",
+      "n7",
+      "n8",
+      "l8",
+      "l9",
+      "l10",
+      "l11",
+      "l12",
+      "l13",
+      "l14",
+      "l15",
+      "l16",
+      "l17",
+      "l18",
+      "l19",
+      "l20",
+      "l21",
+      "l22",
+      "l23",
+      "l24",
+      "l25",
+      "l26",
+      "l27",
+      "l28",
+      "l29",
+      "l30"
+    ],
+    "guide": null,
+    "link": "j1"
+  },
+  {
+    "profiles": 6,
+    "sketch": 16
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "changed_bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "created_bodies": [],
+    "feature": 17,
+    "ms": 519.943087,
+    "name": "Pi 4 engraving",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "appearance": {
+      "color": "#2a8696",
+      "name": "PETG",
+      "opacity": 1.0
+    },
+    "density_g_cm3": 1.27,
+    "name": "PETG",
+    "user": true
+  },
+  {
+    "bodies": [
+      "PlasticEnclosurePi"
+    ],
+    "material": "PETG"
+  }
+]

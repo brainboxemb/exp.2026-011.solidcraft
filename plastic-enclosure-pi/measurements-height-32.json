@@ -1,0 +1,379 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 29946.708392031607,
+      "bbox": {
+        "max": [
+          47.500000000000014,
+          33.00000000000001,
+          32.0
+        ],
+        "min": [
+          -47.5,
+          -33.0,
+          -4.440892098500626e-16
+        ]
+      },
+      "center_of_mass": [
+        -2.0344317759307464,
+        0.34092608849437117,
+        10.664406375910978
+      ],
+      "closed": true,
+      "density_g_cm3": 1.27,
+      "edges": 302,
+      "face_types": {
+        "cylinder": 27,
+        "other": 5,
+        "plane": 91
+      },
+      "faces": 123,
+      "kernel": {
+        "edges": 334,
+        "faces": 131,
+        "shells": 1,
+        "vertices": 220
+      },
+      "mass_g": 35.81147935145195,
+      "material": "PETG",
+      "name": "PlasticEnclosurePi",
+      "vertices": 204,
+      "volume_mm3": 28198.015237363736
+    }
+  ],
+  "body_count": 1,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "85",
+      "model": false,
+      "name": "board_w",
+      "unit": "mm",
+      "value": 85.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "56",
+      "model": false,
+      "name": "board_d",
+      "unit": "mm",
+      "value": 56.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "32 mm",
+      "model": false,
+      "name": "height",
+      "unit": "mm",
+      "value": 32.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "2",
+      "model": false,
+      "name": "wall",
+      "unit": "mm",
+      "value": 2.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 1,
+      "name": "PlasticEnclosurePi footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 12,
+      "dof": 12,
+      "id": 10,
+      "name": "Pi ports",
+      "profiles": 3,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 4,
+      "dof": 4,
+      "id": 12,
+      "name": "USB and Ethernet",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 20,
+      "dof": 20,
+      "id": 14,
+      "name": "Floor vents",
+      "profiles": 5,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 38,
+      "dof": 0,
+      "id": 16,
+      "name": "Pi 4 engraving",
+      "profiles": 6,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 0.18373,
+      "name": "PlasticEnclosurePi footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 0.738638,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 42.427634999999995,
+      "name": "Fillet1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 20.801475,
+      "name": "Shell1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ShellFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 5,
+      "ms": 39.801678,
+      "name": "Fillet2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 6,
+      "ms": 368.178824,
+      "name": "Boss1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 415.809407,
+      "name": "Boss2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 455.618915,
+      "name": "Boss3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 9,
+      "ms": 491.47623400000003,
+      "name": "Boss4",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 10,
+      "ms": 0.164823,
+      "name": "Pi ports",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 11,
+      "ms": 198.024915,
+      "name": "Pi ports",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 12,
+      "ms": 0.109582,
+      "name": "USB and Ethernet",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 13,
+      "ms": 169.692824,
+      "name": "USB and Ethernet",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 14,
+      "ms": 0.21293399999999998,
+      "name": "Floor vents",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 15,
+      "ms": 234.66798599999998,
+      "name": "Floor vents",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 16,
+      "ms": 1.273856,
+      "name": "Pi 4 engraving",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 17,
+      "ms": 531.081854,
+      "name": "Pi 4 engraving",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 29946.708392031607,
+    "edges": 302,
+    "faces": 123,
+    "mass_g": 35.81147935145195,
+    "open_bodies_skipped": 0,
+    "vertices": 204,
+    "volume_mm3": 28198.015237363736
+  }
+}
