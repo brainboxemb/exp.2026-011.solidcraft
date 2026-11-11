@@ -96,7 +96,10 @@ first = BlockComponent()
 second = first.copy().move(x=50)
 assembly = first + second""") + """
 <p>The two occurrences share the same <code>Block</code> definition.
-<code>copy()</code> does not duplicate its features.</p>
+<code>copy()</code> does not duplicate its features. The compiler creates
+all native occurrences in place first, then sends their individual
+placement commands to SolidCraft. This keeps rotations and offsets
+independent.</p>
 <h2 id="groups">Groups are actual native parent components</h2>
 """ + code("""blocks = (first + second).group("Blocks")""") + """
 <p>Grouping changes the browser hierarchy, not the geometry's orientation.
@@ -198,9 +201,10 @@ It does not apply a second rotation on top of the first. A model that
 appears to lie flat after a second rotation can be caused by this rule.
 SCPF currently supports one absolute axis-angle orientation per occurrence,
 not chained Euler rotations.</p>
-<p>If an orientation needs multiple conceptual turns, compute and pass
-<strong>one final axis-angle pose</strong>; test it against the intended
-geometry. Do not assume two <code>rotate()</code> calls combine.</p>
+<p>For a final orientation involving several conceptual turns, give SCPF
+<strong>one axis-angle orientation</strong>. SolidCraft performs the
+native rotation; SCPF does not build its own rotation matrices.
+Verify the saved native geometry to check which direction is up.</p>
 <h2 id="named-axes">Are rotate(Z, 180) or rotate(Y, 180) available?</h2>
 <p><strong>No, not yet.</strong> The exported <code>X</code>,
 <code>Y</code> and <code>Z</code> tokens are used in other APIs, including
@@ -216,34 +220,52 @@ tool = Cylinder(d=10, h=30).orient(X, Y, Z)""") + """
 It does not mean arbitrary model rotation. Do not substitute
 <code>orient(Z)</code> for a component occurrence's
 <code>rotate(axis=(0,0,1), degrees=…)</code>.</p>
-<h2 id="copies">Copies and ordering</h2>
-<p><code>copy()</code> inherits the source occurrence's placement;
-<code>move()</code> changes its translation; <code>rotate()</code>
-sets its absolute orientation. If a source occurrence is already moved,
-copying and moving it again needs care to avoid double offsets.
-For predictable arrays, start with a master at the origin.</p>
-<h2 id="json">How to verify the generated native command</h2>
-<p>Unit tests compile a tiny model and inspect the
-<code>occurrence.move</code> command. For SolidCraft 0.30.1 a rotation uses a relative native
-<code>matrix</code>, <strong>not</strong> the later absolute
-<code>to</code> parameter (which that version silently ignores).
-The input matrix is conventional affine form with translation in the
-last column. The following is an <strong>illustrative command fragment</strong>:</p>
+<h2 id="copies">Copies are independent placements</h2>
+<p>One <strong>component definition</strong> describes the shape and its
+editable features. Every <strong>occurrence</strong> says where one copy
+belongs in the assembly. Several occurrences reuse the same definition.</p>
+""" + code("""first = PanelComponent().move(z=160).rotate(axis=(1, 0, 0), degrees=90)
+second = first.copy().move(x=160)
+screen = first + second""") + """
+<p>In Python, <code>copy()</code> inherits the desired placement:
+<code>second</code> keeps the 90° rotation and adds 160 mm to X.
+In the generated command sequence, however, SCPF makes both native
+occurrences <strong>at the origin</strong> before moving either one.
+It then asks SolidCraft to place each one. This prevents a copy from
+accidentally inheriting an already-applied native rotation or offset.</p>
+<h2 id="json">What SCPF actually sends to SolidCraft</h2>
+<p>The sequence below is deliberately simple: create one component,
+copy it once, then ask SolidCraft to place both occurrences. The
+editable shape features are omitted here for clarity.</p>
 """ + code("""{
-  "command": "occurrence.move",
-  "params": {
-    "occurrence": "Panel:2",
-    "matrix": [
-      [-1, 0, 0, 160],
-      [0, -1, 0, 0],
-      [0, 0, 1, 0],
-      [0, 0, 0, 1]
-    ]
-  }
+  "commands": [
+    {"command":"component.create","params":{"name":"Panel"}},
+    {"command":"occurrence.copy","params":{"component":"Panel"}},
+    {"command":"occurrence.move","params":{
+      "occurrence":"Panel:1",
+      "translate":[0,0,160],
+      "axis":[1,0,0],
+      "angle":"90 deg",
+      "move_grounded":true
+    }},
+    {"command":"occurrence.move","params":{
+      "occurrence":"Panel:2",
+      "translate":[160,0,160],
+      "axis":[1,0,0],
+      "angle":"90 deg"
+    }}
+  ]
 }""") + """
-<p>Saved SolidCraft document transforms use a transposed matrix with the\ntranslation in the last row. Compiler tests confirm the command shape, but native CAD evaluation
-and an actual geometry screenshot are still necessary to verify
-that a full assembly is physically upright.</p>
+<p>SolidCraft 0.30.1 understands the native <code>translate</code>,
+<code>axis</code> and <code>angle</code> parameters. SCPF does
+<strong>not</strong> calculate transformation matrices. The newer
+<code>to</code> placement field is not supported by 0.30.1; using it
+previously left a panel flat without reporting an error.</p>
+<p>Passing a command-plan test is not enough to prove the CAD is right.
+The CAD project's native tests also inspect the rotations and
+positions saved in SolidCraft's own design, and front/rear screenshots
+help verify the result visually. A camera change does not rotate
+the actual panel geometry.</p>
 <h2 id="limitations">Current support summary</h2>
 <table><thead><tr><th>Operation</th><th>Scope</th><th>Limit</th></tr></thead><tbody>
 <tr><td><code>move(x,y,z)</code></td><td>Occurrences, supported CSG shapes</td><td>Not arbitrary feature bodies</td></tr>
@@ -319,10 +341,13 @@ assembly = (left + right).group("Beams")""") + """
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
 <h2 id="placement">Occurrence placement</h2>
-<p>Copying a model reuses its source placement. Placing an already shifted
-master and shifting the copy may produce an unintended offset. For regular
-arrays, use a central master at the origin, then distribute copies by their
-intended world-space offsets.</p>
+<p><code>copy()</code> in Python retains the source's intended position
+and orientation. <code>move()</code> then adds the given displacement.
+For example, moving a copy by X=120 after its source already sits at X=50
+makes the copy's intended X position 170. This is normal Python-side behavior.
+When compiling, SCPF first creates all native occurrences at the origin and
+asks SolidCraft to position each one <em>once</em>. No previous native
+transform needs to be undone, and no inverse matrix is calculated.</p>
 """ + code("""center = BeamComponent()
 array = center
 for x in (-240, -120, 120, 240):
@@ -337,7 +362,8 @@ multiple levels of independent shared parent groups are not yet available.</p>
 <h2 id="verify">What to test in an assembly</h2>
 <p>Check the native command list for one <code>component.create</code>
 per shared definition, expected <code>occurrence.copy</code> counts,
-and full poses for rotated occurrences. Separately verify native SolidCraft
+and native <code>translate</code>, <code>axis</code> and <code>angle</code>
+parameters for rotated occurrences. Separately verify native SolidCraft
 geometry and its bounding dimensions before trusting an assembly image.</p>""",
     },
     {
@@ -349,23 +375,27 @@ geometry and its bounding dimensions before trusting an assembly image.</p>""",
 <p>The library's tests under <code>scpf/tests/</code> cover model
 objects, feature compilation, reusable components and rotation validation.
 For example, an occurrence rotation test checks that the compiler emits
-one <code>occurrence.move</code> with the expected pose.</p>
+one <code>occurrence.move</code> with the expected native parameters.</p>
 """ + code("""python -m unittest discover -s scpf/tests -v""") + """
 <h2 id="json">Test compiled native commands</h2>
 <p>Compare the generated command structure with explicit expectations,
 not only with a count of operations. Tests should check component names,
-absolute positions, the orientation axis and angle, and feature ordering.
+requested positions, the orientation axis and angle, and feature ordering.
 A regression can preserve a known good JSON fixture when command ordering
 is part of the contract.</p>
 <h2 id="native">Native geometric verification</h2>
 <p>The CAD model repository runs a separate SolidCraft CLI workflow for
 native geometry, editable history, STEP output, measurements and screenshots.
-A valid Python object or syntactically valid command plan is not evidence
+Read the <strong>saved SolidCraft occurrence transforms</strong>, not just
+whether a command ran successfully. A valid Python object or syntactically valid command plan is not evidence
 that the final solid occupies the correct plane or has no collision.</p>
 <h2 id="changes">Keep implementation and docs in sync</h2>
 <p>When new shorthand syntax (such as <code>rotate(Z, 180)</code>) or
 chained rotation is implemented, add tests for the exact generated
 native commands <em>before</em> documenting it as supported.
-Until then, describe the current limit explicitly.</p>""",
+Until then, describe the current limit explicitly.</p>
+<p>For a plain-language explanation of the implementation and its
+boundaries, read
+<a href="https://github.com/brainboxemb/lib.py.solidcraft/blob/main/scpf/docs/architecture.md">How SCPF works (without building a second CAD engine)</a>.</p>""",
     },
 ]

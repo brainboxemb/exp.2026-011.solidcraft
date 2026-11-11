@@ -9,6 +9,10 @@ The objective is a compact model language with useful CSG and CAD features:
 readability first, fewer nested operations than OpenSCAD, while preserving
 native SolidCraft feature history when possible.
 
+See [How SCPF works](docs/architecture.md) for a beginner-friendly explanation
+of which work belongs in Python and which belongs in SolidCraft, including
+the lessons from the HUB75 rotation bug.
+
 ## External package installation
 
 SCPF is a standalone Python package in `scpf/pyproject.toml`, maintained by
@@ -28,7 +32,18 @@ Users of the CAD project do **not** set `PYTHONPATH`; they run the root bootstra
 Library issue [#25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25)
 tracks the separation of CAD assets from reusable API implementation.
 
-## Full library documentation\n\nThe [published API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)\nexplains topics step by step: first model, geometry, transformations, features,\nassemblies and verification. This README retains developer-oriented reference\nnotes; the cheatsheet is only a quick syntax lookup.\n\n**Important:** the current occurrence `rotate()` sets one absolute axis-angle\npose. Calling it twice does not combine two rotations. `rotate(Z, 180)`\nis not yet a supported shorthand; use `rotate(axis=(0, 0, 1), degrees=180)`.\n\n## Supported SolidCraft version
+## Full library documentation
+
+The [published API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)
+explains topics step by step: first model, geometry, transformations, features,
+assemblies and verification. This README retains developer-oriented reference
+notes; the cheatsheet is only a quick syntax lookup.
+
+**Important:** the current occurrence `rotate()` sets one absolute axis-angle
+pose. Calling it twice does not combine two rotations. `rotate(Z, 180)`
+is not yet a supported shorthand; use `rotate(axis=(0, 0, 1), degrees=180)`.
+
+## Supported SolidCraft version
 
 The native command adapter and verification tests target **SolidCraft 0.30.1**.
 The library's `scpf.version.check_cli_version()` reads
@@ -47,14 +62,74 @@ from scpf.version import check_cli_version
 check_cli_version(require_cli=True)
 ```
 
-### v0.30.1 occurrence rotation compatibility
+### How placement works in SolidCraft 0.30.1
 
-SolidCraft 0.30.1's `occurrence.move` supports relative `matrix`
-or `axis` / `angle` / `translate` parameters. It does **not**
-support the later absolute `to: {position, axis, angle}` representation.
-Older versions may silently ignore unknown `to` fields without error.
-SCPF therefore compiles a native **relative 4×4 rigid matrix** and
-native CI must inspect saved occurrence transforms. The API `matrix` is a conventional affine 4×4 matrix (**translation in the\nlast column**, final row `[0,0,0,1]`). Saved SolidCraft `document.json`\noccurrence transforms are transposed into the **row-vector** internal form\n(translation in the final row). Mixing those representations causes a native\nvalidation error.
+SCPF does **not** calculate 3D transformation matrices. It tells SolidCraft
+where each occurrence belongs and lets SolidCraft apply the move and rotation.
+
+A component definition is the **part itself**. An occurrence is **one placed
+copy** of that part. For a reusable component, SCPF compiles these steps:
+
+1. Create the component definition once, including its editable features.
+2. Create the additional occurrences **at the origin**. Each copy initially
+   has no translation or rotation. This prevents copied positions or
+   orientations from accumulating.
+3. Move each occurrence once, using native SolidCraft
+   `occurrence.move` with `translate` and, if needed, `axis` and `angle`.
+
+For example:
+
+```python
+from scpf import component, Box
+
+class Panel:
+    def build(self):
+        return Box(160, 320, 14.5)
+
+PanelComponent = component(Panel)
+
+class Pair:
+    def build(self):
+        left = PanelComponent().rotate(axis=(1, 0, 0), degrees=90)
+        right = left.copy().move(x=160)
+        return left + right
+
+Pair()
+```
+
+Both occurrences are built from **one** editable component. SCPF first
+creates the second occurrence, then sends each occurrence's translation and
+rotation to SolidCraft. It does **not** calculate a matrix or apply the same
+rotation repeatedly.
+
+The native commands for the first occurrence resemble:
+
+```json
+{
+  "command": "occurrence.move",
+  "params": {
+    "occurrence": "Panel:1",
+    "translate": [0, 0, 0],
+    "axis": [1, 0, 0],
+    "angle": "90 deg",
+    "move_grounded": true
+  }
+}
+```
+
+**Why this matters:** SolidCraft 0.30.1 accepts `translate`, `axis`,
+`angle` and `origin`, but does **not** support the newer
+`to: {position, axis, angle}` syntax. An older command runner could
+silently ignore that unsupported `to` field, leaving panels flat while
+a JSON syntax test passed. Using native parameters and checking the
+**saved SolidCraft transforms** avoids that false success.
+
+`rotate()` currently **sets** one requested axis-angle orientation on
+the Python occurrence. Calling `rotate()` twice **replaces** the first
+setting; it does not compose two rotations. When an assembly needs a more
+complicated final orientation, express it as one axis-angle and let
+SolidCraft perform that rotation.
+
 
 ## Model objects
 
@@ -89,6 +164,7 @@ Bracket and HUB75 Panel. The library retains only lightweight API fixtures.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
+
 ## Imported reusable model classes
 
 When two project scripts need the same component, keep its class in **one**
@@ -139,11 +215,15 @@ second = first.copy().move(x=160).rotate(axis=(0, 0, 1), degrees=180)
 return first + second
 ```
 
-SCPF compiles a rotated placement to native `occurrence.move` with a
-relative rigid `matrix` compatible with SolidCraft 0.30.1. Rotation is about the component's
-local origin and is independent of the definition. The current API supports
-one axis-angle orientation per occurrence, not chained Euler rotations,
-rotation of arbitrary Shapes, or associative sketch constraints.
+SCPF sends the native `occurrence.move` parameters
+`translate`, `axis` and `angle`. It does not implement 3D rotation
+or matrix arithmetic. The native operation rotates the occurrence, not
+the underlying component definition.
+
+The current API supports one axis-angle orientation per occurrence, not
+chained rotations, rotation of arbitrary Shapes, or associative sketch
+constraints.
+
 For real geometry and native CI results see the
 [CAD project](https://github.com/brainboxemb/2026-011-02.cad.solidcraft).
 

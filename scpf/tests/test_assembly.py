@@ -27,7 +27,10 @@ class AssemblyTests(unittest.TestCase):
         copies = [c for c in commands if c["command"] == "occurrence.copy"]
         self.assertEqual(len(copies), 1)
         self.assertEqual(copies[0]["params"]["component"], "Block")
-        self.assertEqual(copies[0]["params"]["translate"], [40.0, 0.0, 0.0])
+        self.assertNotIn("translate", copies[0]["params"])
+        placements = [c["params"] for c in commands if c["command"] == "occurrence.move"]
+        self.assertEqual(placements[-1]["occurrence"], "Block:2")
+        self.assertEqual(placements[-1]["translate"], [40.0, 0.0, 0.0])
         rectangle = next(
             c for c in commands
             if c["command"] == "sketch.rectangle.two_point"
@@ -66,10 +69,11 @@ class AssemblyTests(unittest.TestCase):
         copy = next(c["params"] for c in commands
                     if c["command"] == "occurrence.copy")
         self.assertEqual(copy["component"], "SideWall")
-        self.assertEqual(copy["translate"], [859.0, 0.0, 0.0])
-        first_move = next(c["params"] for c in commands
-                          if c["command"] == "occurrence.move")
-        self.assertEqual(first_move["translate"], [-429.5, 25.0, 0.0])
+        self.assertNotIn("translate", copy)
+        moves = [c["params"] for c in commands if c["command"] == "occurrence.move"]
+        self.assertEqual([m["occurrence"] for m in moves], ["SideWall:1", "SideWall:2"])
+        self.assertEqual(moves[0]["translate"], [-429.5, 25.0, 0.0])
+        self.assertEqual(moves[1]["translate"], [429.5, 25.0, 0.0])
 
     def test_copy_resets_inherited_rotation_when_target_is_unrotated(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -89,11 +93,16 @@ class AssemblyTests(unittest.TestCase):
             commands = run_script(script)["commands"]
         copy = next(c["params"] for c in commands
                     if c["command"] == "occurrence.copy")
-        self.assertNotIn("translate", copy)  # Rotated master: exact relative matrix move follows
-        placements = [c["params"] for c in commands
-                      if c["command"] == "occurrence.move"]
-        self.assertNotIn("to", [c for c in commands if c["command"] == "occurrence.move"][1]["params"])
-        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [-80.0, 0.0, 0.0])
+        self.assertNotIn("translate", copy)
+        commands_after_component = [c for c in commands
+                                    if c["command"] in ("occurrence.copy", "occurrence.move")]
+        self.assertEqual([c["command"] for c in commands_after_component],
+                         ["occurrence.copy", "occurrence.move", "occurrence.move"])
+        moves = [c["params"] for c in commands_after_component[1:]]
+        self.assertEqual([m["translate"] for m in moves],
+                         [[-40.0, 0.0, 0.0], [40.0, 0.0, 0.0]])
+        self.assertEqual([m["angle"] for m in moves], ["180 deg", "0 deg"])
+        self.assertTrue(all("matrix" not in m and "to" not in m for m in moves))
 
     def test_named_group_creates_real_nested_native_component(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -177,9 +186,10 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(len(rotated), 1)
         self.assertEqual(rotated[0]["occurrence"], "Panel:2")
         self.assertNotIn("to", rotated[0])
-        self.assertEqual(rotated[0]["matrix"],
-                         [[-1.0, 0.0, 0.0, 0.0], [0.0, -1.0, 0.0, 0.0],
-                          [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
+        self.assertEqual(rotated[0]["translate"], [30.0, 0.0, 0.0])
+        self.assertEqual(rotated[0]["axis"], [0.0, 0.0, 1.0])
+        self.assertEqual(rotated[0]["angle"], "180 deg")
+        self.assertNotIn("matrix", rotated[0])
 
     def test_first_grounded_occurrence_can_have_absolute_rotation(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -199,8 +209,9 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(len(placements), 2)
         self.assertEqual(placements[0]["occurrence"], "Panel:1")
         self.assertTrue(placements[0]["move_grounded"])
-        self.assertEqual([row[3] for row in placements[0]["matrix"][:3]], [-50.0, 0.0, 0.0])
-        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [-50.0, 0.0, 0.0])
+        self.assertEqual(placements[0]["translate"], [-50.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["translate"], [0.0, 0.0, 0.0])
+        self.assertEqual([m["angle"] for m in placements], ["180 deg", "0 deg"])
 
     def test_explicit_imported_component_factory(self):
         # The library's scpf/ source folder is a namespace root when the
@@ -226,27 +237,41 @@ class AssemblyTests(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "model class"):
             component(42)
 
-    def test_upright_pose_has_verified_row_vector_rotation_matrix(self):
-        from scpf.assembly import _pose, _times, _inverse
-        upright = _pose((0, 0, 160), ((1, 0, 0), 90))
-        self.assertAlmostEqual(upright[1][2], 1.)
-        self.assertAlmostEqual(upright[2][1], -1.)
-        self.assertEqual(upright[3][:3], [0., 0., 160.])
-        relative = _times(_pose((-160, 0, 160), ((0, 1, -1), 180)),
-                          _inverse(upright))
-        rebuilt = _times(relative, upright)
-        expected = _pose((-160, 0, 160), ((0, 1, -1), 180))
-        for row, want in zip(rebuilt, expected):
-            for value, target in zip(row, want):
-                self.assertAlmostEqual(value, target, places=9)
-
-    def test_wire_matrix_is_affine_with_last_column_translation(self):
-        from scpf.assembly import _pose, _clean_pose
-        emitted = _clean_pose(_pose((5, 7, 160), ((1, 0, 0), 90)))
-        self.assertEqual(emitted[3], [0., 0., 0., 1.])
-        self.assertEqual([emitted[i][3] for i in range(3)], [5., 7., 160.])
-        self.assertAlmostEqual(emitted[1][2], -1.)
-        self.assertAlmostEqual(emitted[2][1], 1.)
+    def test_copies_start_at_origin_before_any_native_placement(self):
+        """Five copies: only native SolidCraft operations, no matrix algebra."""
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "five.py"
+            script.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(159.7, 319.71, 14.5)\n"
+                "class Screen:\n"
+                "    def build(self):\n"
+                "        first = Panel().move(z=160).rotate(axis=(1,0,0), degrees=90)\n"
+                "        return (first + first.copy().move(x=-320) +\n"
+                "                first.copy().move(x=-160) +\n"
+                "                first.copy().move(x=160) +\n"
+                "                first.copy().move(x=320))\n"
+                "Screen()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(script)["commands"]
+        placements = [c for c in commands if c["command"] in (
+            "occurrence.copy", "occurrence.move")]
+        self.assertEqual([c["command"] for c in placements],
+                         ["occurrence.copy"] * 4 + ["occurrence.move"] * 5)
+        self.assertTrue(all(c["params"] == {"component": "Panel"}
+                            for c in placements[:4]))
+        self.assertEqual([c["params"]["translate"] for c in placements[4:]],
+                         [[0.0, 0.0, 160.0], [-320.0, 0.0, 160.0],
+                          [-160.0, 0.0, 160.0], [160.0, 0.0, 160.0],
+                          [320.0, 0.0, 160.0]])
+        self.assertTrue(all(c["params"]["axis"] == [1.,0.,0.]
+                            and c["params"]["angle"] == "90 deg"
+                            for c in placements[4:]))
+        self.assertTrue(all("matrix" not in c["params"]
+                            and "to" not in c["params"]
+                            for c in placements))
 
     def test_rotation_rejects_undefined_and_nonfinite_axis_angle(self):
         from scpf.core import Box
