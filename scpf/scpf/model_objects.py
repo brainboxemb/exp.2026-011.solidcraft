@@ -193,14 +193,6 @@ class ModelInstance:
             ),
         )
 
-    def group(self, name):
-        """Wrap these occurrences in one named native browser component.
-
-        A component definition is still created once and reused for all
-        occurrences in the group; this creates an actual browser hierarchy.
-        """
-        return Assembly(tuple(instance.group(name) for instance in self.instances))
-
     def __add__(self, other):
         return Assembly((self,)) + other
 
@@ -212,6 +204,10 @@ class Assembly:
     """Ordered collection of reusable model occurrences."""
 
     instances: tuple[ModelInstance, ...]
+
+    def group(self, name):
+        """Wrap these occurrences in a real nested native component."""
+        return Assembly(tuple(instance.group(name) for instance in self.instances))
 
     def __post_init__(self):
         if not self.instances:
