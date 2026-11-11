@@ -43,11 +43,12 @@ jobs:
           python -m scpf examples/plastic-enclosure/scpf/model.py --out output/examples/plastic-enclosure/scpf/solidcraft.json
           python -m scpf examples/plastic-enclosure-pi/scpf/model.py --out output/examples/plastic-enclosure-pi/scpf/solidcraft.json
           python -m scpf examples/corner-bracket/scpf/model.py --out output/examples/corner-bracket/scpf/solidcraft.json
+          python -m scpf examples/hub75-panel/scpf/model.py --out output/examples/hub75-panel/scpf/solidcraft.json
       - name: Validate and compare command documents
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube plastic-enclosure plastic-enclosure-pi corner-bracket; do
+          for model in plate csg-cube plastic-enclosure plastic-enclosure-pi corner-bracket hub75-panel; do
             jq empty "output/examples/$model/scpf/solidcraft.json"
           done
           jq -e -s '.[0] == .[1]' \
