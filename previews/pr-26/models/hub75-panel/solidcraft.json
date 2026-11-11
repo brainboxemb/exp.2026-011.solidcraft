@@ -27,6 +27,22 @@
     {
       "command": "parameters.add",
       "params": {
+        "name": "Hub75Panel_front_depth",
+        "expression": "2",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75Panel_rear_inset",
+        "expression": "1.25",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
         "name": "Hub75Panel_hole_diameter",
         "expression": "3",
         "unit": "mm"
@@ -82,8 +98,75 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": "Hub75Panel_depth",
+        "distance": "Hub75Panel_front_depth",
         "body_name": "Hub75Panel"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Hub75Panel rear start",
+        "offset": "Hub75Panel_front_depth"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-Hub75Panel_width / 2",
+          "-Hub75Panel_height / 2"
+        ],
+        "p1": [
+          "Hub75Panel_width / 2",
+          "Hub75Panel_height / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Hub75Panel rear perimeter",
+        "offset": "Hub75Panel_depth"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "(-Hub75Panel_width / 2) + (Hub75Panel_rear_inset)",
+          "(-Hub75Panel_height / 2) + (Hub75Panel_rear_inset)"
+        ],
+        "p1": [
+          "(Hub75Panel_width / 2) - (Hub75Panel_rear_inset)",
+          "(Hub75Panel_height / 2) - (Hub75Panel_rear_inset)"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.loft",
+      "params": {
+        "sections": [
+          {
+            "sketch": "Hub75Panel rear start"
+          },
+          {
+            "sketch": "Hub75Panel rear perimeter"
+          }
+        ],
+        "operation": "join",
+        "targets": [
+          "Hub75Panel"
+        ]
       }
     },
     {

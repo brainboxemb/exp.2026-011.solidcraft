@@ -6,7 +6,7 @@
 <section class="hero"><div class="wrap"><div class="eyebrow">CAD design / hub75-panel</div>
 <h1>TwoHub75Panels</h1><p>Two occurrences of one measured P5 HUB75 panel component</p></div></section>
 <main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
-<span class="badge">21 commands</span><span class="badge">159.70 × 319.71 × 14.50 mm; six Ø3 holes; two occurrences at 160 mm pitch</span></div>
+<span class="badge">30 commands</span><span class="badge">159.70 × 319.71 × 14.50 mm; six Ø3 holes; two occurrences at 160 mm pitch</span></div>
 <div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
 <p class="small muted">Native SolidCraft image, matching this source revision.</p>
 <p>First reusable panel assembly from the existing OpenSCAD reference: a 159.70 × 319.71 × 14.50 mm envelope with six Ø3 mounting-hole centres and a grey housing material. Two native occurrences at 160 mm pitch; rear details, PCB, connectors and rotations are future steps.</p></section>
@@ -25,8 +25,8 @@ Coordinate mapping for SCPF: X = panel width, Y = panel height,
 Z = front-to-rear depth. The front is at Z=0; the original OpenSCAD
 component uses X/Z for the front and Y for depth.
 
-Only the outer envelope, six M3 mounting-hole centres, and a housing
-material are modelled at this stage. This is NOT yet the full rear frame,
+Only the straight front and STEP-derived tapered outer envelope, six M3
+mounting-hole centres and a housing material are modelled at this stage. This is NOT yet the full rear frame,
 PCB, connectors, locator pins or an alternating-orientation assembly.
 &quot;&quot;&quot;
 
@@ -35,6 +35,8 @@ class Hub75Panel:
     width = 159.70
     height = 319.71
     depth = 14.50
+    front_depth = 2.00  # straight front: 1 mm mask + 1 mm PCB
+    rear_inset = 1.25   # STEP taper: inset on every side at the rear
 
     # Source holes: X=7.85/151.85, Z=7.855/159.855/311.855 from
     # the drawing&#x27;s lower-left corner. They become +/-72 and +/-152
@@ -44,7 +46,10 @@ class Hub75Panel:
     hole_diameter = 3.0
 
     def build(self):
-        body = Box(self.width, self.height, self.depth)
+        # Real long sloping sides from Z=2 to Z=14.5, not a short bevel.
+        body = Box(self.width, self.height, self.depth).taper(
+            from_z=self.front_depth, inset=self.rear_inset,
+        )
 
         for x in (-self.mount_x, self.mount_x):
             for y in (-self.mount_y, 0, self.mount_y):
@@ -95,6 +100,22 @@ TwoHub75Panels()
   &quot;params&quot;: {
     &quot;name&quot;: &quot;Hub75Panel_depth&quot;,
     &quot;expression&quot;: &quot;14.5&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_front_depth</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_front_depth&quot;,
+    &quot;expression&quot;: &quot;2&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_rear_inset</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_rear_inset&quot;,
+    &quot;expression&quot;: &quot;1.25&quot;,
     &quot;unit&quot;: &quot;mm&quot;
   }
 }</code></pre></li>
@@ -156,8 +177,75 @@ TwoHub75Panels()
 <li><strong>Extrusion / cut</strong><small>solid.extrude · body_name: Hub75Panel</small><pre><code>{
   &quot;command&quot;: &quot;solid.extrude&quot;,
   &quot;params&quot;: {
-    &quot;distance&quot;: &quot;Hub75Panel_depth&quot;,
+    &quot;distance&quot;: &quot;Hub75Panel_front_depth&quot;,
     &quot;body_name&quot;: &quot;Hub75Panel&quot;
+  }
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Hub75Panel rear start, plane: XY</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Hub75Panel rear start&quot;,
+    &quot;offset&quot;: &quot;Hub75Panel_front_depth&quot;
+  }
+}</code></pre></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
+  &quot;params&quot;: {
+    &quot;p0&quot;: [
+      &quot;-Hub75Panel_width / 2&quot;,
+      &quot;-Hub75Panel_height / 2&quot;
+    ],
+    &quot;p1&quot;: [
+      &quot;Hub75Panel_width / 2&quot;,
+      &quot;Hub75Panel_height / 2&quot;
+    ]
+  }
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Hub75Panel rear perimeter, plane: XY</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Hub75Panel rear perimeter&quot;,
+    &quot;offset&quot;: &quot;Hub75Panel_depth&quot;
+  }
+}</code></pre></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
+  &quot;params&quot;: {
+    &quot;p0&quot;: [
+      &quot;(-Hub75Panel_width / 2) + (Hub75Panel_rear_inset)&quot;,
+      &quot;(-Hub75Panel_height / 2) + (Hub75Panel_rear_inset)&quot;
+    ],
+    &quot;p1&quot;: [
+      &quot;(Hub75Panel_width / 2) - (Hub75Panel_rear_inset)&quot;,
+      &quot;(Hub75Panel_height / 2) - (Hub75Panel_rear_inset)&quot;
+    ]
+  }
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></li>
+<li><strong>solid.loft</strong><small>solid.loft · operation: join</small><pre><code>{
+  &quot;command&quot;: &quot;solid.loft&quot;,
+  &quot;params&quot;: {
+    &quot;sections&quot;: [
+      {
+        &quot;sketch&quot;: &quot;Hub75Panel rear start&quot;
+      },
+      {
+        &quot;sketch&quot;: &quot;Hub75Panel rear perimeter&quot;
+      }
+    ],
+    &quot;operation&quot;: &quot;join&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ]
   }
 }</code></pre></li>
 <li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{

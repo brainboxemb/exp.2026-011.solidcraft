@@ -8,8 +8,8 @@ Coordinate mapping for SCPF: X = panel width, Y = panel height,
 Z = front-to-rear depth. The front is at Z=0; the original OpenSCAD
 component uses X/Z for the front and Y for depth.
 
-Only the outer envelope, six M3 mounting-hole centres, and a housing
-material are modelled at this stage. This is NOT yet the full rear frame,
+Only the straight front and STEP-derived tapered outer envelope, six M3
+mounting-hole centres and a housing material are modelled at this stage. This is NOT yet the full rear frame,
 PCB, connectors, locator pins or an alternating-orientation assembly.
 """
 
@@ -18,6 +18,8 @@ class Hub75Panel:
     width = 159.70
     height = 319.71
     depth = 14.50
+    front_depth = 2.00  # straight front: 1 mm mask + 1 mm PCB
+    rear_inset = 1.25   # STEP taper: inset on every side at the rear
 
     # Source holes: X=7.85/151.85, Z=7.855/159.855/311.855 from
     # the drawing's lower-left corner. They become +/-72 and +/-152
@@ -27,7 +29,10 @@ class Hub75Panel:
     hole_diameter = 3.0
 
     def build(self):
-        body = Box(self.width, self.height, self.depth)
+        # Real long sloping sides from Z=2 to Z=14.5, not a short bevel.
+        body = Box(self.width, self.height, self.depth).taper(
+            from_z=self.front_depth, inset=self.rear_inset,
+        )
 
         for x in (-self.mount_x, self.mount_x):
             for y in (-self.mount_y, 0, self.mount_y):
