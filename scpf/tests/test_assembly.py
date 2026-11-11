@@ -27,7 +27,10 @@ class AssemblyTests(unittest.TestCase):
         copies = [c for c in commands if c["command"] == "occurrence.copy"]
         self.assertEqual(len(copies), 1)
         self.assertEqual(copies[0]["params"]["component"], "Block")
-        self.assertEqual(copies[0]["params"]["translate"], [40.0, 0.0, 0.0])
+        self.assertNotIn("translate", copies[0]["params"])
+        placements = [c["params"] for c in commands if c["command"] == "occurrence.move"]
+        self.assertEqual(placements[-1]["occurrence"], "Block:2")
+        self.assertEqual(placements[-1]["translate"], [40.0, 0.0, 0.0])
         rectangle = next(
             c for c in commands
             if c["command"] == "sketch.rectangle.two_point"
