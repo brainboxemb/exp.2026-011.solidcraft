@@ -107,7 +107,10 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(placements[1]["to"]["angle"], "0 deg")
 
     def test_explicit_imported_component_factory(self):
-        from scpf import component
+        # The library's scpf/ source folder is a namespace root when the
+        # test runner executes from the repository root. Import the module
+        # directly here; the external-package public import is checked in CI.
+        from scpf.runner import component
         from scpf.model_objects import ModelInstance
 
         class LibraryPanel:
