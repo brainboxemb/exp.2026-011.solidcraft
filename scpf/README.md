@@ -9,6 +9,10 @@ The objective is a compact model language with useful CSG and CAD features:
 readability first, fewer nested operations than OpenSCAD, while preserving
 native SolidCraft feature history when possible.
 
+See [How SCPF works](docs/architecture.md) for a beginner-friendly explanation
+of which work belongs in Python and which belongs in SolidCraft, including
+the lessons from the HUB75 rotation bug.
+
 ## External package installation
 
 SCPF is a standalone Python package in `scpf/pyproject.toml`, maintained by
