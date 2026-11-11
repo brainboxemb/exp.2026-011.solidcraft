@@ -1,6 +1,5 @@
 """Lower reusable SCPF model instances to native SolidCraft components."""
 import re
-from math import sin, cos, radians, sqrt
 
 from .compiler import ModelError
 from .model_objects import Assembly, ModelInstance, _anchor_point
@@ -79,52 +78,20 @@ def _definition_names(assembly):
     return names
 
 
-def _pose(position, rotation):
-    """Internal row-vector pose, matching saved native document.json.
+def _rotation_command(occurrence, rotation, origin, *, inverse=False):
+    """Rotate an existing occurrence around its current assembly position.
 
-    For the CLI wire-format matrix, _clean_pose() transposes this into
-    a conventional last-column-translation affine matrix.
+    SolidCraft 0.30.1 supports these native occurrence.move parameters.
+    There is no need to calculate a rotation matrix in Python.
     """
-    if rotation is None:
-        r = ((1., 0., 0.), (0., 1., 0.), (0., 0., 1.))
-    else:
-        axis, degrees = rotation
-        size = sqrt(sum(float(a) ** 2 for a in axis))
-        x, y, z = (float(a) / size for a in axis)
-        co, si = cos(radians(degrees)), sin(radians(degrees))
-        t = 1. - co
-        # Transposed Rodrigues rotation, for row-vector coordinates.
-        r = ((t*x*x+co, t*x*y+si*z, t*x*z-si*y),
-             (t*x*y-si*z, t*y*y+co, t*y*z+si*x),
-             (t*x*z+si*y, t*y*z-si*x, t*z*z+co))
-    return [list(row) + [0.] for row in r] + [list(map(float, position)) + [1.]]
-
-
-def _times(a, b):
-    return [[sum(a[i][k]*b[k][j] for k in range(4)) for j in range(4)]
-            for i in range(4)]
-
-
-def _inverse(p):
-    """Inverse rigid row-vector matrix; no external geometry dependency."""
-    result = [[p[j][i] for j in range(3)] + [0.] for i in range(3)]
-    result.append([-sum(p[3][k]*result[k][j] for k in range(3))
-                   for j in range(3)] + [1.])
-    return result
-
-
-def _clean_pose(p):
-    """Encode internal row-vector pose into the native CLI's column layout.
-
-    SolidCraft document.json stores a TRANSPOSED row-vector transform, with
-    translation in the bottom row. But v0.30.1's occurrence.move(matrix=...)
-    accepts conventional affine matrices with the LAST COLUMN translation
-    and a literal fourth row [0,0,0,1]. Passing a stored document matrix
-    directly back to the command is rejected as non-affine.
-    """
-    wire = [[p[j][i] for j in range(4)] for i in range(4)]
-    return [[0. if abs(v) < 1e-11 else round(v, 12) for v in row]
-            for row in wire]
+    axis, degrees = rotation
+    return _command(
+        "occurrence.move",
+        occurrence=occurrence,
+        axis=list(axis),
+        angle=f"{-degrees if inverse else degrees:g} deg",
+        origin=list(origin),
+    )
 
 
 def compile_assembly(value, name):
@@ -196,14 +163,18 @@ def compile_assembly(value, name):
         first_occurrence = f"{component_name}:1"
         occurrence_names[id(first)] = first_occurrence
         if first.rotation is not None:
-            # v0.30.1 silently ignores 'to'. Use the supported relative
-            # matrix, including translation, and allow moving the grounded root.
-            commands.append(_command(
-                "occurrence.move",
-                occurrence=first_occurrence,
-                matrix=_clean_pose(_pose(first.translation, first.rotation)),
-                move_grounded=first_is_root,
-            ))
+            # Rotation and translation are native SolidCraft parameters.
+            # 'to' was silently ignored by 0.30.1; matrices are unnecessary.
+            axis, degrees = first.rotation
+            params = {
+                "occurrence": first_occurrence,
+                "axis": list(axis),
+                "angle": f"{degrees:g} deg",
+                "move_grounded": first_is_root,
+            }
+            if any(first.translation):
+                params["translate"] = list(first.translation)
+            commands.append(_command("occurrence.move", **params))
         elif any(first.translation):
             commands.append(_command(
                 "occurrence.move",
@@ -213,36 +184,34 @@ def compile_assembly(value, name):
             ))
 
         for index, instance in enumerate(instances[1:], start=2):
-            # Native occurrence.copy inherits the source occurrence's effective
-            # transform; its translate is a DELTA, not an absolute position.
-            # ModelInstance.translation stores an absolute local placement.
-            # Without this subtraction a sidewall at X=-437 followed by a
-            # sidewall at X=+437 mistakenly copies to the middle (X=0).
+            # SolidCraft copies a reusable component definition's FIRST
+            # occurrence. The native copy translate is a world-space DELTA.
+            # ModelInstance.move() stores an absolute desired placement.
             delta = tuple(
                 instance.translation[i] - first.translation[i]
                 for i in range(3)
             )
             params = {"component": component_name}
-            if first.rotation is None and any(delta):
-                # For unrotated source, relative copy translate is world delta.
+            if any(delta):
                 params["translate"] = list(delta)
-            # Rotated source: make an in-place copy. With 0.30.1, passing
-            # translate here rotates the requested delta in source coordinates.
-            # A separate relative matrix takes it to the exact target pose.
             commands.append(_command("occurrence.copy", **params))
             new_occurrence = f"{component_name}:{index}"
             occurrence_names[id(instance)] = new_occurrence
-            if instance.rotation is not None or first.rotation is not None:
-                copied_position = (instance.translation if first.rotation is None
-                                   else first.translation)
-                source_pose = _pose(copied_position, first.rotation)
-                target_pose = _pose(instance.translation, instance.rotation)
-                relative = _times(target_pose, _inverse(source_pose))
-                commands.append(_command(
-                    "occurrence.move",
-                    occurrence=new_occurrence,
-                    matrix=_clean_pose(relative),
-                ))
+
+            if instance.rotation != first.rotation:
+                # The copy inherits the source orientation. Restore the
+                # component's unrotated axes, then apply the target rotation.
+                # Both are SolidCraft's own native rotations about the
+                # copy's current pivot; no Python matrix algebra is involved.
+                if first.rotation is not None:
+                    commands.append(_rotation_command(
+                        new_occurrence, first.rotation, instance.translation,
+                        inverse=True,
+                    ))
+                if instance.rotation is not None:
+                    commands.append(_rotation_command(
+                        new_occurrence, instance.rotation, instance.translation,
+                    ))
 
     for instance in assembly.instances:
         attachment = instance.attachment
