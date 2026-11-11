@@ -11,17 +11,22 @@ native SolidCraft feature history when possible.
 
 ## External package installation
 
-The current checkout already contains a Python package definition in
-`scpf/pyproject.toml`. For normal local development, use the active Python or
-Conda environment and install once with `python -m pip install -e ./scpf`.
-Then `python -m scpf model.py --out result.json` runs without setting
-`PYTHONPATH`.
+SCPF is a standalone Python package in `scpf/pyproject.toml`, maintained by
+[lib.py.solidcraft](https://github.com/brainboxemb/lib.py.solidcraft).
+Install editable in your active environment from this library checkout:
 
-The future CAD repository will add the library as a pinned Git submodule at
-`ext/scpf`; until the package is moved to the library repository root,
-the external installation command will be
-`python -m pip install -e ./ext/scpf/scpf`. Avoid checking copied library
-source into project repositories. See issue #25 for the split plan.
+```powershell
+python -m pip install -e ./scpf
+python -m unittest discover -s scpf/tests -v
+```
+
+The independent [SolidCraft CAD project](https://github.com/brainboxemb/2026-011-02.cad.solidcraft)
+consumes a pinned Git SHA using **vcs2l**, not Git submodules. It places the library
+at `ext/scpf` and installs from `ext/scpf/scpf` through `bootstrap.ps1`.
+Users of the CAD project do **not** set `PYTHONPATH`; they run the root bootstrap.
+
+Library issue [#25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25)
+tracks the separation of CAD assets from reusable API implementation.
 
 ## Model objects
 
@@ -49,12 +54,10 @@ allows overrides such as `Plate(width=80.0)` without requiring a handwritten
 `@dataclass(frozen=True)` and `__post_init__` validation. An implicit final Shape expression remains supported for older scripts,
 but examples now prefer ordinary Python `return` syntax.
 
-Five CAD examples:
-- [Plate](../examples/plate/scpf/model.py): rounded box with holes.
-- [CsgCube](../examples/csg-cube/scpf/model.py): intersect and cut solids.
-- [Bracket](../examples/bracket/scpf/model.py): polygon extrusion, fillet and native Hole features.
-- [Sample Plate](../examples/sample-plate/scpf/model.py): boss, bore, and mounting holes.
-- [Plastic Enclosure](../examples/plastic-enclosure/scpf/model.py): shell, lip, snap fit, screw bosses and rest.
+The real CAD examples, model specifications and native screenshots are now
+maintained in the [CAD model catalog](https://github.com/brainboxemb/2026-011-02.cad.solidcraft/tree/main/models):
+Plate, CSG Cube, Bracket, Sample Plate, Plastic Enclosure, Pi enclosure, Corner
+Bracket and HUB75 Panel. The library retains only lightweight API fixtures.
 
 Older function models with an implicit final Shape expression remain
 supported. Ordinary helpers still use standard Python semantics.
@@ -97,99 +100,39 @@ operations only.
 Plain numbers mean millimetres. SCPF scripts are real Python: only execute
 trusted model files.
 
-## Run and inspect the Bracket
+## Run and inspect a CAD model
 
-Run commands below from the repository root in PowerShell. This is an
-experiment repository, so the normal local-development workflow runs SCPF
-directly from the checkout rather than installing it as a package:
-
-```powershell
-$env:PYTHONPATH = "scpf"
-```
-
-An editable pip install is optional and is not required for normal development.
-
-**1. Generate and inspect the native command JSON** (does not open the GUI):
+Use the [CAD project repository](https://github.com/brainboxemb/2026-011-02.cad.solidcraft)
+for real model runs, not this library repository:
 
 ```powershell
-python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
-code output/examples/bracket/scpf/solidcraft.json
+# In 2026-011-02.cad.solidcraft
+.\bootstrap.ps1
+python -m scpf models/bracket/scpf/model.py --out output/bracket.json
+code output/bracket.json
+solidcraft-cli run output/bracket.json --param-check strict --save output/bracket.sc
 ```
 
-The `--out` path is under `output/`, which is excluded by Git. The
-canonical comparison fixture is retained at
-`examples/bracket/scpf/solidcraft.json`. The uploaded original is at
-`examples/bracket/source/bracket.json`.
-
-**Replay an existing SolidCraft command JSON directly** (no conversion):
+Alternatively, with the SolidCraft GUI open in a new empty document and
+external Assistant control enabled, run:
 
 ```powershell
-python -m scpf replay examples/bracket/source/bracket.json
+python -m scpf models/bracket/scpf/model.py --connect
 ```
 
-This sends the JSON commands **unchanged** to the open SolidCraft app.
-You may also pass `--connect` and an explicit port, but normally neither
-is needed. The original Bracket JSON starts with `parameters.change`;
-create `width` and `thickness` in the current design first. For a
-**new empty document** use the standalone SCPF-generated JSON instead:
-
-```powershell
-python -m scpf replay examples/bracket/scpf/solidcraft.json
-```
-
-**2. Execute in the currently running SolidCraft GUI** (live):
-
-```powershell
-python -m scpf examples/bracket/scpf/model.py --connect
-```
-
-Start with a **new empty document** and enable external Assistant control
-inside SolidCraft. `--connect` executes a batch directly and **does not
-write a command JSON file**. The default connection uses the local GUI
-control port and authentication token. The existing document is modified;
-the batch requests rollback if a step fails. Close/recreate the document
-before repeating a complete standalone model, otherwise `parameters.add`
-may fail with an already-existing `width` or `thickness` parameter.
-A local fake control server is used in CI; the real GUI is tested manually.
-
-**3. Execute without connecting to a running GUI**:
-
-```powershell
-python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
-solidcraft-cli run output/examples/bracket/scpf/solidcraft.json --param-check strict --save output/bracket.sc
-```
-
-Open the resulting `output/bracket.sc` in the SolidCraft GUI. Or use
-the helper `./scripts/open-solidcraft-json.ps1` on Windows with `-Script`
-set to the generated command file.
-
-**4. Run regression tests**:
-
-```powershell
-python -m unittest discover -s scpf/tests -v
-```
-
-The source command JSON uses `parameters.change` because it assumes
-`width` and `thickness` already exist in an open SolidCraft design.
-SCPF produces a **standalone command plan** starting with
-`parameters.add`; those two differences are intentional. The remaining
-geometry operations (XZ sketch, extrusion, fillet, two XY holes and cut)
-are checked against the uploaded source. SolidCraft maps XZ sketch
-vertical coordinates into **negative world Z**, so the bracket's fillet
-edge is at `[40, -30, -6]` and the hole cut uses
-`direction: "negative"`. An earlier SCPF version incorrectly used
-positive Z; this has been corrected following a real GUI error.
-
+`--out` generates native command JSON without modifying an open document.
+`--connect` applies commands to the GUI. Open `output/bracket.sc` to inspect
+the editable native history produced by the CLI.
 
 ## Results website
 
-The CAD results website is built by
-`scripts/ci/build-results.py` and published from GitHub Actions to
-GitHub Pages, with a PR-specific preview. It contains separate pages
-for all SCPF examples, with code, command JSON, construction
-stages and schematic illustrations. Native CAD screenshots are only
-included if their verification metadata matches the exact source
-commit; unverified previews are explicitly labelled.
+The [CAD project's results website](https://brainboxemb.github.io/2026-011-02.cad.solidcraft/)
+publishes model source, generated command plans, and native SolidCraft renders
+with source-matched verification. The CAD project, not the Python library,
+owns `scripts/ci/build-results.py`, `site/` and its publication workflows.
+
+The old experiment site and files are temporarily retained during migration
+until the new URL and complete native coverage have been verified.
 
 ## Code organization
 
@@ -222,8 +165,9 @@ function is selected by the model's name.
 - CSG translation supports intersection, union, difference and oriented cylinders.
 - Anchor references are currently reliable on the supported rectangular bases;
   a joined cylindrical boss uses a numeric top-face pick for its bore.
-- Arbitrary shape graphs, general topology queries, rotations, assemblies,
-  solver constraints and arbitrary workplanes are not yet supported.
+- Basic reusable component definitions, occurrences and copy placement are
+  implemented and native-qualified for the HUB75 pair. General rotations,
+  arbitrary assembly constraints and generic topology queries remain limited.
 - SolidCraft, not SCPF, owns the geometry and native feature history.
 
 ## Sample Plate reconstruction
