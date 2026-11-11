@@ -299,7 +299,7 @@ jobs:
             ([.commands[] | select(.command == "solid.hole")] | length) == 4
             and ([.commands[] | select(.command == "solid.hole" and .params.type == "countersink")] | length) == 4
             and ([.commands[] | select(.command == "solid.fillet")] | length) == 1
-            and ([.commands[] | select(.command == "solid.chamfer")] | length) == 2
+            and ([.commands[] | select(.command == "solid.chamfer")] | length) == 3
           ' output/native/corner-bracket/commands.json
           solidcraft-cli run output/native/corner-bracket/commands.json \
             --param-check strict --results \
