@@ -12,6 +12,18 @@ from build import EXAMPLES
 def check(site: Path, sha: str, require_native: bool = False):
     home = (site / "index.html").read_text(encoding="utf-8")
     cheatsheet = (site / "cheatsheet" / "index.html").read_text(encoding="utf-8")
+    from build import GUIDES
+    guide_index = (site / "guide" / "index.html").read_text(encoding="utf-8")
+    assert "API Guide" in home and "API Guide" in guide_index
+    assert "full API Guide" in cheatsheet
+    for chapter in GUIDES:
+        page = (site / "guide" / chapter["slug"] / "index.html").read_text(encoding="utf-8")
+        assert chapter["title"] in page
+        assert "guide-sidebar" in page and "guide-article" in page
+        assert len(page) > 1400, chapter["slug"]
+    transformations = (site / "guide" / "transformations" / "index.html").read_text(encoding="utf-8")
+    for term in ("orient(", "rotate(", "occurrence.move", "does not compose", "rotate(Z, 180)"):
+        assert term in transformations, term
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
     assert (site / "style.css").is_file()
