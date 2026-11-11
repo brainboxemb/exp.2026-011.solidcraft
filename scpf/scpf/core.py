@@ -48,6 +48,36 @@ class Edges(Enum):
     """
     VERTICAL = "vertical"
 
+    @staticmethod
+    def from_profile(*segment_ids, sides="both"):
+        """Select named 2D sketch segments on the broad faces of an extrusion.
+
+        IDs are defined by Polygon2D(ids=...). At compilation time SCPF
+        resolves them into points accepted by SolidCraft's fillet/chamfer API.
+        Wildcards (e.g. "outer_*") match sketch IDs, not 3D edge names.
+        """
+        if not segment_ids or any(not isinstance(name, str) or not name
+                                  for name in segment_ids):
+            raise ValueError("provide one or more profile segment IDs or patterns")
+        if sides != "both":
+            raise ValueError("profile-edge selection currently supports sides='both'")
+        return _ProfileEdgeSelection(tuple(segment_ids), sides)
+
+    @staticmethod
+    def from_vertices(*vertex_ids):
+        """Select extrusion-axis edges grown from named profile vertices."""
+        if not vertex_ids or any(not isinstance(name, str) or not name
+                                 for name in vertex_ids):
+            raise ValueError("provide named profile vertices")
+        return _ProfileEdgeSelection(tuple(vertex_ids), "axis", "vertices")
+
+
+@dataclass(frozen=True)
+class _ProfileEdgeSelection:
+    patterns: tuple[str, ...]
+    sides: str
+    kind: str = "segments"
+
 
 class Faces(Enum):
     """Named planar face selections for feature operations."""
@@ -236,6 +266,7 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
 class Shape:
     kind: str
     data: Any
+    history: Any = None
 
     def __and__(self, other):
         return Shape("intersection", (self, _shape(other)))
@@ -274,7 +305,7 @@ class Shape:
         return Shape("extrusion", (self, distance, direction.value))
 
     def fillet(self, radius, *, edges=Edges.VERTICAL):
-        if edges is not Edges.VERTICAL:
+        if edges is not Edges.VERTICAL and not isinstance(edges, _ProfileEdgeSelection):
             if not isinstance(edges, (list, tuple)) or not edges:
                 raise ValueError("fillet edges must be Edges.VERTICAL or 3D edge points")
             for point in edges:
@@ -285,6 +316,8 @@ class Shape:
     def chamfer(self, distance, *, edges):
         """Chamfer explicitly selected solid edges by an equal distance."""
         value_of(distance)
+        if isinstance(edges, _ProfileEdgeSelection):
+            return Shape("chamfer", (self, distance, edges))
         if not isinstance(edges, (list, tuple)) or not edges:
             raise ValueError("chamfer edges must be a non-empty sequence of 3D edge points")
         for point in edges:
@@ -307,6 +340,18 @@ class Shape:
         else:
             raise ValueError("shell open must be a Faces value or non-empty sequence")
         return Shape("shell", (self, thickness, faces))
+
+    def with_material(self, name, *, density_g_cm3, color=None):
+        """Assign one design-owned physical material to the final body."""
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("material name must be a non-empty string")
+        if not isinstance(density_g_cm3, (int, float)) or not 0 < density_g_cm3 <= 1000:
+            raise ValueError("material density must be in (0, 1000] g/cm3")
+        if color is not None and (not isinstance(color, str) or
+                                  len(color) != 7 or color[0] != "#" or
+                                  any(c not in "0123456789abcdefABCDEF" for c in color[1:])):
+            raise ValueError("material color must be a #RRGGBB hex string")
+        return Shape("material_assignment", (self, name, density_g_cm3, color))
 
     def at(self, x=0, y=0, z=0):
         """Place a supported profile, primitive or feature at world coordinates.
@@ -376,7 +421,11 @@ class Shape:
                     raise ValueError("bound offset must be finite")
             else:
                 value_of(value)
-        return Shape("anchored", (self, target, parent_anchor, child_anchor, tuple(offset)))
+        return Shape(
+            "anchored",
+            (self, target, parent_anchor, child_anchor, tuple(offset)),
+            self.history,
+        )
 
     def orient(self, *axes):
         if self.kind != "cylinder":
@@ -394,6 +443,17 @@ def _shape(value):
     return value
 
 
+def Text2D(text, *, height=6.0, font="DejaVu Sans Bold"):
+    """Editable sketch lettering (height is capital height, in mm)."""
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("Text2D requires non-empty text")
+    if not isinstance(font, str) or not font.strip():
+        raise ValueError("Text2D requires a font family")
+    if value_of(height) <= 0:
+        raise ValueError("Text2D height must be positive")
+    return Shape("text", (text, height, font))
+
+
 def Rectangle2D(width, depth):
     """An XY rectangle with its lower-left corner at the origin."""
     return Shape("rectangle", (width, depth))
@@ -406,14 +466,50 @@ def Circle2D(*, d=None, r=None):
     return Shape("circle", (d if d is not None else r * 2,))
 
 
-def Polygon2D(points, *, plane="XY"):
-    """A closed 2D polygon on XY, XZ or YZ."""
-    coordinates = tuple(tuple(p) for p in points)
+def Polygon2D(points, *, plane="XY", ids=None, world=False):
+    """A closed polygon. Rows may be (name, (u, v)) or plain (u, v).
+
+    A name belongs to the vertex AND the segment starting at that vertex;
+    sketch.line uses these names as segment IDs. On the XZ plane, world=True
+    lets model code specify intuitive (x, z) instead of sketch-local (x, -z).
+    """
+    rows = tuple(points)
+    named = [
+        isinstance(row, (tuple, list)) and len(row) == 2
+        and isinstance(row[0], str) and isinstance(row[1], (tuple, list))
+        for row in rows
+    ]
+    if any(named):
+        if not all(named):
+            raise ValueError("all polygon vertices must be named, or none")
+        if ids is not None:
+            raise ValueError("named polygon points cannot also specify ids")
+        ids = tuple(row[0] for row in rows)
+        coordinates = tuple(tuple(row[1]) for row in rows)
+    else:
+        coordinates = tuple(tuple(p) for p in rows)
     if len(coordinates) < 3 or any(len(p) != 2 for p in coordinates):
         raise ValueError("Polygon2D requires at least three 2D points")
     if plane not in ("XY", "XZ", "YZ"):
         raise ValueError("unsupported sketch plane")
-    return Shape("polygon", (coordinates, plane))
+    if world:
+        if plane != "XZ":
+            raise ValueError("world=True currently supports only plane='XZ'")
+        coordinates = tuple((x, -z) for x, z in coordinates)
+    if ids is not None:
+        if isinstance(ids, (str, bytes)) or not isinstance(ids, (tuple, list)):
+            raise ValueError("polygon ids must be a sequence of segment names")
+        if len(ids) != len(coordinates):
+            raise ValueError("closed polygon needs exactly one id per segment")
+        if any(not isinstance(tag, str) or not tag or
+               not tag[0].isalpha() or
+               not all(c.isalnum() or c == "_" for c in tag)
+               for tag in ids):
+            raise ValueError("polygon ids must be non-empty alphanumeric identifiers")
+        if len(set(ids)) != len(ids):
+            raise ValueError("polygon ids must be unique")
+        ids = tuple(ids)
+    return Shape("polygon", (coordinates, plane, ids))
 
 
 def Box(length, width, thickness):
@@ -494,7 +590,13 @@ def Boss(*, d, h, hole_d=None, direction=None):
         direction = tuple(direction)
         if len(direction) != 3:
             raise ValueError("Boss direction must be a 3D direction")
-    return Shape("boss", (d, h, hole_d, direction))
+    from .history import History, active_history
+    history = active_history()
+    return Shape(
+        "boss",
+        (d, h, hole_d, direction),
+        None if history is History.AUTO else history,
+    )
 
 
 def Rest(*, width, height, length=None, along=None, direction=None):

@@ -4,9 +4,13 @@ Works on Box, Rectangle2D/Circle2D/Polygon2D extrusions. Every feature
 is compiled from its operation, not from a named example such as Plate.
 """
 from math import isfinite
-from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, value_of, command_value
+from fnmatch import fnmatchcase
+from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, _ProfileEdgeSelection, value_of, command_value
+from .history import History
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
-from .placement import _anchored_features, _base_rectangle, _combine
+from .placement import (
+    _anchored_features, _base_rectangle, _combine, _shell_thickness,
+)
 from .sketches import compile_base, _circle_profiles
 
 
@@ -20,7 +24,7 @@ def _is_feature_tree(shape):
         if profile.kind == "positioned":
             profile = profile.data[0]
         return profile.kind in ("rectangle", "circle", "polygon")
-    if shape.kind in ("fillet", "chamfer", "shell", "union", "difference"):
+    if shape.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
     return False
 
@@ -46,7 +50,10 @@ def _hole_commands(feature, position, name, refs=None):
 
     def simple_params(at, hole_diameter, hole_depth):
         params = dict(
-            position=[command_value(v) for v in at],
+            position=(
+                [command_value(v) for v in at] if direction_vector is not None
+                else [value_of(v) for v in at]
+            ),
             diameter=command_value(hole_diameter),
             targets=[name],
         )
@@ -128,6 +135,54 @@ def _hole_commands(feature, position, name, refs=None):
 
 
 
+def _resolve_profile_edges(base, selection):
+    """Translate named sketch segments/vertices to native SolidCraft edge picks.
+
+    A named segment selects its top and bottom extrusion-face edges. A named
+    vertex selects the perpendicular sweep edge through its midpoint. These
+    selectors intentionally target symmetric XZ polygon extrusions only.
+    """
+    if not isinstance(selection, _ProfileEdgeSelection):
+        return selection
+    if (base.get("profile") != "polygon" or
+            base.get("sketch_plane") != "XZ" or
+            base.get("extrusion_direction") != "symmetric"):
+        raise ModelError("named profile edges currently require a symmetric XZ polygon extrusion")
+    points = base["profile_points"]
+    names = base["profile_ids"]
+    if names is None:
+        raise ModelError("Polygon2D must define ids= or named points to select profile edges")
+    for pattern in selection.patterns:
+        if not any(fnmatchcase(label, pattern) for label in names):
+            raise ModelError(f"no polygon segment or vertex matches {pattern!r}")
+
+    matches = [
+        i for i, label in enumerate(names)
+        if any(fnmatchcase(label, pattern) for pattern in selection.patterns)
+    ]
+    if selection.kind == "vertices":
+        # For an XZ profile extruded symmetrically along Y, the sweep edge
+        # passes through (x, 0, z) at the original sketch vertex.
+        return [
+            (value_of(points[i][0]), 0, -value_of(points[i][1]))
+            for i in matches
+        ]
+    if selection.kind != "segments":
+        raise ModelError(f"unsupported profile edge selection: {selection.kind}")
+
+    half_width = value_of(base["thickness"]) / 2
+    picks = []
+    for y in (-half_width, half_width):
+        for i in matches:
+            a, b = points[i], points[(i + 1) % len(points)]
+            picks.append((
+                (value_of(a[0]) + value_of(b[0])) / 2,
+                y,
+                -(value_of(a[1]) + value_of(b[1])) / 2,
+            ))
+    return picks
+
+
 def _fillet_command(base, radius, edges, name):
     r = _require_positive(radius, "fillet radius")
     if edges is Edges.VERTICAL:
@@ -144,18 +199,13 @@ def _fillet_command(base, radius, edges, name):
         return _command(
             "solid.fillet",
             edges=picks,
-            radius=command_value(radius),
+            radius=r,
             body=name,
         )
     picks = [[value_of(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
-    return _command(
-        "solid.fillet",
-        edges=picks,
-        radius=command_value(radius),
-        body=name,
-    )
+    return _command("solid.fillet", edges=picks, radius=r, body=name)
 
 
 def _chamfer_command(distance, edges, name):
@@ -376,6 +426,65 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     return operations
 
 
+def _sketch_boss_commands(feature, position, name, *, feature_name=None):
+    """Experimental sketch-based lowering for a semantic Boss object."""
+    diameter, height, hole_diameter, direction = feature.data
+    _require_positive(diameter, "boss diameter")
+    _require_positive(height, "boss height")
+    if direction is not None and [value_of(v) for v in direction] != [0, 0, 1]:
+        raise ModelError("sketch-based Boss prototype currently supports +Z only")
+
+    x, y, z = position
+    label = feature_name or "Boss"
+    plane = dict(plane="XY", name=label)
+    if value_of(z):
+        plane["offset"] = command_value(z)
+
+    commands = [
+        _command("sketch.create", **plane),
+        _command(
+            "sketch.circle.center",
+            center=[command_value(x), command_value(y)],
+            diameter=command_value(diameter),
+        ),
+        _command("sketch.finish"),
+        _command(
+            "solid.extrude",
+            distance=command_value(height),
+            direction="positive",
+            operation="join",
+            targets=[name],
+            name=label,
+        ),
+    ]
+
+    if hole_diameter is not None:
+        _require_positive(hole_diameter, "boss hole diameter")
+        top = _combine(z, height)
+        hole_label = f"{label} hole"
+        hole_plane = dict(plane="XY", name=hole_label)
+        if value_of(top):
+            hole_plane["offset"] = command_value(top)
+        commands.extend([
+            _command("sketch.create", **hole_plane),
+            _command(
+                "sketch.circle.center",
+                center=[command_value(x), command_value(y)],
+                diameter=command_value(hole_diameter),
+            ),
+            _command("sketch.finish"),
+            _command(
+                "solid.extrude",
+                distance=command_value(height),
+                direction="negative",
+                operation="cut",
+                targets=[name],
+                name=hole_label,
+            ),
+        ])
+    return commands
+
+
 def _attached_commands(shape, original, feature, name, *, feature_name=None):
     child, target, parent_anchor, child_anchor, offset = feature.data
     if target != original:
@@ -392,6 +501,21 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
     if attached_primitive.kind in ("lip", "snap_fit", "boss", "rest"):
         if shape.kind != "union":
             raise ModelError("plastic features are added with +")
+        if (
+            attached_primitive.kind == "boss"
+            and attached_primitive.history is History.SKETCH
+        ):
+            operations = []
+            for primitive, position, _refs in resolved:
+                operations.extend(
+                    _sketch_boss_commands(
+                        primitive,
+                        position,
+                        name,
+                        feature_name=feature_name,
+                    )
+                )
+            return operations
         return [
             _plastic_feature_command(primitive, position, name)
             for primitive, position, _refs in resolved
@@ -442,6 +566,119 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
     return operations
 
 
+def _explicit_sketch_commands(shape, original, feature, name):
+    """Compile an explicitly authored named sketch and its extrusion."""
+    sketch_name, target, parent_anchor, plane_info, profiles, distance, direction = feature.data
+    plane_name, sketch_origin = plane_info
+    if target != original:
+        raise ModelError("explicit Sketch must target the body being modified")
+    if shape.kind not in ("union", "difference"):
+        raise ModelError("explicit Sketch extrusion must be added or subtracted")
+
+    (width, depth), (x, y, z), thickness = _base_rectangle(target)
+    if thickness is None:
+        raise ModelError("explicit Sketch requires a rectangular solid")
+
+    if plane_name is not None:
+        if sketch_origin is not None:
+            orientation = {
+                "XY": ([1, 0, 0], [0, 1, 0]),
+                "XZ": ([1, 0, 0], [0, 0, 1]),
+                "YZ": ([0, 1, 0], [0, 0, 1]),
+            }
+            x_dir, y_dir = orientation[plane_name]
+            plane = dict(
+                plane={"origin": [value_of(v) for v in sketch_origin],
+                       "x_dir": x_dir, "y_dir": y_dir},
+                name=sketch_name,
+            )
+        else:
+            plane = dict(plane=plane_name, name=sketch_name)
+        relative_origin = (0, 0)
+    else:
+        if parent_anchor is Anchor.TOP:
+            plane_z = _combine(z, thickness)
+        elif parent_anchor is Anchor.BOTTOM:
+            plane_z = z
+        elif parent_anchor is Anchor.INNER_BOTTOM:
+            wall = _shell_thickness(target)
+            if wall is None:
+                raise ModelError("Anchor.INNER_BOTTOM requires a shelled body")
+            plane_z = _combine(z, wall)
+        elif parent_anchor is Anchor.CENTER:
+            plane_z = _combine(z, thickness / 2)
+        else:
+            raise ModelError("unsupported explicit Sketch anchor")
+
+        plane = dict(plane="XY", name=sketch_name)
+        if value_of(plane_z):
+            plane["offset"] = command_value(plane_z)
+        relative_origin = (_combine(x, width / 2), _combine(y, depth / 2))
+
+    commands = [_command("sketch.create", **plane)]
+
+    for profile, offset in profiles:
+        ox = _combine(relative_origin[0], offset[0])
+        oy = _combine(relative_origin[1], offset[1])
+
+        if profile.kind == "circle":
+            diameter = profile.data[0]
+            _require_positive(diameter, "sketch circle diameter")
+            commands.append(
+                _command(
+                    "sketch.circle.center",
+                    center=[command_value(ox), command_value(oy)],
+                    diameter=command_value(diameter),
+                )
+            )
+            continue
+
+        if profile.kind == "rectangle":
+            rectangle_width, rectangle_height = profile.data
+            _require_positive(rectangle_width, "sketch rectangle width")
+            _require_positive(rectangle_height, "sketch rectangle height")
+            commands.append(
+                _command(
+                    "sketch.rectangle.two_point",
+                    p0=[command_value(ox), command_value(oy)],
+                    p1=[
+                        command_value(_combine(ox, rectangle_width)),
+                        command_value(_combine(oy, rectangle_height)),
+                    ],
+                )
+            )
+            continue
+
+        if profile.kind == "text":
+            text, height, font = profile.data
+            _require_positive(height, "sketch text height")
+            commands.append(_command(
+                "sketch.text", text=text,
+                at=[command_value(ox), command_value(oy)],
+                height=command_value(height), font=font,
+            ))
+            continue
+        raise ModelError("explicit Sketch supports Circle2D, Rectangle2D or Text2D")
+
+    commands.append(_command("sketch.finish"))
+
+    extrude = dict(
+        operation="join" if shape.kind == "union" else "cut",
+        targets=[name],
+        name=sketch_name,
+    )
+    if distance is Depth.THROUGH_ALL:
+        if shape.kind != "difference":
+            raise ModelError("Depth.THROUGH_ALL is only supported for Sketch cuts")
+        extrude["through_all"] = True
+    else:
+        extrude["distance"] = command_value(distance)
+        extrude["direction"] = direction
+
+    commands.append(_command("solid.extrude", **extrude))
+    return commands
+
+
 def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
     profiles, distance, direction = cutter.data
     try:
@@ -480,6 +717,16 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
 def _to_commands(shape, name):
     if shape.kind in ("box", "extrusion"):
         return compile_base(shape, name)
+    if shape.kind == "material_assignment":
+        base_shape, material, density, color = shape.data
+        steps, base = _to_commands(base_shape, name)
+        creation = dict(name=material, density_g_cm3=density)
+        if color is not None:
+            creation["color"] = color
+        return steps + [
+            _command("material.create", **creation),
+            _command("material.assign", bodies=[name], material=material),
+        ], base
     if shape.kind == "shell":
         original, thickness, faces = shape.data
         steps, base = _to_commands(original, name)
@@ -487,11 +734,11 @@ def _to_commands(shape, name):
     if shape.kind == "fillet":
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
-        return steps + [_fillet_command(base, radius, edges, name)], base
+        return steps + [_fillet_command(base, radius, _resolve_profile_edges(base, edges), name)], base
     if shape.kind == "chamfer":
         original, distance, edges = shape.data
         steps, base = _to_commands(original, name)
-        return steps + [_chamfer_command(distance, edges, name)], base
+        return steps + [_chamfer_command(distance, _resolve_profile_edges(base, edges), name)], base
     if shape.kind in ("union", "difference"):
         original, added = shape.data
         steps, base = _to_commands(original, name)
@@ -501,6 +748,10 @@ def _to_commands(shape, name):
         if added.kind == "anchored":
             return steps + _attached_commands(
                 shape, original, added, name, feature_name=feature_name), base
+        if added.kind == "explicit_sketch_extrusion":
+            return steps + _explicit_sketch_commands(
+                shape, original, added, name
+            ), base
         if added.kind == "placed3d" and added.data[0].kind in (
                 "lip", "snap_fit", "boss", "rest"):
             if shape.kind != "union":
@@ -550,7 +801,7 @@ def compile_features(shape, name):
     # dimension of the feature. Keep it before coordinates of its profile.
     # XY rectangular footprints instead list their plan dimensions first.
     root = shape
-    while root.kind in ("fillet", "chamfer", "shell", "union", "difference"):
+    while root.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         root = root.data[0]
     if root.kind == "extrusion" and root.data[0].kind == "polygon":
         parameters = _collect((root.data[1], shape))

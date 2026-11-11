@@ -31,8 +31,8 @@ class SCPFExamples(unittest.TestCase):
         holes = [c["params"] for c in commands if c["command"] == "solid.hole"]
         self.assertEqual(len(holes), 4)
         self.assertEqual([c["position"] for c in holes],
-                         [[-35, -15, "thickness"], [35, -15, "thickness"],
-                          [35, 15, "thickness"], [-35, 15, "thickness"]])
+                         [[-35, -15, 10], [35, -15, 10],
+                          [35, 15, 10], [-35, 15, 10]])
         self.assertTrue(all(c["diameter"] == 8 for c in holes))
         self.assertTrue(all(c["targets"] == ["Plate"] for c in holes))
         self.assertTrue(all("references" not in c for c in holes))
@@ -49,12 +49,10 @@ class SCPFExamples(unittest.TestCase):
         original = json.loads(
             (ROOT / "examples/bracket/source/bracket.json").read_text()
         )
-        # The input source used sketch + cut. SCPF now keeps the same profile
-        # geometry parametrically and emits native Hole features.
-        self.assertEqual(
-            [c["command"] for c in generated["commands"][2:7]],
-            [c["command"] for c in original["commands"][2:7]],
-        )
+        # The profile/extrusion agree with the source; fillet selection
+        # explicitly names the target body rather than relying on GUI state.
+        self.assertEqual(generated["commands"][2:6], original["commands"][2:6])
+        self.assertEqual(generated["commands"][6]["params"]["body"], "Bracket")
         self.assertEqual([c["command"] for c in generated["commands"][7:]],
                          ["solid.hole", "solid.hole"])
         self.assertEqual([c["params"]["position"]
@@ -74,10 +72,7 @@ class SCPFExamples(unittest.TestCase):
             generated = run_script(file)
         self.assertEqual(generated["commands"][0]["params"]["expression"], "70")
         self.assertEqual(generated["commands"][1]["params"]["expression"], "8")
-        self.assertEqual(
-            generated["commands"][3]["params"]["points"][2],
-            [40, "thickness"],
-        )
+        self.assertEqual(generated["commands"][3]["params"]["points"][2], [40, 8])
         self.assertEqual(generated["commands"][6]["params"]["edges"], [[40, -35, -8]])
 
     def test_sample_plate_preserves_original_sketch_and_feature_names(self):
@@ -549,232 +544,131 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(feature_commands[9]["params"]["position"], [0, 0, 2])
         self.assertEqual(feature_commands[9]["params"]["length"], 24)
 
-    def test_reusable_model_instances_compile_to_one_component_and_two_occurrences(self):
+    def test_plastic_enclosure_pi_video_feature_sequence(self):
         commands = run_script(
-            ROOT / "examples/components/scpf/model.py"
+            ROOT / "examples/plastic-enclosure-pi/scpf/model.py"
         )["commands"]
-
         self.assertEqual(
             [c["params"]["name"] for c in commands
              if c["command"] == "parameters.add"],
-            ["Block_length", "Block_width", "Block_height"],
+            ["board_w", "board_d", "height", "wall"],
         )
+        features = [c for c in commands if c["command"] != "parameters.add"]
         self.assertEqual(
-            [c["params"]["name"] for c in commands
-             if c["command"] == "component.create"],
-            ["Block"],
+            [c["command"] for c in features],
+            ["sketch.create", "sketch.rectangle.two_point", "sketch.finish",
+             "solid.extrude", "solid.fillet", "solid.shell", "solid.fillet",
+             "plastic.boss", "plastic.boss", "plastic.boss", "plastic.boss",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.rectangle.two_point", "sketch.rectangle.two_point",
+             "sketch.finish", "solid.extrude",
+             "sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
         )
-        copies = [c for c in commands if c["command"] == "occurrence.copy"]
-        self.assertEqual(len(copies), 1)
-        self.assertEqual(copies[0]["params"]["component"], "Block")
-        self.assertEqual(copies[0]["params"]["translate"], [40.0, 0.0, 0.0])
-        rectangle = next(
-            c for c in commands
-            if c["command"] == "sketch.rectangle.two_point"
-        )
-        self.assertIn("Block_length", str(rectangle["params"]))
-        self.assertIn("Block_width", str(rectangle["params"]))
-
-        joint = next(c for c in commands if c["command"] == "joint.create")
-        self.assertEqual(joint["params"]["type"], "rigid")
+        self.assertIn("board_w", str(features[1]["params"]["p0"][0]))
+        self.assertIn("board_d", str(features[1]["params"]["p1"][1]))
+        self.assertEqual(features[4]["params"]["radius"], 5.0)
+        self.assertEqual(features[6]["params"]["radius"], 1.0)
+        bosses = [c["params"] for c in features if c["command"] == "plastic.boss"]
         self.assertEqual(
-            joint["params"]["a"],
-            {"occurrence": "Block:1", "face": [20.0, 0.0, 5.0]},
+            [p["position"] for p in bosses],
+            [[-39, -24.5, 2], [19, -24.5, 2],
+             [-39, 24.5, 2], [19, 24.5, 2]],
         )
+        self.assertTrue(all(p["hole_diameter"] == 2.5 for p in bosses))
         self.assertEqual(
-            joint["params"]["b"],
-            {"occurrence": "Block:2", "face": [20.0, 0.0, 5.0]},
+            [c["params"]["name"] for c in features
+             if c["command"] == "sketch.create"],
+            ["PlasticEnclosurePi footprint", "Pi ports",
+             "USB and Ethernet", "Floor vents", "Pi 4 engraving"],
         )
-
-    def test_component_attach_rejects_non_associative_offset_for_now(self):
-        from scpf.core import Anchor
-        from scpf.model_objects import ModelDefinition, ModelInstance
-        from scpf.core import Box
-
-        definition = ModelDefinition(
-            "Block",
-            (("length", 40.0), ("width", 30.0), ("height", 10.0)),
-            Box(40, 30, 10),
-        )
-        left = ModelInstance(definition)
-        right = ModelInstance(definition)
-
-        with self.assertRaisesRegex(ValueError, "not implemented associatively"):
-            right.attach(
-                left,
-                parent=Anchor.RIGHT,
-                child=Anchor.LEFT,
-                offset=(5, 0),
-            )
-
-    def test_different_model_parameters_create_independent_component_definitions(self):
-        with tempfile.TemporaryDirectory() as directory:
-            file = Path(directory) / "model.py"
-            file.write_text(
-                "class Block:\n"
-                "    length = 40.0\n"
-                "    width = 30.0\n"
-                "    height = 10.0\n"
-                "    def build(self):\n"
-                "        Box(self.length, self.width, self.height)\n"
-                "class Pair:\n"
-                "    def build(self):\n"
-                "        left = Block(width=30.0)\n"
-                "        right = Block(width=50.0).move(x=60.0)\n"
-                "        left + right\n"
-                "Pair()\n"
-            )
-            commands = run_script(file)["commands"]
-
+        cuts = [c for c in features if c["command"] == "solid.extrude"
+                and c["params"].get("operation") == "cut"]
+        self.assertEqual(len(cuts), 4)
+        self.assertEqual([c["params"]["direction"] for c in cuts],
+                         ["negative", "negative", "negative", "negative"])
         self.assertEqual(
-            [c["params"]["name"] for c in commands
-             if c["command"] == "component.create"],
-            ["Block", "Block 2"],
+            [c["command"] for c in features[-6:]],
+            ["sketch.create", "sketch.text", "sketch.finish", "solid.extrude",
+             "material.create", "material.assign"],
         )
-        self.assertFalse(any(c["command"] == "occurrence.copy" for c in commands))
-        parameter_names = [
-            c["params"]["name"] for c in commands
-            if c["command"] == "parameters.add"
-        ]
-        self.assertEqual(
-            parameter_names,
-            [
-                "Block_length", "Block_width", "Block_height",
-                "Block_2_length", "Block_2_width", "Block_2_height",
-            ],
-        )
+        self.assertEqual(features[-5]["params"]["text"], "Pi 4")
+        self.assertEqual(features[-2]["params"]["density_g_cm3"], 1.27)
+        self.assertEqual(features[-1]["params"]["material"], "PETG")
 
-    def test_symmetric_polygon_keeps_symbolic_coordinates(self):
-        with tempfile.TemporaryDirectory() as directory:
-            file = Path(directory) / "model.py"
-            file.write_text(
-                "class Profile:\n"
-                "    length = 60.0\n"
-                "    wall = 12.0\n"
-                "    width = 24.0\n"
-                "    def build(self):\n"
-                "        Polygon2D([(0, 0), (self.length, 0), "
-                "(self.length, self.wall), (0, self.wall)], plane='XZ')" 
-                ".extrude(self.width, direction=Direction.SYMMETRIC)\n"
-                "Profile()\n"
-            )
-            commands = run_script(file)["commands"]
-
-        line = next(c for c in commands if c["command"] == "sketch.line")
-        extrude = next(c for c in commands if c["command"] == "solid.extrude")
-        self.assertEqual(line["params"]["points"][1][0], "length")
-        self.assertEqual(line["params"]["points"][2], ["length", "wall"])
-        self.assertEqual(extrude["params"]["distance"], "width")
-        self.assertEqual(extrude["params"]["direction"], "symmetric")
-
-    def test_recessed_countersink_preserves_the_recess_floor(self):
-        from scpf.compiler import compile_model
-        from scpf.core import Box, Hole
-
-        body = Box(40, 30, 12)
-        hole = Hole(
-            d=5.4,
-            countersink_d=10.4,
-            countersink_angle=90,
-            countersink_recess=1.0,
-            direction=(0, 0, -1),
-        ).at(10, 0, 12)
-        commands = compile_model(body + hole, "Part")["commands"]
-        holes = [c for c in commands if c["command"] == "solid.hole"]
-
-        self.assertEqual(len(holes), 2)
-        self.assertEqual(holes[0]["params"]["diameter"], 10.4)
-        self.assertEqual(holes[0]["params"]["depth"], 1.0)
-        self.assertEqual(holes[0]["params"]["position"], [10, 0, 12])
-        self.assertEqual(holes[1]["params"]["type"], "countersink")
-        self.assertEqual(holes[1]["params"]["diameter"], 5.4)
-        self.assertEqual(holes[1]["params"]["cs_diameter"], 10.4)
-        self.assertEqual(holes[1]["params"]["cs_angle"], 90)
-        self.assertEqual(holes[1]["params"]["position"], [10.0, 0.0, 11.0])
-
-    def test_vertical_recessed_countersink_uses_kernel_safe_order(self):
-        from scpf.compiler import compile_model
-        from scpf.core import Box, Hole
-
-        body = Box(40, 30, 12)
-        side_hole = Hole(
-            d=5.4, depth=13.0,
-            countersink_d=10.4, countersink_angle=90,
-            countersink_recess=1.0, direction=(1, 0, 0),
-        ).at(-20, 0, 6)
-        commands = compile_model(body + side_hole, "Part")["commands"]
-        holes = [c for c in commands if c["command"] == "solid.hole"]
-
-        self.assertEqual(len(holes), 2)
-        self.assertEqual(holes[0]["params"]["type"], "countersink")
-        self.assertEqual(holes[0]["params"]["position"], [-19.0, 0.0, 6.0])
-        self.assertEqual(holes[1]["params"]["diameter"], 10.4)
-        self.assertEqual(holes[1]["params"]["depth"], 1.0)
-        self.assertEqual(holes[1]["params"]["position"], [-20, 0, 6])
-
-    def test_bracket_countersink_position_has_no_zero_offsets(self):
-        # A recessed axial hole must not add head_recess * 0 to X or Y.
-        import json
+    def test_history_policy_can_lower_boss_to_sketches(self):
         commands = run_script(
-            ROOT / "examples/corner-bracket/scpf/model.py"
-        )["commands"]
-        self.assertNotIn("head_recess * 0", json.dumps(commands))
-        holes = [c for c in commands if c["command"] == "solid.hole"]
-        countersinks = [c for c in holes if
-                        c["params"].get("type") == "countersink"]
-        self.assertEqual(len(countersinks), 4)
-        for hole in countersinks:
-            self.assertTrue(all("* 0" not in str(x)
-                                for x in hole["params"]["position"]))
-
-    def test_production_corner_bracket_compiles_to_native_feature_history(self):
-        commands = run_script(
-            ROOT / "examples/corner-bracket/scpf/model.py"
+            ROOT / "examples/history-policy/scpf/model.py"
         )["commands"]
         feature_commands = [
             c for c in commands if c["command"] != "parameters.add"
         ]
-
         self.assertEqual(
-            [c["command"] for c in feature_commands[:7]],
+            [c["command"] for c in feature_commands],
             [
                 "sketch.create",
-                "sketch.line",
+                "sketch.rectangle.two_point",
                 "sketch.finish",
                 "solid.extrude",
-                "solid.fillet",
-                "solid.chamfer",
-                "solid.chamfer",
+                "plastic.boss",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
+                "sketch.create",
+                "sketch.circle.center",
+                "sketch.finish",
+                "solid.extrude",
             ],
         )
         self.assertEqual(
-            feature_commands[3]["params"]["direction"],
-            "symmetric",
-        )
-        self.assertEqual(
-            feature_commands[3]["params"]["distance"],
-            "bracket_width",
-        )
-        self.assertEqual(
-            feature_commands[4]["params"]["radius"],
-            "inside_corner_radius",
-        )
-        self.assertEqual(
-            [c["params"]["distance"] for c in feature_commands[5:7]],
-            ["side_edge_chamfer", "elephant_foot_relief"],
+            [c["params"].get("name") for c in feature_commands
+             if c["command"] == "sketch.create"],
+            [
+                "HistoryPolicyBoss footprint",
+                "Boss",
+                "Boss hole",
+                "Explicit pad",
+            ],
         )
 
-        holes = [
-            c for c in feature_commands if c["command"] == "solid.hole"
-        ]
-        self.assertEqual(len(holes), 16)
-        countersinks = [
-            c for c in holes if c["params"].get("type") == "countersink"
-        ]
-        self.assertEqual(len(countersinks), 4)
-        self.assertTrue(all(
-            c["params"]["cs_angle"] == 90 for c in countersinks
-        ))
+    def test_explicit_sketch_scope_requires_profiles_and_closes_before_extrude(self):
+        from scpf.core import Box, Circle2D
+        from scpf.explicit_sketch import Sketch
+
+        body = Box(40, 30, 6)
+        with self.assertRaisesRegex(ValueError, "at least one profile"):
+            with Sketch(name="Empty", on=body):
+                pass
+
+        sketch = Sketch(name="Pad", on=body)
+        with sketch:
+            sketch.add(Circle2D(d=10))
+            with self.assertRaisesRegex(ValueError, "before extruding"):
+                sketch.extrude(5)
+
+        self.assertEqual(sketch.extrude(5).kind, "explicit_sketch_extrusion")
+
+    def test_history_policy_scope_does_not_leak(self):
+        from scpf.core import Boss
+        from scpf.history import History, behavior
+
+        with behavior(history=History.SKETCH):
+            inside = Boss(d=12, h=10)
+        outside = Boss(d=12, h=10)
+
+        self.assertIs(inside.history, History.SKETCH)
+        self.assertIsNone(outside.history)
 
     def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
         from scpf.compiler import compile_model

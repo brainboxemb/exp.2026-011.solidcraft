@@ -53,19 +53,34 @@ MODELS = {
     },
     "corner-bracket": {
         "title": "CornerBracket",
-        "tagline": "Production plywood corner bracket reconstructed in native SolidCraft",
-        "description": "Parameterized 24 mm-wide L bracket with R4 inside corner, outer-side and print-foot relief chamfers, and four recessed M5 countersunk mounting holes.",
-        "parameters": "60 × 60 mm arms; 12 mm wall; 24 mm width; four M5 holes",
+        "tagline": "24 mm plywood corner bracket with four countersunk mounting holes",
+        "description": "The default SCPF model uses one native 90° countersink per hole. The old recessed-hole experiment remains as model_reference.py; this fast variant has a larger tapered opening instead of a flat-bottom head seat. Remaining arm-end points are tracked in issue #20.",
+        "parameters": "24 mm width, 12 mm wall, 60 mm arms; four Ø5.4 mm holes",
         "diagram": "bracket",
-        "stages": [
-            "XZ side-profile with end bevels and outside-corner chamfer",
-            "Symmetric extrude — 24 mm wide",
-            "Round inside corner — R4",
-            "Chamfer outside side edges — 2 mm",
-            "Print-side elephant-foot relief — 0.6 mm",
-            "Cut four recessed M5 DIN 7991 countersunk holes",
-            "Finish the four pairs of 0.2 mm edge-relief cuts",
-        ],
+        "stages": ["Profile — 2D L outline with arm-end bevels",
+                   "Extrude — symmetric 24 mm body",
+                   "Fillet — rounded inside corner R4",
+                   "Chamfer — outer edges of both broad faces",
+                   "Chamfer — print-face elephant-foot relief",
+                   "Four countersinks — single hole feature per location"],
+    },
+    "plastic-enclosure-pi": {
+        "title": "Plastic Enclosure Pi",
+        "tagline": "Raspberry Pi 4 case with connectors, vents and engraving",
+        "description": "Reconstructs the Raspberry Pi 4 video using a rounded open-top shell, mounting bosses, connector cuts, floor vents, Pi 4 lettering and PETG material.",
+        "parameters": "95 × 66 × 24 mm; R5; PETG; 4 × M2.5 standoffs",
+        "diagram": "plastic-enclosure",
+        "stages": ["Outline — centered 95 × 66 mm footprint",
+                   "Extrude — height 24 mm",
+                   "Fillet — four vertical corners R5",
+                   "Shell — open top, 2 mm wall",
+                   "Fillet upper rim — R1",
+                   "Four mounting bosses — Ø6 / Ø2.5, 58 × 49 pattern",
+                   "Sketch and cut USB-C and dual micro-HDMI ports",
+                   "Sketch and cut USB / Ethernet opening",
+                   "Sketch and cut five floor ventilation slots",
+                   "Engrave Pi 4 text, 0.6 mm",
+                   "Assign PETG physical material"],
     },
     "plastic-enclosure": {
         "title": "Plastic Enclosure",
@@ -110,7 +125,7 @@ def screenshot_info(native_root, commit, model):
     metadata = read_json(manifest)
     if metadata.get("source_commit") != commit or metadata.get("verified") is not True:
         return None
-    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "sample-plate": "sample-plate/model.png", "corner-bracket": "corner-bracket/model.png", "plastic-enclosure": "plastic-enclosure/model.png"}.get(model)
+    rel = {"plate": "plate.png", "csg-cube": "csg-cube/model.png", "bracket": "bracket/model.png", "corner-bracket": "corner-bracket/model.png", "sample-plate": "sample-plate/model.png", "plastic-enclosure": "plastic-enclosure/model.png", "plastic-enclosure-pi": "plastic-enclosure-pi/model.png"}.get(model)
     if not rel:
         return None
     candidate = native_root / rel
@@ -141,6 +156,7 @@ def command_stages(commands):
         "sketch.finish": "Finish sketch",
         "solid.extrude": "Extrusion / cut",
         "solid.fillet": "Rounded edge",
+        "solid.chamfer": "Chamfered edge",
         "solid.box": "Box primitive",
         "solid.sphere": "Sphere primitive",
         "solid.cylinder": "Cylinder primitive",
@@ -244,7 +260,7 @@ Native qualification is reported only when the matching verified image exists.</
 <a class="btn" href="models/{slug}/">Explore model →</a></div></article>""")
     home = f"""<section class="hero"><div class="wrap"><div class="eyebrow">SCPF · SolidCraft</div>
 <h1>CAD models, from readable code to native geometry</h1>
-<p>Explore five small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
+<p>Explore six small CAD designs and their construction stages. Python SCPF emits native SolidCraft commands; SolidCraft creates the final BRep model.</p></div></section>
 <main class="wrap"><section class="intro"><h2>Getting started</h2><p>New to SCPF? <a href="cheatsheet/">Open the SCPF cheatsheet</a> for 2D/3D primitives, operations and examples.</p><h2>Model catalog</h2>
 <p>Each model has its Python source, generated command JSON and a readable operation timeline. PR previews may show existing main renders for reference, explicitly labelled as not verified for the PR revision.</p>
 <p><span class="badge">{len(MODELS)} models</span> <span class="badge verified">{verified_count} matching native screenshots</span></p></section>

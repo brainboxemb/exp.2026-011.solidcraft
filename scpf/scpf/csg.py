@@ -2,12 +2,15 @@
 
 This module is not a geometry engine. SolidCraft executes these operations.
 """
-from .core import Shape, Parameter, value_of, command_value, number_text
+from .core import Shape, Parameter, Expression, value_of, command_value, number_text
 from .compiler import ModelError, _command, _require_positive
 
 def _half(dim, negative=False):
     if isinstance(dim, Parameter):
         return f"-{dim.name} / 2" if negative else f"{dim.name} / 2"
+    if isinstance(dim, Expression):
+        expression = command_value(dim)
+        return f"-({expression}) / 2" if negative else f"({expression}) / 2"
     return -value_of(dim) / 2 if negative else value_of(dim) / 2
 
 

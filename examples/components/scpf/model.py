@@ -4,7 +4,7 @@ class Block:
     height = 10.0
 
     def build(self):
-        Box(self.length, self.width, self.height)
+        return Box(self.length, self.width, self.height)
 
 
 class TwoBlocks:
@@ -16,7 +16,7 @@ class TwoBlocks:
             child=Anchor.LEFT,
         )
 
-        left + right
+        return left + right
 
 
 TwoBlocks()

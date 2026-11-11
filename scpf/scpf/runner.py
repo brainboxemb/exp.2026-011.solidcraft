@@ -16,6 +16,8 @@ from .compiler import compile_model
 from .core import Parameter, Shape
 from .assembly import compile_assembly
 from .model_objects import Assembly, ModelDefinition, ModelInstance
+from .history import History, behavior
+from .explicit_sketch import Sketch
 
 
 def _symbolic(value, name):
@@ -205,6 +207,7 @@ def run_script(path: str | Path) -> dict:
         "Polygon2D": core.Polygon2D,
         "Rectangle2D": core.Rectangle2D,
         "Circle2D": core.Circle2D,
+        "Text2D": core.Text2D,
         "Direction": core.Direction,
         "Edges": core.Edges,
         "Faces": core.Faces,
@@ -214,6 +217,9 @@ def run_script(path: str | Path) -> dict:
         "X": core.X,
         "Y": core.Y,
         "Z": core.Z,
+        "History": History,
+        "behavior": behavior,
+        "Sketch": Sketch,
     }
     if isinstance(definition, ast.FunctionDef):
         _implicit_shape(definition.body)
@@ -223,10 +229,8 @@ def run_script(path: str | Path) -> dict:
         if not isinstance(item, ast.ClassDef):
             continue
         build_method = next(
-            (
-                member for member in item.body
-                if isinstance(member, ast.FunctionDef) and member.name == "build"
-            ),
+            (member for member in item.body
+             if isinstance(member, ast.FunctionDef) and member.name == "build"),
             None,
         )
         if build_method is not None:
@@ -236,11 +240,10 @@ def run_script(path: str | Path) -> dict:
     ast.fix_missing_locations(syntax)
     exec(compile(syntax, str(path), "exec"), context)
 
-    final_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
+    root_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
     for class_name in model_classes:
-        if class_name == name and final_class is not None:
-            continue
-        context[class_name] = _model_factory(context[class_name])
+        if class_name != name:
+            context[class_name] = _model_factory(context[class_name])
 
     if isinstance(definition, ast.FunctionDef):
         context[name] = _model_function(context[name])
@@ -257,7 +260,7 @@ def run_script(path: str | Path) -> dict:
             keywords=last.value.keywords,
         )
         context["_scpf_design_object"] = _design_object
-        context["_scpf_root_class"] = final_class
+        context["_scpf_root_class"] = root_class
         ast.fix_missing_locations(constructor)
         result = eval(
             compile(ast.Expression(body=constructor), str(path), "eval"),

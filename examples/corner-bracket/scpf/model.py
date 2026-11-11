@@ -1,4 +1,12 @@
-class CornerBracket:
+"""Fast CornerBracket variant: one native countersink per mounting hole.
+
+Temporary GUI-performance experiment.  Unlike the production reference, the
+counterbore/recess and the 0.2 mm hole-edge relief cuts are omitted.  The
+larger countersink mouth is intentional; it is NOT an exact geometrical
+replacement for a flat-bottom recessed screw-head seat.
+"""
+
+class CornerBracketFast:
     bracket_width = 24.0
     wall_thickness = 12.0
     horizontal_arm_length = 60.0
@@ -7,7 +15,6 @@ class CornerBracket:
     outer_corner_chamfer = 6.0
     arm_end_chamfer = 3.0
     side_edge_chamfer = 2.0
-
     elephant_foot_relief = 0.6
     inside_corner_radius = 4.0
 
@@ -21,7 +28,6 @@ class CornerBracket:
     head_diameter = 10.0
     head_clearance = 0.4
     head_recess = 1.0
-    bolt_hole_edge_relief = 0.2
 
     def build(self):
         w = self.wall_thickness
@@ -31,124 +37,87 @@ class CornerBracket:
         outer = self.outer_corner_chamfer
         ef = self.elephant_foot_relief
 
-        # Same X/Z outline as the OpenSCAD production model. The tiny
-        # elephant-foot bevels at the two arm end faces belong to this profile.
-        # SolidCraft's XZ sketch maps its second ordinate to world -Z.
-        # Negate it to retain the OpenSCAD X/Z world coordinate convention.
-        outline_xz = [
-                (h - ef, 0),
-                (h, ef),
-                (h, w - end),
-                (h - end, w),
-                (-w + outer, w),
-                (-w, w - outer),
-                (-w, -v + end),
-                (-w + end, -v),
-                (-ef, -v),
-                (0, -v + ef),
-                (0, 0),
-            ]
-        profile = Polygon2D([(x, -z) for x, z in outline_xz], plane="XZ")
+        # L profile in the XZ plane (+Z up, +X right; not to scale):
+        #
+        #       D--------------------------------C
+        #      /                                  \
+        #     E                                    B
+        #     |                                    |
+        #     |         I--------------------------A
+        #     |         |
+        #     |         |
+        #     F         |
+        #      \        |
+        #       G-------H
+        #
+        # A o_hor_tip    B o_hor_bevel  C o_hor
+        # D o_corner     E o_vert       F o_vert_bevel
+        # G o_vert_end   H v_tip        I i_corner
+        #
+        # Start at I, the inside corner and sketch origin (0, 0).
+        # Polygon order: I -> A -> B -> C -> D -> E -> F -> G -> H -> I.
+        # Each label names its point and the segment starting at that point.
+        # Elephant-foot relief is NOT part of this sketch: it comes later.
+        profile = Polygon2D([
+            ("i_corner", (0, 0)),
+            ("o_hor_tip", (h, 0)),
+            ("o_hor_bevel", (h, w - end)),
+            ("o_hor", (h - end, w)),
+            ("o_corner", (-w + outer, w)),
+            ("o_vert", (-w, w - outer)),
+            ("o_vert_bevel", (-w, -v + end)),
+            ("o_vert_end", (-w + end, -v)),
+            ("v_tip", (0, -v)),
+        ], plane="XZ", world=True)
 
-        body = profile.extrude(
-            self.bracket_width,
-            direction=Direction.SYMMETRIC,
-        )
+        body = profile.extrude(self.bracket_width, direction=Direction.SYMMETRIC)
 
-        # Round the concave plywood corner.
+        # Round the inside, then remove printing relief from the two tip
+        # edges (parallel to the extrusion direction).
         body = body.fillet(
             self.inside_corner_radius,
-            edges=[(0, 0, 0)],
+            edges=Edges.from_vertices("i_corner"),
         )
-
-        # Bevel only the outside perimeter on both broad print faces.
-        y0 = self.bracket_width / 2
-        outer_edges = [
-            (h, (ef + w - end) / 2),
-            (h - end / 2, w - end / 2),
-            ((h - end - w + outer) / 2, w),
-            (-w + outer / 2, w - outer / 2),
-            (-w, (w - outer - v + end) / 2),
-            (-w + end / 2, -v + end / 2),
-            ((-w + end - ef) / 2, -v),
-        ]
-        body = body.chamfer(
-            self.side_edge_chamfer,
-            edges=[
-                (x, side * y0, z)
-                for side in (-1, 1)
-                for x, z in outer_edges
-            ],
-        )
-
-        # One pick per broad face selects the complete tangent inside chain:
-        # horizontal contact edge -> rounded corner -> vertical contact edge.
         body = body.chamfer(
             self.elephant_foot_relief,
-            edges=[
-                (h / 2, -y0, 0),
-                (h / 2, y0, 0),
-            ],
+            edges=Edges.from_vertices("o_hor_tip", "v_tip"),
+        )
+        body = body.chamfer(
+            self.side_edge_chamfer,
+            edges=Edges.from_profile("o_*", sides="both"),
+        )
+        # Inner relief along both broad faces, independent of the 2D outline.
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_profile("i_corner", sides="both"),
         )
 
+        # A single 90-degree countersink avoids coincident circle/face cuts.
+        # For 90 degrees, increasing the mouth diameter by 2*recess gives
+        # the original head diameter at the intended nominal recess depth.
+        # Note: this is a tapered opening, not a flat-bottom counterbore.
         through_d = self.bolt_diameter + self.bolt_clearance
-        head_d = self.head_diameter + self.head_clearance
-        outside_relief_d = head_d + 2 * self.bolt_hole_edge_relief
-        inside_relief_d = through_d + 2 * self.bolt_hole_edge_relief
-
+        mouth_d = self.head_diameter + self.head_clearance + 2 * self.head_recess
         first = self.plywood_thickness + self.bolt_offset
-        top_x = (first, first + self.bolt_spacing)
-        vertical_z = (-first, -(first + self.bolt_spacing))
 
-        # Two countersunk M5 holes through the horizontal arm.
-        for x in top_x:
-            hole = Hole(
+        for x in (first, first + self.bolt_spacing):
+            body = body + Hole(
                 d=through_d,
-                countersink_d=head_d,
+                countersink_d=mouth_d,
                 countersink_angle=90,
-                countersink_recess=self.head_recess,
                 direction=(0, 0, -1),
             ).at(x, self.bolt_y_offset, w)
-            body = body + hole
 
+        for z in (-first, -(first + self.bolt_spacing)):
             body = body + Hole(
-                d=outside_relief_d,
-                depth=self.bolt_hole_edge_relief,
-                direction=(0, 0, -1),
-            ).at(x, self.bolt_y_offset, w)
-            body = body + Hole(
-                d=inside_relief_d,
-                depth=self.bolt_hole_edge_relief,
-                direction=(0, 0, 1),
-            ).at(x, self.bolt_y_offset, 0)
-
-        # Two matching holes through the vertical arm.
-        for z in vertical_z:
-            # Use explicit over-through depth for the horizontal bore.
-            # The native through-all countersink can fail after the 1 mm
-            # vertical-face counterbore; overrun avoids a coplanar exit.
-            hole = Hole(
                 d=through_d,
                 depth=w + 1.0,
-                countersink_d=head_d,
+                countersink_d=mouth_d,
                 countersink_angle=90,
-                countersink_recess=self.head_recess,
                 direction=(1, 0, 0),
             ).at(-w, -self.bolt_y_offset, z)
-            body = body + hole
 
-            body = body + Hole(
-                d=outside_relief_d,
-                depth=self.bolt_hole_edge_relief,
-                direction=(1, 0, 0),
-            ).at(-w, -self.bolt_y_offset, z)
-            body = body + Hole(
-                d=inside_relief_d,
-                depth=self.bolt_hole_edge_relief,
-                direction=(-1, 0, 0),
-            ).at(0, -self.bolt_y_offset, z)
-
-        body
+        return body
 
 
-CornerBracket()
+CornerBracketFast()

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - example/corner-bracket
+      - example/plastic-enclosure-pi
     paths:
       - "scpf/**"
       - "examples/**"
@@ -14,7 +14,7 @@ on:
   pull_request:
     branches:
       - main
-      - experiment/reusable-components
+      - experiment/history-policy-sketch-scope
     types: [ready_for_review, synchronize, reopened]
     paths:
       - "scpf/**"
@@ -81,86 +81,6 @@ jobs:
           set -euo pipefail
           command -v solidcraft-cli
           solidcraft-cli --version
-      - name: Reproduce and measure each hole operation
-        env:
-          PYTHONPATH: scpf
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p output/bench
-          python -m scpf examples/corner-bracket/scpf/model.py --out output/bench/full.json
-          python - <<'PY'
-          import json, subprocess, time
-          from pathlib import Path
-
-          out = Path("output/bench")
-          cmds = json.loads((out / "full.json").read_text())["commands"]
-          assert cmds[26]["command"] == "solid.hole"
-          assert cmds[27]["params"]["type"] == "countersink"
-          basic = dict(cmds[27])
-          basic["params"] = {k: v for k, v in cmds[27]["params"].items()
-                             if k not in ("type", "cs_diameter", "cs_angle")}
-          at_top = dict(cmds[27])
-          at_top["params"] = {**cmds[27]["params"], "position": cmds[26]["params"]["position"]}
-          plain_top = dict(at_top)
-          plain_top["params"] = {k: v for k, v in at_top["params"].items()
-                                 if k not in ("type", "cs_diameter", "cs_angle")}
-          single_cb = dict(at_top)
-          single_cb["params"] = {**basic["params"], "position": cmds[26]["params"]["position"],
-                                 "type": "counterbore",
-                                 "cb_diameter": cmds[26]["params"]["diameter"],
-                                 "cb_depth": cmds[26]["params"]["depth"]}
-          proposed = dict(at_top)
-          proposed["params"] = {
-              **at_top["params"],
-              # Proposed fast alternative has a Ø12.4 exterior mouth.
-              # It is NOT the same shape as a Ø10.4 flat-bottom recess.
-              "cs_diameter": "head_diameter + (head_clearance) + 2 * head_recess",
-          }
-          clearance = dict(cmds[26])
-          clearance["params"] = {
-              **cmds[26]["params"],
-              "diameter": "head_diameter + (head_clearance) + 0.2 mm",
-          }
-          variants = {
-              "07-expanded-single-countersink": cmds[:26] + [proposed],
-              "08-slightly-wider-head-recess": cmds[:26] + [clearance, cmds[27]],
-              "00-before-hole": cmds[:26],
-              "01-head-recess": cmds[:27],
-              "02-recess-then-countersink": cmds[:28],
-              "03-recess-then-plain-bore": cmds[:27] + [basic],
-              "04-single-countersink": cmds[:26] + [at_top],
-              "05-single-plain-bore": cmds[:26] + [plain_top],
-              "06-one-counterbore": cmds[:26] + [single_cb],
-          }
-          results = []
-          for name, commands in variants.items():
-              src = out / f"{name}.json"
-              src.write_text(json.dumps({"commands": commands}, indent=2))
-              started = time.perf_counter()
-              args = ["solidcraft-cli", "run", str(src), "--param-check", "strict",
-                      "--save", str(out / f"{name}.sc")]
-              try:
-                  r = subprocess.run(args, capture_output=True, text=True, timeout=45)
-                  duration = round(time.perf_counter() - started, 2)
-                  output = r.stdout + "\n" + r.stderr
-                  status = "PASS" if r.returncode == 0 else f"EXIT {r.returncode}"
-              except subprocess.TimeoutExpired as exc:
-                  duration = round(time.perf_counter() - started, 2)
-                  status = "TIMEOUT"
-                  output = str(exc)
-              item = {"case": name, "seconds": duration, "status": status,
-                      "messages": [x for x in output.splitlines() if
-                                   "warning" in x.lower() or "error" in x.lower()][-8:]}
-              results.append(item)
-              print(f"BENCHMARK {name}: {duration:.2f}s {status}", flush=True)
-              for msg in item["messages"]:
-                  print("  " + msg[:300], flush=True)
-          (out / "timings.json").write_text(json.dumps(results, indent=2))
-          failures = [x["case"] for x in results if x["status"] != "PASS"]
-          if failures:
-              print("Investigate these cases:", failures)
-          PY
       - name: Evaluate semantic plate model with strict SolidCraft parameter checks
         shell: bash
         run: |
@@ -366,6 +286,40 @@ jobs:
             --out output/native/bracket/model.png \
             --no-grid --no-axes
           test -s output/native/bracket/model.png
+      - name: Qualify and render default CornerBracket in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/corner-bracket
+          python -m scpf examples/corner-bracket/scpf/model.py \
+            --out output/native/corner-bracket/commands.json
+          jq -e '
+            ([.commands[] | select(.command == "solid.hole")] | length) == 4
+            and ([.commands[] | select(.command == "solid.hole" and .params.type == "countersink")] | length) == 4
+            and ([.commands[] | select(.command == "solid.fillet")] | length) == 1
+            and ([.commands[] | select(.command == "solid.chamfer")] | length) == 3
+          ' output/native/corner-bracket/commands.json
+          solidcraft-cli run output/native/corner-bracket/commands.json \
+            --param-check strict --results \
+            --json-out output/native/corner-bracket/results.json \
+            --save output/native/corner-bracket/model.sc \
+            --out output/native/corner-bracket/model.step
+          solidcraft-cli eval output/native/corner-bracket/model.sc \
+            --json-out output/native/corner-bracket/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "CornerBracketFast"
+            and .bodies[0].closed == true
+            and (.bodies[0].bbox.min | map(. * 1000 | round / 1000)) == [-12, -12, -60]
+            and (.bodies[0].bbox.max | map(. * 1000 | round / 1000)) == [60, 12, 12]
+            and (.timeline | all(.error == null))
+          ' output/native/corner-bracket/measurements.json
+          solidcraft-cli snapshot output/native/corner-bracket/model.sc \
+            --out output/native/corner-bracket/model.png \
+            --no-grid --no-axes
+          test -s output/native/corner-bracket/model.png
       - name: Qualify reconstructed SamplePlate in native SolidCraft
         env:
           PYTHONPATH: scpf
@@ -456,162 +410,121 @@ jobs:
             --no-grid --no-axes
           test -s output/native/plastic-enclosure/model.png
           cat output/native/plastic-enclosure/measurements.json
-      - name: Qualify reusable components and rigid attach in native SolidCraft
+      - name: Qualify history policy and explicit Sketch experiment
         env:
           PYTHONPATH: scpf
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p output/native/components
-          python -m scpf examples/components/scpf/model.py \
-            --out output/native/components/commands.json
+          mkdir -p output/native/history-policy
+          python -m scpf examples/history-policy/scpf/model.py \
+            --out output/native/history-policy/commands.json
           jq -e '
-            ([.commands[] | select(.command == "component.create")] | length) == 1
-            and ([.commands[] | select(.command == "occurrence.copy")] | length) == 1
-            and ([.commands[] | select(.command == "joint.create")] | length) == 1
-            and ([.commands[] | select(.command == "joint.create")][0].params.type == "rigid")
-          ' output/native/components/commands.json
-          solidcraft-cli run output/native/components/commands.json \
+            ([.commands[] | select(.command == "plastic.boss")] | length) == 1
+            and ([.commands[] | select(.command == "sketch.create") | .params.name]
+              == ["HistoryPolicyBoss footprint", "Boss", "Boss hole", "Explicit pad"])
+            and ([.commands[] | select(.command == "solid.extrude")] | length) == 4
+          ' output/native/history-policy/commands.json
+          solidcraft-cli run output/native/history-policy/commands.json \
             --param-check strict --results \
-            --json-out output/native/components/results.json \
-            --save output/native/components/model.sc \
-            --out output/native/components/model.step
-          solidcraft-cli eval output/native/components/model.sc \
-            --json-out output/native/components/measurements.json
-          jq -e '
-            (.timeline | all(.error == null))
-          ' output/native/components/measurements.json
-          unzip -p output/native/components/model.sc document.json \
-            > output/native/components/document.json
-          jq -e '
-            (.components | length) == 1
-            and .components[0].name == "Block"
-            and (.occurrences | length) == 2
-            and [.occurrences[].name] == ["Block:1", "Block:2"]
-            and (.assembly.joints | length) == 1
-            and .assembly.joints[0].kind == "rigid"
-          ' output/native/components/document.json
-          test -s output/native/components/model.sc
-          test -s output/native/components/model.step
-          solidcraft-cli snapshot output/native/components/model.sc \
-            --out output/native/components/model.png \
-            --no-grid --no-axes
-          test -s output/native/components/model.png
-
-      - name: Qualify production CornerBracket in native SolidCraft
-        env:
-          PYTHONPATH: scpf
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p output/native/corner-bracket
-          python -m scpf examples/corner-bracket/scpf/model.py \
-            --out output/native/corner-bracket/commands.json
-          jq '{
-            commands: (
-              .commands[:24] +
-              [{"command":"model.edges","params":{"body":"CornerBracket"}}]
-            )
-          }' output/native/corner-bracket/commands.json \
-            > output/native/corner-bracket/pre-chamfer-edges.json
-          solidcraft-cli run output/native/corner-bracket/pre-chamfer-edges.json \
-            --results \
-            --json-out output/native/corner-bracket/pre-chamfer-results.json
-          jq -e '
-            ([.commands[] | select(.command == "solid.fillet")] | length) == 1
-            and ([.commands[] | select(.command == "solid.chamfer")] | length) == 2
-            and ([.commands[] | select(.command == "solid.hole")] | length) == 16
-            and ([.commands[] | select(
-              .command == "solid.hole"
-              and .params.type == "countersink"
-            )] | length) == 4
-            and ([.commands[] | select(
-              .command == "solid.extrude"
-              and .params.direction == "symmetric"
-            )] | length) == 1
-          ' output/native/corner-bracket/commands.json
-          solidcraft-cli run output/native/corner-bracket/commands.json \
-            --param-check strict --results \
-            --json-out output/native/corner-bracket/results.json \
-            --save output/native/corner-bracket/model.sc \
-            --out output/native/corner-bracket/model.step
-          solidcraft-cli eval output/native/corner-bracket/model.sc \
-            --json-out output/native/corner-bracket/measurements.json
+            --json-out output/native/history-policy/results.json \
+            --save output/native/history-policy/model.sc \
+            --out output/native/history-policy/model.step
+          solidcraft-cli eval output/native/history-policy/model.sc \
+            --json-out output/native/history-policy/measurements.json
           jq -e '
             .body_count == 1
-            and .bodies[0].name == "CornerBracket"
+            and .bodies[0].name == "HistoryPolicyBoss"
             and .bodies[0].closed == true
-            and (.bodies[0].bbox.min | map(. * 1000 | round / 1000)) == [-12, -12, -60]
-            and (.bodies[0].bbox.max | map(. * 1000 | round / 1000)) == [60, 12, 12]
+            and (.sketches | length) == 4
             and (.timeline | all(.error == null))
-          ' output/native/corner-bracket/measurements.json
-          unzip -p output/native/corner-bracket/model.sc document.json \
-            > output/native/corner-bracket/document.json
+          ' output/native/history-policy/measurements.json
+          unzip -p output/native/history-policy/model.sc document.json \
+            > output/native/history-policy/document.json
           jq -e '
-            ([.features[] | select(.type == "sketch")] | length) == 1
-            and ([.features[] | select(.type == "extrude")] | length) == 1
-            and ([.features[] | select(.type == "fillet")] | length) == 1
-            and ([.features[] | select(.type == "chamfer")] | length) == 2
-            and ([.features[] | select(.type == "hole")] | length) == 16
-          ' output/native/corner-bracket/document.json
-          cat > output/native/corner-bracket/change-arm.json <<'JSON'
+            [.features[].type] ==
+              ["sketch", "extrude", "boss",
+               "sketch", "extrude", "sketch", "extrude",
+               "sketch", "extrude"]
+            and [.features[] | select(.type == "sketch") | .name]
+              == ["HistoryPolicyBoss footprint", "Boss", "Boss hole", "Explicit pad"]
+          ' output/native/history-policy/document.json
+          test -s output/native/history-policy/model.sc
+          test -s output/native/history-policy/model.step
+
+      - name: Qualify Raspberry Pi 4 enclosure in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/plastic-enclosure-pi
+          python -m scpf examples/plastic-enclosure-pi/scpf/model.py \
+            --out output/native/plastic-enclosure-pi/commands.json
+          jq -e '
+            [.commands[] | select(.command == "sketch.create") | .params.name]
+              == ["PlasticEnclosurePi footprint", "Pi ports",
+                  "USB and Ethernet", "Floor vents", "Pi 4 engraving"]
+            and ([.commands[] | select(.command == "plastic.boss")] | length) == 4
+            and ([.commands[] | select(.command == "solid.fillet")] | length) == 2
+            and ([.commands[] | select(.command == "solid.shell")] | length) == 1
+            and ([.commands[] | select(
+              .command == "solid.extrude" and .params.operation == "cut"
+            )] | length) == 4
+          ' output/native/plastic-enclosure-pi/commands.json
+          solidcraft-cli run output/native/plastic-enclosure-pi/commands.json \
+            --param-check strict --results \
+            --json-out output/native/plastic-enclosure-pi/results.json \
+            --save output/native/plastic-enclosure-pi/model.sc \
+            --out output/native/plastic-enclosure-pi/model.step
+          solidcraft-cli eval output/native/plastic-enclosure-pi/model.sc \
+            --json-out output/native/plastic-enclosure-pi/measurements.json
+          cat output/native/plastic-enclosure-pi/measurements.json
+          jq -e '
+            .body_count == 1
+            and .bodies[0].name == "PlasticEnclosurePi"
+            and .bodies[0].closed == true
+            and (.bodies[0].bbox.min | map(. * 1000 | round / 1000)) == [-47.5, -33, 0]
+            and (.bodies[0].bbox.max | map(. * 1000 | round / 1000)) == [47.5, 33, 24]
+            and (.sketches | length) == 5
+            and .bodies[0].material == "PETG"
+            and .bodies[0].density_g_cm3 == 1.27
+            and (.timeline | all(.error == null))
+          ' output/native/plastic-enclosure-pi/measurements.json
+          unzip -p output/native/plastic-enclosure-pi/model.sc document.json \
+            > output/native/plastic-enclosure-pi/document.json
+          jq -e '
+            [.features[].type] ==
+              ["sketch", "extrude", "fillet", "shell", "fillet",
+               "boss", "boss", "boss", "boss",
+               "sketch", "extrude", "sketch", "extrude", "sketch", "extrude",
+               "sketch", "extrude"]
+          ' output/native/plastic-enclosure-pi/document.json
+          # Last step of the upstream video: edit height 24 -> 32 mm.
+          cat > output/native/plastic-enclosure-pi/change-height.json <<'JSON'
           {"commands":[
-            {"command":"parameters.change","params":{
-              "name":"horizontal_arm_length","expression":"70 mm"
-            }}
+            {"command":"parameters.change","params":{"name":"height","expression":"32 mm"}}
           ]}
           JSON
-          solidcraft-cli run output/native/corner-bracket/change-arm.json \
-            --in output/native/corner-bracket/model.sc \
+          solidcraft-cli run output/native/plastic-enclosure-pi/change-height.json \
+            --in output/native/plastic-enclosure-pi/model.sc \
             --param-check strict \
-            --save output/native/corner-bracket/model-long.sc
-          solidcraft-cli eval output/native/corner-bracket/model-long.sc \
-            --json-out output/native/corner-bracket/measurements-long.json
+            --save output/native/plastic-enclosure-pi/model-height-32.sc
+          solidcraft-cli eval output/native/plastic-enclosure-pi/model-height-32.sc \
+            --json-out output/native/plastic-enclosure-pi/measurements-height-32.json
           jq -e '
             .body_count == 1
-            and (.bodies[0].bbox.max[0] * 1000 | round / 1000) == 70
+            and (.bodies[0].bbox.max[2] * 1000 | round / 1000) == 32
             and (.timeline | all(.error == null))
-          ' output/native/corner-bracket/measurements-long.json
-          solidcraft-cli snapshot output/native/corner-bracket/model.sc \
-            --out output/native/corner-bracket/model.png \
+          ' output/native/plastic-enclosure-pi/measurements-height-32.json
+          solidcraft-cli snapshot output/native/plastic-enclosure-pi/model-height-32.sc \
+            --out output/native/plastic-enclosure-pi/model-height-32.png \
             --no-grid --no-axes
-          test -s output/native/corner-bracket/model.png
-
-      - name: Export progressive CornerBracket crash-isolation models
-        env:
-          PYTHONPATH: scpf
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          root = Path("output/native/corner-bracket")
-          commands = json.loads((root / "commands.json").read_text())["commands"]
-          # Command slices are exact prefixes of the verified model, not
-          # separately modelled substitutes. Indices are 1-based.
-          for label, count in (
-              ("01-profile", 23),
-              ("02-fillets-chamfers", 26),
-              ("03-horizontal-holes", 34),
-              ("04-first-side-hole", 38),
-          ):
-              (root / f"{label}.json").write_text(
-                  json.dumps({"commands": commands[:count]}, indent=2)
-              )
-          PY
-          for stage in 01-profile 02-fillets-chamfers 03-horizontal-holes 04-first-side-hole; do
-            solidcraft-cli run "output/native/corner-bracket/$stage.json" \
-              --param-check strict \
-              --save "output/native/corner-bracket/$stage.sc" \
-              --out "output/native/corner-bracket/$stage.step"
-            solidcraft-cli snapshot "output/native/corner-bracket/$stage.sc" \
-              --out "output/native/corner-bracket/$stage.png" \
-              --no-grid --no-axes
-            test -s "output/native/corner-bracket/$stage.sc"
-            test -s "output/native/corner-bracket/$stage.png"
-          done
-
+          test -s output/native/plastic-enclosure-pi/model-height-32.png
+          solidcraft-cli snapshot output/native/plastic-enclosure-pi/model.sc \
+            --out output/native/plastic-enclosure-pi/model.png \
+            --no-grid --no-axes
+          test -s output/native/plastic-enclosure-pi/model.png
 
       - name: Render CSG cube preview
         shell: bash
@@ -651,7 +564,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube bracket corner-bracket sample-plate plastic-enclosure; do
+          for model in plate csg-cube bracket corner-bracket sample-plate plastic-enclosure plastic-enclosure-pi; do
             python -m scpf "examples/$model/scpf/model.py" \
               --out "output/examples/$model/scpf/solidcraft.json"
           done
@@ -662,25 +575,31 @@ jobs:
             --out output/site
           python scripts/ci/test-results.py output/site "$GITHUB_SHA"
           test -s output/site/models/bracket/native.png
-          test -s output/site/models/sample-plate/native.png
           test -s output/site/models/corner-bracket/native.png
+          test -s output/site/models/sample-plate/native.png
+          test -s output/site/models/plastic-enclosure-pi/native.png
       - name: Find PR number for native preview
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         id: preview_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=$(gh pr view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json number --jq .number)" >> "$GITHUB_OUTPUT"
+          fi
       - name: Check out existing Pages without replacing the main site
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: published-native-preview
           persist-credentials: true
       - name: Publish native-verified PR snapshot only
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/example/plastic-enclosure-pi')
         env:
           PR_NUMBER: ${{ steps.preview_pr.outputs.number }}
         shell: bash
