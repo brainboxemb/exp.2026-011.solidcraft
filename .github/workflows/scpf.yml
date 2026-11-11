@@ -14,6 +14,8 @@ on:
     paths:
       - "scpf/**"
       - "examples/**"
+      - "site/**"
+      - "README.md"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
 
