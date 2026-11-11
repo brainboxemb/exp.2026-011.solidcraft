@@ -1,0 +1,21 @@
+{
+  "library_commit": "2f992e4fd0f26838bc8dddccb5321da97ef07e99",
+  "qualifier": "command-generation",
+  "examples": {
+    "simple-box": {
+      "source": "examples/simple-box/model.py",
+      "commands": "examples/simple-box/commands.json",
+      "command_count": 7
+    },
+    "anchored-holes": {
+      "source": "examples/anchored-holes/model.py",
+      "commands": "examples/anchored-holes/commands.json",
+      "command_count": 13
+    },
+    "components": {
+      "source": "examples/components/model.py",
+      "commands": "examples/components/commands.json",
+      "command_count": 11
+    }
+  }
+}
