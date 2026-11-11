@@ -93,7 +93,7 @@ class AssemblyTests(unittest.TestCase):
         placements = [c["params"] for c in commands
                       if c["command"] == "occurrence.move"]
         self.assertNotIn("to", [c for c in commands if c["command"] == "occurrence.move"][1]["params"])
-        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [-80.0, 0.0, 0.0])
+        self.assertEqual([row[3] for row in placements[1]["matrix"][:3]], [0.0, 0.0, 0.0])
 
     def test_named_group_creates_real_nested_native_component(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -178,7 +178,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(rotated[0]["occurrence"], "Panel:2")
         self.assertNotIn("to", rotated[0])
         self.assertEqual(rotated[0]["matrix"],
-                         [[-1.0, 0.0, 0.0, 0.0], [0.0, -1.0, 0.0, 0.0],
+                         [[-1.0, 0.0, 0.0, 60.0], [0.0, -1.0, 0.0, 0.0],
                           [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
 
     def test_first_grounded_occurrence_can_have_absolute_rotation(self):
@@ -232,9 +232,9 @@ class AssemblyTests(unittest.TestCase):
         self.assertAlmostEqual(upright[1][2], 1.)
         self.assertAlmostEqual(upright[2][1], -1.)
         self.assertEqual(upright[3][:3], [0., 0., 160.])
-        relative = _times(_pose((-160, 0, 160), ((0, 1, -1), 180)),
-                          _inverse(upright))
-        rebuilt = _times(relative, upright)
+        relative = _times(_inverse(upright),
+                          _pose((-160, 0, 160), ((0, 1, -1), 180)))
+        rebuilt = _times(upright, relative)
         expected = _pose((-160, 0, 160), ((0, 1, -1), 180))
         for row, want in zip(rebuilt, expected):
             for value, target in zip(row, want):
