@@ -66,8 +66,9 @@ class TwoHub75Panels:
 
     def build(self):
         first = Hub75Panel()
-        second = Hub75Panel().move(x=self.pitch_x)
-        # Component occurrence placement, not a boolean union.
+        second = first.copy().move(x=self.pitch_x)
+        # One Python model build, two native SolidCraft occurrences.
+        # No boolean union and no duplicate editable feature history.
         return first + second
 
 
