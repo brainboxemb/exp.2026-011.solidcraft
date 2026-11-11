@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Components and assemblies · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Components and assemblies</p><h1>Components and assemblies</h1><p class="guide-lead">Reusable definitions, occurrence transforms, grouping and attachments.</p>
+<h2 id="definition">One definition, several occurrences</h2>
+<pre><code>from scpf import Box, component
+
+class Beam:
+    length = 100.0
+    def build(self):
+        return Box(self.length, 20, 20)
+
+BeamComponent = component(Beam)
+left = BeamComponent()
+right = left.copy().move(x=120)
+assembly = (left + right).group(&quot;Beams&quot;)</code></pre>
+<p>SolidCraft receives one reusable definition and multiple occurrences.
+A group is a native parent component in the browser, not a Boolean
+fusion of its children.</p>
+<h2 id="placement">Occurrence placement</h2>
+<p>Copying a model reuses its source placement. Placing an already shifted
+master and shifting the copy may produce an unintended offset. For regular
+arrays, use a central master at the origin, then distribute copies by their
+intended world-space offsets.</p>
+<pre><code>center = BeamComponent()
+array = center
+for x in (-240, -120, 120, 240):
+    array = array + center.copy().move(x=x)</code></pre>
+<h2 id="attach">Face-to-face attachment</h2>
+<pre><code>right = BeamComponent().attach(
+    left, parent=Anchor.RIGHT, child=Anchor.LEFT
+)</code></pre>
+<p>Supported rectangular faces can form a rigid native attachment.
+A general mating constraint solver, arbitrary face-to-face offset and
+multiple levels of independent shared parent groups are not yet available.</p>
+<h2 id="verify">What to test in an assembly</h2>
+<p>Check the native command list for one <code>component.create</code>
+per shared definition, expected <code>occurrence.copy</code> counts,
+and full poses for rotated occurrences. Separately verify native SolidCraft
+geometry and its bounding dimensions before trusting an assembly image.</p></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

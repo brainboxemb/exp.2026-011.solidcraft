@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Getting started · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Getting started</p><h1>Getting started</h1><p class="guide-lead">From a Python class to editable SolidCraft geometry.</p>
+<h2 id="what">What SCPF does</h2>
+<p>SCPF is a Python interface and compiler for <strong>native SolidCraft commands</strong>.
+It is not a replacement CAD kernel. You describe a model using ordinary Python;
+SolidCraft executes the generated commands and owns the final geometry and
+feature history.</p>
+<h2 id="install">Install the library</h2>
+<p>In the <code>lib.py.solidcraft</code> repository and an active Python environment:</p>
+<pre><code>python -m pip install -e ./scpf
+python -m unittest discover -s scpf/tests -v</code></pre>
+<h2 id="first-model">Your first model</h2>
+<p>Define one class, give it numeric dimensions, and return the body from
+<code>build()</code>. No <code>main()</code> or <code>show()</code> is necessary.</p>
+<pre><code>from scpf import Box, Edges
+
+class Plate:
+    length = 100.0
+    width = 60.0
+    thickness = 10.0
+
+    def build(self):
+        plate = Box(self.length, self.width, self.thickness)
+        return plate.fillet(2, edges=Edges.VERTICAL)
+
+Plate()</code></pre>
+<h2 id="run">Compile, inspect, then execute</h2>
+<p>Save the model as <code>model.py</code>. Compilation alone does not open SolidCraft.
+The JSON is a native command plan, not a mesh or STEP file.</p>
+<pre><code>python -m scpf model.py --out output/model.json
+python -m json.tool output/model.json</code></pre>
+<p>For a live GUI run, open an <strong>empty design</strong> in SolidCraft,
+enable <em>Preferences → Assistant → Let AI agents connect</em>, and use:</p>
+<pre><code>python -m scpf model.py --connect</code></pre>
+<p>This sends commands to the active document; it does not save the design.
+The CAD project also provides a separate native CLI qualification workflow.</p>
+<h2 id="next">Where to continue</h2>
+<p>Read <a href="../model-objects/">Model objects</a> to understand the difference
+between a shape definition and a placed component occurrence. The
+<a href="../transformations/">Transformations</a> chapter covers coordinate axes,
+rotation and the common “my panel is lying flat” problem.</p></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

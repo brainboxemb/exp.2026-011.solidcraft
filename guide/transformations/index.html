@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Transformations and orientation · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Transformations and orientation</p><h1>Transformations and orientation</h1><p class="guide-lead">Coordinate systems, movement, rotation, copies and what is not yet supported.</p>
+<h2 id="axes">First choose the coordinate system</h2>
+<p>SolidCraft models are three-dimensional: X, Y and Z are axes, not
+synonyms for left, up and front in every project. The conventional
+<code>Box</code> base is in XY and its height extends along +Z.
+A portrait HUB75 module may be authored with its large face in XY, then
+placed upright in the assembly's XZ plane.</p>
+<p>Differentiate <strong>definition coordinates</strong> (how one component
+is built) from <strong>assembly coordinates</strong> (where an occurrence
+is placed). A camera rotation is only a change of view; it does not
+change any of these coordinates.</p>
+<h2 id="move">Move: translation</h2>
+<pre><code>from scpf import Box
+
+body = Box(40, 20, 10)
+shifted = body.move(x=10, y=0, z=25)</code></pre>
+<p>For supported CSG shapes, <code>move()</code> translates the full CSG
+expression. A feature-based Plate body cannot always be freely moved
+using the same method. Component occurrences have their own placement
+<code>move()</code>, which adds the requested displacement.</p>
+<pre><code>from scpf import component
+
+class Panel:
+    def build(self):
+        return Box(160, 320, 14.5)
+
+PanelComponent = component(Panel)
+first = PanelComponent()
+right = first.copy().move(x=160)</code></pre>
+<h2 id="rotate">Rotate: axis and angle on a component occurrence</h2>
+<p>In the current implementation, <code>rotate()</code> belongs to a
+<strong>component occurrence</strong> and accepts an XYZ direction tuple and
+an angle in degrees. It rotates the placement about the component's local origin.
+The shared component definition is not modified.</p>
+<pre><code>upside_down = first.copy().rotate(axis=(0, 0, 1), degrees=180)
+upright = first.copy().rotate(axis=(1, 0, 0), degrees=90)</code></pre>
+<p>The first rotates about Z; the second rotates about X. A rotation
+around X can convert a face authored in XY into a vertical XZ face.
+The direction of the depth axis changes too.</p>
+<h2 id="absolute">Critical: rotate sets an orientation; it does not compose</h2>
+<pre><code># NOT two successive rotations in current SCPF:
+panel = first.rotate(axis=(1, 0, 0), degrees=90)
+panel = panel.rotate(axis=(0, 1, 0), degrees=180)</code></pre>
+<p>The second call <strong>replaces</strong> the first occurrence rotation.
+It does not apply a second rotation on top of the first. A model that
+appears to lie flat after a second rotation can be caused by this rule.
+SCPF currently supports one absolute axis-angle orientation per occurrence,
+not chained Euler rotations.</p>
+<p>If an orientation needs multiple conceptual turns, compute and pass
+<strong>one final axis-angle pose</strong>; test it against the intended
+geometry. Do not assume two <code>rotate()</code> calls combine.</p>
+<h2 id="named-axes">Are rotate(Z, 180) or rotate(Y, 180) available?</h2>
+<p><strong>No, not yet.</strong> The exported <code>X</code>,
+<code>Y</code> and <code>Z</code> tokens are used in other APIs, including
+bounds and <code>orient()</code>. Occurrence rotation currently requires
+<code>rotate(axis=(0,0,1), degrees=180)</code>. The shorter form is
+a possible future API change, not an existing feature.</p>
+<h2 id="orient">Cylinder orient is a different operation</h2>
+<pre><code>from scpf import Cylinder, X, Y, Z
+
+tool = Cylinder(d=10, h=30).orient(X, Y, Z)</code></pre>
+<p><code>orient()</code> is currently restricted to
+<strong>Cylinder</strong> shapes and their supported CSG compilation.
+It does not mean arbitrary model rotation. Do not substitute
+<code>orient(Z)</code> for a component occurrence's
+<code>rotate(axis=(0,0,1), degrees=…)</code>.</p>
+<h2 id="copies">Copies and ordering</h2>
+<p><code>copy()</code> inherits the source occurrence's placement;
+<code>move()</code> changes its translation; <code>rotate()</code>
+sets its absolute orientation. If a source occurrence is already moved,
+copying and moving it again needs care to avoid double offsets.
+For predictable arrays, start with a master at the origin.</p>
+<h2 id="json">How to verify the generated native command</h2>
+<p>Unit tests compile a tiny model and inspect the
+<code>occurrence.move</code> command. A rotation uses native
+<code>to.position</code>, <code>to.axis</code> and
+<code>to.angle</code> fields. The following is an
+<strong>illustrative command fragment</strong>:</p>
+<pre><code>{
+  &quot;command&quot;: &quot;occurrence.move&quot;,
+  &quot;params&quot;: {
+    &quot;occurrence&quot;: &quot;Panel:2&quot;,
+    &quot;to&quot;: {
+      &quot;position&quot;: [160, 0, 0],
+      &quot;axis&quot;: [0, 0, 1],
+      &quot;angle&quot;: &quot;180 deg&quot;
+    }
+  }
+}</code></pre>
+<p>Compiler tests confirm the command shape, but native CAD evaluation
+and an actual geometry screenshot are still necessary to verify
+that a full assembly is physically upright.</p>
+<h2 id="limitations">Current support summary</h2>
+<table><thead><tr><th>Operation</th><th>Scope</th><th>Limit</th></tr></thead><tbody>
+<tr><td><code>move(x,y,z)</code></td><td>Occurrences, supported CSG shapes</td><td>Not arbitrary feature bodies</td></tr>
+<tr><td><code>rotate(axis=…,degrees=…)</code></td><td>Component occurrences</td><td>Absolute single axis-angle</td></tr>
+<tr><td><code>orient(X,Y,Z)</code></td><td>Cylinder shapes</td><td>Not general components</td></tr>
+<tr><td>Chained rotations</td><td>Not implemented</td><td>Second rotate replaces first</td></tr>
+<tr><td><code>rotate(Z,180)</code></td><td>Not implemented</td><td>Use explicit XYZ axis tuple</td></tr>
+</tbody></table></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
