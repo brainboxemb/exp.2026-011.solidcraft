@@ -1,105 +1,45 @@
-name: SCPF Python model qualification
+name: SCPF Python package qualification
 
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "scpf/**"
-      - "examples/**/scpf/**"
-      - "examples/**/scpf/reference.json"
-      - "scripts/ci/build-results.py"
-      - "scripts/ci/test-results.py"
-      - "site/**"
+      - "examples/**"
+      - ".github/workflows/scpf.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scpf/**"
+      - "examples/**"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
 
 permissions:
   contents: read
-concurrency:
-  group: scpf-fast-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
-  models:
+  package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Prove SCPF works as an installed external Python package
+      - name: Install SCPF editable as an external-style package
+        run: python -m pip install -e ./scpf
+      - name: Run independent API regressions without PYTHONPATH
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install -e ./scpf
-          # No PYTHONPATH: run the same entrypoint a separate CAD project uses.
-          env -u PYTHONPATH python -m scpf examples/hub75-panel/scpf/model.py \
-            --out output/external-hub75.json
-          jq -e '
-            ([.commands[] | select(.command == "component.create")] | length) == 1
-            and ([.commands[] | select(.command == "occurrence.copy")] | length) == 1
-            and ([.commands[] | select(.command == "solid.loft")] | length) == 1
-          ' output/external-hub75.json
-      - name: Test Python CAD models against reviewed command fixtures
-        env:
-          PYTHONPATH: scpf
-        run: python -m unittest discover -s scpf/tests -v
-      - name: Generate SCPF example command plans
-        env:
-          PYTHONPATH: scpf
-        run: |
-          python -m scpf examples/plate/scpf/model.py --out output/examples/plate/scpf/solidcraft.json
-          python -m scpf examples/csg-cube/scpf/model.py --out output/examples/csg-cube/scpf/solidcraft.json
-          python -m scpf examples/bracket/scpf/model.py --out output/examples/bracket/scpf/solidcraft.json
-          python -m scpf examples/sample-plate/scpf/model.py --out output/examples/sample-plate/scpf/solidcraft.json
-          python -m scpf examples/plastic-enclosure/scpf/model.py --out output/examples/plastic-enclosure/scpf/solidcraft.json
-          python -m scpf examples/plastic-enclosure-pi/scpf/model.py --out output/examples/plastic-enclosure-pi/scpf/solidcraft.json
-          python -m scpf examples/corner-bracket/scpf/model.py --out output/examples/corner-bracket/scpf/solidcraft.json
-          python -m scpf examples/hub75-panel/scpf/model.py --out output/examples/hub75-panel/scpf/solidcraft.json
-      - name: Validate and compare command documents
+          unset PYTHONPATH
+          python -m unittest discover -s scpf/tests -v
+      - name: Compile self-contained API fixtures
         shell: bash
         run: |
           set -euo pipefail
-          for model in plate csg-cube plastic-enclosure plastic-enclosure-pi corner-bracket hub75-panel; do
-            jq empty "output/examples/$model/scpf/solidcraft.json"
+          unset PYTHONPATH
+          for model in anchored-holes components history-policy plate bracket; do
+            python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
+            python -m json.tool "output/$model.json" >/dev/null
           done
-          jq -e -s '.[0] == .[1]' \
-            examples/csg-cube/scpf/reference.json \
-            output/examples/csg-cube/scpf/solidcraft.json >/dev/null
-          jq -e '[.commands[] | select(.command == "solid.hole")] | length == 4' \
-            output/examples/plate/scpf/solidcraft.json
-          jq empty output/examples/bracket/scpf/solidcraft.json
-          jq -e -s '.[0] == .[1]' \
-            examples/bracket/scpf/solidcraft.json \
-            output/examples/bracket/scpf/solidcraft.json >/dev/null
-      - name: Retain generated SCPF commands
-        uses: actions/upload-artifact@v4
-        with:
-          name: scpf-native-command-plans
-          path: output/examples/*/scpf/solidcraft.json
-          if-no-files-found: error
-
-      - name: Record SCPF build provenance
-        if: success()
-        shell: bash
-        run: |
-          jq -n --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" \
-            '{source_commit:$sha, workflow_run:$run, implementation:"scpf-python", models:["plate","csg-cube","bracket","sample-plate","plastic-enclosure"]}' \
-            > output/examples/scpf-build.json
-      - name: Build and smoke-test results pages without publishing
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/ci/build-results.py \
-            --generated output/examples \
-            --commit "$GITHUB_SHA" \
-            --out output/site
-          python scripts/ci/test-results.py output/site "$GITHUB_SHA"
-      - name: Retain fast website preview (artifact only)
-        uses: actions/upload-artifact@v4
-        with:
-          name: scpf-site-preview
-          path: output/site/
-          retention-days: 7
-          if-no-files-found: error

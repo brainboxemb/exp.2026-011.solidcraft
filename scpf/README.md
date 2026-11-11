@@ -131,8 +131,8 @@ publishes model source, generated command plans, and native SolidCraft renders
 with source-matched verification. The CAD project, not the Python library,
 owns `scripts/ci/build-results.py`, `site/` and its publication workflows.
 
-The old experiment site and files are temporarily retained during migration
-until the new URL and complete native coverage have been verified.
+The old experiment result pages are retained as historical GitHub Pages content;
+new model output and qualification are owned by the CAD project.
 
 ## Code organization
 

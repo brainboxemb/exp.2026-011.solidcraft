@@ -41,9 +41,9 @@ Native renders and the CAD model catalog are published on the
 This repository was renamed from `exp.2026-011.solidcraft` on 2026-11-11,
 preserving its issues, pull requests and history. The CAD repository is
 separate and has passed its first Python, native SolidCraft and Pages build
-checks. Legacy CAD examples, workflows and result pages may still exist here
-temporarily; **do not treat them as authoritative**. They will be removed only
-after the new CAD qualification and Pages cutover is complete.
+checks. Only the small, independent API fixtures remain under `examples/` on
+`main`. Historical CAD models and the old results website remain in Git history
+and the retained `gh-pages` branch; the **CAD project** is the current owner.
 
 The migration is tracked in [issue #25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25).
 
