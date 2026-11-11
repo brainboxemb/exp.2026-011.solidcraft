@@ -46,6 +46,55 @@ class AssemblyTests(unittest.TestCase):
             {"occurrence": "Block:2", "face": [20.0, 0.0, 5.0]},
         )
 
+    def test_copies_of_placed_occurrences_use_relative_native_offsets(self):
+        """A copied occurrence inherits its source transform."""
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "sidewalls.py"
+            script.write_text(
+                "class SideWall:\n"
+                "    def build(self):\n"
+                "        return Box(15, 100, 362)\n"
+                "class Cabinet:\n"
+                "    def build(self):\n"
+                "        left = SideWall().move(x=-429.5, y=25)\n"
+                "        right = left.copy().move(x=859)\n"
+                "        return (left + right).group('WoodBoxFrame')\n"
+                "Cabinet()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(script)["commands"]
+        copy = next(c["params"] for c in commands
+                    if c["command"] == "occurrence.copy")
+        self.assertEqual(copy["component"], "SideWall")
+        self.assertEqual(copy["translate"], [859.0, 0.0, 0.0])
+        first_move = next(c["params"] for c in commands
+                          if c["command"] == "occurrence.move")
+        self.assertEqual(first_move["translate"], [-429.5, 25.0, 0.0])
+
+    def test_copy_resets_inherited_rotation_when_target_is_unrotated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "rotated_source.py"
+            script.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(20, 10, 2)\n"
+                "class Cabinet:\n"
+                "    def build(self):\n"
+                "        first = Panel().move(x=-40).rotate(degrees=180)\n"
+                "        right = first.copy().move(x=80).rotate(degrees=0)\n"
+                "        return first + right\n"
+                "Cabinet()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(script)["commands"]
+        copy = next(c["params"] for c in commands
+                    if c["command"] == "occurrence.copy")
+        self.assertEqual(copy["translate"], [80.0, 0.0, 0.0])
+        placements = [c["params"]["to"] for c in commands
+                      if c["command"] == "occurrence.move"]
+        self.assertEqual(placements[1]["position"], [40.0, 0.0, 0.0])
+        self.assertEqual(placements[1]["angle"], "0 deg")
+
     def test_named_group_creates_real_nested_native_component(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "group.py"
