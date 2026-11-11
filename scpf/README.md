@@ -28,7 +28,7 @@ Users of the CAD project do **not** set `PYTHONPATH`; they run the root bootstra
 Library issue [#25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25)
 tracks the separation of CAD assets from reusable API implementation.
 
-## Model objects
+## Full library documentation\n\nThe [published API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)\nexplains topics step by step: first model, geometry, transformations, features,\nassemblies and verification. This README retains developer-oriented reference\nnotes; the cheatsheet is only a quick syntax lookup.\n\n**Important:** the current occurrence `rotate()` sets one absolute axis-angle\npose. Calling it twice does not combine two rotations. `rotate(Z, 180)`\nis not yet a supported shorthand; use `rotate(axis=(0, 0, 1), degrees=180)`.\n\n## Model objects
 
 The preferred SCPF style is a plain Python class. Numeric class fields are
 CAD parameters, and `build()` constructs the model. An explicit `return` makes the resulting Shape clear to ordinary Python

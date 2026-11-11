@@ -41,3 +41,19 @@ border-radius:13px;overflow:hidden;display:grid;place-items:center}
 background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
 .example-image figcaption{width:100%;padding:11px 19px;font-size:.82rem;
 color:var(--muted);border-top:1px solid var(--line)}
+
+/* Long-form library guide: readable text, sticky chapter navigation. */
+.guide-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:34px;margin-top:28px}
+.guide-sidebar{align-self:start;position:sticky;top:20px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.guide-sidebar h2{font-size:1rem;margin:0 0 12px}
+.guide-sidebar a{display:block;padding:7px 0;font-size:.89rem}
+.guide-article{min-width:0;max-width:770px;padding-bottom:40px}
+.guide-article h1{font-size:2.1rem;margin:5px 0 10px}
+.guide-article h2{margin:36px 0 12px;padding-top:8px;border-top:1px solid var(--line);font-size:1.4rem}
+.guide-article p{line-height:1.75}
+.guide-article pre{margin:15px 0 21px}
+.guide-article table{border-collapse:collapse;width:100%;margin:22px 0}
+.guide-article td,.guide-article th{padding:10px;border:1px solid var(--line);text-align:left}
+.guide-article th{background:var(--soft)}
+.guide-lead{font-size:1.16rem;color:var(--muted)}
+@media(max-width:800px){.guide-layout{grid-template-columns:1fr}.guide-sidebar{position:static}.guide-article h1{font-size:1.8rem}}
