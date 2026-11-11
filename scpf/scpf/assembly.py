@@ -85,6 +85,24 @@ def compile_assembly(value, name):
     commands = []
     occurrence_names = {}
 
+    # Named groups are actual empty native components, not just labels in
+    # Python. Child component definitions are created under their parent.
+    # Native "component.create(parent=...)" makes the browser expandable.
+    group_names = list(dict.fromkeys(
+        instance.group_name
+        for instance in assembly.instances
+        if instance.group_name is not None
+    ))
+    if set(group_names) & set(names.values()):
+        raise ModelError("assembly group name conflicts with a component name")
+    for group_name in group_names:
+        commands.append(_command(
+            "component.create",
+            name=group_name,
+            activate=False,
+            grounded=(assembly.instances[0].group_name == group_name),
+        ))
+
     by_definition = {}
     for instance in assembly.instances:
         by_definition.setdefault(instance.definition.key, []).append(instance)
@@ -92,6 +110,13 @@ def compile_assembly(value, name):
     for key, instances in by_definition.items():
         definition = instances[0].definition
         component_name = names[key]
+        parent_names = {instance.group_name for instance in instances}
+        if len(parent_names) != 1:
+            raise ModelError(
+                f"{component_name}: one reusable definition cannot currently "
+                "be placed under multiple assembly parents"
+            )
+        parent_name = instances[0].group_name
 
         compiled = compile_model(
             definition.shape,
@@ -108,12 +133,13 @@ def compile_assembly(value, name):
         ]
 
         commands.extend(parameter_commands)
-        first_is_root = instances[0] is assembly.instances[0]
-        commands.append(_command(
-            "component.create",
-            name=component_name,
-            grounded=first_is_root,
-        ))
+        first_is_root = (
+            instances[0] is assembly.instances[0] and parent_name is None
+        )
+        create_params = {"name": component_name, "grounded": first_is_root}
+        if parent_name is not None:
+            create_params["parent"] = parent_name
+        commands.append(_command("component.create", **create_params))
         commands.extend(geometry_commands)
         commands.append(_command("component.activate", component="root"))
 
