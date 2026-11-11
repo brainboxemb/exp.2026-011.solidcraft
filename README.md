@@ -18,8 +18,7 @@ python -m unittest discover -s scpf/tests -v
 There is no mandatory `main()` or `show()`. The tiny
 [examples and SCPF cheatsheet](https://brainboxemb.github.io/lib.py.solidcraft/)
 are generated from source, command-compiled, **rendered by native SolidCraft**\nand regression-checked in CI.\nThe library website also provides a [full, multi-chapter API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/) covering geometry, transforms, native features, reusable components and verification.
-See the
-[SCPF API guide](scpf/README.md) for parameters, placement, sketches, features,
+SolidCraft compatibility: **0.30.1 tested**; older versions are refused by the native-version guard, newer ones generate a warning. See the\n[SCPF API guide](scpf/README.md) for parameters, placement, sketches, features,
 reusable components, and GUI/CLI execution.
 
 ## CAD projects live in another repository

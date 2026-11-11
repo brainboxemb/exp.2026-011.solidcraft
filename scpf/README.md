@@ -28,7 +28,37 @@ Users of the CAD project do **not** set `PYTHONPATH`; they run the root bootstra
 Library issue [#25](https://github.com/brainboxemb/lib.py.solidcraft/issues/25)
 tracks the separation of CAD assets from reusable API implementation.
 
-## Full library documentation\n\nThe [published API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)\nexplains topics step by step: first model, geometry, transformations, features,\nassemblies and verification. This README retains developer-oriented reference\nnotes; the cheatsheet is only a quick syntax lookup.\n\n**Important:** the current occurrence `rotate()` sets one absolute axis-angle\npose. Calling it twice does not combine two rotations. `rotate(Z, 180)`\nis not yet a supported shorthand; use `rotate(axis=(0, 0, 1), degrees=180)`.\n\n## Model objects
+## Full library documentation\n\nThe [published API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)\nexplains topics step by step: first model, geometry, transformations, features,\nassemblies and verification. This README retains developer-oriented reference\nnotes; the cheatsheet is only a quick syntax lookup.\n\n**Important:** the current occurrence `rotate()` sets one absolute axis-angle\npose. Calling it twice does not combine two rotations. `rotate(Z, 180)`\nis not yet a supported shorthand; use `rotate(axis=(0, 0, 1), degrees=180)`.\n\n## Supported SolidCraft version
+
+The native command adapter and verification tests target **SolidCraft 0.30.1**.
+The library's `scpf.version.check_cli_version()` reads
+`solidcraft-cli --version`, **rejects older versions**, and emits a warning
+for newer or unverified versions. It is run automatically by the live SCPF
+CLI before sending model commands when a local CLI is available.
+If the local CLI is not installed, a warning explains that the separate
+GUI version cannot be checked; `--out` works without SolidCraft.
+The installed CLI may differ from the GUI process, so it is only a proxy,
+not proof of which GUI version is running.
+
+For strict CI/headless checks:
+
+```python
+from scpf.version import check_cli_version
+check_cli_version(require_cli=True)
+```
+
+### v0.30.1 occurrence rotation compatibility
+
+SolidCraft 0.30.1's `occurrence.move` supports relative `matrix`
+or `axis` / `angle` / `translate` parameters. It does **not**
+support the later absolute `to: {position, axis, angle}` representation.
+Older versions may silently ignore unknown `to` fields without error.
+SCPF therefore compiles a native **relative 4×4 rigid matrix** and
+native CI must inspect saved occurrence transforms. The matrix is
+row-vector form (translation in the final row), not an ordinary JSON
+pose dict.
+
+## Model objects
 
 The preferred SCPF style is a plain Python class. Numeric class fields are
 CAD parameters, and `build()` constructs the model. An explicit `return` makes the resulting Shape clear to ordinary Python
@@ -111,8 +141,8 @@ second = first.copy().move(x=160).rotate(axis=(0, 0, 1), degrees=180)
 return first + second
 ```
 
-SCPF compiles a rotated placement to native `occurrence.move` with an
-absolute `to: {position, axis, angle}` pose. Rotation is about the component's
+SCPF compiles a rotated placement to native `occurrence.move` with a
+relative rigid `matrix` compatible with SolidCraft 0.30.1. Rotation is about the component's
 local origin and is independent of the definition. The current API supports
 one axis-angle orientation per occurrence, not chained Euler rotations,
 rotation of arbitrary Shapes, or associative sketch constraints.

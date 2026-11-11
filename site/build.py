@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 
 from scpf.runner import run_script
+from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -264,7 +265,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 <p>{escape(description)}</p><pre><code>{escape(snippet)}</code></pre>{ref}</article>""")
         sections.append(f'<section><h2>{escape(heading)}</h2><div class="reference-grid">{"".join(boxes)}</div></section>')
     cheat = f"""<main class="wrap"><div class="crumb"><a href="../">← Library</a> / Cheatsheet</div>
-<section class="hero small"><p class="eyebrow">SCPF reference</p><h1>Cheatsheet</h1>
+<section class="hero small"><p class="eyebrow">SCPF reference</p><h1>Cheatsheet</h1><p>SolidCraft version: <strong>{TESTED_SOLIDCRAFT_VERSION} tested</strong>; older versions are refused and newer versions trigger a compatibility warning.</p>
 <p>Common SCPF syntax alongside tiny examples that CI compiles. For explanations, examples and limitations, read the
 <a href="../guide/">full API Guide</a>.</p></section>
 <div class="notice"><strong>What is verified?</strong> The linked examples and API unit tests run in GitHub Actions.
@@ -276,7 +277,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
         encoding="utf-8")
 
     home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft / reusable Python interface</p>
-<h1>SCPF examples & API cheatsheet</h1><p>Small, readable Python examples to verify the SCPF command compiler.
+<h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: {TESTED_SOLIDCRAFT_VERSION} · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
 <div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
 <a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
