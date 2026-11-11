@@ -7,13 +7,12 @@ This first SCPF model is **not** an exact reproduction of the panel.
 It contains the measured front envelope **159.70 × 319.71 mm**,
 a **14.50 mm** depth, and the six **Ø3 mm** mounting-hole centres:
 **X=±72 mm**, **Y=-152/0/+152 mm**. It uses one grey housing material.
-The original STEP-derived housing has a **real taper**: the outer perimeter
-insets by **1.25 mm per side**, continuously from **Z=2.00 mm** (the start
-of the rear housing) to **Z=14.50 mm**. The current plain rectangular
-envelope does **not yet reproduce this sloping housing wall**. It must be
-implemented as a drafted/lofted feature, not approximated with a short
-edge chamfer. This is a known geometric gap before accepting the panel
-model as a dimensional reference.
+The STEP-derived housing has a **continuous taper**: its outer perimeter
+insets by **1.25 mm per side** from **Z=2.00 mm** (the start of the
+rear housing) to **Z=14.50 mm**. SCPF describes this with a straight
+front extrusion, two rectangle sketches and a **native SolidCraft loft**
+joined to the front. These are editable features, not a short edge chamfer.
+The recessed rear bays, PCB and connectors remain out of scope.
 
 The more complex rear frame, PCB, connectors, pin guides and alternating
 orientation are deliberately not modelled yet.

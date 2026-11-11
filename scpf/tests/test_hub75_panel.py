@@ -36,8 +36,37 @@ class Hub75PanelTests(unittest.TestCase):
         self.assertEqual(
             [c["name"] for c in of("parameters.add")],
             ["Hub75Panel_width", "Hub75Panel_height", "Hub75Panel_depth",
+             "Hub75Panel_front_depth", "Hub75Panel_rear_inset",
              "Hub75Panel_hole_diameter", "Hub75Panel_mount_x", "Hub75Panel_mount_y"],
         )
+
+    def test_rear_taper_uses_editable_native_loft(self):
+        commands = run_script(MODEL)["commands"]
+        kinds = [c["command"] for c in commands]
+        self.assertEqual(kinds.count("solid.extrude"), 1)
+        self.assertEqual(kinds.count("solid.loft"), 1)
+        self.assertEqual(kinds.count("sketch.rectangle.two_point"), 3)
+        loft = next(c["params"] for c in commands if c["command"] == "solid.loft")
+        self.assertEqual(loft["operation"], "join")
+        self.assertEqual(loft["targets"], ["Hub75Panel"])
+        self.assertIn("rear start", loft["sections"][0]["sketch"])
+        self.assertIn("rear perimeter", loft["sections"][1]["sketch"])
+        planes = [c["params"] for c in commands if c["command"] == "sketch.create"]
+        self.assertEqual(
+            [p.get("offset", 0) for p in planes],
+            [0, "Hub75Panel_front_depth", "Hub75Panel_depth"],
+        )
+
+    def test_taper_rejects_invalid_dimensions(self):
+        from scpf.core import Box
+        for kwargs in (
+            {"from_z": 0, "inset": 1.25},
+            {"from_z": 20, "inset": 1.25},
+            {"from_z": 2, "inset": 100},
+            {"from_z": 2, "inset": 0},
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                Box(159.70, 319.71, 14.50).taper(**kwargs)
 
     def test_mount_positions_match_source_drawing(self):
         commands = run_script(MODEL)["commands"]
