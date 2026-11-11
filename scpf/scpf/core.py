@@ -63,11 +63,20 @@ class Edges(Enum):
             raise ValueError("profile-edge selection currently supports sides='both'")
         return _ProfileEdgeSelection(tuple(segment_ids), sides)
 
+    @staticmethod
+    def from_vertices(*vertex_ids):
+        """Select extrusion-axis edges grown from named profile vertices."""
+        if not vertex_ids or any(not isinstance(name, str) or not name
+                                 for name in vertex_ids):
+            raise ValueError("provide named profile vertices")
+        return _ProfileEdgeSelection(tuple(vertex_ids), "axis", "vertices")
+
 
 @dataclass(frozen=True)
 class _ProfileEdgeSelection:
     patterns: tuple[str, ...]
     sides: str
+    kind: str = "segments"
 
 
 class Faces(Enum):

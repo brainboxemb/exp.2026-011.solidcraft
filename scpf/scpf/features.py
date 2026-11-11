@@ -136,15 +136,11 @@ def _hole_commands(feature, position, name, refs=None):
 
 
 def _resolve_profile_edges(base, selection):
-    """Map named sketch segments to native point picks on an extruded body.
+    """Translate named sketch segments/vertices to native SolidCraft edge picks.
 
-    SolidCraft v0.30.1 accepts points / edge indices, but not sketch IDs, in
-    solid.fillet and solid.chamfer. Resolve names from our source sketch,
-    rather than rely on incidental 3D edge numbering or handwritten picks.
-
-    The first implementation intentionally handles the symmetric XZ profiles
-    used by CornerBracket. Other planes/directions need explicit verification
-    of SolidCraft's world axes before they can be enabled.
+    A named segment selects its top and bottom extrusion-face edges. A named
+    vertex selects the perpendicular sweep edge through its midpoint. These
+    selectors intentionally target symmetric XZ polygon extrusions only.
     """
     if not isinstance(selection, _ProfileEdgeSelection):
         return selection
@@ -155,24 +151,34 @@ def _resolve_profile_edges(base, selection):
     points = base["profile_points"]
     names = base["profile_ids"]
     if names is None:
-        raise ModelError("Polygon2D must define ids= to select profile edges by name")
+        raise ModelError("Polygon2D must define ids= or named points to select profile edges")
     for pattern in selection.patterns:
         if not any(fnmatchcase(label, pattern) for label in names):
-            raise ModelError(f"no polygon segment matches {pattern!r}")
+            raise ModelError(f"no polygon segment or vertex matches {pattern!r}")
 
-    matching = [
+    matches = [
         i for i, label in enumerate(names)
         if any(fnmatchcase(label, pattern) for pattern in selection.patterns)
     ]
+    if selection.kind == "vertices":
+        # For an XZ profile extruded symmetrically along Y, the sweep edge
+        # passes through (x, 0, z) at the original sketch vertex.
+        return [
+            (value_of(points[i][0]), 0, -value_of(points[i][1]))
+            for i in matches
+        ]
+    if selection.kind != "segments":
+        raise ModelError(f"unsupported profile edge selection: {selection.kind}")
+
     half_width = value_of(base["thickness"]) / 2
     picks = []
     for y in (-half_width, half_width):
-        for i in matching:
-            start, end = points[i], points[(i + 1) % len(points)]
+        for i in matches:
+            a, b = points[i], points[(i + 1) % len(points)]
             picks.append((
-                (value_of(start[0]) + value_of(end[0])) / 2,
+                (value_of(a[0]) + value_of(b[0])) / 2,
                 y,
-                -(value_of(start[1]) + value_of(end[1])) / 2,
+                -(value_of(a[1]) + value_of(b[1])) / 2,
             ))
     return picks
 

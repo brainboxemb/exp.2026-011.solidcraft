@@ -14,10 +14,10 @@ class CornerBracketTests(unittest.TestCase):
         holes = [c for c in commands if c["command"] == "solid.hole"]
         self.assertEqual(len(holes), 4)
         self.assertTrue(all(c["params"].get("type") == "countersink" for c in holes))
-        self.assertEqual(len([c for c in commands if c["command"] == "solid.chamfer"]), 2)
+        self.assertEqual(len([c for c in commands if c["command"] == "solid.chamfer"]), 3)
         self.assertEqual(len([c for c in commands if c["command"] == "solid.fillet"]), 1)
-        # 19 params + 4 sketch+extrude + 3 edge modifiers + 4 holes.
-        self.assertEqual(len(commands), 29)
+        # 18 params + 4 sketch/extrude + 4 edge modifiers + 4 holes.
+        self.assertEqual(len(commands), 30)
 
     def test_named_polygon_vertices_generate_sketch_ids(self):
         from scpf.core import Polygon2D
@@ -42,11 +42,10 @@ class CornerBracketTests(unittest.TestCase):
         self.assertEqual(
             sketch["params"]["ids"],
             [
-                "tip_horizontal_relief", "outer_horizontal_end",
-                "outer_horizontal_end_bevel", "outer_horizontal_face",
-                "outer_corner_bevel", "outer_vertical_face",
-                "outer_vertical_end_bevel", "outer_vertical_end",
-                "tip_vertical_relief", "inside_vertical", "inside_horizontal",
+                "outer_horizontal_tip", "outer_horizontal_end_bevel",
+                "outer_horizontal_face", "outer_corner_bevel",
+                "outer_vertical_face", "outer_vertical_end_bevel",
+                "outer_vertical_end", "vertical_tip", "inside_corner",
             ],
         )
 
@@ -57,26 +56,36 @@ class CornerBracketTests(unittest.TestCase):
             with self.subTest(tags=tags), self.assertRaises(ValueError):
                 Polygon2D(points, ids=tags)
 
-    def test_outer_chamfer_picks_match_original_geometry(self):
-        """Refactoring edge selection must not change the native CAD shape."""
+    def test_named_edges_and_tip_relief_compile_to_separate_features(self):
+        """Sketch contains no EF cuts; native chamfer adds them explicitly."""
         commands = run_script(EXAMPLE / "model.py")["commands"]
-        chamfers = [c for c in commands if c["command"] == "solid.chamfer"]
-        outer_edges = chamfers[0]["params"]["edges"]
+        sketch = next(c for c in commands if c["command"] == "sketch.line")
+        self.assertEqual(len(sketch["params"]["points"]), 9)
+
+        fillet = next(c for c in commands if c["command"] == "solid.fillet")
+        self.assertEqual(fillet["params"]["edges"], [[0, 0, 0]])
+
+        chamfers = [c["params"] for c in commands if c["command"] == "solid.chamfer"]
+        self.assertEqual(chamfers[0]["edges"], [[60, 0, 0], [0, 0, -60]])
+        self.assertEqual(chamfers[0]["distance"], "elephant_foot_relief")
 
         expected_xz = [
-            (60, 4.8), (58.5, 10.5), (25.5, 12),
+            (60, 4.5), (58.5, 10.5), (25.5, 12),
             (-9, 9), (-12, -25.5), (-10.5, -58.5),
-            (-4.8, -60),
+            (-4.5, -60),
         ]
-        self.assertEqual(len(outer_edges), 14)
+        self.assertEqual(len(chamfers[1]["edges"]), 14)
         for side_index, side in enumerate((-12, 12)):
             for (expected_x, expected_z), point in zip(
-                expected_xz, outer_edges[side_index * 7:(side_index + 1) * 7]
+                expected_xz, chamfers[1]["edges"][side_index * 7:(side_index + 1) * 7]
             ):
                 x, y, z = point
                 self.assertAlmostEqual(x, expected_x)
                 self.assertAlmostEqual(y, side)
                 self.assertAlmostEqual(z, expected_z)
+
+        self.assertEqual(chamfers[2]["edges"], [[30, -12, 0], [30, 12, 0]])
+        self.assertEqual(chamfers[2]["distance"], "elephant_foot_relief")
 
     def test_missing_profile_edge_name_is_rejected(self):
         from scpf.core import Polygon2D, Direction, Edges
@@ -104,6 +113,21 @@ class CornerBracketTests(unittest.TestCase):
         shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
         with self.assertRaisesRegex(ModelError, "must define ids"):
             compile_features(shape, "Square")
+
+    def test_sweep_edge_selection_uses_named_vertices(self):
+        from scpf.core import Polygon2D, Direction, Edges
+        from scpf.features import compile_features
+
+        shape = Polygon2D([
+            ("start", (0, 0)), ("tip", (10, 0)),
+            ("far", (10, 8)), ("end", (0, 8)),
+        ], plane="XZ", world=True).extrude(8, direction=Direction.SYMMETRIC)
+        shape = shape.chamfer(0.5, edges=Edges.from_vertices("tip", "end"))
+        chamfer = next(
+            c for c in compile_features(shape, "Plate")
+            if c["command"] == "solid.chamfer"
+        )
+        self.assertEqual(chamfer["params"]["edges"], [[10, 0, 0], [0, 0, 8]])
 
     def test_original_reference_kept_separate(self):
         commands = run_script(EXAMPLE / "model_reference.py")["commands"]
