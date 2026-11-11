@@ -341,10 +341,13 @@ assembly = (left + right).group("Beams")""") + """
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
 <h2 id="placement">Occurrence placement</h2>
-<p>Copying a model reuses its source placement. Placing an already shifted
-master and shifting the copy may produce an unintended offset. For regular
-arrays, use a central master at the origin, then distribute copies by their
-intended world-space offsets.</p>
+<p><code>copy()</code> in Python retains the source's intended position
+and orientation. <code>move()</code> then adds the given displacement.
+For example, moving a copy by X=120 after its source already sits at X=50
+makes the copy's intended X position 170. This is normal Python-side behavior.
+When compiling, SCPF first creates all native occurrences at the origin and
+asks SolidCraft to position each one <em>once</em>. No previous native
+transform needs to be undone, and no inverse matrix is calculated.</p>
 """ + code("""center = BeamComponent()
 array = center
 for x in (-240, -120, 120, 240):
@@ -359,7 +362,8 @@ multiple levels of independent shared parent groups are not yet available.</p>
 <h2 id="verify">What to test in an assembly</h2>
 <p>Check the native command list for one <code>component.create</code>
 per shared definition, expected <code>occurrence.copy</code> counts,
-and full poses for rotated occurrences. Separately verify native SolidCraft
+and native <code>translate</code>, <code>axis</code> and <code>angle</code>
+parameters for rotated occurrences. Separately verify native SolidCraft
 geometry and its bounding dimensions before trusting an assembly image.</p>""",
     },
     {
@@ -371,18 +375,19 @@ geometry and its bounding dimensions before trusting an assembly image.</p>""",
 <p>The library's tests under <code>scpf/tests/</code> cover model
 objects, feature compilation, reusable components and rotation validation.
 For example, an occurrence rotation test checks that the compiler emits
-one <code>occurrence.move</code> with the expected pose.</p>
+one <code>occurrence.move</code> with the expected native parameters.</p>
 """ + code("""python -m unittest discover -s scpf/tests -v""") + """
 <h2 id="json">Test compiled native commands</h2>
 <p>Compare the generated command structure with explicit expectations,
 not only with a count of operations. Tests should check component names,
-absolute positions, the orientation axis and angle, and feature ordering.
+requested positions, the orientation axis and angle, and feature ordering.
 A regression can preserve a known good JSON fixture when command ordering
 is part of the contract.</p>
 <h2 id="native">Native geometric verification</h2>
 <p>The CAD model repository runs a separate SolidCraft CLI workflow for
 native geometry, editable history, STEP output, measurements and screenshots.
-A valid Python object or syntactically valid command plan is not evidence
+Read the <strong>saved SolidCraft occurrence transforms</strong>, not just
+whether a command ran successfully. A valid Python object or syntactically valid command plan is not evidence
 that the final solid occupies the correct plane or has no collision.</p>
 <h2 id="changes">Keep implementation and docs in sync</h2>
 <p>When new shorthand syntax (such as <code>rotate(Z, 180)</code>) or
