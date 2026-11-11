@@ -98,7 +98,7 @@ class CornerBracketTests(unittest.TestCase):
             ids=["bottom", "right", "top", "left"],
         ).extrude(10, direction=Direction.SYMMETRIC)
         shape = shape.chamfer(1, edges=Edges.from_profile("outer_*"))
-        with self.assertRaisesRegex(ModelError, "no polygon segment matches"):
+        with self.assertRaisesRegex(ModelError, "no polygon segment or vertex matches"):
             compile_features(shape, "Square")
 
     def test_named_profile_selection_requires_segment_ids(self):
