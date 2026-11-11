@@ -1,5 +1,6 @@
 """Lower reusable SCPF model instances to native SolidCraft components."""
 import re
+from math import sin, cos, radians, sqrt
 
 from .compiler import ModelError
 from .model_objects import Assembly, ModelInstance, _anchor_point
@@ -78,6 +79,45 @@ def _definition_names(assembly):
     return names
 
 
+def _pose(position, rotation):
+    """Row-vector 4x4 SolidCraft pose: translation in the final row.
+
+    v0.30.1 accepts an occurrence.move 'matrix' (relative), NOT a 'to'
+    (absolute) placement. This layout matches the saved document.json.
+    """
+    if rotation is None:
+        r = ((1., 0., 0.), (0., 1., 0.), (0., 0., 1.))
+    else:
+        axis, degrees = rotation
+        size = sqrt(sum(float(a) ** 2 for a in axis))
+        x, y, z = (float(a) / size for a in axis)
+        co, si = cos(radians(degrees)), sin(radians(degrees))
+        t = 1. - co
+        # Transposed Rodrigues rotation, for row-vector coordinates.
+        r = ((t*x*x+co, t*x*y+si*z, t*x*z-si*y),
+             (t*x*y-si*z, t*y*y+co, t*y*z+si*x),
+             (t*x*z+si*y, t*y*z-si*x, t*z*z+co))
+    return [list(row) + [0.] for row in r] + [list(map(float, position)) + [1.]]
+
+
+def _times(a, b):
+    return [[sum(a[i][k]*b[k][j] for k in range(4)) for j in range(4)]
+            for i in range(4)]
+
+
+def _inverse(p):
+    """Inverse rigid row-vector matrix; no external geometry dependency."""
+    result = [[p[j][i] for j in range(3)] + [0.] for i in range(3)]
+    result.append([-sum(p[3][k]*result[k][j] for k in range(3))
+                   for j in range(3)] + [1.])
+    return result
+
+
+def _clean_pose(p):
+    return [[0. if abs(v) < 1e-11 else round(v, 12) for v in row]
+            for row in p]
+
+
 def compile_assembly(value, name):
     """Compile a root assembly into reusable components and occurrences."""
     assembly = _as_assembly(value)
@@ -147,15 +187,12 @@ def compile_assembly(value, name):
         first_occurrence = f"{component_name}:1"
         occurrence_names[id(first)] = first_occurrence
         if first.rotation is not None:
-            axis, angle = first.rotation
+            # v0.30.1 silently ignores 'to'. Use the supported relative
+            # matrix, including translation, and allow moving the grounded root.
             commands.append(_command(
                 "occurrence.move",
                 occurrence=first_occurrence,
-                to={
-                    "position": list(first.translation),
-                    "axis": list(axis),
-                    "angle": f"{angle:g} deg",
-                },
+                matrix=_clean_pose(_pose(first.translation, first.rotation)),
                 move_grounded=first_is_root,
             ))
         elif any(first.translation):
@@ -177,26 +214,25 @@ def compile_assembly(value, name):
                 for i in range(3)
             )
             params = {"component": component_name}
-            if any(delta):
+            if first.rotation is None and any(delta):
+                # For unrotated source, relative copy translate is world delta.
                 params["translate"] = list(delta)
+            # Rotated source: make an in-place copy. With 0.30.1, passing
+            # translate here rotates the requested delta in source coordinates.
+            # A separate relative matrix takes it to the exact target pose.
             commands.append(_command("occurrence.copy", **params))
             new_occurrence = f"{component_name}:{index}"
             occurrence_names[id(instance)] = new_occurrence
-            # A copy inherits orientation too. Reset it to unrotated when
-            # no rotation is requested but the original was rotated.
             if instance.rotation is not None or first.rotation is not None:
-                axis, angle = (
-                    instance.rotation
-                    if instance.rotation is not None else ((0.0, 0.0, 1.0), 0.0)
-                )
+                copied_position = (instance.translation if first.rotation is None
+                                   else first.translation)
+                source_pose = _pose(copied_position, first.rotation)
+                target_pose = _pose(instance.translation, instance.rotation)
+                relative = _times(target_pose, _inverse(source_pose))
                 commands.append(_command(
                     "occurrence.move",
                     occurrence=new_occurrence,
-                    to={
-                        "position": list(instance.translation),
-                        "axis": list(axis),
-                        "angle": f"{angle:g} deg",
-                    },
+                    matrix=_clean_pose(relative),
                 ))
 
     for instance in assembly.instances:

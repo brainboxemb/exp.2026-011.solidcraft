@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .live import LiveError, send_commands
 from .runner import run_script
+from .version import check_cli_version
 
 
 def read_command_file(path):
@@ -64,6 +65,10 @@ def main(argv=None):
 
     # Replay defaults to the active GUI; no conversion, no implicit doc.new.
     # If a source uses parameters.change, those params must already exist.
+    try:
+        check_cli_version(require_cli=False)
+    except RuntimeError as exc:
+        parser.exit(1, f"SCPF native version: {exc}\\n")
     try:
         result = send_commands(
             document["commands"], connect=args.connect or "auto"
