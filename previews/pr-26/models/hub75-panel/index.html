@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TwoHub75Panels · SolidCraft CAD experiments</title><link rel="stylesheet" href="../../results.css"></head>
+<body><header class="top"><div class="wrap"><nav><a class="brand" href="../../">SolidCraft · CAD experiments</a>
+<a href="../../">Models</a><a href="../../cheatsheet/">SCPF cheatsheet</a><a href="https://github.com/brainboxemb/exp.2026-011.solidcraft">Source on GitHub</a></nav></div></header>
+<section class="hero"><div class="wrap"><div class="eyebrow">CAD design / hub75-panel</div>
+<h1>TwoHub75Panels</h1><p>Two occurrences of one measured P5 HUB75 panel component</p></div></section>
+<main class="wrap"><div class="metadata"><span class="badge verified">Native verified · snapshot from matching run</span>
+<span class="badge">21 commands</span><span class="badge">159.70 × 319.71 × 14.50 mm; six Ø3 holes; two occurrences at 160 mm pitch</span></div>
+<div class="two"><section class="panel"><h2>Model preview</h2><div class="picture"><img src="native.png" alt="SolidCraft CAD render"></div>
+<p class="small muted">Native SolidCraft image, matching this source revision.</p>
+<p>First reusable panel assembly from the existing OpenSCAD reference: a 159.70 × 319.71 × 14.50 mm envelope with six Ø3 mounting-hole centres and a grey housing material. Two native occurrences at 160 mm pitch; rear details, PCB, connectors and rotations are future steps.</p></section>
+<section class="panel"><h2>Files</h2><p>Download the source and the generated command plan.</p>
+<div class="links"><a class="btn" href="model.py">SCPF source</a><a class="btn secondary" href="solidcraft.json">Command JSON</a>
+</div>
+<p class="small muted">Command JSON describes CAD actions; it is not an already-saved .sc design.</p>
+<h3>Construction stages</h3><ol><li>Create Hub75Panel component</li><li>Sketch and extrude the physical front envelope</li><li>Cut six Ø3 mounting holes</li><li>Assign grey housing material</li><li>Copy the component occurrence</li><li>Place the second occurrence at nominal 160 mm X pitch</li></ol></section></div>
+<h2>Python model</h2><pre><code>&quot;&quot;&quot;First reusable HUB75 reference: two native component occurrences.
+
+Based on the measured portrait-orientation panel in:
+brainboxemb/2026-006-01.cad.HUB75-display-frame
+v1.2/cad/components/hub75_panel.scad
+
+Coordinate mapping for SCPF: X = panel width, Y = panel height,
+Z = front-to-rear depth. The front is at Z=0; the original OpenSCAD
+component uses X/Z for the front and Y for depth.
+
+Only the outer envelope, six M3 mounting-hole centres, and a housing
+material are modelled at this stage. This is NOT yet the full rear frame,
+PCB, connectors, locator pins or an alternating-orientation assembly.
+&quot;&quot;&quot;
+
+
+class Hub75Panel:
+    width = 159.70
+    height = 319.71
+    depth = 14.50
+
+    # Source holes: X=7.85/151.85, Z=7.855/159.855/311.855 from
+    # the drawing&#x27;s lower-left corner. They become +/-72 and +/-152
+    # once the panel is centred on the front plane.
+    mount_x = 72.0
+    mount_y = 152.0
+    hole_diameter = 3.0
+
+    def build(self):
+        body = Box(self.width, self.height, self.depth)
+
+        for x in (-self.mount_x, self.mount_x):
+            for y in (-self.mount_y, 0, self.mount_y):
+                body = body + Hole(
+                    d=self.hole_diameter,
+                    depth=self.depth + 0.5,
+                    direction=(0, 0, -1),
+                ).at(x, y, self.depth)
+
+        # One gray housing material. Detailed PCB/front/connector colors
+        # require separate native bodies in a later panel-model iteration.
+        return body.with_material(
+            &quot;HUB75 housing&quot;, density_g_cm3=1.20, color=&quot;#B8B8B8&quot;
+        )
+
+
+class TwoHub75Panels:
+    pitch_x = 160.0  # nominal grid, NOT the 159.70 mm physical width
+
+    def build(self):
+        first = Hub75Panel()
+        second = Hub75Panel().move(x=self.pitch_x)
+        # Component occurrence placement, not a boolean union.
+        return first + second
+
+
+TwoHub75Panels()
+</code></pre>
+<h2>Native SolidCraft command sequence</h2><section class="panel"><ol class="timeline"><li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_width</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_width&quot;,
+    &quot;expression&quot;: &quot;159.7&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_height</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_height&quot;,
+    &quot;expression&quot;: &quot;319.71&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_depth</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_depth&quot;,
+    &quot;expression&quot;: &quot;14.5&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_hole_diameter</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;expression&quot;: &quot;3&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_mount_x</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_mount_x&quot;,
+    &quot;expression&quot;: &quot;72&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Named CAD parameter</strong><small>parameters.add · name: Hub75Panel_mount_y</small><pre><code>{
+  &quot;command&quot;: &quot;parameters.add&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel_mount_y&quot;,
+    &quot;expression&quot;: &quot;152&quot;,
+    &quot;unit&quot;: &quot;mm&quot;
+  }
+}</code></pre></li>
+<li><strong>Create reusable component</strong><small>component.create · name: Hub75Panel</small><pre><code>{
+  &quot;command&quot;: &quot;component.create&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;Hub75Panel&quot;,
+    &quot;grounded&quot;: true
+  }
+}</code></pre></li>
+<li><strong>Create sketch</strong><small>sketch.create · name: Hub75Panel footprint, plane: XY</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.create&quot;,
+  &quot;params&quot;: {
+    &quot;plane&quot;: &quot;XY&quot;,
+    &quot;name&quot;: &quot;Hub75Panel footprint&quot;
+  }
+}</code></pre></li>
+<li><strong>Rectangle</strong><small>sketch.rectangle.two_point</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.rectangle.two_point&quot;,
+  &quot;params&quot;: {
+    &quot;p0&quot;: [
+      &quot;-Hub75Panel_width / 2&quot;,
+      &quot;-Hub75Panel_height / 2&quot;
+    ],
+    &quot;p1&quot;: [
+      &quot;Hub75Panel_width / 2&quot;,
+      &quot;Hub75Panel_height / 2&quot;
+    ]
+  }
+}</code></pre></li>
+<li><strong>Finish sketch</strong><small>sketch.finish</small><pre><code>{
+  &quot;command&quot;: &quot;sketch.finish&quot;,
+  &quot;params&quot;: {}
+}</code></pre></li>
+<li><strong>Extrusion / cut</strong><small>solid.extrude · body_name: Hub75Panel</small><pre><code>{
+  &quot;command&quot;: &quot;solid.extrude&quot;,
+  &quot;params&quot;: {
+    &quot;distance&quot;: &quot;Hub75Panel_depth&quot;,
+    &quot;body_name&quot;: &quot;Hub75Panel&quot;
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;-(Hub75Panel_mount_x)&quot;,
+      &quot;-(Hub75Panel_mount_y)&quot;,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;-(Hub75Panel_mount_x)&quot;,
+      0,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;-(Hub75Panel_mount_x)&quot;,
+      &quot;Hub75Panel_mount_y&quot;,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;Hub75Panel_mount_x&quot;,
+      &quot;-(Hub75Panel_mount_y)&quot;,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;Hub75Panel_mount_x&quot;,
+      0,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Native Hole feature</strong><small>solid.hole · direction: [0.0, 0.0, -1.0]</small><pre><code>{
+  &quot;command&quot;: &quot;solid.hole&quot;,
+  &quot;params&quot;: {
+    &quot;position&quot;: [
+      &quot;Hub75Panel_mount_x&quot;,
+      &quot;Hub75Panel_mount_y&quot;,
+      &quot;Hub75Panel_depth&quot;
+    ],
+    &quot;diameter&quot;: &quot;Hub75Panel_hole_diameter&quot;,
+    &quot;targets&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;depth&quot;: &quot;Hub75Panel_depth + 0.5 mm&quot;,
+    &quot;direction&quot;: [
+      0.0,
+      0.0,
+      -1.0
+    ]
+  }
+}</code></pre></li>
+<li><strong>Create physical material</strong><small>material.create · name: HUB75 housing</small><pre><code>{
+  &quot;command&quot;: &quot;material.create&quot;,
+  &quot;params&quot;: {
+    &quot;name&quot;: &quot;HUB75 housing&quot;,
+    &quot;density_g_cm3&quot;: 1.2,
+    &quot;color&quot;: &quot;#B8B8B8&quot;
+  }
+}</code></pre></li>
+<li><strong>Assign material</strong><small>material.assign</small><pre><code>{
+  &quot;command&quot;: &quot;material.assign&quot;,
+  &quot;params&quot;: {
+    &quot;bodies&quot;: [
+      &quot;Hub75Panel&quot;
+    ],
+    &quot;material&quot;: &quot;HUB75 housing&quot;
+  }
+}</code></pre></li>
+<li><strong>Activate component / root</strong><small>component.activate</small><pre><code>{
+  &quot;command&quot;: &quot;component.activate&quot;,
+  &quot;params&quot;: {
+    &quot;component&quot;: &quot;root&quot;
+  }
+}</code></pre></li>
+<li><strong>Copy component occurrence</strong><small>occurrence.copy</small><pre><code>{
+  &quot;command&quot;: &quot;occurrence.copy&quot;,
+  &quot;params&quot;: {
+    &quot;component&quot;: &quot;Hub75Panel&quot;,
+    &quot;translate&quot;: [
+      160.0,
+      0.0,
+      0.0
+    ]
+  }
+}</code></pre></li></ol></section>
+<div class="notice"><strong>Verification:</strong> Native verified · snapshot from matching run.
+The source and JSON here are from this checkout. A matching native snapshot appears only after successful SolidCraft verification.
+Native qualification is reported only when the matching verified image exists.</div>
+<p><a href="../../">← Back to all models</a></p></main><footer><div class="wrap">SCPF Python models produce native SolidCraft commands. SolidCraft builds all geometry.</div></footer>
+</body></html>
