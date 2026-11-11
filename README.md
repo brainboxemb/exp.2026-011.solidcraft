@@ -39,6 +39,18 @@ python -m scpf examples/sample-plate/scpf/model.py --connect
 The `--connect` command changes the open design; it does not write the
 generated JSON. Use `--out` first to inspect the exact sequence.
 
+## Reusable components (assembly experiment)
+
+A model class can be instantiated more than once. SCPF compiles identical
+instances into one native SolidCraft component definition with separate
+occurrences; `attach()` creates a rigid joint between matching faces.
+
+The first working example is [TwoBlocks](examples/components/scpf/model.py).
+It uses explicit Python `return` statements in `build()`. The current
+assembly boundary is deliberately limited to axis-aligned rectangular
+components and face-centre matching with no offsets or rotations. Native
+SolidCraft qualification verifies the saved component occurrences and joint.
+
 ## Examples
 
 - [Sample Plate — original history](examples/sample-plate/scpf/model.py):

@@ -286,6 +286,48 @@ jobs:
             --out output/native/bracket/model.png \
             --no-grid --no-axes
           test -s output/native/bracket/model.png
+      - name: Qualify reusable components and rigid attach in native SolidCraft
+        env:
+          PYTHONPATH: scpf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/native/components
+          python -m scpf examples/components/scpf/model.py \
+            --out output/native/components/commands.json
+          jq -e '
+            ([.commands[] | select(.command == "component.create")] | length) == 1
+            and ([.commands[] | select(.command == "occurrence.copy")] | length) == 1
+            and ([.commands[] | select(.command == "joint.create")] | length) == 1
+            and ([.commands[] | select(.command == "joint.create")][0].params.type == "rigid")
+          ' output/native/components/commands.json
+          solidcraft-cli run output/native/components/commands.json \
+            --param-check strict --results \
+            --json-out output/native/components/results.json \
+            --save output/native/components/model.sc \
+            --out output/native/components/model.step
+          solidcraft-cli eval output/native/components/model.sc \
+            --json-out output/native/components/measurements.json
+          jq -e '
+            (.timeline | all(.error == null))
+          ' output/native/components/measurements.json
+          unzip -p output/native/components/model.sc document.json \
+            > output/native/components/document.json
+          jq -e '
+            (.components | length) == 1
+            and .components[0].name == "Block"
+            and (.occurrences | length) == 2
+            and [.occurrences[].name] == ["Block:1", "Block:2"]
+            and (.assembly.joints | length) == 1
+            and .assembly.joints[0].kind == "rigid"
+          ' output/native/components/document.json
+          test -s output/native/components/model.sc
+          test -s output/native/components/model.step
+          solidcraft-cli snapshot output/native/components/model.sc \
+            --out output/native/components/model.png \
+            --no-grid --no-axes
+          test -s output/native/components/model.png
+
       - name: Qualify and render default CornerBracket in native SolidCraft
         env:
           PYTHONPATH: scpf
