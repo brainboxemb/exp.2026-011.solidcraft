@@ -28,6 +28,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Prove SCPF works as an installed external Python package
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e ./scpf
+          # No PYTHONPATH: run the same entrypoint a separate CAD project uses.
+          env -u PYTHONPATH python -m scpf examples/hub75-panel/scpf/model.py \
+            --out output/external-hub75.json
+          jq -e '
+            ([.commands[] | select(.command == "component.create")] | length) == 1
+            and ([.commands[] | select(.command == "occurrence.copy")] | length) == 1
+            and ([.commands[] | select(.command == "solid.loft")] | length) == 1
+          ' output/external-hub75.json
       - name: Test Python CAD models against reviewed command fixtures
         env:
           PYTHONPATH: scpf

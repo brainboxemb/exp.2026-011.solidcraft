@@ -11,6 +11,21 @@ native SolidCraft feature history when possible.
 
 ## Model objects
 
+## External package installation
+
+The current checkout already contains a Python package definition in
+`scpf/pyproject.toml`. For normal local development, use the active Python or
+Conda environment and install once with `python -m pip install -e ./scpf`.
+Then `python -m scpf model.py --out result.json` runs without setting
+`PYTHONPATH`.
+
+The future CAD repository will add the library as a pinned Git submodule at
+`ext/scpf`; until the package is moved to the library repository root,
+the external installation command will be
+`python -m pip install -e ./ext/scpf/scpf`. Avoid checking copied library
+source into project repositories. See issue #25 for the split plan.
+
+
 The preferred SCPF style is a plain Python class. Numeric class fields are
 CAD parameters, and `build()` constructs the model. The last Shape
 expression in `build()` is the result: no `return`, `show()` or `main()`.

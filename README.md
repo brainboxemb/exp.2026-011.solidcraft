@@ -1,5 +1,10 @@
 # Experiment 011 — SolidCraft Python Forge (SCPF)
 
+SCPF is an installable Python package, currently located in `scpf/`.
+The planned CAD project will pin the library as a Git external at
+`ext/scpf` and install it editable from `ext/scpf/scpf` (issue #25).
+The repository rename and split have **not** happened yet.
+
 SCPF lets you describe CAD models with Python objects. The Python layer translates
 those operations into **native SolidCraft commands**; SolidCraft performs the
 actual geometry and retains editable CAD features. No separate BRep engine is used.
@@ -10,8 +15,12 @@ Open PowerShell in the **repository root**. Python 3.12 and the
 official SolidCraft 0.30.1 CLI are used in CI.
 
 ```powershell
-# Use the SCPF package directly from this checkout
-$env:PYTHONPATH = "scpf"
+# Install the library into the active Python/Conda environment
+# (the project repository will later install from ext/scpf/scpf).
+python -m pip install -e .\scpf
+
+# Legacy development alternative, without installing:
+# $env:PYTHONPATH = "scpf"
 
 # Run tests
 python -m unittest discover -s scpf/tests -v
