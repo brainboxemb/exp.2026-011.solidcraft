@@ -129,15 +129,26 @@ SolidCraft would update only part of the design. This is deliberate: a
 parameter visible in the model source should not silently stop being fully
 parametric in SolidCraft.
 
-An imported reusable class may itself be the root model of a script:
+A reusable component file is also a standalone SCPF model when it contains
+exactly one public class with `build()`. SCPF selects that class directly:
 
 ```python
-from components.corner_bracket import CornerBracket
-CornerBracket()
+# components/corner_bracket.py
+class CornerBracket:
+    ...
+    def build(self):
+        ...
 ```
 
-That is the preferred standalone form because it executes the exact same
-component class and `build()` path used by assemblies.
+So the same source can be run with:
+
+```text
+python -m scpf components/corner_bracket.py --connect
+```
+
+There is no launcher file and no trailing `CornerBracket()` required. If a
+file contains multiple public model classes, automatic root selection is
+deliberately disabled; an explicit final model call must choose the root.
 
 Reusable components keep their own numeric defaults private by default. A
 parent model can couple a child input directly to one of its parameters:
