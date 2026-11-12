@@ -31,6 +31,36 @@ bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
 plate + bore
 ```
 
+## Parameter intent
+
+Numeric names are part of the user-facing API contract:
+
+| Python name | Meaning | Native SolidCraft parameter |
+| --- | --- | --- |
+| `WIDTH = 100.0` | fixed constant | no |
+| `_pitch = 160.0` | Forge/build-time input | no |
+| `width = 100.0` | editable model parameter | yes |
+
+A public model parameter that disappears before native compilation is suspicious.
+Forge emits `ModelParameterWarning` instead of silently pretending the design
+is still associative. Use `pv()` only where Python genuinely needs a concrete
+number; if that is the *only* use of a public parameter, either preserve the
+symbolic dependency or rename the input with a leading underscore.
+
+Nested components do not publish all their defaults automatically. Explicit
+parent binding is preferred when several parts must share one model parameter:
+
+```python
+bottom = BottomBoard(corner_radius=self.corner_radius)
+roof = RoofBoard(corner_radius=self.corner_radius)
+bracket = Bracket(inside_corner_radius=self.corner_radius)
+```
+
+All three native fillets then depend on the same `corner_radius` parameter.
+A component default that should be independently public can be selected with
+`include=("name",)`; it can be given an explicit shared model name with
+`include={"local_name": "model_name"}`.
+
 ## Semantics
 
 - `attach()` is the single relative-placement mechanism.
