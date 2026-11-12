@@ -347,7 +347,8 @@ class AssemblyTests(unittest.TestCase):
 
 
     def test_component_accepts_parent_parameter_without_manual_pv(self):
-        from scpf import Box, Parameter, component
+        from scpf.core import Box, Parameter
+        from scpf.runner import component
 
         class Panel:
             width = 100.0
@@ -371,7 +372,8 @@ class AssemblyTests(unittest.TestCase):
         )
 
     def test_imported_assembly_class_uses_object_syntax(self):
-        from scpf import Box, Parameter, assembly, component
+        from scpf.core import Box, Parameter
+        from scpf.runner import assembly, component
         from scpf.model_objects import Assembly
 
         class Panel:
