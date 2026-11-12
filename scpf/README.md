@@ -528,6 +528,26 @@ The older shape-level `attach(..., Anchor...)` form remains temporarily for
 advanced legacy placements such as `CENTER` and `INNER_BOTTOM`; new simple
 surface placement should use `on(..., face=Faces...)`.
 
+
+For reusable **components in an assembly**, `ModelInstance.attach()` uses
+`Anchor` as an explicit attachment reference. Face anchors such as
+`Anchor.RIGHT` and `Anchor.LEFT` are native associative SolidCraft joint
+origins. Corner anchors are also available for rectangular components:
+
+```python
+marker = Marker().attach(
+    base,
+    parent=Anchor.FRONT_TOP_RIGHT,
+    child=Anchor.BACK_TOP_RIGHT,
+)
+```
+
+The eight corner anchors combine `FRONT/BACK`, `TOP/BOTTOM` and
+`LEFT/RIGHT`. Forge lowers them to SolidCraft `edge + corner` origins.
+SolidCraft keeps the referenced edge, face and corner by topology name, so the
+attachment follows dimension changes in a saved design. No public `Joint`
+object is exposed; native joints are an implementation detail of `attach()`.
+
 ## Sketches versus direct features
 
 SCPF currently handles sketches **implicitly**. `Rectangle2D(...).extrude(...)`
