@@ -4,7 +4,7 @@ Each supported base shape returns its command list plus simple shape metadata.
 Feature operations (Hole, Fillet, join, cut) are handled separately.
 """
 from math import isfinite
-from .core import Shape, Parameter, command_value, value_of
+from .core import Shape, Parameter, command_value, pv
 from .compiler import ModelError, _command, _require_positive
 from .csg import _half
 
@@ -18,7 +18,7 @@ def _circle_profiles(shape, dx=0, dy=0, z=0):
         base, x, y, dz = shape.data
         if base.kind == "positioned":
             raise ValueError("nested at() placement is not yet supported")
-        return _circle_profiles(base, value_of(x), value_of(y), dz)
+        return _circle_profiles(base, pv(x), pv(y), dz)
     if shape.kind == "circle":
         (diameter,) = shape.data
         return [(dx, dy, z, diameter)]
@@ -68,9 +68,9 @@ def compile_base(shape, name):
         _require_positive(width, "taper width")
         _require_positive(height, "taper height")
         _require_positive(depth, "taper depth")
-        if not 0 < value_of(start) < value_of(depth):
+        if not 0 < pv(start) < pv(depth):
             raise ModelError("taper start lies outside the box")
-        if not 0 < 2 * value_of(inset) < min(value_of(width), value_of(height)):
+        if not 0 < 2 * pv(inset) < min(pv(width), pv(height)):
             raise ModelError("taper inset is too large")
 
         x0, x1 = _half(width, True), _half(width)
@@ -116,7 +116,7 @@ def compile_base(shape, name):
         return steps, {
             "profile": "rectangle", "width": width, "depth": height,
             "thickness": depth,
-            "origin": (-value_of(width) / 2, -value_of(height) / 2, 0),
+            "origin": (-pv(width) / 2, -pv(height) / 2, 0),
         }
 
     if shape.kind != "extrusion":
@@ -135,7 +135,7 @@ def compile_base(shape, name):
             _require_positive(width, "rectangle width")
             _require_positive(depth, "rectangle depth")
             plane = {"plane": "XY", "name": "Base"}
-            if value_of(z) != 0 or isinstance(z, Parameter):
+            if pv(z) != 0 or isinstance(z, Parameter):
                 plane["offset"] = command_value(z)
             return [
                 _command("sketch.create", **plane),
@@ -150,7 +150,7 @@ def compile_base(shape, name):
 
     if profile.kind == "polygon":
         points, plane, segment_ids = profile.data
-        concrete = [tuple(value_of(v) for v in point) for point in points]
+        concrete = [tuple(pv(v) for v in point) for point in points]
         if not all(isfinite(v) for point in concrete for v in point):
             raise ModelError("non-finite polygon coordinate")
         if len(set(concrete)) != len(concrete):
@@ -188,7 +188,7 @@ def compile_base(shape, name):
             x, y, z, diameter = circles[0]
             _require_positive(diameter, "circle diameter")
             plane = {"plane": "XY", "name": "Profile"}
-            if value_of(z):
+            if pv(z):
                 plane["offset"] = command_value(z)
             return [
                 _command("sketch.create", **plane),
