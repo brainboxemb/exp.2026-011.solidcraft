@@ -23,7 +23,7 @@ class CornerAnchor:
         marker = Marker().attach(
             base,
             parent=Anchor.FRONT_TOP_RIGHT,
-            child=Anchor.FRONT_TOP_RIGHT,
+            child=Anchor.BACK_TOP_RIGHT,
         )
         return base + marker
 
