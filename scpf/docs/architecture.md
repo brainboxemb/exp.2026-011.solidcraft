@@ -90,6 +90,57 @@ not introduce another competing implementation.
 This rule does not forbid small, clearly named calculations that
 express the dimensions of a design.
 
+## Parameter intent: constant, build input or native model parameter
+
+SCPF uses Python naming to make a dimension's intended lifetime visible in the
+model source:
+
+```python
+class Display:
+    PANEL_COUNT = 5          # fixed constant
+    _panel_pitch = 160.0     # Forge/build-time input
+    opening_width = 844.0    # native SolidCraft model parameter
+```
+
+- **`UPPER_CASE`** numeric class attributes are fixed constants. They are
+  available to `build()`, but they are not model inputs and are never emitted
+  as SolidCraft parameters.
+- **`_lower_case`** numeric fields are Forge/build-time inputs. They may be
+  overridden when the Python model is built, but Forge intentionally resolves
+  them to concrete values before native CAD compilation.
+- **`lower_case`** numeric fields are public model parameters. Forge expects
+  them to survive into native SolidCraft expressions and remain editable.
+
+If a public model parameter is consumed only by Python, for example through
+`pv()` or a non-associative occurrence placement, SCPF emits
+`ModelParameterWarning`. This is deliberate: a parameter visible in the model
+source should not silently stop being parametric in SolidCraft.
+
+Reusable components keep their own numeric defaults private by default. A
+parent model can couple a child input directly to one of its parameters:
+
+```python
+Bracket(
+    bracket_width=self.bracket_width,
+    inside_corner_radius=self.corner_radius,
+)
+```
+
+Both child dimensions then use the existing native parent parameter names.
+For a standalone/reusable component whose selected default should itself become
+a public model parameter, `component(include=...)` can publish it explicitly,
+including under a chosen shared name:
+
+```python
+Bracket = component(
+    CornerBracket,
+    include={"inside_corner_radius": "corner_radius"},
+)
+```
+
+This avoids accidental `CornerBracket_inside_corner_radius` duplicates while
+still allowing component-specific dimensions to be exposed deliberately.
+
 ## What is supported now?
 
 **Movement**: `move(x, y, z)` adds a displacement to a Python
