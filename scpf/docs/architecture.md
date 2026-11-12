@@ -111,9 +111,12 @@ class Display:
 - **`UPPER_CASE`** numeric class attributes are fixed constants. They are
   available to `build()`, but they are not model inputs and are never emitted
   as SolidCraft parameters.
-- **`_lower_case`** numeric fields are Forge/build-time inputs. They may be
-  overridden when the Python model is built, but Forge intentionally resolves
-  them to concrete values before native CAD compilation.
+- **`_lower_case`** numeric fields are Forge/build-time/private inputs.
+  Their own numeric defaults stay concrete and are not published as model
+  parameters. When a parent assembly explicitly passes a `Parameter` or
+  expression into such an input, however, that parent dependency stays
+  symbolic. This allows parent-owned placement/datums without turning them
+  into public parameters of the reusable part.
 - **`lower_case`** numeric fields are public model parameters. Forge expects
   them to survive into native SolidCraft expressions and remain editable.
 
@@ -125,6 +128,16 @@ native but is simultaneously flattened into a concrete
 SolidCraft would update only part of the design. This is deliberate: a
 parameter visible in the model source should not silently stop being fully
 parametric in SolidCraft.
+
+An imported reusable class may itself be the root model of a script:
+
+```python
+from components.corner_bracket import CornerBracket
+CornerBracket()
+```
+
+That is the preferred standalone form because it executes the exact same
+component class and `build()` path used by assemblies.
 
 Reusable components keep their own numeric defaults private by default. A
 parent model can couple a child input directly to one of its parameters:

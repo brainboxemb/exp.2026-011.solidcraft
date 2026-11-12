@@ -264,8 +264,10 @@ update the native model.
 
 Upper-case numeric class attributes are constants. They stay available to
 `build()` but are not constructor/model parameters. Underscore-prefixed
-numeric fields remain constructor/build inputs, but are deliberately concrete
-and are never emitted as native SolidCraft parameters.
+numeric fields remain private constructor/build inputs. Their own numeric
+defaults are deliberately concrete and are never emitted as native SolidCraft
+parameters. When a parent assembly explicitly passes a `Parameter` or
+expression into such a private input, that parent dependency remains symbolic.
 
 The final model call may override public model parameters and Forge/build
 inputs by name or position:
@@ -274,6 +276,18 @@ inputs by name or position:
 Plate(width=80.0)
 Display(_panel_pitch=161.0)
 ```
+
+A script may use an imported reusable model directly as its root:
+
+```python
+from components.corner_bracket import CornerBracket
+
+CornerBracket()
+```
+
+This runs exactly the same class and `build()` implementation that is used
+inside an assembly; no standalone wrapper class or alternate geometry path is
+required.
 
 Reusable components keep their defaults private unless requested with
 `component(..., include=...)`. A selected component default can also be

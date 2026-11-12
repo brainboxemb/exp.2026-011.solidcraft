@@ -127,16 +127,23 @@ def _parameter_input(
 ):
     """Bind one input while preserving its declared parameter intent.
 
-    Parent Parameter/Expression inputs stay symbolic unless this is an
-    underscore-prefixed Forge/build input. A component alias publishes a
-    numeric child default directly under the requested shared model name.
+    Parent Parameter/Expression inputs stay symbolic, including when they
+    are explicitly bound to an underscore-prefixed Forge/build input. A
+    private build input's own numeric default remains concrete/hidden; an
+    explicit parent binding may still carry a native dependency into it.
+    A component alias publishes a numeric child default directly under the
+    requested shared model name.
     """
     if isinstance(value, bool):
         raise TypeError(f"{name} must be a numeric model parameter")
 
     if build_only:
-        if isinstance(value, (Parameter, Expression, int, float)):
-            return pv(value), pv(value), (), None, True
+        if isinstance(value, (Parameter, Expression)):
+            external = tuple((p.name, p.value) for p in parameters_in(value))
+            return pv(value), value, external, (name, command_value(value)), False
+        if isinstance(value, (int, float)):
+            concrete = float(value)
+            return concrete, concrete, (), None, True
         raise TypeError(f"{name} must be a numeric Forge/build parameter")
 
     if isinstance(value, (Parameter, Expression)):
@@ -509,8 +516,6 @@ def run_script(path: str | Path) -> dict:
         if isinstance(item, (ast.FunctionDef, ast.ClassDef))
     }
     definition = definitions.get(name)
-    if definition is None:
-        raise SyntaxError(f"the last call must use a defined model: {name}")
 
     context = {
         "__name__": "__scpf_model__",
@@ -564,7 +569,8 @@ def run_script(path: str | Path) -> dict:
     with _model_import_context(path):
         exec(compile(syntax, str(path), "exec"), context)
 
-        root_class = context.get(name) if isinstance(definition, ast.ClassDef) else None
+        root_object = context.get(name)
+        root_is_class = isinstance(root_object, type)
         for class_name in model_classes:
             if class_name != name:
                 context[class_name] = _model_factory(context[class_name])
@@ -574,23 +580,27 @@ def run_script(path: str | Path) -> dict:
             result = eval(
                 compile(ast.Expression(body=last.value), str(path), "eval"), context
             )
-        else:
-            # Evaluate the final class construction with ordinary Python semantics,
-            # then let SCPF convert the resulting object's numeric fields before
-            # calling build().
+        elif root_is_class:
+            # A root model may be declared here or imported from a reusable
+            # component module. Both paths instantiate exactly the same class.
             constructor = ast.Call(
                 func=ast.Name(id="_scpf_design_object", ctx=ast.Load()),
                 args=[ast.Name(id="_scpf_root_class", ctx=ast.Load()), *last.value.args],
                 keywords=last.value.keywords,
             )
             context["_scpf_design_object"] = _design_object
-            context["_scpf_root_class"] = root_class
+            context["_scpf_root_class"] = root_object
             ast.fix_missing_locations(constructor)
             built = eval(
                 compile(ast.Expression(body=constructor), str(path), "eval"),
                 context,
             )
             result = built.result
+        else:
+            raise SyntaxError(
+                f"the last call must use a defined function/class or "
+                f"an imported model class: {name}"
+            )
 
     if isinstance(result, Shape):
         document = compile_model(result, name)
@@ -599,7 +609,7 @@ def run_script(path: str | Path) -> dict:
     else:
         raise TypeError(f"{name}() must produce CAD geometry or an assembly")
 
-    if isinstance(definition, ast.ClassDef):
+    if root_is_class:
         instances = (
             (result,)
             if isinstance(result, ModelInstance)
