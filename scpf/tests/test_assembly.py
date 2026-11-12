@@ -987,6 +987,41 @@ class AssemblyTests(unittest.TestCase):
         self.assertNotIn("Bracket:1.rear_mount", origins)
         self.assertNotIn("Bracket:2.front_mount", origins)
 
+    def test_generated_joint_glyphs_are_hidden_after_assembly_compile(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, Box
+        from scpf.runner import component
+
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        BlockObject = component(Block)
+        base = BlockObject()
+        child = BlockObject().attach(
+            base,
+            parent=Anchor.RIGHT,
+            child=Anchor.LEFT,
+        )
+
+        commands = compile_assembly(base + child, "HiddenJointGlyphs")["commands"]
+        self.assertEqual(
+            commands[-1],
+            {
+                "command": "browser.visibility",
+                "params": {"folder": "joints", "visible": False},
+            },
+        )
+        self.assertTrue(
+            any(command["command"] == "joint.create" for command in commands[:-1])
+        )
+
+        no_joint_commands = compile_assembly(BlockObject(), "NoJoints")["commands"]
+        self.assertFalse(
+            any(command["command"] == "browser.visibility"
+                for command in no_joint_commands)
+        )
+
     def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
         commands = run_script(
             ROOT / "examples/custom-anchor/scpf/model.py"
