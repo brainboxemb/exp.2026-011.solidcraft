@@ -60,27 +60,28 @@ def _plain_model_fields(cls):
     return list(fields.items())
 
 
-def _parameter_input(value, name):
-    """Bind a model input without breaking an existing symbolic dependency.
+def _parameter_input(value, name, *, expose_local=True):
+    """Bind one model input while preserving parent dependencies.
 
-    A plain number defines a new local CAD parameter. Passing a Parameter or
-    Expression from a parent keeps that exact symbolic value, so a child
-    component depends on the parent parameter instead of creating a duplicate
-    child parameter with the same current numeric value.
+    Parent Parameter/Expression inputs always stay symbolic. Plain numeric
+    inputs become editable local CAD parameters only when expose_local=True;
+    otherwise they remain fixed numeric inputs for the component definition.
     """
     if isinstance(value, bool):
         raise TypeError(f"{name} must be a numeric model parameter")
     if isinstance(value, (Parameter, Expression)):
         external = tuple((p.name, p.value) for p in parameters_in(value))
-        return pv(value), value, external, (name, command_value(value))
+        return pv(value), value, external, (name, command_value(value)), False
     if isinstance(value, (int, float)):
         concrete = float(value)
-        return concrete, Parameter(name, concrete), (), None
+        if expose_local:
+            return concrete, Parameter(name, concrete), (), None, False
+        return concrete, concrete, (), None, True
     raise TypeError(f"{name} must be a numeric model parameter")
 
 
-def _plain_model_data(cls, *args, **kwargs):
-    """Instantiate a plain model and return its concrete parameter values."""
+def _plain_model_data(cls, *args, _include=None, **kwargs):
+    """Instantiate a plain model and classify public vs fixed inputs."""
     fields = _plain_model_fields(cls)
     names = [name for name, _ in fields]
     if len(args) > len(fields):
@@ -108,12 +109,19 @@ def _plain_model_data(cls, *args, **kwargs):
 
     instance = cls()
     concrete = []
+    fixed = []
     external = {}
     bindings = []
     for name in names:
-        value, symbolic, inherited, binding = _parameter_input(values[name], name)
+        expose_local = _include is None or name in _include
+        value, symbolic, inherited, binding, is_fixed = _parameter_input(
+            values[name], name, expose_local=expose_local
+        )
         if binding is None:
-            concrete.append((name, value))
+            if is_fixed:
+                fixed.append((name, value))
+            else:
+                concrete.append((name, value))
         else:
             bindings.append(binding)
             for parameter_name, parameter_value in inherited:
@@ -123,7 +131,13 @@ def _plain_model_data(cls, *args, **kwargs):
                         f"conflicting inherited parameter {parameter_name!r}"
                     )
         object.__setattr__(instance, name, symbolic)
-    return instance, tuple(concrete), tuple(external.items()), tuple(bindings)
+    return (
+        instance,
+        tuple(concrete),
+        tuple(fixed),
+        tuple(external.items()),
+        tuple(bindings),
+    )
 
 
 def _plain_model_instance(cls, *args, **kwargs):
@@ -131,25 +145,32 @@ def _plain_model_instance(cls, *args, **kwargs):
     return _plain_model_data(cls, *args, **kwargs)[0]
 
 
-def _parameterized_instance(cls, *args, **kwargs):
-    """Construct one model object and retain concrete values for reuse."""
+def _parameterized_instance(cls, *args, _include=None, **kwargs):
+    """Construct one model object and classify its reusable inputs."""
     if not is_dataclass(cls):
-        return _plain_model_data(cls, *args, **kwargs)
+        return _plain_model_data(cls, *args, _include=_include, **kwargs)
 
     instance = cls(*args, **kwargs)
     signature = inspect.signature(cls)
     bound = signature.bind(*args, **kwargs)
     bound.apply_defaults()
     concrete = []
+    fixed = []
     external = {}
     bindings = []
     for name, value in bound.arguments.items():
         if name not in vars(instance):
             continue
         if isinstance(value, (int, float, Parameter, Expression)) and not isinstance(value, bool):
-            number, symbolic, inherited, binding = _parameter_input(value, name)
+            expose_local = _include is None or name in _include
+            number, symbolic, inherited, binding, is_fixed = _parameter_input(
+                value, name, expose_local=expose_local
+            )
             if binding is None:
-                concrete.append((name, number))
+                if is_fixed:
+                    fixed.append((name, number))
+                else:
+                    concrete.append((name, number))
             else:
                 bindings.append(binding)
                 for parameter_name, parameter_value in inherited:
@@ -159,18 +180,24 @@ def _parameterized_instance(cls, *args, **kwargs):
                             f"conflicting inherited parameter {parameter_name!r}"
                         )
             object.__setattr__(instance, name, symbolic)
-    return instance, tuple(concrete), tuple(external.items()), tuple(bindings)
+    return (
+        instance,
+        tuple(concrete),
+        tuple(fixed),
+        tuple(external.items()),
+        tuple(bindings),
+    )
 
 
-def _build_object(cls, *args, **kwargs):
-    """Build one user model and return its result plus concrete parameters."""
-    instance, concrete, external, bindings = _parameterized_instance(
-        cls, *args, **kwargs
+def _build_object(cls, *args, _include=None, **kwargs):
+    """Build one user model and return its classified reusable inputs."""
+    instance, concrete, fixed, external, bindings = _parameterized_instance(
+        cls, *args, _include=_include, **kwargs
     )
     build = getattr(instance, "build", None)
     if not callable(build):
         raise TypeError(f"{cls.__name__} must define build()")
-    return build(), concrete, external, bindings
+    return build(), concrete, fixed, external, bindings
 
 
 def _design_object(cls, *args, **kwargs):
@@ -179,7 +206,7 @@ def _design_object(cls, *args, **kwargs):
     A root model may still produce one Shape, or it may compose reusable model
     instances into an Assembly.
     """
-    result, _, _, _ = _build_object(cls, *args, **kwargs)
+    result, _, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must finish with a Shape or assembly"
@@ -187,9 +214,11 @@ def _design_object(cls, *args, **kwargs):
     return result
 
 
-def _reusable_model_object(cls, *args, **kwargs):
+def _reusable_model_object(cls, *args, _include=(), **kwargs):
     """Build a nested user model as a reusable component definition."""
-    result, concrete, external, bindings = _build_object(cls, *args, **kwargs)
+    result, concrete, fixed, external, bindings = _build_object(
+        cls, *args, _include=_include, **kwargs
+    )
     if not isinstance(result, Shape):
         raise TypeError(
             f"{cls.__name__}.build() must produce one Shape when reused as a component"
@@ -199,30 +228,69 @@ def _reusable_model_object(cls, *args, **kwargs):
             class_name=cls.__name__,
             parameters=concrete,
             shape=result,
+            fixed_inputs=fixed,
             external_parameters=external,
             input_bindings=bindings,
         )
     )
 
 
-def _model_factory(cls):
+def _component_include(cls, include):
+    fields = {name for name, _ in _plain_model_fields(cls)}
+    if include == "*":
+        return frozenset(fields)
+    if isinstance(include, str):
+        include = (include,)
+    try:
+        names = tuple(include)
+    except TypeError as exc:
+        raise TypeError("component include must be '*' or parameter names") from exc
+    if any(not isinstance(name, str) or not name for name in names):
+        raise TypeError("component include names must be non-empty text")
+    unknown = set(names) - fields
+    if unknown:
+        raise ValueError(
+            f"{cls.__name__}: unknown component parameter(s): "
+            + ", ".join(sorted(unknown))
+        )
+    return frozenset(names)
+
+
+def _model_factory(cls, include=()):
     """Replace a nested class name with a transparent reusable-model factory."""
+    included = _component_include(cls, include)
+
     @functools.wraps(cls)
     def factory(*args, **kwargs):
-        return _reusable_model_object(cls, *args, **kwargs)
+        return _reusable_model_object(
+            cls, *args, _include=included, **kwargs
+        )
+
     return factory
 
 
-def component(cls):
-    """Declare an imported CAD model class as a reusable SCPF component."""
-    if not isinstance(cls, type) or not callable(getattr(cls, "build", None)):
-        raise TypeError("component() expects a model class with build()")
-    return _model_factory(cls)
+def component(cls=None, *, include=()):
+    """Declare a reusable component; local defaults are fixed unless included.
+
+    Parent Parameter/Expression inputs always remain symbolic. Use include=()
+    (the default) to keep component defaults out of the design parameter list,
+    include=("radius",) for selected editable defaults, or include="*" for all.
+    """
+    def decorate(model_cls):
+        if not isinstance(model_cls, type) or not callable(
+            getattr(model_cls, "build", None)
+        ):
+            raise TypeError("component() expects a model class with build()")
+        return _model_factory(model_cls, include=include)
+
+    if cls is None:
+        return decorate
+    return decorate(cls)
 
 
 def _reusable_assembly_object(cls, *args, **kwargs):
     """Build an imported assembly class without exposing build_* helpers."""
-    result, _, _, _ = _build_object(cls, *args, **kwargs)
+    result, _, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must produce a component or assembly"
