@@ -362,6 +362,67 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(parameter_names, [])
 
 
+    def test_identical_material_is_created_once_across_components(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box
+        from scpf.runner import component
+
+        class Left:
+            def build(self):
+                return Box(10, 20, 30).with_material(
+                    "WOOD", density_g_cm3=0.55, color="#CBA36B"
+                )
+
+        class Right:
+            def build(self):
+                return Box(10, 20, 30).with_material(
+                    "WOOD", density_g_cm3=0.55, color="#CBA36B"
+                )
+
+        LeftPart = component(Left)
+        RightPart = component(Right)
+        commands = compile_assembly(
+            LeftPart() + RightPart().move(x=20),
+            "Frame",
+        )["commands"]
+
+        creates = [
+            c["params"] for c in commands
+            if c["command"] == "material.create"
+        ]
+        assigns = [
+            c["params"] for c in commands
+            if c["command"] == "material.assign"
+        ]
+        self.assertEqual(len(creates), 1)
+        self.assertEqual(creates[0]["name"], "WOOD")
+        self.assertEqual(len(assigns), 2)
+        self.assertTrue(all(a["material"] == "WOOD" for a in assigns))
+
+    def test_conflicting_shared_material_definition_is_rejected(self):
+        from scpf.assembly import compile_assembly
+        from scpf.compiler import ModelError
+        from scpf.core import Box
+        from scpf.runner import component
+
+        class Left:
+            def build(self):
+                return Box(10, 20, 30).with_material(
+                    "WOOD", density_g_cm3=0.55, color="#CBA36B"
+                )
+
+        class Right:
+            def build(self):
+                return Box(10, 20, 30).with_material(
+                    "WOOD", density_g_cm3=0.55, color="#FFFFFF"
+                )
+
+        with self.assertRaisesRegex(ModelError, "defined differently"):
+            compile_assembly(
+                component(Left)() + component(Right)().move(x=20),
+                "Frame",
+            )
+
     def test_component_defaults_are_fixed_unless_included(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Box
