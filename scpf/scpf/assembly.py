@@ -2,6 +2,7 @@
 import re
 
 from .compiler import ModelError
+from .core import command_value, parameters_in
 from .model_objects import Assembly, ModelInstance, _anchor_point
 from .compiler import compile_model
 
@@ -239,13 +240,27 @@ def compile_assembly(value, name):
             child_local[i] + instance.translation[i]
             for i in range(3)
         ]
-        commands.append(_command(
-            "joint.create",
-            type="rigid",
-            name=f"Attach {child_occurrence} to {parent_occurrence}",
-            a={"occurrence": parent_occurrence, "face": parent_face},
-            b={"occurrence": child_occurrence, "face": child_face},
-        ))
+        for parameter in parameters_in(attachment.gap):
+            if not any(
+                command["command"] == "parameters.add"
+                and command["params"]["name"] == parameter.name
+                for command in commands
+            ):
+                commands.append(_command(
+                    "parameters.add",
+                    name=parameter.name,
+                    expression=f"{parameter.value:g} mm",
+                ))
+
+        params = {
+            "type": "rigid",
+            "name": f"Attach {child_occurrence} to {parent_occurrence}",
+            "a": {"occurrence": parent_occurrence, "face": parent_face},
+            "b": {"occurrence": child_occurrence, "face": child_face},
+        }
+        if attachment.gap != 0:
+            params["offset"] = command_value(attachment.gap)
+        commands.append(_command("joint.create", **params))
 
     if not commands:
         raise ModelError(f"{name} contains no component instances")

@@ -39,6 +39,7 @@ class Attachment:
     parent: Anchor
     child: Anchor
     offset: tuple[float, float]
+    gap: object = 0
 
 
 def _rectangular_bounds(instance):
@@ -200,8 +201,12 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0)):
-        """Match one component face to another and retain a rigid relationship."""
+               offset=(0, 0), gap=0):
+        """Attach this component rigidly to another component.
+
+        ``gap`` is a normal distance between the two attachment references.
+        Parameter/Expression values remain native SolidCraft expressions.
+        """
         if not isinstance(target, ModelInstance):
             raise TypeError("component attach target must be another model object")
         try:
@@ -232,6 +237,10 @@ class ModelInstance:
             target_world[i] - child_local[i]
             for i in range(3)
         )
+        gap_value = pv(gap)
+        if not isfinite(gap_value):
+            raise ValueError("component attach gap must be finite")
+
         return replace(
             self,
             translation=translation,
@@ -240,6 +249,7 @@ class ModelInstance:
                 parent=parent,
                 child=child,
                 offset=face_offset,
+                gap=gap,
             ),
         )
 
