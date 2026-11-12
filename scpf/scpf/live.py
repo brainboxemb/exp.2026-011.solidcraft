@@ -98,6 +98,62 @@ def _read_reply(connection):
     return answer
 
 
+def _send_request(method, params, *, connect="auto", directory=None, timeout=3610):
+    """Send one authenticated request to the running SolidCraft GUI."""
+    directory = Path(directory) if directory is not None else control_directory()
+    port = parse_connect(connect, directory)
+    token = read_launch_token(directory, port)
+    request = {
+        "id": 1,
+        "method": method,
+        "token": token,
+        "params": params,
+    }
+    encoded = (json.dumps(request, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
+    if len(encoded) > 16 * 1024 * 1024:
+        raise LiveError("Control request exceeds SolidCraft protocol limit")
+    try:
+        with socket.create_connection(("127.0.0.1", port), timeout=5) as connection:
+            connection.settimeout(timeout)
+            connection.sendall(encoded)
+            answer = _read_reply(connection)
+    except (ConnectionRefusedError, ConnectionResetError, OSError) as exc:
+        if isinstance(exc, socket.timeout):
+            raise LiveError(
+                "Control channel timed out. The request MAY STILL BE RUNNING in "
+                "SolidCraft. Inspect the app; do not send it again blindly."
+            ) from exc
+        raise LiveError(
+            f"Cannot talk to the running SolidCraft GUI at 127.0.0.1:{port}: {exc}"
+        ) from exc
+
+    if not answer["ok"]:
+        raise LiveError(
+            f"SolidCraft rejected {method}: {answer.get('error', answer)}"
+        )
+    return answer.get("result")
+
+
+def new_design(*, name=None, connect="auto", directory=None, timeout=60):
+    """Replace the active GUI design with a new empty SolidCraft design."""
+    if name is not None and (not isinstance(name, str) or not name.strip()):
+        raise LiveError("New design name must be non-empty text")
+    command_params = {} if name is None else {"name": name}
+    result = _send_request(
+        "engine.execute",
+        {
+            "command": "file.new",
+            "params": command_params,
+            "param_check": "strict",
+        },
+        connect=connect,
+        directory=directory,
+        timeout=timeout,
+    )
+    if not isinstance(result, dict) or not isinstance(result.get("name"), str):
+        raise LiveError(f"Unexpected file.new result: {result!r}")
+    return result
+
 def send_commands(commands, *, connect="auto", directory=None, timeout=3610):
     """Execute native command plan *in the open GUI* as one rollback batch.
 
@@ -114,40 +170,17 @@ def send_commands(commands, *, connect="auto", directory=None, timeout=3610):
             raise LiveError(f"Invalid command at index {index}")
         if not isinstance(entry.get("params", {}), dict):
             raise LiveError(f"Invalid command parameters at index {index}")
-    directory = Path(directory) if directory is not None else control_directory()
-    port = parse_connect(connect, directory)
-    token = read_launch_token(directory, port)
-    request = {
-        "id": 1,
-        "method": "engine.batch",
-        "token": token,
-        "params": {
+    result = _send_request(
+        "engine.batch",
+        {
             "commands": commands,
             "rollback": True,
             "param_check": "strict",
         },
-    }
-    encoded = (json.dumps(request, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
-    if len(encoded) > 16 * 1024 * 1024:
-        raise LiveError("Batch request exceeds SolidCraft control protocol limit")
-    try:
-        with socket.create_connection(("127.0.0.1", port), timeout=5) as connection:
-            connection.settimeout(timeout)
-            connection.sendall(encoded)
-            answer = _read_reply(connection)
-    except (ConnectionRefusedError, ConnectionResetError, OSError) as exc:
-        if isinstance(exc, socket.timeout):
-            raise LiveError(
-                "Control channel timed out. The batch MAY STILL BE RUNNING in "
-                "SolidCraft. Inspect the app; do not send it again blindly."
-            ) from exc
-        raise LiveError(
-            f"Cannot talk to the running SolidCraft GUI at 127.0.0.1:{port}: {exc}"
-        ) from exc
-
-    if not answer["ok"]:
-        raise LiveError(f"SolidCraft rejected the batch: {answer.get('error', answer)}")
-    result = answer.get("result")
+        connect=connect,
+        directory=directory,
+        timeout=timeout,
+    )
     if not isinstance(result, dict):
         raise LiveError(f"Unexpected batch result: {result!r}")
     if result.get("failed") is not None:
