@@ -617,12 +617,63 @@ class SCPFExamples(unittest.TestCase):
             with self.assertRaises(TypeError):
                 run_script(file)
 
-    def test_script_requires_final_model_expression(self):
+    def test_function_model_still_requires_explicit_final_call(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
-            file.write_text("def CubeModel(size=50):\n    return Box(size, size, size)\n")
-            with self.assertRaises(SyntaxError):
+            file.write_text(
+                "def CubeModel(size=50):\n"
+                "    return Box(size, size, size)\n"
+            )
+            with self.assertRaisesRegex(
+                SyntaxError,
+                "exactly one public class with build",
+            ):
                 run_script(file)
+
+    def test_single_public_model_class_runs_directly_without_launcher_call(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "corner_bracket.py"
+            file.write_text(
+                "from scpf.core import Box\n"
+                "class CornerBracket:\n"
+                "    width = 24.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, 40, 40)\n",
+                encoding="utf-8",
+            )
+            generated = run_script(file)
+
+        self.assertEqual(
+            [
+                command["params"]["name"]
+                for command in generated["commands"]
+                if command["command"] == "parameters.add"
+            ],
+            ["width"],
+        )
+        self.assertTrue(
+            any(command["command"] == "solid.extrude"
+                for command in generated["commands"])
+        )
+
+    def test_direct_root_refuses_to_guess_between_public_model_classes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "models.py"
+            file.write_text(
+                "class First:\n"
+                "    def build(self):\n"
+                "        return Box(10, 10, 10)\n"
+                "class Second:\n"
+                "    def build(self):\n"
+                "        return Box(20, 20, 20)\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                SyntaxError,
+                "candidates: First, Second",
+            ):
+                run_script(file)
+
 
 
     def test_pv_is_explicit_escape_hatch_to_python_value(self):
