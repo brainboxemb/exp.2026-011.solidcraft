@@ -511,6 +511,7 @@ def run_script(path: str | Path) -> dict:
         "Anchor": core.Anchor,
         "Axis": core.Axis,
         "Shape": core.Shape,
+        "pv": core.pv,
         "X": core.X,
         "Y": core.Y,
         "Z": core.Z,
