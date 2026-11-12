@@ -215,6 +215,8 @@ jobs:
               ((.bbox.max[2] - 10) | fabs) < 0.001))
           ' output/native/custom-anchor/measurements.json
 
+          cat output/native/xz-anchor/measurements.json
+
           # XZ rectangular component regression: markers are attached to
           # both FRONT_TOP corners. Change width and height in the saved native
           # design; both mirrored topology references must follow the board.
@@ -248,6 +250,7 @@ jobs:
             --save output/native/xz-anchor/model-size-80x40.sc
           solidcraft-cli eval output/native/xz-anchor/model-size-80x40.sc \
             --json-out output/native/xz-anchor/measurements-size-80x40.json
+          cat output/native/xz-anchor/measurements-size-80x40.json
           jq -e '
             (all(.bodies[] | select(.name | startswith("Board"));
               ((.bbox.min[0] + 40) | fabs) < 0.001 and
