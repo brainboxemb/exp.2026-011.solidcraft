@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor oriented-anchor-frames history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -70,7 +70,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor; do
+          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor oriented-anchor-frames; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -259,6 +259,8 @@ jobs:
               ((.bbox.min[2] - 40) | fabs) < 0.001 and
               ((.bbox.max[2] - 50) | fabs) < 0.001))
           ' output/native/xz-anchor/measurements-size-80x40.json
+
+          cat output/native/oriented-anchor-frames/measurements.json
 
           jq -n --arg source "$GITHUB_SHA" \
             '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \
