@@ -187,13 +187,15 @@ def compile_base(shape, name):
         if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
             raise ModelError("zero-length polygon edge")
 
-        # Keep parameter expressions in the native sketch for every extrusion
-        # direction. Numeric coordinates remain numeric, so existing literal
-        # polygon command plans are unchanged.
-        symbolic = [
-            [command_value(v) for v in point]
-            for point in points
-        ]
+        # Preserve existing literal non-symmetric polygon command plans.
+        # Positioned polygons need symbolic coordinates so their editable
+        # parent parameters survive; symmetric polygons already relied on
+        # the same symbolic behavior for named bracket geometry.
+        symbolic = (
+            [[command_value(v) for v in point] for point in points]
+            if direction == "symmetric" or profile.kind == "positioned"
+            else [list(p) for p in concrete]
+        )
         sketch = {"plane": plane, "name": "Profile"}
         if plane_offset is not None:
             sketch["offset"] = command_value(plane_offset)
