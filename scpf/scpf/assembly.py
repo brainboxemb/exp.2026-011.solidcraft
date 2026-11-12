@@ -2,7 +2,7 @@
 import re
 
 from .compiler import ModelError
-from .core import command_value, parameters_in
+from .core import Anchor, command_value, parameters_in
 from .model_objects import Assembly, ModelInstance, _anchor_origin
 from .compiler import compile_model
 
@@ -250,26 +250,26 @@ def compile_assembly(value, name):
         if child_occurrence is None or parent_occurrence is None:
             raise ModelError("component attach target must be part of the assembly")
 
-        if isinstance(attachment.parent, str):
-            parent_origin = custom_origin_names[
-                (id(attachment.target), attachment.parent)
-            ]
-        else:
+        if isinstance(attachment.parent, Anchor):
             parent_origin = _anchor_origin(
                 attachment.target,
                 attachment.parent,
                 parent_occurrence,
             )
-        if isinstance(attachment.child, str):
-            child_origin = custom_origin_names[
-                (id(instance), attachment.child)
-            ]
         else:
+            parent_origin = custom_origin_names[
+                (id(attachment.target), attachment.parent)
+            ]
+        if isinstance(attachment.child, Anchor):
             child_origin = _anchor_origin(
                 instance,
                 attachment.child,
                 child_occurrence,
             )
+        else:
+            child_origin = custom_origin_names[
+                (id(instance), attachment.child)
+            ]
         for parameter in parameters_in(attachment.gap):
             if not any(
                 command["command"] == "parameters.add"
