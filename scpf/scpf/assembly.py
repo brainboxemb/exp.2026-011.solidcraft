@@ -88,6 +88,7 @@ def compile_assembly(value, name):
     names = _definition_names(assembly)
     commands = []
     occurrence_names = {}
+    custom_origin_names = {}
     inherited_parameters = {}
     shared_materials = {}
 
@@ -203,6 +204,25 @@ def compile_assembly(value, name):
                     component=component_name,
                 ))
 
+        # Custom component anchors are authored while every occurrence is
+        # still at identity. SolidCraft converts these world-frame values to
+        # occurrence-local joint origins, so later occurrence moves/rotations
+        # carry the anchors with the part without Forge composing transforms.
+        for instance, native_name in occurrences:
+            for anchor_name, frame in instance.definition.anchors:
+                origin_name = f"{native_name}.{anchor_name}"
+                custom_origin_names[(id(instance), anchor_name)] = origin_name
+                commands.append(_command(
+                    "joint.origin",
+                    name=origin_name,
+                    occurrence=native_name,
+                    frame={
+                        "origin": list(frame.origin),
+                        "z": list(frame.z),
+                        "x": list(frame.x),
+                    },
+                ))
+
         # Each occurrence now starts at identity. SolidCraft itself applies
         # the requested translation and axis-angle rotation directly.
         # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
@@ -230,16 +250,26 @@ def compile_assembly(value, name):
         if child_occurrence is None or parent_occurrence is None:
             raise ModelError("component attach target must be part of the assembly")
 
-        parent_origin = _anchor_origin(
-            attachment.target,
-            attachment.parent,
-            parent_occurrence,
-        )
-        child_origin = _anchor_origin(
-            instance,
-            attachment.child,
-            child_occurrence,
-        )
+        if isinstance(attachment.parent, str):
+            parent_origin = custom_origin_names[
+                (id(attachment.target), attachment.parent)
+            ]
+        else:
+            parent_origin = _anchor_origin(
+                attachment.target,
+                attachment.parent,
+                parent_occurrence,
+            )
+        if isinstance(attachment.child, str):
+            child_origin = custom_origin_names[
+                (id(instance), attachment.child)
+            ]
+        else:
+            child_origin = _anchor_origin(
+                instance,
+                attachment.child,
+                child_occurrence,
+            )
         for parameter in parameters_in(attachment.gap):
             if not any(
                 command["command"] == "parameters.add"
