@@ -38,11 +38,12 @@ class Attachment:
     """Associative face-to-face relationship between two model occurrences."""
 
     target: "ModelInstance"
-    parent: Anchor | str
-    child: Anchor | str
+    parent: Anchor | str | None
+    child: Anchor | str | None
     offset: tuple[float, float]
     gap: object = 0
     angle: float | None = None
+    as_built: bool = False
 
 
 def _custom_anchor_frame(instance, name):
@@ -374,15 +375,39 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0), gap=0, angle=None):
+               offset=(0, 0), gap=0, angle=None, as_built=False):
         """Attach this component rigidly to another component.
 
         ``gap`` is the normal distance between the references.
         ``angle`` is their relative turn in degrees around the attachment
         normal. Both stay native SolidCraft joint values.
+
+        ``as_built=True`` keeps both occurrences exactly where they already
+        are and records only a fixed assembly relationship.
         """
         if not isinstance(target, ModelInstance):
             raise TypeError("component attach target must be another model object")
+        if as_built:
+            if (
+                parent != Anchor.RIGHT
+                or child != Anchor.LEFT
+                or tuple(offset) != (0, 0)
+                or gap != 0
+                or angle is not None
+            ):
+                raise ValueError(
+                    "as-built attach does not take anchors, offset, gap or angle"
+                )
+            return replace(
+                self,
+                attachment=Attachment(
+                    target=target,
+                    parent=None,
+                    child=None,
+                    offset=(0.0, 0.0),
+                    as_built=True,
+                ),
+            )
         parent = _resolve_anchor_reference(target, parent)
         child = _resolve_anchor_reference(self, child)
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
