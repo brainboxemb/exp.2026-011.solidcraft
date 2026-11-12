@@ -27,6 +27,40 @@ Plate(width=80)</code></pre>
 Arithmetic such as <code>self.length / 2</code> is preserved symbolically
 for supported expressions; general Python computations are not automatically
 made parametric.</p>
+<h2 id="parameter-intent">Parameter intent is visible in the name</h2>
+<p>SCPF distinguishes three kinds of numeric class attributes. This keeps a
+Python build setting from looking like a native editable CAD parameter.</p>
+<pre><code>class Display:
+    PANEL_COUNT = 5          # fixed constant
+    _panel_pitch = 160.0     # Forge/build-time input
+    opening_width = 844.0    # native model parameter</code></pre>
+<table><thead><tr><th>Name</th><th>Meaning</th><th>SolidCraft parameter</th></tr></thead><tbody>
+<tr><td><code>UPPER_CASE</code></td><td>Fixed constant</td><td>No</td></tr>
+<tr><td><code>_lower_case</code></td><td>Forge/build-time input</td><td>No</td></tr>
+<tr><td><code>lower_case</code></td><td>Editable model parameter</td><td>Yes</td></tr>
+</tbody></table>
+<p>If a public lower-case parameter is consumed only as a concrete Python
+value—for example through <code>pv()</code>—Forge emits a
+<code>ModelParameterWarning</code>. Either preserve the symbolic dependency or
+rename an intentionally build-time input with a leading underscore.</p>
+<h2 id="shared-parameters">Share one model parameter across child components</h2>
+<p>Passing a parent parameter into several component inputs keeps one native
+SolidCraft parameter instead of creating component-specific duplicates.</p>
+<pre><code>bottom = BottomBoard(corner_radius=self.corner_radius)
+roof = RoofBoard(corner_radius=self.corner_radius)
+bracket = Bracket(
+    bracket_width=self.bracket_width,
+    inside_corner_radius=self.corner_radius,
+)</code></pre>
+<p>Here the wooden fillets and bracket inside fillet all depend on the same
+<code>corner_radius</code>. A reusable component default can also be published
+under an explicit shared name:</p>
+<pre><code>Bracket = component(
+    CornerBracket,
+    include={&quot;inside_corner_radius&quot;: &quot;corner_radius&quot;},
+)</code></pre>
+<p>Use a tuple such as <code>include=("outer_corner_chamfer",)</code> when the
+component should expose its own namespaced editable parameter instead.</p>
 <h2 id="shape">Shape versus component occurrence</h2>
 <p><strong>Shape</strong> describes geometry or a feature expression
 (<code>Box</code>, <code>Hole</code>, an extrusion). A <strong>component
