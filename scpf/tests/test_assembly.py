@@ -899,23 +899,33 @@ class AssemblyTests(unittest.TestCase):
             ROOT / "examples/xz-anchor/scpf/model.py"
         )["commands"]
 
-        joint = next(
+        joints = [
             command["params"]
             for command in commands
             if command["command"] == "joint.create"
-        )
+        ]
+        self.assertEqual(len(joints), 2)
         self.assertEqual(
-            joint["a"],
+            joints[0]["a"],
             {
                 "occurrence": "Board:1",
-                "edge": [0.0, 0.0, 20.0],
+                "edge": [20.0, 0.0, 10.0],
                 "on": [0.0, 0.0, 10.0],
                 "corner": [20.0, 0.0, 20.0],
             },
         )
         self.assertEqual(
-            joint["b"]["occurrence"],
-            "Marker:1",
+            joints[1]["a"],
+            {
+                "occurrence": "Board:1",
+                "edge": [-20.0, 0.0, 10.0],
+                "on": [0.0, 0.0, 10.0],
+                "corner": [-20.0, 0.0, 20.0],
+            },
+        )
+        self.assertEqual(
+            [joint["b"]["occurrence"] for joint in joints],
+            ["Marker:1", "Marker:2"],
         )
 
     def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
@@ -987,7 +997,7 @@ class AssemblyTests(unittest.TestCase):
             joint["a"],
             {
                 "occurrence": "Base:1",
-                "edge": [0.0, -15.0, 20.0],
+                "edge": [20.0, -15.0, 10.0],
                 "on": [0.0, -15.0, 10.0],
                 "corner": [20.0, -15.0, 20.0],
             },
@@ -996,7 +1006,7 @@ class AssemblyTests(unittest.TestCase):
             joint["b"],
             {
                 "occurrence": "Marker:1",
-                "edge": [15.0, -15.0, 20.0],
+                "edge": [20.0, -15.0, 15.0],
                 "on": [15.0, -15.0, 15.0],
                 "corner": [20.0, -15.0, 20.0],
             },
