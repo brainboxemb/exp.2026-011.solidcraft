@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, Axis, Shape, pv
+from .core import Anchor, Axis, Shape, parameters_in, pv
 
 
 @dataclass(frozen=True)
@@ -107,6 +107,7 @@ class ModelInstance:
     attachment: Attachment | None = None
     rotation: tuple[tuple[float, float, float], float] | None = None
     group_name: str | None = None
+    flattened_parameters: tuple[str, ...] = ()
 
     def group(self, name):
         """Keep this occurrence in a named native subassembly component."""
@@ -126,8 +127,18 @@ class ModelInstance:
         return replace(self, attachment=None)
 
     def move(self, x=0, y=0, z=0):
-        """Translate this occurrence without changing shared component geometry."""
-        delta = tuple(pv(v) for v in (x, y, z))
+        """Translate this occurrence without changing shared component geometry.
+
+        SolidCraft 0.30.1 occurrence translation is currently emitted as
+        concrete coordinates. Remember any symbolic inputs so the root model
+        can warn when a public parameter is only partly associative.
+        """
+        values = (x, y, z)
+        symbolic = tuple(parameter.name for parameter in parameters_in(*values))
+        flattened = tuple(dict.fromkeys(
+            (*self.flattened_parameters, *symbolic)
+        ))
+        delta = tuple(pv(v) for v in values)
         if not all(isfinite(v) for v in delta):
             raise ValueError("model move() requires finite coordinates")
         current = self.translation
@@ -135,6 +146,7 @@ class ModelInstance:
             self,
             translation=tuple(current[i] + delta[i] for i in range(3)),
             attachment=None,
+            flattened_parameters=flattened,
         )
 
     def rotate(self, axis=(0, 0, 1), degrees=None):
@@ -164,6 +176,13 @@ class ModelInstance:
                 raise ValueError("model rotate() named axis must be X, Y or Z") from exc
         if (not isinstance(axis, (tuple, list)) or len(axis) != 3):
             raise ValueError("model rotate() axis must be X, Y, Z or an XYZ triple")
+        symbolic = tuple(
+            parameter.name
+            for parameter in parameters_in(*axis, degrees)
+        )
+        flattened = tuple(dict.fromkeys(
+            (*self.flattened_parameters, *symbolic)
+        ))
         try:
             values = tuple(float(pv(value)) for value in axis)
             angle = float(pv(degrees))
@@ -173,7 +192,12 @@ class ModelInstance:
             raise ValueError("model rotate() requires finite coordinates and angle")
         if sum(v * v for v in values) <= 0:
             raise ValueError("model rotate() axis must be non-zero")
-        return replace(self, rotation=(values, angle), attachment=None)
+        return replace(
+            self,
+            rotation=(values, angle),
+            attachment=None,
+            flattened_parameters=flattened,
+        )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
                offset=(0, 0)):

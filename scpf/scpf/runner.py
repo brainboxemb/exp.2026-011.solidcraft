@@ -33,14 +33,39 @@ class _BuiltDesign:
     parameters: tuple[tuple[str, float], ...]
 
 
-def _warn_missing_model_parameters(parameters, commands, *, context="model"):
+def _warn_missing_model_parameters(
+    parameters, commands, *, context="model", flattened_parameters=()
+):
+    """Warn when declared model parameters are lost or only partly native."""
     native = {
         command["params"]["name"]
         for command in commands
         if command["command"] == "parameters.add"
     }
+    flattened = set(flattened_parameters)
+
     for name, _ in parameters:
-        if name not in native:
+        if name in flattened:
+            if name in native:
+                detail = (
+                    "remains native in some geometry, but occurrence placement "
+                    "also consumes it as a concrete Python value. Changing the "
+                    "SolidCraft parameter will therefore update only part of "
+                    "the model."
+                )
+            else:
+                detail = (
+                    "has no native SolidCraft dependency because occurrence "
+                    "placement consumes it as a concrete Python value."
+                )
+            warnings.warn(
+                f"{context} parameter {name!r} {detail} Preserve the symbolic "
+                "relationship in native geometry/placement, or rename it to "
+                f"_{name} if it is intentionally Forge/build-time.",
+                ModelParameterWarning,
+                stacklevel=3,
+            )
+        elif name not in native:
             warnings.warn(
                 f"{context} parameter {name!r} has no native SolidCraft "
                 "dependency; it may have been consumed as a Python value "
@@ -575,9 +600,22 @@ def run_script(path: str | Path) -> dict:
         raise TypeError(f"{name}() must produce CAD geometry or an assembly")
 
     if isinstance(definition, ast.ClassDef):
+        instances = (
+            (result,)
+            if isinstance(result, ModelInstance)
+            else result.instances
+            if isinstance(result, Assembly)
+            else ()
+        )
+        flattened_parameters = {
+            parameter_name
+            for instance in instances
+            for parameter_name in instance.flattened_parameters
+        }
         _warn_missing_model_parameters(
             built.parameters,
             document["commands"],
             context=name,
+            flattened_parameters=flattened_parameters,
         )
     return document
