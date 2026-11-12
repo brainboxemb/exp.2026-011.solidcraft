@@ -656,6 +656,34 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(fillet["params"]["radius"], "corner_radius")
 
 
+    def test_imported_class_can_be_the_root_model(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "shared.py").write_text(
+                "from scpf.core import Box\n"
+                "class Bracket:\n"
+                "    width = 24.0\n"
+                "    _x_position = 0.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, 10, 10)\n",
+                encoding="utf-8",
+            )
+            model = root / "model.py"
+            model.write_text(
+                "from shared import Bracket\n"
+                "Bracket()\n",
+                encoding="utf-8",
+            )
+            generated = run_script(model)
+
+        names = [
+            command["params"]["name"]
+            for command in generated["commands"]
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(names, ["width"])
+        self.assertNotIn("_x_position", names)
+
     def test_model_local_imports_do_not_create_pycache(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
