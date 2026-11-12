@@ -1,5 +1,5 @@
 {
-  "library_commit": "98529cf167b7c6ba4eb2a7110d4daaae18b05111",
+  "library_commit": "c0e2b358c8b81f24fd02a8ec9ca3d7f13ea0b9c2",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
@@ -21,6 +21,13 @@
       "commands": "examples/components/commands.json",
       "command_count": 9,
       "preview": "examples/components/preview.png",
+      "preview_kind": "native-snapshot"
+    },
+    "corner-anchor": {
+      "source": "examples/corner-anchor/model.py",
+      "commands": "examples/corner-anchor/commands.json",
+      "command_count": 16,
+      "preview": "examples/corner-anchor/preview.png",
       "preview_kind": "native-snapshot"
     }
   }
