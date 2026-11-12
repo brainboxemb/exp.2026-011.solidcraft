@@ -35,6 +35,11 @@ EXAMPLES = {
         "description": "Two instances of one Block definition, joined by a rigid attachment.",
         "concepts": ["component", "occurrence", "Anchor", "attach"],
     },
+    "corner-anchor": {
+        "title": "4 · Associative corner anchor",
+        "description": "Attach one reusable component to a named corner that follows parent size changes.",
+        "concepts": ["Anchor", "attach", "corner", "associative placement"],
+    },
 }
 
 CHEATSHEET = [
@@ -75,6 +80,8 @@ CHEATSHEET = [
          "second = first.copy().move(x=40)", "components"),
         ("model.attach(...)", "Create a rigid native attachment between component occurrences.",
          "right = Block().attach(left, parent=Anchor.RIGHT, child=Anchor.LEFT)", "components"),
+        ("corner anchors", "Attach to one of the eight rectangular component corners; the native origin follows size changes.",
+         "marker = Marker().attach(base, parent=Anchor.FRONT_TOP_RIGHT, child=Anchor.BACK_TOP_RIGHT)", "corner-anchor"),
         ("model.rotate(axis=..., degrees=...)", "Orient a native occurrence; rotation does not alter the shared component.",
          "second = first.copy().move(x=40).rotate(axis=(0,0,1), degrees=180)", None),
     ]),
@@ -94,7 +101,8 @@ CHEATSHEET = [
 SCHEMATICS = {
   "simple-box": "<path d=\"M95 76 231 30 368 81 232 129Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M95 76 232 129 V222 L95 168Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M232 129 368 81 V169 L232 222Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>",
   "anchored-holes": "<path d=\"M68 116 286 42 430 104 207 189Z\" fill=\"#bbd9f1\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M68 116 V143 L207 216 V189Z\" fill=\"#6f9fc9\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M207 189 430 104 V131 L207 216Z\" fill=\"#8bb8dc\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<ellipse cx=\"175\" cy=\"111\" rx=\"18\" ry=\"10\" fill=\"#f6faff\" stroke=\"#31577c\" stroke-width=\"3\"/>\n<ellipse cx=\"321\" cy=\"117\" rx=\"18\" ry=\"10\" fill=\"#f6faff\" stroke=\"#31577c\" stroke-width=\"3\"/>",
-  "components": "<path d=\"M50 113 137 83 223 113 136 143Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M50 113 V183 L136 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M136 143 223 113 V183 L136 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 325 83 412 113 325 143Z\" fill=\"#b9d6f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 V183 L325 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M325 143 412 113 V183 L325 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>"
+  "components": "<path d=\"M50 113 137 83 223 113 136 143Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M50 113 V183 L136 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M136 143 223 113 V183 L136 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 325 83 412 113 325 143Z\" fill=\"#b9d6f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 113 V183 L325 212 V143Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M325 143 412 113 V183 L325 212Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>",
+  "corner-anchor": "<path d=\"M78 142 250 84 410 142 238 204Z\" fill=\"#bad8f2\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M78 142 V190 L238 246 V204Z\" fill=\"#729eca\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M238 204 410 142 V190 L238 246Z\" fill=\"#91badf\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<path d=\"M380 90 425 75 462 88 417 104Z\" fill=\"#d9e7f5\" stroke=\"#31577c\" stroke-width=\"4\"/>\n<circle cx=\"410\" cy=\"142\" r=\"8\" fill=\"#ffffff\" stroke=\"#31577c\" stroke-width=\"3\"/>"
 }
 
 
@@ -131,7 +139,7 @@ def text(path):
 
 
 def build(out, sha, native_root=None):
-    """Compile three examples and attach verified native screenshots if available.
+    """Compile the public examples and attach verified native screenshots if available.
 
     A .png is accepted only when the native verification file identifies the
     exact source SHA and the expected SolidCraft runtime. Outside native CI,
@@ -281,7 +289,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
 <div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
 <a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
-<section class="section-heading"><h2>Three small examples</h2><p>Each source produces its own native-command JSON.
+<section class="section-heading"><h2>Small public examples</h2><p>Each source produces its own native-command JSON.
 Source and commands are regenerated together by CI.</p></section>
 <div class="cards">{"".join(cards)}</div>
 <div class="twocol"><section class="panel"><h2>Developing the library</h2>
