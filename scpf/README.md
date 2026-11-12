@@ -246,13 +246,58 @@ feature-based Plate bodies is deliberately rejected.
 
 ## Parameters
 
-For a plain model class, numeric class fields become named CAD parameters in
-declaration order. The final model call may override them by name or position:
+Plain model classes use naming to make parameter intent explicit:
+
+```python
+class Display:
+    PANEL_COUNT = 5          # fixed constant: never a SolidCraft parameter
+    _panel_pitch = 160.0     # Forge/build-time input: Python only
+    opening_width = 844.0    # model parameter: must remain native/editable
+```
+
+A public lower-case numeric field is a **model parameter**. SCPF expects it
+to survive as a native SolidCraft dependency. If compilation consumes it only
+as a concrete Python value, for example through `pv()`, SCPF emits a
+`ModelParameterWarning`. Rename an intentionally build-time input with a
+leading underscore instead of silently publishing a parameter that cannot
+update the native model.
+
+Upper-case numeric class attributes are constants. They stay available to
+`build()` but are not constructor/model parameters. Underscore-prefixed
+numeric fields remain constructor/build inputs, but are deliberately concrete
+and are never emitted as native SolidCraft parameters.
+
+The final model call may override public model parameters and Forge/build
+inputs by name or position:
 
 ```python
 Plate(width=80.0)
-Plate(120.0, 80.0, 12.0)
+Display(_panel_pitch=161.0)
 ```
+
+Reusable components keep their defaults private unless requested with
+`component(..., include=...)`. A selected component default can also be
+published directly under a chosen shared model-parameter name:
+
+```python
+Bracket = component(
+    CornerBracket,
+    include={"inside_corner_radius": "corner_radius"},
+)
+```
+
+Passing an existing parent `Parameter` or expression remains the strongest
+and most direct form of coupling:
+
+```python
+Bracket(
+    bracket_width=self.bracket_width,
+    inside_corner_radius=self.corner_radius,
+)
+```
+
+Both child inputs then depend on the parent's native model parameters rather
+than creating `CornerBracket_*` duplicates.
 
 Dataclass models continue to use their normal constructor signature.
 

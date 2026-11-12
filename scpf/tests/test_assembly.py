@@ -644,5 +644,81 @@ class AssemblyTests(unittest.TestCase):
         )
 
 
+    def test_component_include_mapping_publishes_shared_model_parameter_name(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box, Edges
+        from scpf.runner import component
+
+        class Bracket:
+            bracket_width = 24.0
+            inside_corner_radius = 4.0
+
+            def build(self):
+                return Box(self.bracket_width, 40, 40).fillet(
+                    self.inside_corner_radius,
+                    edges=Edges.VERTICAL,
+                )
+
+        BracketObject = component(
+            Bracket,
+            include={"inside_corner_radius": "corner_radius"},
+        )
+        commands = compile_assembly(BracketObject(), "Display")["commands"]
+
+        parameter_names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(parameter_names, ["corner_radius"])
+        self.assertNotIn("Bracket_inside_corner_radius", parameter_names)
+        self.assertNotIn("Bracket_bracket_width", parameter_names)
+
+        fillet = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.fillet"
+        )
+        self.assertEqual(fillet["radius"], "corner_radius")
+
+    def test_explicit_parent_parameter_binding_overrides_component_alias(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box, Edges, Parameter
+        from scpf.runner import component
+
+        class Bracket:
+            inside_corner_radius = 4.0
+
+            def build(self):
+                return Box(24, 40, 40).fillet(
+                    self.inside_corner_radius,
+                    edges=Edges.VERTICAL,
+                )
+
+        BracketObject = component(
+            Bracket,
+            include={"inside_corner_radius": "standalone_radius"},
+        )
+        shared = Parameter("corner_radius", 5.0)
+        commands = compile_assembly(
+            BracketObject(inside_corner_radius=shared),
+            "Display",
+        )["commands"]
+
+        parameter_names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(parameter_names, ["corner_radius"])
+        fillet = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.fillet"
+        )
+        self.assertEqual(fillet["radius"], "corner_radius")
+
+
+
 if __name__ == "__main__":
     unittest.main()
