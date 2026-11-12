@@ -625,5 +625,36 @@ class SCPFExamples(unittest.TestCase):
                 run_script(file)
 
 
+    def test_pv_is_explicit_escape_hatch_to_python_value(self):
+        from scpf import Parameter, pv
+        width = Parameter("width", 868.0)
+        self.assertEqual(pv(width), 868.0)
+        self.assertEqual(pv(width / 2), 434.0)
+
+    def test_plain_model_fillet_keeps_radius_as_named_parameter(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Board:\n"
+                "    width = 868.0\n"
+                "    depth = 100.0\n"
+                "    thickness = 12.0\n"
+                "    corner_radius = 4.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, self.depth, self.thickness).fillet(\n"
+                "            self.corner_radius, edges=Edges.VERTICAL)\n"
+                "Board()\n"
+            )
+            generated = run_script(file)
+        self.assertIn(
+            {"command": "parameters.add",
+             "params": {"name": "corner_radius", "expression": "4", "unit": "mm"}},
+            generated["commands"],
+        )
+        fillet = next(c for c in generated["commands"]
+                      if c["command"] == "solid.fillet")
+        self.assertEqual(fillet["params"]["radius"], "corner_radius")
+
+
 if __name__ == "__main__":
     unittest.main()
