@@ -860,7 +860,7 @@ class AssemblyTests(unittest.TestCase):
                     },
                 },
                 {
-                    "name": "Marker:1.center",
+                    "name": "Marker:1.mount",
                     "occurrence": "Marker:1",
                     "frame": {
                         "origin": [0.0, 0.0, 5.0],
@@ -889,7 +889,7 @@ class AssemblyTests(unittest.TestCase):
             if command["command"] == "joint.create"
         )
         self.assertEqual(joint["a"], "Arm:1.tip")
-        self.assertEqual(joint["b"], "Marker:1.center")
+        self.assertEqual(joint["b"], "Marker:1.mount")
 
     def test_corner_anchor_compiles_to_native_edge_and_corner_origins(self):
         commands = run_script(
