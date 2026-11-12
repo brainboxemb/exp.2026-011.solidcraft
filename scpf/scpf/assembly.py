@@ -290,7 +290,7 @@ def compile_assembly(value, name):
         }
         if attachment.gap != 0:
             params["offset"] = command_value(attachment.gap)
-        if attachment.angle != 0:
+        if attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
