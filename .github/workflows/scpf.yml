@@ -215,20 +215,21 @@ jobs:
               ((.bbox.max[2] - 10) | fabs) < 0.001))
           ' output/native/custom-anchor/measurements.json
 
-          # XZ rectangular component regression: the marker is attached to
-          # the Board FRONT_TOP_RIGHT corner. Change width and height in the
-          # saved native design; the referenced topology must carry the marker.
+          # XZ rectangular component regression: markers are attached to
+          # both FRONT_TOP corners. Change width and height in the saved native
+          # design; both mirrored topology references must follow the board.
           jq -e '
             (all(.bodies[] | select(.name | startswith("Board"));
               ((.bbox.min[0] + 20) | fabs) < 0.001 and
               ((.bbox.max[0] - 20) | fabs) < 0.001 and
               ((.bbox.min[2] - 0) | fabs) < 0.001 and
               ((.bbox.max[2] - 20) | fabs) < 0.001)) and
+            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
             (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
               ((.bbox.min[2] - 20) | fabs) < 0.001 and
-              ((.bbox.max[2] - 30) | fabs) < 0.001))
+              ((.bbox.max[2] - 30) | fabs) < 0.001)) and
+            ((([.bodies[] | select(.name | startswith("Marker")) | .bbox.min[0]] | min) + 20) | fabs) < 0.001 and
+            ((([.bodies[] | select(.name | startswith("Marker")) | .bbox.max[0]] | max) - 20) | fabs) < 0.001
           ' output/native/xz-anchor/measurements.json
 
           cat > output/native/xz-anchor/change-size.json <<'JSON'
@@ -253,11 +254,12 @@ jobs:
               ((.bbox.max[0] - 40) | fabs) < 0.001 and
               ((.bbox.min[2] - 0) | fabs) < 0.001 and
               ((.bbox.max[2] - 40) | fabs) < 0.001)) and
+            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
             (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 30) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
               ((.bbox.min[2] - 40) | fabs) < 0.001 and
-              ((.bbox.max[2] - 50) | fabs) < 0.001))
+              ((.bbox.max[2] - 50) | fabs) < 0.001)) and
+            ((([.bodies[] | select(.name | startswith("Marker")) | .bbox.min[0]] | min) + 40) | fabs) < 0.001 and
+            ((([.bodies[] | select(.name | startswith("Marker")) | .bbox.max[0]] | max) - 40) | fabs) < 0.001
           ' output/native/xz-anchor/measurements-size-80x40.json
 
           jq -n --arg source "$GITHUB_SHA" \
