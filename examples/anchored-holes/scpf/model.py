@@ -11,7 +11,7 @@ class AnchoredHoles:
         plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=self.spacing, axis=Axis.Y
-        ).attach(plate, parent=Anchor.TOP)
+        ).on(plate, face=Faces.TOP)
         plate + holes
 
 
