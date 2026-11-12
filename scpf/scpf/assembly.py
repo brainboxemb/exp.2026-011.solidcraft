@@ -227,10 +227,10 @@ def compile_assembly(value, name):
                     component=component_name,
                 ))
 
-        # Custom component anchors are authored while every occurrence is
-        # still at identity. SolidCraft converts these world-frame values to
-        # occurrence-local joint origins, so later occurrence moves/rotations
-        # carry the anchors with the part without Forge composing transforms.
+        # Only explicitly rotated custom anchors need a persistent native
+        # joint.origin. Author those while occurrences are still at identity;
+        # SolidCraft then owns the local-to-world transform when the occurrence
+        # is rotated. Unrotated AnchorFrames are inlined later in joint.create.
         for instance, native_name in occurrences:
             for anchor_name, frame in instance.definition.anchors:
                 anchor_key = (id(instance), anchor_name)
