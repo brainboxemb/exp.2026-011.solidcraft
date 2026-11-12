@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, Shape, pv
+from .core import Anchor, Axis, Shape, pv
 
 
 @dataclass(frozen=True)
@@ -129,15 +129,33 @@ class ModelInstance:
             attachment=None,
         )
 
-    def rotate(self, *, axis=(0, 0, 1), degrees):
+    def rotate(self, axis=(0, 0, 1), degrees=None):
         """Set this occurrence's absolute local-axis orientation in degrees.
+
+        Named axis tokens allow concise calls such as rotate(X, 180) and
+        rotate(Y, 90). The explicit tuple form remains supported:
+        rotate(axis=(0, 1, 0), degrees=90).
 
         Rotates only the placement of the shared component definition.
         The pivot is the component's local origin; translation is preserved.
         One axis-angle orientation is supported, not chained Euler rotations.
         """
+        if degrees is None:
+            raise ValueError("model rotate() requires an angle in degrees")
+        if isinstance(axis, Axis):
+            axis = axis.value
+        if isinstance(axis, str):
+            named_axes = {
+                "X": (1, 0, 0),
+                "Y": (0, 1, 0),
+                "Z": (0, 0, 1),
+            }
+            try:
+                axis = named_axes[axis]
+            except KeyError as exc:
+                raise ValueError("model rotate() named axis must be X, Y or Z") from exc
         if (not isinstance(axis, (tuple, list)) or len(axis) != 3):
-            raise ValueError("model rotate() axis must be an XYZ triple")
+            raise ValueError("model rotate() axis must be X, Y, Z or an XYZ triple")
         try:
             values = tuple(float(pv(value)) for value in axis)
             angle = float(pv(degrees))
