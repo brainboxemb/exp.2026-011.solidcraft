@@ -397,6 +397,17 @@ def _reusable_model_object(
     cls, *args, _include=(), _aliases=None, **kwargs
 ):
     """Build a nested user model as a reusable component definition."""
+    object_name = kwargs.pop("name", None)
+    if object_name is not None:
+        if (
+            not isinstance(object_name, str)
+            or not object_name.isidentifier()
+            or object_name.startswith("_")
+        ):
+            raise ValueError(
+                "component object name must be a public Python identifier"
+            )
+
     result, concrete, fixed, external, bindings, anchors = _build_object(
         cls, *args, _include=_include, _aliases=_aliases, **kwargs
     )
@@ -413,7 +424,8 @@ def _reusable_model_object(
             external_parameters=external,
             input_bindings=bindings,
             anchors=anchors,
-        )
+        ),
+        name=object_name,
     )
 
 
