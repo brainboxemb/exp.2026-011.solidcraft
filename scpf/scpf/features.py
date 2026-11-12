@@ -5,7 +5,7 @@ is compiled from its operation, not from a named example such as Plate.
 """
 from math import isfinite
 from fnmatch import fnmatchcase
-from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, _ProfileEdgeSelection, value_of, command_value
+from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, _ProfileEdgeSelection, pv, command_value
 from .history import History
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
 from .placement import (
@@ -40,7 +40,7 @@ def _hole_commands(feature, position, name, refs=None):
     _require_positive(diameter, "hole diameter")
 
     point = tuple(position)
-    concrete_point = [value_of(v) for v in point]
+    concrete_point = [pv(v) for v in point]
     if not all(isfinite(v) for v in concrete_point):
         raise ModelError("hole position must be finite")
 
@@ -52,7 +52,7 @@ def _hole_commands(feature, position, name, refs=None):
         params = dict(
             position=(
                 [command_value(v) for v in at] if direction_vector is not None
-                else [value_of(v) for v in at]
+                else [pv(v) for v in at]
             ),
             diameter=command_value(hole_diameter),
             targets=[name],
@@ -70,13 +70,13 @@ def _hole_commands(feature, position, name, refs=None):
         return [_command("solid.hole", **simple_params(point, diameter, depth))]
 
     _require_positive(countersink_d, "countersink diameter")
-    if value_of(countersink_d) <= value_of(diameter):
+    if pv(countersink_d) <= pv(diameter):
         raise ModelError("countersink diameter must exceed hole diameter")
-    angle = value_of(countersink_angle)
+    angle = pv(countersink_angle)
     if not isfinite(angle) or angle <= 0 or angle >= 180:
         raise ModelError("countersink angle must be between 0 and 180 degrees")
 
-    recess = value_of(countersink_recess)
+    recess = pv(countersink_recess)
     if recess < 0:
         raise ModelError("countersink recess cannot be negative")
 
@@ -105,7 +105,7 @@ def _hole_commands(feature, position, name, refs=None):
         )
         if depth is not Depth.THROUGH_ALL:
             remaining_depth = _combine(depth, -countersink_recess)
-            if value_of(remaining_depth) <= 0:
+            if pv(remaining_depth) <= 0:
                 raise ModelError(
                     "hole depth must extend beyond the countersink recess"
                 )
@@ -164,21 +164,21 @@ def _resolve_profile_edges(base, selection):
         # For an XZ profile extruded symmetrically along Y, the sweep edge
         # passes through (x, 0, z) at the original sketch vertex.
         return [
-            (value_of(points[i][0]), 0, -value_of(points[i][1]))
+            (pv(points[i][0]), 0, -pv(points[i][1]))
             for i in matches
         ]
     if selection.kind != "segments":
         raise ModelError(f"unsupported profile edge selection: {selection.kind}")
 
-    half_width = value_of(base["thickness"]) / 2
+    half_width = pv(base["thickness"]) / 2
     picks = []
     for y in (-half_width, half_width):
         for i in matches:
             a, b = points[i], points[(i + 1) % len(points)]
             picks.append((
-                (value_of(a[0]) + value_of(b[0])) / 2,
+                (pv(a[0]) + pv(b[0])) / 2,
                 y,
-                -(value_of(a[1]) + value_of(b[1])) / 2,
+                -(pv(a[1]) + pv(b[1])) / 2,
             ))
     return picks
 
@@ -188,10 +188,10 @@ def _fillet_command(base, radius, edges, name):
     if edges is Edges.VERTICAL:
         if base["profile"] != "rectangle":
             raise ModelError("vertical-edge selection requires a rectangular base")
-        w, d, h = (value_of(base[k]) for k in ("width", "depth", "thickness"))
+        w, d, h = (pv(base[k]) for k in ("width", "depth", "thickness"))
         if r * 2 >= min(w, d):
             raise ModelError("fillet radius exceeds rectangular base dimensions")
-        x, y, z = (value_of(v) for v in base["origin"])
+        x, y, z = (pv(v) for v in base["origin"])
         if z != 0:
             raise ModelError("vertical fillet of shifted base not supported")
         picks = [[x + dx, y + dy, h / 2]
@@ -199,18 +199,18 @@ def _fillet_command(base, radius, edges, name):
         return _command(
             "solid.fillet",
             edges=picks,
-            radius=r,
+            radius=command_value(radius),
             body=name,
         )
-    picks = [[value_of(v) for v in point] for point in edges]
+    picks = [[pv(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("fillet edge selection must be finite")
-    return _command("solid.fillet", edges=picks, radius=r, body=name)
+    return _command("solid.fillet", edges=picks, radius=command_value(radius), body=name)
 
 
 def _chamfer_command(distance, edges, name):
     _require_positive(distance, "chamfer distance")
-    picks = [[value_of(v) for v in point] for point in edges]
+    picks = [[pv(v) for v in point] for point in edges]
     if not all(isfinite(v) for point in picks for v in point):
         raise ModelError("chamfer edge selection must be finite")
     return _command(
@@ -225,10 +225,10 @@ def _face_point(base, face):
     """Return a stable authoring pick on a named face of a rectangular base."""
     if base.get("profile") != "rectangle":
         raise ModelError("named Faces currently require a rectangular base")
-    x, y, z = (value_of(v) for v in base["origin"])
-    width = value_of(base["width"])
-    depth = value_of(base["depth"])
-    height = value_of(base["thickness"])
+    x, y, z = (pv(v) for v in base["origin"])
+    width = pv(base["width"])
+    depth = pv(base["depth"])
+    height = pv(base["thickness"])
     points = {
         Faces.TOP: [x + width / 2, y + depth / 2, z + height],
         Faces.BOTTOM: [x + width / 2, y + depth / 2, z],
@@ -251,7 +251,7 @@ def _shell_command(base, thickness, faces, name):
 
 
 def _vector(values, label):
-    concrete = [value_of(v) for v in values]
+    concrete = [pv(v) for v in values]
     if len(concrete) != 3 or not all(isfinite(v) for v in concrete):
         raise ModelError(f"{label} must be a finite 3D direction")
     if concrete == [0, 0, 0]:
@@ -261,7 +261,7 @@ def _vector(values, label):
 
 def _plastic_feature_command(feature, position, name):
     """Compile one native SolidCraft plastic feature at an explicit face pick."""
-    point = [value_of(v) for v in position]
+    point = [pv(v) for v in position]
     if not all(isfinite(v) for v in point):
         raise ModelError("plastic feature position must be finite")
 
@@ -354,12 +354,12 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     ) = feature.data
     _require_positive(diameter, "hole diameter")
     if (hole_direction is not None or countersink_d is not None
-            or value_of(countersink_recess) != 0):
+            or pv(countersink_recess) != 0):
         raise ModelError(
             "directional or countersunk Hole currently requires explicit .at() placement"
         )
     (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
-    base_top = thickness if value_of(origin_z) == 0 else _combine(origin_z, thickness)
+    base_top = thickness if pv(origin_z) == 0 else _combine(origin_z, thickness)
     entry_z = base_top
     on_base_top = True
 
@@ -373,7 +373,7 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
             if (boss.kind == "cylinder" and boss_parent == previous
                     and boss_parent_anchor is Anchor.TOP
                     and boss_child_anchor is Anchor.BOTTOM
-                    and all(value_of(v) == 0 for v in boss_offset)):
+                    and all(pv(v) == 0 for v in boss_offset)):
                 boss_height, _ = boss.data
                 entry_z = (base_top + boss_height
                            if isinstance(boss_height, (int, float))
@@ -391,8 +391,8 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
             # A bore starting on a joined boss is sketched at its entry face
             # and cuts back through the complete current height.
             sketch_z = entry_z
-            distance = (entry_z if value_of(origin_z) == 0
-                        else _combine(entry_z, -value_of(origin_z)))
+            distance = (entry_z if pv(origin_z) == 0
+                        else _combine(entry_z, -pv(origin_z)))
             direction = "negative"
     else:
         _require_positive(depth, "hole depth")
@@ -403,7 +403,7 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
     label = "Holes" if child.kind == "linear_pattern" else (
         "Bore" if not on_base_top else "Hole")
     plane = {"plane": "XY", "name": label}
-    if value_of(sketch_z):
+    if pv(sketch_z):
         plane["offset"] = command_value(sketch_z)
 
     operations = [_command("sketch.create", **plane)]
@@ -431,13 +431,13 @@ def _sketch_boss_commands(feature, position, name, *, feature_name=None):
     diameter, height, hole_diameter, direction = feature.data
     _require_positive(diameter, "boss diameter")
     _require_positive(height, "boss height")
-    if direction is not None and [value_of(v) for v in direction] != [0, 0, 1]:
+    if direction is not None and [pv(v) for v in direction] != [0, 0, 1]:
         raise ModelError("sketch-based Boss prototype currently supports +Z only")
 
     x, y, z = position
     label = feature_name or "Boss"
     plane = dict(plane="XY", name=label)
-    if value_of(z):
+    if pv(z):
         plane["offset"] = command_value(z)
 
     commands = [
@@ -463,7 +463,7 @@ def _sketch_boss_commands(feature, position, name, *, feature_name=None):
         top = _combine(z, height)
         hole_label = f"{label} hole"
         hole_plane = dict(plane="XY", name=hole_label)
-        if value_of(top):
+        if pv(top):
             hole_plane["offset"] = command_value(top)
         commands.extend([
             _command("sketch.create", **hole_plane),
@@ -542,7 +542,7 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
             direction = "positive"
         elif shape.kind == "difference" and child_anchor is Anchor.BOTTOM:
             anchor_z = origin_z if parent_anchor is Anchor.BOTTOM else thickness
-            sketch_z = (height if value_of(anchor_z) == 0
+            sketch_z = (height if pv(anchor_z) == 0
                         else _combine(anchor_z, height))
             direction = "negative"
         else:
@@ -550,7 +550,7 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
         # Name by CAD feature intent; no example/model-specific switch.
         label = feature_name or ("Boss" if shape.kind == "union" else "Cut")
         plane = dict(plane="XY", name=label)
-        if value_of(sketch_z):
+        if pv(sketch_z):
             plane["offset"] = command_value(sketch_z)
         operations.extend([
             _command("sketch.create", **plane),
@@ -588,7 +588,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
             }
             x_dir, y_dir = orientation[plane_name]
             plane = dict(
-                plane={"origin": [value_of(v) for v in sketch_origin],
+                plane={"origin": [pv(v) for v in sketch_origin],
                        "x_dir": x_dir, "y_dir": y_dir},
                 name=sketch_name,
             )
@@ -611,7 +611,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
             raise ModelError("unsupported explicit Sketch anchor")
 
         plane = dict(plane="XY", name=sketch_name)
-        if value_of(plane_z):
+        if pv(plane_z):
             plane["offset"] = command_value(plane_z)
         relative_origin = (_combine(x, width / 2), _combine(y, depth / 2))
 
@@ -647,8 +647,8 @@ def _explicit_sketch_commands(shape, original, feature, name):
             if profile.kind == "rounded_rectangle":
                 radius = profile.data[2]
                 _require_positive(radius, "sketch rounded rectangle radius")
-                if value_of(radius) * 2 >= min(
-                        value_of(rectangle_width), value_of(rectangle_height)):
+                if pv(radius) * 2 >= min(
+                        pv(rectangle_width), pv(rectangle_height)):
                     raise ModelError("rounded rectangle radius exceeds half the shorter side")
                 params["radius"] = command_value(radius)
                 command = "sketch.rectangle.rounded"
@@ -695,7 +695,7 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
         raise ModelError("boolean sketch requires Circle2D profiles") from exc
     if not circles:
         raise ModelError("empty circular cutter sketch")
-    z_values = [value_of(z) for _, _, z, _ in circles]
+    z_values = [pv(z) for _, _, z, _ in circles]
     if len(set(z_values)) != 1:
         raise ModelError("a sketch cannot mix circles on different Z planes")
     if shape.kind == "union" and direction != "positive":
@@ -703,7 +703,7 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
     label = feature_name or ("Join" if shape.kind == "union" else "Cut")
     plane = dict(plane="XY", name=label)
     z = circles[0][2]
-    if value_of(z):
+    if pv(z):
         plane["offset"] = command_value(z)
     result = [_command("sketch.create", **plane)]
     for x, y, _, diameter in circles:
