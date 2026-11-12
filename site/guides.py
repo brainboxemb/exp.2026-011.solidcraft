@@ -359,6 +359,23 @@ return callable model objects, so normal model code stays readable as
 <p>SolidCraft receives one reusable definition and multiple occurrences.
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
+<h2 id="component-parameters">Component parameter visibility</h2>
+<p>Reusable component defaults are <strong>fixed by default</strong>. They
+still define the component geometry, but they do not automatically clutter the
+design-wide SolidCraft parameter list. Publish only the defaults you actually
+want users to edit:</p>
+""" + code("""Bracket = component(
+    CornerBracket,
+    include=("inside_corner_radius",),
+)
+
+# Or expose every local default:
+EditableBracket = component(CornerBracket, include="*")""") + """
+<p>A parent <code>Parameter</code> or expression passed into a component always
+stays symbolic, even when it is not in <code>include</code>. For example,
+<code>Bracket(inside_corner_radius=self.corner_radius)</code> reuses the
+parent design's <code>corner_radius</code>; it does not create a separate
+<code>CornerBracket_inside_corner_radius</code> parameter.</p>
 <h2 id="placement">Occurrence placement</h2>
 <p><code>copy()</code> in Python retains the source's intended position
 and orientation. <code>move()</code> then adds the given displacement.
