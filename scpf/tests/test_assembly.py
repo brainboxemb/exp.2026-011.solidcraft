@@ -368,7 +368,8 @@ class AssemblyTests(unittest.TestCase):
         )
 
 
-    def test_component_accepts_parent_parameter_without_manual_pv(self):
+    def test_component_preserves_parent_parameter_dependency(self):
+        from scpf.assembly import compile_assembly
         from scpf.core import Box, Parameter
         from scpf.runner import component
 
@@ -384,14 +385,95 @@ class AssemblyTests(unittest.TestCase):
         parent_width = Parameter("opening_width", 844.0)
         instance = PanelObject(width=parent_width)
 
+        self.assertNotIn("width", dict(instance.definition.parameters))
         self.assertEqual(
-            dict(instance.definition.parameters)["width"],
+            dict(instance.definition.external_parameters)["opening_width"],
             844.0,
         )
         self.assertEqual(
-            instance.definition.shape.data[0].name,
-            "width",
+            dict(instance.definition.input_bindings)["width"],
+            "opening_width",
         )
+        self.assertEqual(
+            instance.definition.shape.data[0].name,
+            "opening_width",
+        )
+
+        commands = compile_assembly(instance, "Display")["commands"]
+        parameter_names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+        self.assertIn("opening_width", parameter_names)
+        self.assertNotIn("Panel_width", parameter_names)
+
+    def test_shared_parent_parameter_is_added_once_for_multiple_components(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box, Parameter
+        from scpf.runner import component
+
+        class Strip:
+            length = 100.0
+            width = 12.0
+
+            def build(self):
+                return Box(self.length, self.width, 4)
+
+        StripObject = component(Strip)
+        opening_width = Parameter("opening_width", 844.0)
+
+        horizontal = StripObject(length=opening_width, width=12.0)
+        second = StripObject(length=opening_width, width=15.0).move(y=20)
+
+        commands = compile_assembly(horizontal + second, "Frame")["commands"]
+        parameter_names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+
+        self.assertEqual(parameter_names.count("opening_width"), 1)
+        self.assertNotIn("Strip_length", parameter_names)
+        self.assertNotIn("Strip_2_length", parameter_names)
+        self.assertIn("Strip_width", parameter_names)
+        self.assertIn("Strip_2_width", parameter_names)
+
+    def test_parent_expression_remains_an_expression_in_child_geometry(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box, Parameter
+        from scpf.runner import component
+
+        class Board:
+            width = 100.0
+            thickness = 12.0
+
+            def build(self):
+                return Box(self.width, 50, self.thickness)
+
+        BoardObject = component(Board)
+        opening_width = Parameter("opening_width", 844.0)
+        frame_wood_thickness = Parameter("frame_wood_thickness", 12.0)
+        outer_width = opening_width + 2 * frame_wood_thickness
+
+        board = BoardObject(width=outer_width)
+        commands = compile_assembly(board, "Frame")["commands"]
+
+        parameter_names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(parameter_names.count("opening_width"), 1)
+        self.assertEqual(parameter_names.count("frame_wood_thickness"), 1)
+        self.assertNotIn("Board_width", parameter_names)
+
+        rectangle = next(
+            command for command in commands
+            if command["command"] == "sketch.rectangle.two_point"
+        )
+        self.assertIn("opening_width", str(rectangle["params"]))
+        self.assertIn("frame_wood_thickness", str(rectangle["params"]))
 
     def test_imported_assembly_class_uses_object_syntax(self):
         from scpf.core import Box, Parameter
