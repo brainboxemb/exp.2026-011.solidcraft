@@ -3,7 +3,7 @@ import re
 
 from .compiler import ModelError
 from .core import command_value, parameters_in
-from .model_objects import Assembly, ModelInstance, _anchor_point
+from .model_objects import Assembly, ModelInstance, _anchor_origin
 from .compiler import compile_model
 
 
@@ -230,16 +230,16 @@ def compile_assembly(value, name):
         if child_occurrence is None or parent_occurrence is None:
             raise ModelError("component attach target must be part of the assembly")
 
-        parent_local = _anchor_point(attachment.target, attachment.parent)
-        child_local = _anchor_point(instance, attachment.child)
-        parent_face = [
-            parent_local[i] + attachment.target.translation[i]
-            for i in range(3)
-        ]
-        child_face = [
-            child_local[i] + instance.translation[i]
-            for i in range(3)
-        ]
+        parent_origin = _anchor_origin(
+            attachment.target,
+            attachment.parent,
+            parent_occurrence,
+        )
+        child_origin = _anchor_origin(
+            instance,
+            attachment.child,
+            child_occurrence,
+        )
         for parameter in parameters_in(attachment.gap):
             if not any(
                 command["command"] == "parameters.add"
@@ -255,8 +255,8 @@ def compile_assembly(value, name):
         params = {
             "type": "rigid",
             "name": f"Attach {child_occurrence} to {parent_occurrence}",
-            "a": {"occurrence": parent_occurrence, "face": parent_face},
-            "b": {"occurrence": child_occurrence, "face": child_face},
+            "a": parent_origin,
+            "b": child_origin,
         }
         if attachment.gap != 0:
             params["offset"] = command_value(attachment.gap)

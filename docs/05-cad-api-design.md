@@ -67,7 +67,8 @@ A component default that should be independently public can be selected with
 - For a Hole, `face=Faces.TOP` means drilling starts at the current top
   surface and proceeds inward.
 - `attach()` is reserved for explicit attachment relationships between
-  reusable components in an assembly.
+  reusable components in an assembly. It is the public Forge relationship;
+  SolidCraft `joint.create` remains an internal lowering detail.
 - `+` adds the described CAD feature to the model; for Hole intent the
   resulting SolidCraft operation is a cut.
 - The adapter decides the native representation. For Sample Plate it creates
@@ -76,6 +77,10 @@ A component default that should be independently public can be selected with
 - `Faces` selects a surface, including the surface used by `on()`.
   `Anchor` describes explicit assembly attachment references. They are
   intentionally separate concepts.
+- Component anchors may identify a face (`RIGHT`, `TOP`, etc.) or one of
+  the eight rectangular corners such as `FRONT_TOP_RIGHT`. Corner anchors
+  lower to native SolidCraft edge/corner origins, so saved-model parameter
+  edits can move the referenced corner and the attached component together.
 - `shell()` is a modifier like `fillet()`: for example
   `body.shell(2, open=Faces.TOP)`.
 - `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level

@@ -837,6 +837,36 @@ class AssemblyTests(unittest.TestCase):
 
 
 
+    def test_corner_anchor_compiles_to_native_edge_and_corner_origins(self):
+        commands = run_script(
+            ROOT / "examples/corner-anchor/scpf/model.py"
+        )["commands"]
+
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "rigid")
+        self.assertEqual(
+            joint["a"],
+            {
+                "occurrence": "Base:1",
+                "edge": [0.0, -15.0, 20.0],
+                "on": [0.0, -15.0, 10.0],
+                "corner": [20.0, -15.0, 20.0],
+            },
+        )
+        self.assertEqual(
+            joint["b"],
+            {
+                "occurrence": "Marker:1",
+                "edge": [15.0, -15.0, 20.0],
+                "on": [15.0, -15.0, 15.0],
+                "corner": [20.0, -15.0, 20.0],
+            },
+        )
+
     def test_parametric_attach_keeps_gap_as_native_joint_expression(self):
         commands = run_script(
             ROOT / "examples/parametric-attach/scpf/model.py"

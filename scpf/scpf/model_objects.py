@@ -64,8 +64,20 @@ def _rectangular_bounds(instance):
     )
 
 
+_CORNER_ANCHORS = {
+    Anchor.FRONT_TOP_LEFT,
+    Anchor.FRONT_TOP_RIGHT,
+    Anchor.FRONT_BOTTOM_LEFT,
+    Anchor.FRONT_BOTTOM_RIGHT,
+    Anchor.BACK_TOP_LEFT,
+    Anchor.BACK_TOP_RIGHT,
+    Anchor.BACK_BOTTOM_LEFT,
+    Anchor.BACK_BOTTOM_RIGHT,
+}
+
+
 def _anchor_point(instance, anchor):
-    """Local face-centre point for one reusable component."""
+    """Local point represented by one reusable-component anchor."""
     bounds = _rectangular_bounds(instance)
     (xmin, xmax), (ymin, ymax), (zmin, zmax) = bounds
     xmid = (xmin + xmax) / 2
@@ -79,10 +91,70 @@ def _anchor_point(instance, anchor):
         Anchor.BACK: (xmid, ymax, zmid),
         Anchor.BOTTOM: (xmid, ymid, zmin),
         Anchor.TOP: (xmid, ymid, zmax),
+        Anchor.FRONT_TOP_LEFT: (xmin, ymin, zmax),
+        Anchor.FRONT_TOP_RIGHT: (xmax, ymin, zmax),
+        Anchor.FRONT_BOTTOM_LEFT: (xmin, ymin, zmin),
+        Anchor.FRONT_BOTTOM_RIGHT: (xmax, ymin, zmin),
+        Anchor.BACK_TOP_LEFT: (xmin, ymax, zmax),
+        Anchor.BACK_TOP_RIGHT: (xmax, ymax, zmax),
+        Anchor.BACK_BOTTOM_LEFT: (xmin, ymax, zmin),
+        Anchor.BACK_BOTTOM_RIGHT: (xmax, ymax, zmin),
     }
     if anchor not in points:
-        raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
+        raise ValueError(f"{anchor} is not a supported assembly anchor")
     return points[anchor]
+
+
+def _corner_origin_points(instance, anchor):
+    """Return edge, face and corner picks for a native SolidCraft corner origin.
+
+    The chosen edge is the horizontal top/bottom edge of the front/back face.
+    SolidCraft stores the edge, face and second corner edge by name, so this
+    origin follows dimension changes after the design has been saved.
+    """
+    if anchor not in _CORNER_ANCHORS:
+        raise ValueError("corner origin requires a corner Anchor")
+    (xmin, xmax), (ymin, ymax), (zmin, zmax) = _rectangular_bounds(instance)
+    xmid = (xmin + xmax) / 2
+    zmid = (zmin + zmax) / 2
+
+    front = anchor.value.startswith("front_")
+    left = anchor.value.endswith("_left")
+    top = "_top_" in anchor.value
+    y = ymin if front else ymax
+    x = xmin if left else xmax
+    z = zmax if top else zmin
+    edge = (xmid, y, z)
+    on = (xmid, y, zmid)
+    corner = (x, y, z)
+    return edge, on, corner
+
+
+def _anchor_origin(instance, anchor, occurrence):
+    """Native SolidCraft joint-origin spec for one component anchor."""
+    if instance.rotation is not None and anchor in _CORNER_ANCHORS:
+        raise ValueError(
+            "corner anchors on explicitly rotated occurrences are not supported yet"
+        )
+
+    def world(point):
+        return [
+            point[i] + instance.translation[i]
+            for i in range(3)
+        ]
+
+    if anchor in _CORNER_ANCHORS:
+        edge, on, corner = _corner_origin_points(instance, anchor)
+        return {
+            "occurrence": occurrence,
+            "edge": world(edge),
+            "on": world(on),
+            "corner": world(corner),
+        }
+    return {
+        "occurrence": occurrence,
+        "face": world(_anchor_point(instance, anchor)),
+    }
 
 
 def _face_offset(anchor, offset):
@@ -96,6 +168,8 @@ def _face_offset(anchor, offset):
         return (u, v, 0.0)
     if anchor is Anchor.CENTER:
         return (u, v, 0.0)
+    if anchor in _CORNER_ANCHORS and u == 0 and v == 0:
+        return (0.0, 0.0, 0.0)
     raise ValueError("unsupported assembly anchor")
 
 

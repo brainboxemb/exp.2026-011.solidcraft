@@ -433,13 +433,23 @@ transform needs to be undone, and no inverse matrix is calculated.</p>
 array = center
 for x in (-240, -120, 120, 240):
     array = array + center.copy().move(x=x)""") + """
-<h2 id="attach">Face-to-face attachment</h2>
+<h2 id="attach">Component attachment</h2>
 """ + code("""right = BeamComponent().attach(
     left, parent=Anchor.RIGHT, child=Anchor.LEFT
+)
+
+marker = Marker().attach(
+    frame,
+    parent=Anchor.FRONT_TOP_RIGHT,
+    child=Anchor.BACK_TOP_RIGHT,
 )""") + """
-<p>Supported rectangular faces can form a rigid native attachment.
-A general mating constraint solver, arbitrary face-to-face offset and
-multiple levels of independent shared parent groups are not yet available.</p>
+<p><code>attach()</code> is the public Forge relationship between reusable
+components. <code>Anchor</code> selects the attachment reference: a supported
+face, or one of the eight rectangular corners such as
+<code>FRONT_TOP_RIGHT</code>. Corner anchors compile to native SolidCraft
+edge/corner origins, so they follow dimension changes in a saved design.
+SolidCraft joints remain an internal implementation detail; Forge does not
+expose a separate public Joint object.</p>
 <h2 id="verify">What to test in an assembly</h2>
 <p>Check the native command list for one <code>component.create</code>
 per shared definition, expected <code>occurrence.copy</code> counts,
