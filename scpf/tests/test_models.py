@@ -126,7 +126,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(commands[-1]["params"]["distance"], "thickness")
 
     def test_hole_on_starts_at_exterior_top(self):
-        from scpf.core import Faces, Hole, Rectangle2D
+        from scpf.core import Anchor, Faces, Hole, Rectangle2D
         from scpf.compiler import compile_model, ModelError
         plate = Rectangle2D(80, 50).extrude(8)
         attached = Hole(d=8).on(plate, face=Faces.TOP)
