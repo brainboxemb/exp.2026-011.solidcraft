@@ -250,6 +250,16 @@ def compile_assembly(value, name):
         if child_occurrence is None or parent_occurrence is None:
             raise ModelError("component attach target must be part of the assembly")
 
+        if attachment.as_built:
+            commands.append(_command(
+                "joint.as_built",
+                type="rigid",
+                name=f"Attach {child_occurrence} to {parent_occurrence}",
+                a=parent_occurrence,
+                b=child_occurrence,
+            ))
+            continue
+
         if isinstance(attachment.parent, Anchor):
             parent_origin = _anchor_origin(
                 attachment.target,
