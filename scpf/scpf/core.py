@@ -410,13 +410,23 @@ class Shape:
             raise ValueError("only XY linear patterns are supported")
         return Shape("linear_pattern", (self, count, spacing, axis))
 
-    def on(self, target, *, offset=(0, 0)):
-        """Place a supported feature on the top surface of another shape.
+    def on(self, target, *, face=Faces.TOP, offset=(0, 0)):
+        """Place a supported feature on a selected face of another shape.
 
-        This is simple within-component placement. Assembly anchors belong to
-        ModelInstance.attach(), not to ordinary feature placement.
+        This is simple within-component placement. Use Faces to choose the
+        target surface; assembly Anchor values belong to ModelInstance.attach().
         """
-        return self._anchor_to(target, Anchor.TOP, Anchor.BOTTOM, offset)
+        try:
+            face = Faces(face)
+        except ValueError as exc:
+            raise ValueError("on() face must be a Faces value") from exc
+        face_to_anchor = {
+            Faces.TOP: Anchor.TOP,
+            Faces.BOTTOM: Anchor.BOTTOM,
+        }
+        if face not in face_to_anchor:
+            raise ValueError("on() currently supports Faces.TOP or Faces.BOTTOM")
+        return self._anchor_to(target, face_to_anchor[face], Anchor.BOTTOM, offset)
 
     def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
                offset=(0, 0)):
