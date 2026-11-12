@@ -26,6 +26,34 @@ class GenericGeometryAPI(unittest.TestCase):
             with self.subTest(tags=tags), self.assertRaises(ValueError):
                 Polygon2D(points, ids=tags)
 
+    def test_unpositioned_polygon_keeps_parameters_for_all_extrusion_directions(self):
+        from scpf.core import Direction, Parameter, Polygon2D
+        from scpf.features import compile_features
+
+        width = Parameter("opening_width", 844.0)
+        trim = Parameter("glazing_wood_width", 12.0)
+
+        for direction in (Direction.POSITIVE, Direction.NEGATIVE):
+            with self.subTest(direction=direction):
+                shape = Polygon2D([
+                    (-width / 2, 0),
+                    (width / 2, 0),
+                    (width / 2 - trim, trim),
+                    (-width / 2 + trim, trim),
+                ], plane="XZ", world=True).extrude(
+                    12,
+                    direction=direction,
+                )
+                commands = compile_features(shape, "Strip")
+                line = next(
+                    command["params"]
+                    for command in commands
+                    if command["command"] == "sketch.line"
+                )
+                points = str(line["points"])
+                self.assertIn("opening_width", points)
+                self.assertIn("glazing_wood_width", points)
+
     def test_positioned_xz_polygon_keeps_parameterized_y_plane(self):
         from scpf.core import Direction, Edges, Parameter, Polygon2D
         from scpf.features import compile_features
