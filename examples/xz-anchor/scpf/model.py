@@ -38,12 +38,17 @@ class XzAnchor:
             width=self.board_width,
             height=self.board_height,
         )
-        marker = Marker().attach(
+        right_marker = Marker().attach(
             board,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=Anchor.BACK_TOP_RIGHT,
         )
-        return board + marker
+        left_marker = Marker().attach(
+            board,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=Anchor.BACK_TOP_LEFT,
+        )
+        return board + right_marker + left_marker
 
 
 XzAnchor()
