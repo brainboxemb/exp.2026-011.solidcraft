@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, Axis, Shape, parameters_in, pv
+from .core import Anchor, AnchorFrame, Axis, Shape, parameters_in, pv
 
 
 @dataclass(frozen=True)
@@ -20,6 +20,7 @@ class ModelDefinition:
     fixed_inputs: tuple[tuple[str, float], ...] = ()
     external_parameters: tuple[tuple[str, float], ...] = ()
     input_bindings: tuple[tuple[str, str], ...] = ()
+    anchors: tuple[tuple[str, AnchorFrame], ...] = ()
 
     @property
     def key(self):
@@ -28,6 +29,7 @@ class ModelDefinition:
             self.parameters,
             self.fixed_inputs,
             self.input_bindings,
+            self.anchors,
         )
 
 
@@ -36,10 +38,38 @@ class Attachment:
     """Associative face-to-face relationship between two model occurrences."""
 
     target: "ModelInstance"
-    parent: Anchor
-    child: Anchor
+    parent: Anchor | str
+    child: Anchor | str
     offset: tuple[float, float]
     gap: object = 0
+
+
+def _custom_anchor_frame(instance, name):
+    try:
+        return dict(instance.definition.anchors)[name]
+    except KeyError as exc:
+        raise ValueError(
+            f"{instance.definition.class_name} has no component anchor {name!r}"
+        ) from exc
+
+
+def _resolve_anchor_reference(instance, value):
+    """Resolve a standard Anchor or a named component-local AnchorFrame."""
+    if isinstance(value, Anchor):
+        return value
+    if isinstance(value, str):
+        try:
+            return Anchor(value)
+        except ValueError:
+            _custom_anchor_frame(instance, value)
+            return value
+    raise ValueError("component attach requires an Anchor value or anchor name")
+
+
+def _anchor_local_point(instance, anchor):
+    if isinstance(anchor, Anchor):
+        return _anchor_point(instance, anchor)
+    return _custom_anchor_frame(instance, anchor).origin
 
 
 def _rectangular_bounds(instance):
@@ -283,11 +313,8 @@ class ModelInstance:
         """
         if not isinstance(target, ModelInstance):
             raise TypeError("component attach target must be another model object")
-        try:
-            parent = Anchor(parent)
-            child = Anchor(child)
-        except ValueError as exc:
-            raise ValueError("component attach requires Anchor values") from exc
+        parent = _resolve_anchor_reference(target, parent)
+        child = _resolve_anchor_reference(self, child)
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
@@ -300,9 +327,9 @@ class ModelInstance:
                 "component attach offset is not implemented associatively yet"
             )
 
-        target_local = _anchor_point(target, parent)
-        child_local = _anchor_point(self, child)
-        tangent = _face_offset(parent, face_offset)
+        target_local = _anchor_local_point(target, parent)
+        child_local = _anchor_local_point(self, child)
+        tangent = (0.0, 0.0, 0.0)
         target_world = tuple(
             target_local[i] + target.translation[i] + tangent[i]
             for i in range(3)
