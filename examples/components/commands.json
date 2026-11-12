@@ -1,30 +1,6 @@
 {
   "commands": [
     {
-      "command": "parameters.add",
-      "params": {
-        "name": "Block_length",
-        "expression": "40",
-        "unit": "mm"
-      }
-    },
-    {
-      "command": "parameters.add",
-      "params": {
-        "name": "Block_width",
-        "expression": "30",
-        "unit": "mm"
-      }
-    },
-    {
-      "command": "parameters.add",
-      "params": {
-        "name": "Block_height",
-        "expression": "10",
-        "unit": "mm"
-      }
-    },
-    {
       "command": "component.create",
       "params": {
         "name": "Block",
@@ -42,12 +18,12 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          "-Block_length / 2",
-          "-Block_width / 2"
+          -20.0,
+          -15.0
         ],
         "p1": [
-          "Block_length / 2",
-          "Block_width / 2"
+          20.0,
+          15.0
         ]
       }
     },
@@ -58,7 +34,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": "Block_height",
+        "distance": 10.0,
         "body_name": "Block"
       }
     },
