@@ -646,6 +646,38 @@ class AssemblyTests(unittest.TestCase):
         self.assertIn("opening_width", str(rectangle["params"]))
         self.assertIn("frame_wood_thickness", str(rectangle["params"]))
 
+    def test_assembly_named_parts_are_explicit_and_survive_grouping(self):
+        from scpf.core import Box
+        from scpf.runner import component
+
+        class Board:
+            def build(self):
+                return Box(40, 20, 10)
+
+        BoardObject = component(Board)
+        left = BoardObject()
+        right = BoardObject().move(x=50)
+
+        frame = (left + right).parts(
+            left=left,
+            right=right,
+        )
+        self.assertIs(frame.left, left)
+        self.assertIs(frame.right, right)
+        self.assertIs(frame.part("left"), left)
+
+        grouped = frame.group("Frame")
+        self.assertEqual(grouped.left.group_name, "Frame")
+        self.assertEqual(grouped.right.group_name, "Frame")
+
+        marker = BoardObject().move(z=20)
+        combined = frame + marker
+        self.assertIs(combined.left, left)
+        self.assertIs(combined.right, right)
+
+        with self.assertRaisesRegex(ValueError, "already in the assembly"):
+            (left + right).parts(missing=marker)
+
     def test_plain_assembly_accepts_non_parametric_object_reference_input(self):
         from scpf.core import Box, Parameter
         from scpf.runner import assembly, component
