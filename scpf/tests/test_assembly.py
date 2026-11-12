@@ -646,6 +646,38 @@ class AssemblyTests(unittest.TestCase):
         self.assertIn("opening_width", str(rectangle["params"]))
         self.assertIn("frame_wood_thickness", str(rectangle["params"]))
 
+    def test_plain_assembly_accepts_non_parametric_object_reference_input(self):
+        from scpf.core import Box, Parameter
+        from scpf.runner import assembly, component
+        from scpf.model_objects import Assembly
+
+        class FramePart:
+            def build(self):
+                return Box(40, 20, 10)
+
+        FrameObject = component(FramePart)
+        frame = FrameObject()
+
+        @assembly
+        class Brackets:
+            wood_frame = None
+            spacing = 30.0
+
+            def build(self):
+                self.assert_reference = self.wood_frame
+                marker = FrameObject().move(x=self.spacing)
+                return self.wood_frame + marker
+
+        brackets = Brackets(
+            wood_frame=frame,
+            spacing=Parameter("spacing", 50.0),
+        )
+
+        self.assertIsInstance(brackets, Assembly)
+        self.assertEqual(len(brackets.instances), 2)
+        self.assertIs(brackets.instances[0], frame)
+        self.assertEqual(brackets.instances[1].translation, (50.0, 0.0, 0.0))
+
     def test_imported_assembly_class_uses_object_syntax(self):
         from scpf.core import Box, Parameter
         from scpf.runner import assembly, component
