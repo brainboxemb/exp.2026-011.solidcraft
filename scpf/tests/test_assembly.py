@@ -837,6 +837,30 @@ class AssemblyTests(unittest.TestCase):
 
 
 
+    def test_xz_rectangular_component_uses_standard_corner_anchor(self):
+        commands = run_script(
+            ROOT / "examples/xz-anchor/scpf/model.py"
+        )["commands"]
+
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(
+            joint["a"],
+            {
+                "occurrence": "Board:1",
+                "edge": [0.0, 0.0, 20.0],
+                "on": [0.0, 0.0, 10.0],
+                "corner": [20.0, 0.0, 20.0],
+            },
+        )
+        self.assertEqual(
+            joint["b"]["occurrence"],
+            "Marker:1",
+        )
+
     def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
         commands = run_script(
             ROOT / "examples/custom-anchor/scpf/model.py"

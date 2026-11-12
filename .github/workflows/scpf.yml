@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -70,7 +70,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor; do
+          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -214,6 +214,51 @@ jobs:
               ((.bbox.min[2] - 0) | fabs) < 0.001 and
               ((.bbox.max[2] - 10) | fabs) < 0.001))
           ' output/native/custom-anchor/measurements.json
+
+          # XZ rectangular component regression: the marker is attached to
+          # the Board FRONT_TOP_RIGHT corner. Change width and height in the
+          # saved native design; the referenced topology must carry the marker.
+          jq -e '
+            (all(.bodies[] | select(.name | startswith("Board"));
+              ((.bbox.min[0] + 20) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001 and
+              ((.bbox.min[2] - 0) | fabs) < 0.001 and
+              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
+            (all(.bodies[] | select(.name | startswith("Marker"));
+              ((.bbox.min[0] - 10) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001 and
+              ((.bbox.min[2] - 20) | fabs) < 0.001 and
+              ((.bbox.max[2] - 30) | fabs) < 0.001))
+          ' output/native/xz-anchor/measurements.json
+
+          cat > output/native/xz-anchor/change-size.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"board_width","expression":"80 mm"
+            }},
+            {"command":"parameters.change","params":{
+              "name":"board_height","expression":"40 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/xz-anchor/change-size.json \
+            --in output/native/xz-anchor/model.sc \
+            --param-check strict \
+            --save output/native/xz-anchor/model-size-80x40.sc
+          solidcraft-cli eval output/native/xz-anchor/model-size-80x40.sc \
+            --json-out output/native/xz-anchor/measurements-size-80x40.json
+          jq -e '
+            (all(.bodies[] | select(.name | startswith("Board"));
+              ((.bbox.min[0] + 40) | fabs) < 0.001 and
+              ((.bbox.max[0] - 40) | fabs) < 0.001 and
+              ((.bbox.min[2] - 0) | fabs) < 0.001 and
+              ((.bbox.max[2] - 40) | fabs) < 0.001)) and
+            (all(.bodies[] | select(.name | startswith("Marker"));
+              ((.bbox.min[0] - 30) | fabs) < 0.001 and
+              ((.bbox.max[0] - 40) | fabs) < 0.001 and
+              ((.bbox.min[2] - 40) | fabs) < 0.001 and
+              ((.bbox.max[2] - 50) | fabs) < 0.001))
+          ' output/native/xz-anchor/measurements-size-80x40.json
 
           jq -n --arg source "$GITHUB_SHA" \
             '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \

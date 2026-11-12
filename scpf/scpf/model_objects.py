@@ -72,18 +72,89 @@ def _anchor_local_point(instance, anchor):
     return _custom_anchor_frame(instance, anchor).origin
 
 
+def _unwrap_rectangular_shape(shape):
+    """Follow modifiers that retain the base component's nominal bounds."""
+    while shape.kind in (
+        "material_assignment",
+        "fillet",
+        "chamfer",
+        "shell",
+        "union",
+        "difference",
+    ):
+        shape = shape.data[0]
+    return shape
+
+
+def _xz_polygon_rectangle_bounds(shape):
+    """Bounds for one rectangular XZ polygon extrusion.
+
+    Polygon2D stores XZ sketch-local coordinates as (x, -z). A positioned
+    XZ profile may shift only its Y sketch plane, matching the native sketch
+    compiler. This helper validates the four corners instead of treating an
+    arbitrary polygon bbox as a rectangular attachment target.
+    """
+    shape = _unwrap_rectangular_shape(shape)
+    if shape.kind != "extrusion":
+        raise ValueError("not an XZ polygon extrusion")
+    profile, distance, direction = shape.data
+    plane_y = 0.0
+    if profile.kind == "positioned":
+        child, x, y, z = profile.data
+        if child.kind != "polygon" or child.data[1] != "XZ":
+            raise ValueError("not a positioned XZ polygon")
+        if pv(x) != 0 or pv(z) != 0:
+            raise ValueError("positioned XZ rectangles may shift only in Y")
+        plane_y = pv(y)
+        profile = child
+    if profile.kind != "polygon" or profile.data[1] != "XZ":
+        raise ValueError("not an XZ polygon")
+
+    points = profile.data[0]
+    if len(points) != 4:
+        raise ValueError("XZ attachment rectangle requires four vertices")
+    world_points = [(pv(u), -pv(v)) for u, v in points]
+    xs = [point[0] for point in world_points]
+    zs = [point[1] for point in world_points]
+    xmin, xmax = min(xs), max(xs)
+    zmin, zmax = min(zs), max(zs)
+    if xmin == xmax or zmin == zmax:
+        raise ValueError("degenerate XZ attachment rectangle")
+    expected = {
+        (xmin, zmin), (xmin, zmax), (xmax, zmin), (xmax, zmax)
+    }
+    if set(world_points) != expected:
+        raise ValueError("XZ polygon is not an axis-aligned rectangle")
+
+    depth = pv(distance)
+    if depth <= 0:
+        raise ValueError("attachment extrusion distance must be positive")
+    if direction == "positive":
+        ymin, ymax = plane_y, plane_y + depth
+    elif direction == "negative":
+        ymin, ymax = plane_y - depth, plane_y
+    elif direction == "symmetric":
+        ymin, ymax = plane_y - depth / 2, plane_y + depth / 2
+    else:
+        raise ValueError("unsupported extrusion direction")
+
+    return ((xmin, xmax), (ymin, ymax), (zmin, zmax))
+
+
 def _rectangular_bounds(instance):
-    """Return local axis-aligned bounds for the first component experiment."""
+    """Return local axis-aligned bounds for a supported rectangular component."""
     from .placement import _base_rectangle
 
+    shape = _unwrap_rectangular_shape(instance.definition.shape)
     try:
-        (width, depth), (x, y, z), height = _base_rectangle(
-            instance.definition.shape
-        )
-    except ValueError as exc:
-        raise ValueError(
-            "component attach currently requires a rectangular model"
-        ) from exc
+        (width, depth), (x, y, z), height = _base_rectangle(shape)
+    except ValueError:
+        try:
+            return _xz_polygon_rectangle_bounds(shape)
+        except ValueError as exc:
+            raise ValueError(
+                "component attach requires a supported rectangular model"
+            ) from exc
 
     width, depth, height = map(pv, (width, depth, height))
     x, y, z = map(pv, (x, y, z))
