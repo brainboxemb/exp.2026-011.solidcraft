@@ -3,7 +3,7 @@
 The scope owns editable 2D profiles. 3D operations are applied afterwards,
 so authoring a sketch remains distinct from extruding/cutting it.
 """
-from .core import Anchor, Depth, Direction, Shape, value_of
+from .core import Anchor, Depth, Direction, Shape, pv
 
 
 class Sketch:
@@ -29,7 +29,7 @@ class Sketch:
             if not isinstance(origin, (list, tuple)) or len(origin) != 3:
                 raise ValueError("Sketch origin must be a 3D coordinate")
             for coordinate in origin:
-                value_of(coordinate)
+                pv(coordinate)
         self.origin = tuple(origin) if origin is not None else None
         self.plane = plane
         self._profiles = []
@@ -54,14 +54,14 @@ class Sketch:
             raise ValueError("Sketch offset must be an (x, y) pair")
         # Numeric offsets are sufficient for the first syntax experiment.
         for value in offset:
-            value_of(value)
+            pv(value)
         self._profiles.append((profile, tuple(offset)))
         return profile
 
     def extrude(self, distance, *, direction=Direction.POSITIVE):
         if not self._closed:
             raise ValueError("leave the Sketch scope before extruding it")
-        if distance is not Depth.THROUGH_ALL and value_of(distance) <= 0:
+        if distance is not Depth.THROUGH_ALL and pv(distance) <= 0:
             raise ValueError("Sketch extrusion distance must be positive or Depth.THROUGH_ALL")
         try:
             direction = Direction(direction)
