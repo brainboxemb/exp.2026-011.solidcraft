@@ -205,7 +205,12 @@ def _model_import_context(path: Path):
             break
 
     original = sys.path[:]
+    original_dont_write_bytecode = sys.dont_write_bytecode
     try:
+        # Model projects often split parts and assemblies over small Python
+        # modules. Keep those source trees clean: imported model modules are
+        # transient build input and do not need adjacent __pycache__ files.
+        sys.dont_write_bytecode = True
         for root in reversed(roots):
             folder = str(root)
             if folder in sys.path:
@@ -214,6 +219,7 @@ def _model_import_context(path: Path):
         yield
     finally:
         sys.path[:] = original
+        sys.dont_write_bytecode = original_dont_write_bytecode
 
 
 def run_script(path: str | Path) -> dict:
