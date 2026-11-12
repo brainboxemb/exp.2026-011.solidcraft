@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, Shape, value_of
+from .core import Anchor, Shape, pv
 
 
 @dataclass(frozen=True)
@@ -46,8 +46,8 @@ def _rectangular_bounds(instance):
             "component attach currently requires a rectangular model"
         ) from exc
 
-    width, depth, height = map(value_of, (width, depth, height))
-    x, y, z = map(value_of, (x, y, z))
+    width, depth, height = map(pv, (width, depth, height))
+    x, y, z = map(pv, (x, y, z))
     return (
         (x, x + width),
         (y, y + depth),
@@ -119,7 +119,7 @@ class ModelInstance:
 
     def move(self, x=0, y=0, z=0):
         """Translate this occurrence without changing shared component geometry."""
-        delta = tuple(value_of(v) for v in (x, y, z))
+        delta = tuple(pv(v) for v in (x, y, z))
         if not all(isfinite(v) for v in delta):
             raise ValueError("model move() requires finite coordinates")
         current = self.translation
@@ -139,8 +139,8 @@ class ModelInstance:
         if (not isinstance(axis, (tuple, list)) or len(axis) != 3):
             raise ValueError("model rotate() axis must be an XYZ triple")
         try:
-            values = tuple(float(value_of(value)) for value in axis)
-            angle = float(value_of(degrees))
+            values = tuple(float(pv(value)) for value in axis)
+            angle = float(pv(degrees))
         except (TypeError, ValueError) as exc:
             raise ValueError("model rotate() requires numeric axis and degrees") from exc
         if not all(isfinite(v) for v in (*values, angle)):
@@ -163,7 +163,7 @@ class ModelInstance:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("component attach offset must be an (u, v) pair")
-        face_offset = tuple(value_of(v) for v in offset)
+        face_offset = tuple(pv(v) for v in offset)
         if not all(isfinite(v) for v in face_offset):
             raise ValueError("component attach offset must be finite")
         if any(face_offset):
