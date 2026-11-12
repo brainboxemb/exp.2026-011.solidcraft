@@ -711,6 +711,7 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
             file.write_text(
+                "from scpf import pv\n"
                 "class Display:\n"
                 "    opening_width = 844.0\n"
                 "    panel_count = 5\n"
