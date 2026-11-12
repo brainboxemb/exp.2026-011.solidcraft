@@ -210,9 +210,10 @@ def _anchor_point(instance, anchor):
 def _corner_origin_points(instance, anchor):
     """Return edge, face and corner picks for a native SolidCraft corner origin.
 
-    The chosen edge is the horizontal top/bottom edge of the front/back face.
-    SolidCraft stores the edge, face and second corner edge by name, so this
-    origin follows dimension changes after the design has been saved.
+    The chosen edge is the vertical left/right edge of the front/back face.
+    Its topology stays the same when height changes; SolidCraft stores that
+    edge, the face and the second corner edge by name, so the origin follows
+    saved-design dimension changes symmetrically on both sides.
     """
     if anchor not in _CORNER_ANCHORS:
         raise ValueError("corner origin requires a corner Anchor")
@@ -226,7 +227,7 @@ def _corner_origin_points(instance, anchor):
     y = ymin if front else ymax
     x = xmin if left else xmax
     z = zmax if top else zmin
-    edge = (xmid, y, z)
+    edge = (x, y, zmid)
     on = (xmid, y, zmid)
     corner = (x, y, z)
     return edge, on, corner
