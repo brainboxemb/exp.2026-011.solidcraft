@@ -438,14 +438,14 @@ and `Bore`. SCPF keeps the Python model object-oriented:
 ```python
 holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
     count=2, spacing=self.width - 24, axis=Axis.X
-).attach(plate, parent=Anchor.TOP)
+).on(plate, face=Faces.TOP)
 plate = plate + holes
 
-boss = Cylinder(d=24, h=14).attach(plate, parent=Anchor.TOP)
+boss = Cylinder(d=24, h=14).on(plate, face=Faces.TOP)
 plate = plate + boss
 
-bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
-    plate, parent=Anchor.TOP)
+bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(
+    plate, face=Faces.TOP)
 plate + bore
 ```
 
@@ -469,11 +469,14 @@ Use `Edges.VERTICAL` for automatic selection of vertical edges on supported
 rectangular bodies, or supply a list of explicit 3D edge points for a
 specific edge.
 
-Face selection is a separate concept: `Faces.TOP`, `Faces.BOTTOM`, etc.
-select faces for operations such as `body.shell(2, open=Faces.TOP)`.
-`Anchor.TOP` remains a placement reference for `attach()`; it is not a
-face-selection value. Strings such as `edges="vertical"` are no longer part
-of the SCPF API.
+Face selection is also used for simple within-component placement:
+`feature.on(body, face=Faces.TOP)`. The same `Faces` values select geometry
+for operations such as `body.shell(2, open=Faces.TOP)`.
+
+`Anchor` is reserved for explicit relationships between reusable component
+occurrences at assembly level. It is not the ordinary way to choose the top or
+bottom surface for a Hole, Boss or Cylinder. Strings such as
+`edges="vertical"` are no longer part of the SCPF API.
 
 ## Relative anchors and symmetric patterns (experimental)
 
@@ -517,9 +520,13 @@ changes: only a simple rectangular XY base is supported, and native
 save/reopen/parameter-edit qualification is required.
 
 `Hole(d=8, depth=Depth.THROUGH_ALL)` describes drilling intent. Use
-`.attach(parent, parent=Anchor.TOP)` to choose the entry face and then add
-the feature with `+`. The compiler may represent that intent as an editable
-sketch plus cut extrusion. More general attachments remain tracked in issue #5.
+`.on(parent, face=Faces.TOP)` to choose the entry face and then add the
+feature with `+`. The compiler may represent that intent as an editable
+sketch plus cut extrusion.
+
+The older shape-level `attach(..., Anchor...)` form remains temporarily for
+advanced legacy placements such as `CENTER` and `INNER_BOTTOM`; new simple
+surface placement should use `on(..., face=Faces...)`.
 
 ## Sketches versus direct features
 
