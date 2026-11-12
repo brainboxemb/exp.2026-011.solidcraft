@@ -508,8 +508,12 @@ class AssemblyTests(unittest.TestCase):
         self.assertIsInstance(row, Assembly)
         self.assertEqual(len(row.instances), 2)
         self.assertEqual(row.instances[1].translation, (170.0, 0.0, 0.0))
+        self.assertNotIn(
+            "width",
+            dict(row.instances[0].definition.parameters),
+        )
         self.assertEqual(
-            dict(row.instances[0].definition.parameters)["width"],
+            dict(row.instances[0].definition.external_parameters)["panel_width"],
             160.0,
         )
 
