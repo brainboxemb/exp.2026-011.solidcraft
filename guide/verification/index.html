@@ -27,10 +27,9 @@ Read the <strong>saved SolidCraft occurrence transforms</strong>, not just
 whether a command ran successfully. A valid Python object or syntactically valid command plan is not evidence
 that the final solid occupies the correct plane or has no collision.</p>
 <h2 id="changes">Keep implementation and docs in sync</h2>
-<p>When new shorthand syntax (such as <code>rotate(Z, 180)</code>) or
-chained rotation is implemented, add tests for the exact generated
-native commands <em>before</em> documenting it as supported.
-Until then, describe the current limit explicitly.</p>
+<p>When placement syntax changes, add tests for the exact generated native
+commands before documenting it as supported. Named principal-axis rotation
+is supported; chained rotations are still not.</p>
 <p>For a plain-language explanation of the implementation and its
 boundaries, read
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge/blob/main/scpf/docs/architecture.md">How SCPF works (without building a second CAD engine)</a>.</p></article></main>

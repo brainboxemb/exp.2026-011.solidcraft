@@ -41,8 +41,13 @@ right = first.copy().move(x=160)</code></pre>
 <strong>component occurrence</strong> and accepts an XYZ direction tuple and
 an angle in degrees. It rotates the placement about the component's local origin.
 The shared component definition is not modified.</p>
-<pre><code>upside_down = first.copy().rotate(axis=(0, 0, 1), degrees=180)
-upright = first.copy().rotate(axis=(1, 0, 0), degrees=90)</code></pre>
+<pre><code>from scpf import X, Y, Z
+
+upside_down = first.copy().rotate(Z, 180)
+upright = first.copy().rotate(X, 90)
+
+# Explicit XYZ tuple form remains valid:
+sideways = first.copy().rotate(axis=(0, 1, 0), degrees=90)</code></pre>
 <p>The first rotates about Z; the second rotates about X. A rotation
 around X can convert a face authored in XY into a vertical XZ face.
 The direction of the depth axis changes too.</p>
@@ -59,12 +64,12 @@ not chained Euler rotations.</p>
 <strong>one axis-angle orientation</strong>. SolidCraft performs the
 native rotation; SCPF does not build its own rotation matrices.
 Verify the saved native geometry to check which direction is up.</p>
-<h2 id="named-axes">Are rotate(Z, 180) or rotate(Y, 180) available?</h2>
-<p><strong>No, not yet.</strong> The exported <code>X</code>,
-<code>Y</code> and <code>Z</code> tokens are used in other APIs, including
-bounds and <code>orient()</code>. Occurrence rotation currently requires
-<code>rotate(axis=(0,0,1), degrees=180)</code>. The shorter form is
-a possible future API change, not an existing feature.</p>
+<h2 id="named-axes">Named axis rotation</h2>
+<p>The exported <code>X</code>, <code>Y</code> and <code>Z</code> tokens can
+be passed directly to occurrence rotation. Prefer
+<code>rotate(Y, 90)</code> when a principal-axis turn is all that is needed.
+The explicit <code>axis=(x,y,z), degrees=…</code> form remains available for
+arbitrary axis-angle placement.</p>
 <h2 id="orient">Cylinder orient is a different operation</h2>
 <pre><code>from scpf import Cylinder, X, Y, Z
 
@@ -123,10 +128,9 @@ the actual panel geometry.</p>
 <h2 id="limitations">Current support summary</h2>
 <table><thead><tr><th>Operation</th><th>Scope</th><th>Limit</th></tr></thead><tbody>
 <tr><td><code>move(x,y,z)</code></td><td>Occurrences, supported CSG shapes</td><td>Not arbitrary feature bodies</td></tr>
-<tr><td><code>rotate(axis=…,degrees=…)</code></td><td>Component occurrences</td><td>Absolute single axis-angle</td></tr>
+<tr><td><code>rotate(X,90)</code> / explicit axis tuple</td><td>Component occurrences</td><td>Absolute single axis-angle</td></tr>
 <tr><td><code>orient(X,Y,Z)</code></td><td>Cylinder shapes</td><td>Not general components</td></tr>
 <tr><td>Chained rotations</td><td>Not implemented</td><td>Second rotate replaces first</td></tr>
-<tr><td><code>rotate(Z,180)</code></td><td>Not implemented</td><td>Use explicit XYZ axis tuple</td></tr>
 </tbody></table></article></main>
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
