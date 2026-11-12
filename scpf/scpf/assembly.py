@@ -323,6 +323,20 @@ def compile_assembly(value, name):
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
+    # Keep the finished assembly view clean. Joint glyph visibility is only
+    # presentation state in SolidCraft: hidden joints continue to constrain
+    # and drive their occurrences. Users can re-enable the Joints folder eye
+    # in the Browser whenever they want to inspect the assembly relations.
+    if any(
+        command["command"] in ("joint.create", "joint.as_built")
+        for command in commands
+    ):
+        commands.append(_command(
+            "browser.visibility",
+            folder="joints",
+            visible=False,
+        ))
+
     if not commands:
         raise ModelError(f"{name} contains no component instances")
     return {"commands": commands}
