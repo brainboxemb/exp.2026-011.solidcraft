@@ -35,20 +35,23 @@ class RotatedChildAnchor:
             parent=Anchor.FRONT_TOP_LEFT,
             child="mount",
         )
-        top_right = flag.copy().rotate(Axis.Y, 90).attach(
+        top_right = flag.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
             child="mount",
+            angle=90,
         )
-        bottom_right = flag.copy().rotate(Axis.Y, 180).attach(
+        bottom_right = flag.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
             child="mount",
+            angle=180,
         )
-        bottom_left = flag.copy().rotate(Axis.Y, 270).attach(
+        bottom_left = flag.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
             child="mount",
+            angle=270,
         )
         return frame + top_left + top_right + bottom_right + bottom_left
 
