@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .live import LiveError, send_commands
+from .live import LiveError, new_design, send_commands
 from .runner import run_script
 from .version import check_cli_version
 
@@ -38,10 +38,19 @@ def main(argv=None):
         "--connect", nargs="?", const="auto", metavar="PORT",
         help="Send commands to open SolidCraft; optional 127.0.0.1:PORT",
     )
+    parser.add_argument(
+        "--new", action="store_true",
+        help="Replace the active SolidCraft design with a new empty design before --connect",
+    )
     args = parser.parse_args(argv)
+
+    if args.new and args.connect is None:
+        parser.error("--new requires --connect")
 
     replay = str(args.script) == "replay"
     if replay:
+        if args.new:
+            parser.error("--new is for model scripts, not replay")
         if args.replay_file is None:
             parser.error("replay requires a SolidCraft .json file")
         if args.out is not None:
@@ -63,13 +72,17 @@ def main(argv=None):
         print(f"{args.out}: {len(document['commands'])} SolidCraft commands")
         return 0
 
-    # Replay defaults to the active GUI; no conversion, no implicit doc.new.
-    # If a source uses parameters.change, those params must already exist.
+    # Replay defaults to the active GUI. Model runs may explicitly request a
+    # clean design with --new; replay never does so implicitly because a replay
+    # can intentionally depend on parameters/features already in the document.
     try:
         check_cli_version(require_cli=False)
     except RuntimeError as exc:
         parser.exit(1, f"SCPF native version: {exc}\\n")
     try:
+        if args.new:
+            fresh = new_design(connect=args.connect or "auto")
+            print(f"Live SolidCraft: new empty design {fresh['name']!r}")
         result = send_commands(
             document["commands"], connect=args.connect or "auto"
         )
