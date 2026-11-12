@@ -30,6 +30,22 @@ SolidCraft compatibility: **0.30.1 tested**; older versions are refused by the n
 [SCPF API guide](scpf/README.md) for parameters, placement, sketches, features,
 reusable components, and GUI/CLI execution.
 
+## Reusable component parameters
+
+Reusable component defaults are fixed by default, so importing a component
+does not automatically add all of its internal dimensions to the global
+SolidCraft parameter list. Use `include=(...)` to expose selected defaults,
+or `include="*"` to expose them all:
+
+```python
+Bracket = component(CornerBracket, include=("inside_corner_radius",))
+```
+
+Passing a parent `Parameter` or expression always preserves that dependency.
+For example `Bracket(inside_corner_radius=self.corner_radius)` uses the
+parent's `corner_radius` directly instead of creating a duplicate child
+parameter.
+
 ## CAD projects live in another repository
 
 **[2026-011-02.cad.solidcraft](https://github.com/brainboxemb/2026-011-02.cad.solidcraft)** contains the actual models and native output:
