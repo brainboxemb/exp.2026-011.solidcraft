@@ -17,12 +17,18 @@ class ModelDefinition:
     class_name: str
     parameters: tuple[tuple[str, float], ...]
     shape: Shape
+    fixed_inputs: tuple[tuple[str, float], ...] = ()
     external_parameters: tuple[tuple[str, float], ...] = ()
     input_bindings: tuple[tuple[str, str], ...] = ()
 
     @property
     def key(self):
-        return self.class_name, self.parameters, self.input_bindings
+        return (
+            self.class_name,
+            self.parameters,
+            self.fixed_inputs,
+            self.input_bindings,
+        )
 
 
 @dataclass(frozen=True)
