@@ -50,7 +50,8 @@ def _namespace_commands(commands, component_name, external_names=()):
     for command in commands:
         params = dict(command["params"])
         if command["command"] == "parameters.add":
-            params["name"] = mapping[params["name"]]
+            if params["name"] in mapping:
+                params["name"] = mapping[params["name"]]
         else:
             params = _rewrite_value(params, mapping)
         result.append({"command": command["command"], "params": params})
