@@ -3,7 +3,7 @@
 Anchor resolution is shared by Box and extruded Rectangle2D models.
 It is not a geometry engine: SolidCraft owns actual face identity.
 """
-from .core import Shape, _BoundOffset, value_of, command_value
+from .core import Shape, _BoundOffset, pv, command_value
 
 def _is_centered_box(shape):
     while shape.kind in ("fillet", "shell", "union", "difference"):
@@ -58,7 +58,7 @@ def _shell_thickness(shape):
 def _combine(*terms):
     """Compose symbolic coordinates using the same named model dimensions."""
     from .core import Expression, Parameter, parameters_in, number_text
-    numeric = sum(value_of(x) for x in terms)
+    numeric = sum(pv(x) for x in terms)
     used = parameters_in(*terms)
     if not used:
         return numeric
@@ -70,7 +70,7 @@ def _combine(*terms):
             symbolic.append(text if text.startswith("(") and text.endswith(")")
                             else f"({text})")
         else:
-            literal += value_of(term)
+            literal += pv(term)
     expression = " + ".join(symbolic)
     if literal:
         expression += f" + ({number_text(literal)} mm)"
@@ -113,8 +113,8 @@ def _anchored_features(shape):
     (width, depth), (x, y, z), thickness = _base_rectangle(target)
     if thickness is None:
         raise ValueError("anchor target must be an extruded Rectangle2D")
-    if value_of(z) != 0 or (not _is_centered_box(target)
-                              and (value_of(x) != 0 or value_of(y) != 0)):
+    if pv(z) != 0 or (not _is_centered_box(target)
+                              and (pv(x) != 0 or pv(y) != 0)):
         raise ValueError("native references require an unshifted supported base")
     # The original rectangular base is not necessarily the highest face:
     # after a joined boss, Anchor.TOP must resolve to that boss's top.
@@ -127,9 +127,9 @@ def _anchored_features(shape):
             boss_feature, boss_parent, boss_anchor, boss_child, boss_offset = boss.data
             if (boss_feature.kind == "cylinder" and boss_parent == previous
                     and boss_anchor is Anchor.TOP and boss_child is Anchor.BOTTOM
-                    and all(value_of(v) == 0 for v in boss_offset)):
+                    and all(pv(v) == 0 for v in boss_offset)):
                 boss_height, boss_diameter = boss_feature.data
-                _require_positive_local = value_of(boss_height) > 0 and value_of(boss_diameter) > 0
+                _require_positive_local = pv(boss_height) > 0 and pv(boss_diameter) > 0
                 if not _require_positive_local:
                     raise ValueError("invalid attached boss")
                 on_boss = True
@@ -189,9 +189,9 @@ def _anchored_features(shape):
         # on filleted rectangular faces (midpoints, not rounded corners).
         if not on_boss and parent_anchor in (Anchor.TOP, Anchor.BOTTOM) and child_anchor is Anchor.BOTTOM:
             refs = [
-                {"edge": [value_of(x), value_of(y) + value_of(depth)/2, value_of(face_z)],
+                {"edge": [pv(x), pv(y) + pv(depth)/2, pv(face_z)],
                  "distance": command_value(_combine(width / 2, offset_x, dx))},
-                {"edge": [value_of(x) + value_of(width)/2, value_of(y), value_of(face_z)],
+                {"edge": [pv(x) + pv(width)/2, pv(y), pv(face_z)],
                  "distance": command_value(_combine(depth / 2, offset_y, dy))}
             ]
         else:
@@ -200,7 +200,7 @@ def _anchored_features(shape):
         # joined circular boss no stable straight-edge references exist yet.
         # Do not pass unevaluated expressions as its position coordinates.
         if feature.kind in ("hole", "lip", "snap_fit", "boss", "rest") or refs:
-            position = [value_of(xx), value_of(yy), value_of(base_z)]
+            position = [pv(xx), pv(yy), pv(base_z)]
         else:
             position = [command_value(xx), command_value(yy), command_value(base_z)]
         result.append((feature, position, refs))
