@@ -15,7 +15,7 @@ class Arm:
 class Marker:
     def anchors(self):
         return {
-            "center": AnchorFrame(
+            "mount": AnchorFrame(
                 origin=(0, 0, 5),
                 z=(-1, 0, 0),
                 x=(0, 0, 1),
@@ -32,7 +32,7 @@ class CustomAnchor:
         marker = Marker().attach(
             arm,
             parent="tip",
-            child="center",
+            child="mount",
         )
         return arm + marker
 
