@@ -19,15 +19,14 @@ class Enclosure:
 ```python
 holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
     count=2, spacing=self.width - 24, axis=Axis.X
-).attach(plate, parent=Anchor.TOP)
+).on(plate, face=Faces.TOP)
 plate = plate + holes
 
-boss = Cylinder(d=24, h=14).attach(
-    plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
+boss = Cylinder(d=24, h=14).on(plate, face=Faces.TOP)
 plate = plate + boss
 
-bore = Hole(d=12, depth=Depth.THROUGH_ALL).attach(
-    plate, parent=Anchor.TOP)
+bore = Hole(d=12, depth=Depth.THROUGH_ALL).on(
+    plate, face=Faces.TOP)
 plate + bore
 ```
 
@@ -63,16 +62,20 @@ A component default that should be independently public can be selected with
 
 ## Semantics
 
-- `attach()` is the single relative-placement mechanism.
-- For a Hole, `parent=Anchor.TOP` means drilling starts at the current top
+- `on(target, face=Faces.TOP)` is the simple within-component placement
+  mechanism for a feature on a selected surface.
+- For a Hole, `face=Faces.TOP` means drilling starts at the current top
   surface and proceeds inward.
+- `attach()` is reserved for explicit attachment relationships between
+  reusable components in an assembly.
 - `+` adds the described CAD feature to the model; for Hole intent the
   resulting SolidCraft operation is a cut.
 - The adapter decides the native representation. For Sample Plate it creates
   the editable `Holes` and `Bore` sketches and cut extrusions.
 - Python scripts do not need an explicit `Sketch` object.
-- `Faces` selects geometry for operations; `Anchor` describes relative
-  placement. They are intentionally separate concepts.
+- `Faces` selects a surface, including the surface used by `on()`.
+  `Anchor` describes explicit assembly attachment references. They are
+  intentionally separate concepts.
 - `shell()` is a modifier like `fillet()`: for example
   `body.shell(2, open=Faces.TOP)`.
 - `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level

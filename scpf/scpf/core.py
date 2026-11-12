@@ -21,6 +21,7 @@ class Direction(str, Enum):
 
 
 class Anchor(str, Enum):
+    """Assembly attachment references between reusable components."""
     CENTER = "center"
     TOP = "top"
     BOTTOM = "bottom"
@@ -409,9 +410,27 @@ class Shape:
             raise ValueError("only XY linear patterns are supported")
         return Shape("linear_pattern", (self, count, spacing, axis))
 
+    def on(self, target, *, face=Faces.TOP, offset=(0, 0)):
+        """Place a supported feature on a selected face of another shape.
+
+        This is simple within-component placement. Use Faces to choose the
+        target surface; assembly Anchor values belong to ModelInstance.attach().
+        """
+        try:
+            face = Faces(face)
+        except ValueError as exc:
+            raise ValueError("on() face must be a Faces value") from exc
+        face_to_anchor = {
+            Faces.TOP: Anchor.TOP,
+            Faces.BOTTOM: Anchor.BOTTOM,
+        }
+        if face not in face_to_anchor:
+            raise ValueError("on() currently supports Faces.TOP or Faces.BOTTOM")
+        return self._anchor_to(target, face_to_anchor[face], Anchor.BOTTOM, offset)
+
     def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
                offset=(0, 0)):
-        """Match a parent anchor to a child anchor (BOSL2-inspired)."""
+        """Legacy explicit feature anchoring; prefer on() for simple placement."""
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):

@@ -335,15 +335,15 @@ the actual panel geometry.</p>
 SCPF can retain named sketches and operations in SolidCraft history.
 For exact results, supported body types and selection constraints matter.</p>
 <h2 id="hole">Holes</h2>
-""" + code("""from scpf import Box, Hole, Depth, Anchor
+""" + code("""from scpf import Box, Hole, Depth, Faces
 
 plate = Box(100, 60, 10)
 hole = Hole(d=8, depth=Depth.THROUGH_ALL)
-plate = plate + hole.attach(plate, parent=Anchor.TOP)""") + """
+plate = plate + hole.on(plate, face=Faces.TOP)""") + """
 <p>A <code>Hole</code> is a native hole feature: adding it to the shape
 means adding the operation that <em>removes</em> material.
-<code>Anchor.TOP</code> indicates its entry face, not a surface normal
-you can use as an arbitrary coordinate transform.</p>
+<code>Faces.TOP</code> selects its entry face. Simple feature placement
+uses <code>on()</code>; assembly attachment uses explicit anchors.</p>
 <h2 id="fillet">Fillets and chamfers</h2>
 """ + code("""from scpf import Box, Edges
 body = Box(80, 50, 15)
@@ -355,9 +355,10 @@ always be inferred reliably from a visual camera position.</p>
 <h2 id="shell">Shells</h2>
 """ + code("""from scpf import Box, Faces
 case = Box(80, 50, 30).shell(2, open=Faces.TOP)""") + """
-<p><code>Faces.TOP</code> chooses the face to open. It is different
-from <code>Anchor.TOP</code>, which chooses a relative placement reference.
-See the source and regression tests for the supported feature chains.</p>
+<p><code>Faces.TOP</code> chooses the face to open and is also the same
+surface-selection vocabulary used by <code>feature.on(...)</code>.
+<code>Anchor</code> is reserved for explicit component attachment in
+assemblies. See the source and regression tests for supported feature chains.</p>
 <h2 id="anchors">Position without hard-coded global offsets</h2>
 """ + code("""from scpf import X, Y, Boss, Anchor
 
