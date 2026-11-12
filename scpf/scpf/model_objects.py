@@ -283,6 +283,7 @@ class ModelInstance:
     attachment: Attachment | None = None
     rotation: tuple[tuple[float, float, float], float] | None = None
     group_name: str | None = None
+    name: str | None = None
     flattened_parameters: tuple[str, ...] = ()
 
     def group(self, name):
@@ -294,13 +295,8 @@ class ModelInstance:
         return replace(self, group_name=name)
 
     def copy(self):
-        """Another occurrence of the same component, without rebuilding its shape.
-
-        The copy starts at the same placement; move() it to a new position.
-        The shared definition is compiled once, then SolidCraft receives
-        occurrence.copy. Attachments are intentionally not inherited.
-        """
-        return replace(self, attachment=None)
+        """Another unnamed occurrence of the same reusable component."""
+        return replace(self, attachment=None, name=None)
 
     def move(self, x=0, y=0, z=0):
         """Translate this occurrence without changing shared component geometry.
@@ -441,11 +437,31 @@ class Assembly:
         """Wrap these occurrences in a real nested native component."""
         return Assembly(tuple(instance.group(name) for instance in self.instances))
 
+    def resolve(self, name):
+        """Return one explicitly named occurrence."""
+        matches = [instance for instance in self.instances if instance.name == name]
+        if len(matches) != 1:
+            raise KeyError(f"assembly has no unique object named {name!r}")
+        return matches[0]
+
+    def __getattr__(self, name):
+        matches = [instance for instance in self.instances if instance.name == name]
+        if len(matches) == 1:
+            return matches[0]
+        raise AttributeError(name)
+
     def __post_init__(self):
         if not self.instances:
             raise ValueError("assembly must contain at least one model instance")
         if not all(isinstance(item, ModelInstance) for item in self.instances):
             raise TypeError("assembly items must be model instances")
+
+        names = [instance.name for instance in self.instances if instance.name is not None]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise ValueError(
+                "assembly object names must be unique: " + ", ".join(duplicates)
+            )
 
     def __add__(self, other):
         if isinstance(other, ModelInstance):
