@@ -679,5 +679,33 @@ class SCPFExamples(unittest.TestCase):
             self.assertFalse((root / "__pycache__").exists())
 
 
+    def test_plain_model_subclass_inherits_parameters_and_build(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Board:\n"
+                "    width = 100.0\n"
+                "    depth = 40.0\n"
+                "    thickness = 12.0\n"
+                "    corner_radius = 4.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, self.depth, self.thickness).fillet(\n"
+                "            self.corner_radius, edges=Edges.VERTICAL)\n"
+                "class BottomBoard(Board):\n"
+                "    pass\n"
+                "BottomBoard(width=868.0, depth=100.0)\n"
+            )
+            generated = run_script(file)
+        params = [c["params"] for c in generated["commands"]
+                  if c["command"] == "parameters.add"]
+        self.assertEqual([p["name"] for p in params],
+                         ["width", "depth", "thickness", "corner_radius"])
+        self.assertEqual([p["expression"] for p in params],
+                         ["868", "100", "12", "4"])
+        fillet = next(c for c in generated["commands"]
+                      if c["command"] == "solid.fillet")
+        self.assertEqual(fillet["params"]["radius"], "corner_radius")
+
+
 if __name__ == "__main__":
     unittest.main()
