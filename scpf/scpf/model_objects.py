@@ -433,13 +433,73 @@ class ModelInstance:
 
 @dataclass(frozen=True)
 class Assembly:
-    """Ordered collection of reusable model occurrences."""
+    """Ordered collection of reusable model occurrences with named part refs."""
 
     instances: tuple[ModelInstance, ...]
+    part_indices: tuple[tuple[str, int], ...] = ()
 
     def group(self, name):
         """Wrap these occurrences in a real nested native component."""
-        return Assembly(tuple(instance.group(name) for instance in self.instances))
+        return Assembly(
+            tuple(instance.group(name) for instance in self.instances),
+            self.part_indices,
+        )
+
+    def parts(self, **named):
+        """Expose selected child occurrences as stable named assembly parts."""
+        refs = dict(self.part_indices)
+        reserved = set(dir(type(self))) | {"instances", "part_indices"}
+
+        for name, instance in named.items():
+            if (
+                not isinstance(name, str)
+                or not name.isidentifier()
+                or name.startswith("_")
+            ):
+                raise ValueError("assembly part names must be public identifiers")
+            if name in reserved:
+                raise ValueError(
+                    f"assembly part name {name!r} conflicts with Assembly API"
+                )
+            if not isinstance(instance, ModelInstance):
+                raise TypeError(
+                    f"assembly part {name!r} must reference a model instance"
+                )
+
+            matches = [
+                index
+                for index, item in enumerate(self.instances)
+                if item is instance
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"assembly part {name!r} must reference exactly one "
+                    "occurrence already in the assembly"
+                )
+
+            index = matches[0]
+            previous = refs.get(name)
+            if previous is not None and previous != index:
+                raise ValueError(
+                    f"assembly part {name!r} is already bound differently"
+                )
+            refs[name] = index
+
+        return Assembly(self.instances, tuple(refs.items()))
+
+    def part(self, name):
+        """Return one explicitly named child occurrence."""
+        try:
+            index = dict(self.part_indices)[name]
+        except KeyError as exc:
+            raise KeyError(f"assembly has no named part {name!r}") from exc
+        return self.instances[index]
+
+    def __getattr__(self, name):
+        refs = dict(self.part_indices)
+        if name in refs:
+            return self.instances[refs[name]]
+        raise AttributeError(name)
 
     def __post_init__(self):
         if not self.instances:
@@ -447,11 +507,34 @@ class Assembly:
         if not all(isinstance(item, ModelInstance) for item in self.instances):
             raise TypeError("assembly items must be model instances")
 
+        seen = set()
+        for name, index in self.part_indices:
+            if name in seen:
+                raise ValueError(f"duplicate assembly part name {name!r}")
+            seen.add(name)
+            if not isinstance(index, int) or not (0 <= index < len(self.instances)):
+                raise ValueError(
+                    f"assembly part {name!r} has an invalid occurrence index"
+                )
+
     def __add__(self, other):
         if isinstance(other, ModelInstance):
-            return Assembly(self.instances + (other,))
+            return Assembly(self.instances + (other,), self.part_indices)
         if isinstance(other, Assembly):
-            return Assembly(self.instances + other.instances)
+            left = dict(self.part_indices)
+            right = dict(other.part_indices)
+            duplicate = set(left) & set(right)
+            if duplicate:
+                raise ValueError(
+                    "assembly part names collide: "
+                    + ", ".join(sorted(duplicate))
+                )
+            offset = len(self.instances)
+            refs = tuple(left.items()) + tuple(
+                (name, index + offset)
+                for name, index in right.items()
+            )
+            return Assembly(self.instances + other.instances, refs)
         return NotImplemented
 
     __or__ = __add__
