@@ -12,7 +12,7 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from scpf.live import LiveError, send_commands
+from scpf.live import LiveError, new_design, send_commands
 from scpf.__main__ import read_command_file, main
 from scpf.runner import run_script
 
@@ -24,9 +24,11 @@ class FakeSolidCraft:
     def __init__(self, reply):
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.bind(("127.0.0.1", 0))
-        self.listener.listen(1)
+        replies = reply if isinstance(reply, list) else [reply]
+        self.listener.listen(len(replies))
         self.port = self.listener.getsockname()[1]
-        self.reply = reply
+        self.replies = replies
+        self.requests = []
         self.request = None
         self.thread = threading.Thread(target=self.serve, daemon=True)
         self.thread.start()
@@ -34,11 +36,13 @@ class FakeSolidCraft:
     def serve(self):
         try:
             with self.listener:
-                conn, _ = self.listener.accept()
-                with conn:
-                    with conn.makefile("rb") as stream:
-                        self.request = json.loads(stream.readline())
-                    conn.sendall((json.dumps(self.reply) + "\n").encode("utf-8"))
+                for reply in self.replies:
+                    conn, _ = self.listener.accept()
+                    with conn:
+                        with conn.makefile("rb") as stream:
+                            self.request = json.loads(stream.readline())
+                            self.requests.append(self.request)
+                        conn.sendall((json.dumps(reply) + "\n").encode("utf-8"))
         except OSError:
             pass
 
@@ -77,6 +81,64 @@ class LiveProtocolTests(unittest.TestCase):
         self.assertEqual(server.request["params"]["rollback"], True)
         self.assertEqual(server.request["params"]["param_check"], "strict")
 
+    def test_new_design_uses_native_file_new(self):
+        server = FakeSolidCraft({
+            "id": 1,
+            "ok": True,
+            "result": {"name": "Untitled"},
+        })
+        self.configure(server)
+        result = new_design(directory=self.directory)
+        server.join()
+        self.assertEqual(result["name"], "Untitled")
+        self.assertEqual(server.request["method"], "engine.execute")
+        self.assertEqual(server.request["params"]["command"], "file.new")
+        self.assertEqual(server.request["params"]["params"], {})
+        self.assertEqual(server.request["params"]["param_check"], "strict")
+
+    def test_cli_new_creates_empty_design_before_model_batch(self):
+        document = run_script(ROOT / "examples/plate/scpf/model.py")
+        commands = document["commands"]
+        server = FakeSolidCraft([
+            {
+                "id": 1,
+                "ok": True,
+                "result": {"name": "Untitled"},
+            },
+            {
+                "id": 1,
+                "ok": True,
+                "result": {
+                    "completed": len(commands),
+                    "results": [{} for _ in commands],
+                    "undone": 0,
+                },
+            },
+        ])
+        self.configure(server)
+        with patch.dict(os.environ, {"SOLIDCRAFT_CONTROL_DIR": str(self.directory)}):
+            self.assertEqual(
+                main([
+                    str(ROOT / "examples/plate/scpf/model.py"),
+                    "--connect",
+                    "--new",
+                ]),
+                0,
+            )
+        server.join()
+        self.assertEqual(
+            [request["method"] for request in server.requests],
+            ["engine.execute", "engine.batch"],
+        )
+        self.assertEqual(
+            server.requests[0]["params"]["command"],
+            "file.new",
+        )
+        self.assertEqual(
+            server.requests[1]["params"]["commands"],
+            commands,
+        )
+
     def test_live_bracket_can_send_native_commands(self):
         commands = run_script(ROOT / "examples/bracket/scpf/model.py")["commands"]
         server = FakeSolidCraft({
@@ -114,6 +176,16 @@ class LiveProtocolTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as error:
             main(["replay", str(ROOT / "examples/bracket/source/bracket.json"),
                   "--out", "copied.json"])
+        self.assertEqual(error.exception.code, 2)
+
+    def test_new_requires_connect(self):
+        with self.assertRaises(SystemExit) as error:
+            main([
+                str(ROOT / "examples/plate/scpf/model.py"),
+                "--out",
+                str(self.directory / "plate.json"),
+                "--new",
+            ])
         self.assertEqual(error.exception.code, 2)
 
     def test_live_rollback_failure_is_reported(self):
