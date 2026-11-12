@@ -40,6 +40,57 @@ class Anchor(str, Enum):
     INNER_BOTTOM = "inner_bottom"
 
 
+@dataclass(frozen=True)
+class AnchorFrame:
+    """One named local attachment frame owned by a reusable component.
+
+    origin is a point in component-local millimetres. z and x are local
+    direction vectors that define the attachment orientation. SolidCraft
+    stores the frame on the occurrence, so it follows occurrence translation
+    and rotation without Forge composing transforms.
+    """
+
+    origin: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    z: tuple[float, float, float] = (0.0, 0.0, 1.0)
+    x: tuple[float, float, float] = (1.0, 0.0, 0.0)
+
+    def __post_init__(self):
+        vectors = {}
+        for name, value in (
+            ("origin", self.origin),
+            ("z", self.z),
+            ("x", self.x),
+        ):
+            if not isinstance(value, (tuple, list)) or len(value) != 3:
+                raise ValueError(f"AnchorFrame {name} must be an XYZ triple")
+            if any(
+                isinstance(v, bool)
+                or not isinstance(v, (int, float))
+                or not isfinite(v)
+                for v in value
+            ):
+                raise ValueError(
+                    f"AnchorFrame {name} must contain finite numeric values"
+                )
+            vectors[name] = tuple(float(v) for v in value)
+
+        z = vectors["z"]
+        x = vectors["x"]
+        if sum(v * v for v in z) <= 0 or sum(v * v for v in x) <= 0:
+            raise ValueError("AnchorFrame x and z directions must be non-zero")
+        cross = (
+            z[1] * x[2] - z[2] * x[1],
+            z[2] * x[0] - z[0] * x[2],
+            z[0] * x[1] - z[1] * x[0],
+        )
+        if sum(v * v for v in cross) <= 1e-18:
+            raise ValueError("AnchorFrame x direction must not be parallel to z")
+
+        object.__setattr__(self, "origin", vectors["origin"])
+        object.__setattr__(self, "z", z)
+        object.__setattr__(self, "x", x)
+
+
 class Depth(str, Enum):
     THROUGH_ALL = "through_all"
 

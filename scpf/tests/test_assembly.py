@@ -837,6 +837,60 @@ class AssemblyTests(unittest.TestCase):
 
 
 
+    def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
+        commands = run_script(
+            ROOT / "examples/custom-anchor/scpf/model.py"
+        )["commands"]
+
+        origins = [
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.origin"
+        ]
+        self.assertEqual(
+            origins,
+            [
+                {
+                    "name": "Arm:1.tip",
+                    "occurrence": "Arm:1",
+                    "frame": {
+                        "origin": [20.0, 0.0, 5.0],
+                        "z": [1.0, 0.0, 0.0],
+                        "x": [0.0, 0.0, 1.0],
+                    },
+                },
+                {
+                    "name": "Marker:1.mount",
+                    "occurrence": "Marker:1",
+                    "frame": {
+                        "origin": [0.0, 0.0, 5.0],
+                        "z": [-1.0, 0.0, 0.0],
+                        "x": [0.0, 0.0, 1.0],
+                    },
+                },
+            ],
+        )
+
+        arm_origin_index = next(
+            i for i, command in enumerate(commands)
+            if command["command"] == "joint.origin"
+            and command["params"]["name"] == "Arm:1.tip"
+        )
+        arm_move_index = next(
+            i for i, command in enumerate(commands)
+            if command["command"] == "occurrence.move"
+            and command["params"]["occurrence"] == "Arm:1"
+        )
+        self.assertLess(arm_origin_index, arm_move_index)
+
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["a"], "Arm:1.tip")
+        self.assertEqual(joint["b"], "Marker:1.mount")
+
     def test_corner_anchor_compiles_to_native_edge_and_corner_origins(self):
         commands = run_script(
             ROOT / "examples/corner-anchor/scpf/model.py"

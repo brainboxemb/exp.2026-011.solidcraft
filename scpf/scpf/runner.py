@@ -306,6 +306,34 @@ def _parameterized_instance(
     )
 
 
+def _component_anchor_frames(instance):
+    """Read optional named local attachment frames from one component model."""
+    provider = getattr(instance, "anchors", None)
+    if provider is None:
+        return ()
+    value = provider() if callable(provider) else provider
+    if not isinstance(value, dict):
+        raise TypeError("component anchors must be returned as a dict")
+
+    anchors = []
+    standard_names = {anchor.value for anchor in core.Anchor}
+    for name, frame in value.items():
+        if not isinstance(name, str) or not name.isidentifier():
+            raise ValueError(
+                "component anchor names must be valid Python identifiers"
+            )
+        if name in standard_names:
+            raise ValueError(
+                f"component anchor {name!r} conflicts with a standard Anchor"
+            )
+        if not isinstance(frame, core.AnchorFrame):
+            raise TypeError(
+                f"component anchor {name!r} must be an AnchorFrame"
+            )
+        anchors.append((name, frame))
+    return tuple(anchors)
+
+
 def _build_object(cls, *args, _include=None, _aliases=None, **kwargs):
     """Build one user model and return its classified reusable inputs."""
     instance, concrete, fixed, external, bindings = _parameterized_instance(
@@ -314,12 +342,14 @@ def _build_object(cls, *args, _include=None, _aliases=None, **kwargs):
     build = getattr(instance, "build", None)
     if not callable(build):
         raise TypeError(f"{cls.__name__} must define build()")
-    return build(), concrete, fixed, external, bindings
+    result = build()
+    anchors = _component_anchor_frames(instance)
+    return result, concrete, fixed, external, bindings, anchors
 
 
 def _design_object(cls, *args, **kwargs):
     """Build the root model and retain its declared native parameters."""
-    result, concrete, _, _, _ = _build_object(cls, *args, **kwargs)
+    result, concrete, _, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must finish with a Shape or assembly"
@@ -331,7 +361,7 @@ def _reusable_model_object(
     cls, *args, _include=(), _aliases=None, **kwargs
 ):
     """Build a nested user model as a reusable component definition."""
-    result, concrete, fixed, external, bindings = _build_object(
+    result, concrete, fixed, external, bindings, anchors = _build_object(
         cls, *args, _include=_include, _aliases=_aliases, **kwargs
     )
     if not isinstance(result, Shape):
@@ -346,6 +376,7 @@ def _reusable_model_object(
             fixed_inputs=fixed,
             external_parameters=external,
             input_bindings=bindings,
+            anchors=anchors,
         )
     )
 
@@ -436,7 +467,7 @@ def component(cls=None, *, include=()):
 
 def _reusable_assembly_object(cls, *args, **kwargs):
     """Build an imported assembly class without exposing build_* helpers."""
-    result, _, _, _, _ = _build_object(cls, *args, **kwargs)
+    result, _, _, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must produce a component or assembly"
@@ -579,6 +610,7 @@ def run_script(path: str | Path) -> dict:
         "Edges": core.Edges,
         "Faces": core.Faces,
         "Anchor": core.Anchor,
+        "AnchorFrame": core.AnchorFrame,
         "Axis": core.Axis,
         "Shape": core.Shape,
         "pv": core.pv,
