@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, Axis, Shape, parameters_in, pv
+from .core import Anchor, Axis, Shape, command_value, parameters_in, pv
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,7 @@ class Attachment:
     parent: Anchor
     child: Anchor
     offset: tuple[float, float]
+    gap: object = 0
 
 
 def _rectangular_bounds(instance):
@@ -200,8 +201,12 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0)):
-        """Match one component face to another and retain a rigid relationship."""
+               offset=(0, 0), gap=0):
+        """Match one component face to another with a native rigid joint.
+
+        A symbolic gap is preserved as a SolidCraft joint expression, so
+        changing its parameter in the saved design re-solves placement.
+        """
         if not isinstance(target, ModelInstance):
             raise TypeError("component attach target must be another model object")
         try:
@@ -232,6 +237,13 @@ class ModelInstance:
             target_world[i] - child_local[i]
             for i in range(3)
         )
+        try:
+            gap_value = pv(gap)
+        except TypeError as exc:
+            raise ValueError("component attach gap must be a CAD dimension") from exc
+        if not isfinite(gap_value):
+            raise ValueError("component attach gap must be finite")
+
         return replace(
             self,
             translation=translation,
@@ -240,6 +252,7 @@ class ModelInstance:
                 parent=parent,
                 child=child,
                 offset=face_offset,
+                gap=gap,
             ),
         )
 
