@@ -42,6 +42,7 @@ class Attachment:
     child: Anchor | str
     offset: tuple[float, float]
     gap: object = 0
+    angle: float | None = None
 
 
 def _custom_anchor_frame(instance, name):
@@ -372,11 +373,12 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0), gap=0):
+               offset=(0, 0), gap=0, angle=None):
         """Attach this component rigidly to another component.
 
-        ``gap`` is a normal distance between the two attachment references.
-        Parameter/Expression values remain native SolidCraft expressions.
+        ``gap`` is the normal distance between the references.
+        ``angle`` is their relative turn in degrees around the attachment
+        normal. Both stay native SolidCraft joint values.
         """
         if not isinstance(target, ModelInstance):
             raise TypeError("component attach target must be another model object")
@@ -408,6 +410,11 @@ class ModelInstance:
         gap_value = pv(gap)
         if not isfinite(gap_value):
             raise ValueError("component attach gap must be finite")
+        angle_value = None
+        if angle is not None:
+            angle_value = pv(angle)
+            if not isfinite(angle_value):
+                raise ValueError("component attach angle must be finite")
 
         return replace(
             self,
@@ -418,6 +425,7 @@ class ModelInstance:
                 child=child,
                 offset=face_offset,
                 gap=gap,
+                angle=angle_value,
             ),
         )
 
