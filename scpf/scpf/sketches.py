@@ -187,15 +187,14 @@ def compile_base(shape, name):
         if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
             raise ModelError("zero-length polygon edge")
 
-        # Preserve existing literal non-symmetric polygon command plans.
-        # Positioned polygons need symbolic coordinates so their editable
-        # parent parameters survive; symmetric polygons already relied on
-        # the same symbolic behavior for named bracket geometry.
-        symbolic = (
-            [[command_value(v) for v in point] for point in points]
-            if direction == "symmetric" or profile.kind == "positioned"
-            else [list(p) for p in concrete]
-        )
+        # Polygon coordinates are CAD geometry, so Parameter/Expression
+        # values must survive for every extrusion direction. Converting
+        # positive/negative profiles to their current numeric values makes a
+        # visible SolidCraft parameter only partly associative.
+        symbolic = [
+            [command_value(v) for v in point]
+            for point in points
+        ]
         sketch = {"plane": plane, "name": "Profile"}
         if plane_offset is not None:
             sketch["offset"] = command_value(plane_offset)
