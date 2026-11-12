@@ -1,5 +1,5 @@
 {
-  "library_commit": "2397465cef9c9789037d6101b2552d56cc242ea2",
+  "library_commit": "8fef19f3ad587de6c8eea29da966a3021de8508f",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
@@ -19,21 +19,21 @@
     "components": {
       "source": "examples/components/model.py",
       "commands": "examples/components/commands.json",
-      "command_count": 9,
+      "command_count": 10,
       "preview": "examples/components/preview.png",
       "preview_kind": "native-snapshot"
     },
     "corner-anchor": {
       "source": "examples/corner-anchor/model.py",
       "commands": "examples/corner-anchor/commands.json",
-      "command_count": 16,
+      "command_count": 17,
       "preview": "examples/corner-anchor/preview.png",
       "preview_kind": "native-snapshot"
     },
     "custom-anchor": {
       "source": "examples/custom-anchor/model.py",
       "commands": "examples/custom-anchor/commands.json",
-      "command_count": 17,
+      "command_count": 18,
       "preview": "examples/custom-anchor/preview.png",
       "preview_kind": "native-snapshot"
     }

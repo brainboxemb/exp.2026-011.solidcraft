@@ -157,6 +157,13 @@
           ]
         }
       }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
     }
   ]
 }

@@ -173,6 +173,13 @@
         "a": "Arm:1.tip",
         "b": "Marker:1.mount"
       }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
     }
   ]
 }
