@@ -1035,7 +1035,7 @@ class AssemblyTests(unittest.TestCase):
                 for command in no_joint_commands)
         )
 
-    def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
+    def test_rotated_custom_anchor_materializes_before_rotation(self):
         commands = run_script(
             ROOT / "examples/custom-anchor/scpf/model.py"
         )["commands"]
