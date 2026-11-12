@@ -154,6 +154,7 @@ jobs:
           # Native corner-anchor regression: the marker is attached to the
           # Base's FRONT_TOP_RIGHT corner. Changing both width and height in
           # the saved design must move that corner, and the marker with it.
+          cat output/native/corner-anchor/measurements.json
           jq -e '
             (all(.bodies[] | select(.name | startswith("Base"));
               ((.bbox.min[0] + 20) | fabs) < 0.001 and
