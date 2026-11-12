@@ -191,6 +191,28 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(rotated[0]["angle"], "180 deg")
         self.assertNotIn("matrix", rotated[0])
 
+    def test_named_axis_rotation_shorthand(self):
+        from scpf.core import Box, X, Y, Z
+        from scpf.model_objects import ModelDefinition, ModelInstance
+
+        panel = ModelInstance(ModelDefinition("Panel", (), Box(20, 10, 2)))
+
+        self.assertEqual(
+            panel.rotate(X, 180).rotation,
+            ((1.0, 0.0, 0.0), 180.0),
+        )
+        self.assertEqual(
+            panel.rotate(Y, 90).rotation,
+            ((0.0, 1.0, 0.0), 90.0),
+        )
+        self.assertEqual(
+            panel.rotate(Z, -90).rotation,
+            ((0.0, 0.0, 1.0), -90.0),
+        )
+
+        with self.assertRaisesRegex(ValueError, "X, Y or Z"):
+            panel.rotate("Q", 90)
+
     def test_first_grounded_occurrence_can_have_absolute_rotation(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "root_rotation.py"
