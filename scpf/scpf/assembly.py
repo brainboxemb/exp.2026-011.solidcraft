@@ -88,6 +88,7 @@ def compile_assembly(value, name):
     commands = []
     occurrence_names = {}
     inherited_parameters = {}
+    shared_materials = {}
 
     # Named groups are actual empty native components, not just labels in
     # Python. Child component definitions are created under their parent.
@@ -170,7 +171,20 @@ def compile_assembly(value, name):
         if parent_name is not None:
             create_params["parent"] = parent_name
         commands.append(_command("component.create", **create_params))
-        commands.extend(geometry_commands)
+        for command in geometry_commands:
+            if command["command"] == "material.create":
+                material_name = command["params"]["name"]
+                previous = shared_materials.get(material_name)
+                if previous is None:
+                    shared_materials[material_name] = command["params"]
+                    commands.append(command)
+                elif previous != command["params"]:
+                    raise ModelError(
+                        f"material {material_name!r} is defined differently "
+                        "by multiple components"
+                    )
+                continue
+            commands.append(command)
         commands.append(_command("component.activate", component="root"))
 
         # Start every occurrence at the component's native origin and
