@@ -837,6 +837,29 @@ class AssemblyTests(unittest.TestCase):
 
 
 
+    def test_attach_angle_is_native_joint_orientation(self):
+        commands = run_script(
+            ROOT / "examples/rotated-child-anchor/scpf/model.py"
+        )["commands"]
+
+        joints = [
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        ]
+        self.assertEqual(
+            [joint.get("angle", "0 deg") for joint in joints],
+            ["0 deg", "90 deg", "180 deg", "270 deg"],
+        )
+        self.assertFalse(
+            any(
+                command["command"] == "occurrence.move"
+                and command["params"]["occurrence"].startswith("Flag:")
+                and "angle" in command["params"]
+                for command in commands
+            )
+        )
+
     def test_xz_rectangular_component_uses_standard_corner_anchor(self):
         commands = run_script(
             ROOT / "examples/xz-anchor/scpf/model.py"
