@@ -12,6 +12,7 @@ import functools
 import inspect
 from pathlib import Path
 import sys
+import warnings
 
 from . import core
 from .compiler import compile_model
@@ -20,6 +21,34 @@ from .assembly import compile_assembly
 from .model_objects import Assembly, ModelDefinition, ModelInstance
 from .history import History, behavior
 from .explicit_sketch import Sketch
+
+
+class ModelParameterWarning(UserWarning):
+    """A declared editable model parameter lost its native CAD dependency."""
+
+
+@dataclass(frozen=True)
+class _BuiltDesign:
+    result: object
+    parameters: tuple[tuple[str, float], ...]
+
+
+def _warn_missing_model_parameters(parameters, commands, *, context="model"):
+    native = {
+        command["params"]["name"]
+        for command in commands
+        if command["command"] == "parameters.add"
+    }
+    for name, _ in parameters:
+        if name not in native:
+            warnings.warn(
+                f"{context} parameter {name!r} has no native SolidCraft "
+                "dependency; it may have been consumed as a Python value "
+                "(for example via pv()). Preserve the symbolic value, or "
+                f"rename it to _{name} if it is intentionally Forge/build-time.",
+                ModelParameterWarning,
+                stacklevel=3,
+            )
 
 
 def _symbolic(value, name):
@@ -45,7 +74,13 @@ def _model_function(function):
 
 
 def _plain_model_fields(cls):
-    """Ordered numeric class attributes, including inherited model fields."""
+    """Ordered numeric model/build fields, excluding UPPER_CASE constants.
+
+    Naming is intentional:
+      lower_case   -> editable native model parameter
+      _lower_case  -> Forge/build-time input, never a native parameter
+      UPPER_CASE   -> fixed class constant, not a model input
+    """
     fields = {}
     # Base model dimensions come first; subclasses may override defaults
     # without reimplementing build(). Existing key order stays stable.
@@ -53,34 +88,55 @@ def _plain_model_fields(cls):
         if base is object:
             continue
         for name, value in vars(base).items():
-            if (not name.startswith("_")
-                    and isinstance(value, (int, float))
-                    and not isinstance(value, bool)):
-                fields[name] = value
+            if (name.startswith("__")
+                    or name.isupper()
+                    or not isinstance(value, (int, float))
+                    or isinstance(value, bool)):
+                continue
+            fields[name] = value
     return list(fields.items())
 
 
-def _parameter_input(value, name, *, expose_local=True):
-    """Bind one model input while preserving parent dependencies.
+def _parameter_input(
+    value, name, *, expose_local=True, alias=None, build_only=False
+):
+    """Bind one input while preserving its declared parameter intent.
 
-    Parent Parameter/Expression inputs always stay symbolic. Plain numeric
-    inputs become editable local CAD parameters only when expose_local=True;
-    otherwise they remain fixed numeric inputs for the component definition.
+    Parent Parameter/Expression inputs stay symbolic unless this is an
+    underscore-prefixed Forge/build input. A component alias publishes a
+    numeric child default directly under the requested shared model name.
     """
     if isinstance(value, bool):
         raise TypeError(f"{name} must be a numeric model parameter")
+
+    if build_only:
+        if isinstance(value, (Parameter, Expression, int, float)):
+            return pv(value), pv(value), (), None, True
+        raise TypeError(f"{name} must be a numeric Forge/build parameter")
+
     if isinstance(value, (Parameter, Expression)):
         external = tuple((p.name, p.value) for p in parameters_in(value))
         return pv(value), value, external, (name, command_value(value)), False
+
     if isinstance(value, (int, float)):
         concrete = float(value)
+        if alias is not None:
+            parameter = Parameter(alias, concrete)
+            return (
+                concrete,
+                parameter,
+                ((alias, concrete),),
+                (name, alias),
+                False,
+            )
         if expose_local:
             return concrete, Parameter(name, concrete), (), None, False
         return concrete, concrete, (), None, True
+
     raise TypeError(f"{name} must be a numeric model parameter")
 
 
-def _plain_model_data(cls, *args, _include=None, **kwargs):
+def _plain_model_data(cls, *args, _include=None, _aliases=None, **kwargs):
     """Instantiate a plain model and classify public vs fixed inputs."""
     fields = _plain_model_fields(cls)
     names = [name for name, _ in fields]
@@ -108,14 +164,25 @@ def _plain_model_data(cls, *args, _include=None, **kwargs):
         assigned.add(name)
 
     instance = cls()
+    aliases = {} if _aliases is None else dict(_aliases)
     concrete = []
     fixed = []
     external = {}
     bindings = []
     for name in names:
-        expose_local = _include is None or name in _include
+        build_only = name.startswith("_")
+        alias = aliases.get(name)
+        expose_local = (
+            not build_only
+            and alias is None
+            and (_include is None or name in _include)
+        )
         value, symbolic, inherited, binding, is_fixed = _parameter_input(
-            values[name], name, expose_local=expose_local
+            values[name],
+            name,
+            expose_local=expose_local,
+            alias=alias,
+            build_only=build_only,
         )
         if binding is None:
             if is_fixed:
@@ -145,12 +212,17 @@ def _plain_model_instance(cls, *args, **kwargs):
     return _plain_model_data(cls, *args, **kwargs)[0]
 
 
-def _parameterized_instance(cls, *args, _include=None, **kwargs):
+def _parameterized_instance(
+    cls, *args, _include=None, _aliases=None, **kwargs
+):
     """Construct one model object and classify its reusable inputs."""
     if not is_dataclass(cls):
-        return _plain_model_data(cls, *args, _include=_include, **kwargs)
+        return _plain_model_data(
+            cls, *args, _include=_include, _aliases=_aliases, **kwargs
+        )
 
     instance = cls(*args, **kwargs)
+    aliases = {} if _aliases is None else dict(_aliases)
     signature = inspect.signature(cls)
     bound = signature.bind(*args, **kwargs)
     bound.apply_defaults()
@@ -162,9 +234,19 @@ def _parameterized_instance(cls, *args, _include=None, **kwargs):
         if name not in vars(instance):
             continue
         if isinstance(value, (int, float, Parameter, Expression)) and not isinstance(value, bool):
-            expose_local = _include is None or name in _include
+            build_only = name.startswith("_")
+            alias = aliases.get(name)
+            expose_local = (
+                not build_only
+                and alias is None
+                and (_include is None or name in _include)
+            )
             number, symbolic, inherited, binding, is_fixed = _parameter_input(
-                value, name, expose_local=expose_local
+                value,
+                name,
+                expose_local=expose_local,
+                alias=alias,
+                build_only=build_only,
             )
             if binding is None:
                 if is_fixed:
@@ -189,10 +271,10 @@ def _parameterized_instance(cls, *args, _include=None, **kwargs):
     )
 
 
-def _build_object(cls, *args, _include=None, **kwargs):
+def _build_object(cls, *args, _include=None, _aliases=None, **kwargs):
     """Build one user model and return its classified reusable inputs."""
     instance, concrete, fixed, external, bindings = _parameterized_instance(
-        cls, *args, _include=_include, **kwargs
+        cls, *args, _include=_include, _aliases=_aliases, **kwargs
     )
     build = getattr(instance, "build", None)
     if not callable(build):
@@ -201,23 +283,21 @@ def _build_object(cls, *args, _include=None, **kwargs):
 
 
 def _design_object(cls, *args, **kwargs):
-    """Build the root model object.
-
-    A root model may still produce one Shape, or it may compose reusable model
-    instances into an Assembly.
-    """
-    result, _, _, _, _ = _build_object(cls, *args, **kwargs)
+    """Build the root model and retain its declared native parameters."""
+    result, concrete, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must finish with a Shape or assembly"
         )
-    return result
+    return _BuiltDesign(result=result, parameters=concrete)
 
 
-def _reusable_model_object(cls, *args, _include=(), **kwargs):
+def _reusable_model_object(
+    cls, *args, _include=(), _aliases=None, **kwargs
+):
     """Build a nested user model as a reusable component definition."""
     result, concrete, fixed, external, bindings = _build_object(
-        cls, *args, _include=_include, **kwargs
+        cls, *args, _include=_include, _aliases=_aliases, **kwargs
     )
     if not isinstance(result, Shape):
         raise TypeError(
@@ -236,45 +316,76 @@ def _reusable_model_object(cls, *args, _include=(), **kwargs):
 
 
 def _component_include(cls, include):
+    """Return local includes plus optional shared model-parameter aliases."""
     fields = {name for name, _ in _plain_model_fields(cls)}
+    public_fields = {name for name in fields if not name.startswith("_")}
+
     if include == "*":
-        return frozenset(fields)
+        return frozenset(public_fields), {}
+
+    if isinstance(include, dict):
+        aliases = dict(include)
+        unknown = set(aliases) - public_fields
+        if unknown:
+            raise ValueError(
+                f"{cls.__name__}: unknown component parameter(s): "
+                + ", ".join(sorted(unknown))
+            )
+        for local_name, model_name in aliases.items():
+            if (not isinstance(model_name, str)
+                    or not model_name.isidentifier()
+                    or model_name.startswith("_")
+                    or model_name.isupper()):
+                raise ValueError(
+                    f"{cls.__name__}.{local_name}: shared model parameter "
+                    "name must be a public lower_case Python identifier"
+                )
+        return frozenset(), aliases
+
     if isinstance(include, str):
         include = (include,)
     try:
         names = tuple(include)
     except TypeError as exc:
-        raise TypeError("component include must be '*' or parameter names") from exc
+        raise TypeError(
+            "component include must be '*', parameter names, or a mapping"
+        ) from exc
     if any(not isinstance(name, str) or not name for name in names):
         raise TypeError("component include names must be non-empty text")
-    unknown = set(names) - fields
+    unknown = set(names) - public_fields
     if unknown:
         raise ValueError(
             f"{cls.__name__}: unknown component parameter(s): "
             + ", ".join(sorted(unknown))
         )
-    return frozenset(names)
+    return frozenset(names), {}
 
 
 def _model_factory(cls, include=()):
     """Replace a nested class name with a transparent reusable-model factory."""
-    included = _component_include(cls, include)
+    included, aliases = _component_include(cls, include)
 
     @functools.wraps(cls)
     def factory(*args, **kwargs):
         return _reusable_model_object(
-            cls, *args, _include=included, **kwargs
+            cls,
+            *args,
+            _include=included,
+            _aliases=aliases,
+            **kwargs,
         )
 
     return factory
-
 
 def component(cls=None, *, include=()):
     """Declare a reusable component; local defaults are fixed unless included.
 
     Parent Parameter/Expression inputs always remain symbolic. Use include=()
     (the default) to keep component defaults out of the design parameter list,
-    include=("radius",) for selected editable defaults, or include="*" for all.
+    include=("radius",) for selected component-local editable defaults,
+    include="*" for all public defaults, or
+    include={"inside_radius": "corner_radius"} to publish a selected child
+    default directly under a chosen shared model-parameter name.
     """
     def decorate(model_cls):
         if not isinstance(model_cls, type) or not callable(
@@ -449,12 +560,23 @@ def run_script(path: str | Path) -> dict:
             context["_scpf_design_object"] = _design_object
             context["_scpf_root_class"] = root_class
             ast.fix_missing_locations(constructor)
-            result = eval(
+            built = eval(
                 compile(ast.Expression(body=constructor), str(path), "eval"),
                 context,
             )
+            result = built.result
+
     if isinstance(result, Shape):
-        return compile_model(result, name)
-    if isinstance(result, (ModelInstance, Assembly)):
-        return compile_assembly(result, name)
-    raise TypeError(f"{name}() must produce CAD geometry or an assembly")
+        document = compile_model(result, name)
+    elif isinstance(result, (ModelInstance, Assembly)):
+        document = compile_assembly(result, name)
+    else:
+        raise TypeError(f"{name}() must produce CAD geometry or an assembly")
+
+    if isinstance(definition, ast.ClassDef):
+        _warn_missing_model_parameters(
+            built.parameters,
+            document["commands"],
+            context=name,
+        )
+    return document
