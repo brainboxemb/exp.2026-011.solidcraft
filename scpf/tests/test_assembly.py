@@ -646,6 +646,31 @@ class AssemblyTests(unittest.TestCase):
         self.assertIn("opening_width", str(rectangle["params"]))
         self.assertIn("frame_wood_thickness", str(rectangle["params"]))
 
+    def test_named_component_objects_resolve_directly_from_assembly(self):
+        from scpf.core import Box
+        from scpf.runner import component
+
+        class Board:
+            width = 100.0
+
+            def build(self):
+                return Box(self.width, 20, 10)
+
+        BoardObject = component(Board)
+        roof = BoardObject(name="roof", width=120)
+        bottom = BoardObject(name="bottom", width=100)
+        frame = roof + bottom
+
+        self.assertIs(frame.roof, roof)
+        self.assertIs(frame.bottom, bottom)
+        self.assertIs(frame.resolve("roof"), roof)
+
+        copy = roof.copy()
+        self.assertIsNone(copy.name)
+
+        with self.assertRaisesRegex(ValueError, "object names must be unique"):
+            _ = roof + BoardObject(name="roof")
+
     def test_plain_assembly_accepts_non_parametric_object_reference_input(self):
         from scpf.core import Box, Parameter
         from scpf.runner import assembly, component
