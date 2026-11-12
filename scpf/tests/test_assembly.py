@@ -644,6 +644,78 @@ class AssemblyTests(unittest.TestCase):
         )
 
 
+    def test_root_warns_when_parameter_is_partly_flattened_by_occurrence_move(self):
+        import warnings
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "partial.py"
+            path.write_text(
+                "class Panel:\n"
+                "    depth = 12.0\n"
+                "    def build(self):\n"
+                "        return Box(40, self.depth, 20)\n"
+                "class Display:\n"
+                "    depth = 12.0\n"
+                "    def build(self):\n"
+                "        return Panel(depth=self.depth).move(y=self.depth / 2)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                document = run_script(path)
+
+        messages = [
+            str(item.message) for item in caught
+            if "no native SolidCraft dependency" in str(item.message)
+            or "occurrence placement" in str(item.message)
+        ]
+        self.assertEqual(len(messages), 1)
+        self.assertIn("remains native in some geometry", messages[0])
+        self.assertIn("only part of the model", messages[0])
+
+        names = [
+            command["params"]["name"]
+            for command in document["commands"]
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(names, ["depth"])
+
+    def test_root_warns_once_when_parameter_exists_only_in_occurrence_move(self):
+        import warnings
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "placement_only.py"
+            path.write_text(
+                "class Panel:\n"
+                "    def build(self):\n"
+                "        return Box(40, 12, 20)\n"
+                "class Display:\n"
+                "    offset = 30.0\n"
+                "    def build(self):\n"
+                "        return Panel().move(x=self.offset)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                document = run_script(path)
+
+        messages = [
+            str(item.message) for item in caught
+            if "parameter 'offset'" in str(item.message)
+        ]
+        self.assertEqual(len(messages), 1)
+        self.assertIn("occurrence placement", messages[0])
+        self.assertIn("no native SolidCraft dependency", messages[0])
+        self.assertFalse(
+            any(
+                command["command"] == "parameters.add"
+                and command["params"]["name"] == "offset"
+                for command in document["commands"]
+            )
+        )
+
     def test_component_include_mapping_publishes_shared_model_parameter_name(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Box, Edges
