@@ -41,8 +41,12 @@ Python build setting from looking like a native editable CAD parameter.</p>
 </tbody></table>
 <p>If a public lower-case parameter is consumed only as a concrete Python
 value—for example through <code>pv()</code>—Forge emits a
-<code>ModelParameterWarning</code>. Either preserve the symbolic dependency or
-rename an intentionally build-time input with a leading underscore.</p>
+<code>ModelParameterWarning</code>. The same warning is emitted when a
+parameter remains native in some geometry but is also flattened into a
+concrete component <code>move()</code> or rotation. Such a parameter is only
+partly associative: editing it in SolidCraft would update only part of the
+model. Either preserve the symbolic placement or rename an intentionally
+build-time input with a leading underscore.</p>
 <h2 id="shared-parameters">Share one model parameter across child components</h2>
 <p>Passing a parent parameter into several component inputs keeps one native
 SolidCraft parameter instead of creating component-specific duplicates.</p>
