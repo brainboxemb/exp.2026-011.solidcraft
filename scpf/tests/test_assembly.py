@@ -373,8 +373,10 @@ class AssemblyTests(unittest.TestCase):
             chamfer = 2.0
 
             def build(self):
-                return Box(self.width, 20, 10).fillet(
-                    self.radius, edges=[]
+                return Box(
+                    self.width,
+                    self.radius + 20,
+                    self.chamfer + 10,
                 )
 
         Hidden = component(Bracket)
@@ -421,7 +423,7 @@ class AssemblyTests(unittest.TestCase):
             radius = 4.0
 
             def build(self):
-                return Box(self.width, 20, 10)
+                return Box(self.width, self.radius + 20, 10)
 
         commands = compile_assembly(Bracket(), "BracketAssembly")["commands"]
         names = [
