@@ -626,7 +626,7 @@ class SCPFExamples(unittest.TestCase):
 
 
     def test_pv_is_explicit_escape_hatch_to_python_value(self):
-        from scpf import Parameter, pv
+        from scpf.core import Parameter, pv
         width = Parameter("width", 868.0)
         self.assertEqual(pv(width), 868.0)
         self.assertEqual(pv(width / 2), 434.0)
@@ -660,7 +660,7 @@ class SCPFExamples(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "helper.py").write_text(
-                "from scpf import Box\n"
+                "from scpf.core import Box\n"
                 "class HelperBox:\n"
                 "    size = 10.0\n"
                 "    def build(self):\n"
