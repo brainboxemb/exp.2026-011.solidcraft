@@ -277,17 +277,29 @@ Plate(width=80.0)
 Display(_panel_pitch=161.0)
 ```
 
-A script may use an imported reusable model directly as its root:
+A reusable component source file can itself be run directly when it defines
+exactly one public class with `build()`:
 
 ```python
-from components.corner_bracket import CornerBracket
-
-CornerBracket()
+# components/corner_bracket.py
+class CornerBracket:
+    ...
+    def build(self):
+        ...
 ```
 
-This runs exactly the same class and `build()` implementation that is used
-inside an assembly; no standalone wrapper class or alternate geometry path is
-required.
+Run that file directly:
+
+```powershell
+python -m scpf components/corner_bracket.py --connect
+```
+
+No trailing `CornerBracket()`, launcher file, wrapper class or alternate
+geometry path is required. If a file defines multiple public model classes,
+SCPF refuses to guess; finish the script with an explicit model call instead.
+
+An imported class can still be selected explicitly when a composition script
+needs one particular model.
 
 Reusable components keep their defaults private unless requested with
 `component(..., include=...)`. A selected component default can also be
