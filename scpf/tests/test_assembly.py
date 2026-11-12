@@ -1012,6 +1012,41 @@ class AssemblyTests(unittest.TestCase):
             },
         )
 
+    def test_as_built_attach_keeps_current_occurrence_placement(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Box
+        from scpf.runner import component
+
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        BlockObject = component(Block)
+        base = BlockObject()
+        child = BlockObject().move(x=40).attach(
+            base,
+            as_built=True,
+        )
+
+        commands = compile_assembly(base + child, "AsBuiltAttach")["commands"]
+
+        move = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "occurrence.move"
+            and command["params"]["occurrence"] == "Block:2"
+        )
+        self.assertEqual(move["translate"], [40.0, 0.0, 0.0])
+
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.as_built"
+        )
+        self.assertEqual(joint["type"], "rigid")
+        self.assertEqual(joint["a"], "Block:1")
+        self.assertEqual(joint["b"], "Block:2")
+
     def test_attach_angle_is_emitted_as_native_joint_turn(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, Box
