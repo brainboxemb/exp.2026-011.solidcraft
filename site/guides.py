@@ -65,8 +65,9 @@ rotation and the common “my panel is lying flat” problem.</p>""",
         "body": """
 <h2 id="class">A model is a normal Python class</h2>
 <p>Numeric class attributes become editable SolidCraft parameters when SCPF
-compiles a plain model class. <code>build()</code> returns geometry. A call to
-the class at the bottom of the file selects the root model.</p>
+compiles a plain model class. <code>build()</code> returns geometry. If a file
+contains exactly one public class with <code>build()</code>, that class is the
+root automatically; no trailing constructor call or launcher file is needed.</p>
 """ + code("""from scpf import Box
 
 class Plate:
@@ -75,13 +76,18 @@ class Plate:
     thickness = 10.0
 
     def build(self):
-        return Box(self.length, self.width, self.thickness)
-
-Plate(width=80)""") + """
-<p>The override changes the value of <code>width</code> in this instance.
-Arithmetic such as <code>self.length / 2</code> is preserved symbolically
-for supported expressions; general Python computations are not automatically
-made parametric.</p>
+        return Box(self.length, self.width, self.thickness)""") + """
+<p>Run that source file directly with
+<code>python -m scpf plate.py --connect</code>. The same rule lets a reusable
+component file serve as its standalone model while assemblies import the exact
+same class. If a file contains several public model classes, SCPF deliberately
+does not guess: finish the script with an explicit call such as
+<code>Assembly()</code> to choose the root.</p>
+<p>An explicit final call is also how you override root parameters for a
+particular run, for example <code>Plate(width=80)</code>. Arithmetic such as
+<code>self.length / 2</code> is preserved symbolically for supported
+expressions; general Python computations are not automatically made
+parametric.</p>
 <h2 id="parameter-intent">Parameter intent is visible in the name</h2>
 <p>SCPF distinguishes three kinds of numeric class attributes. This keeps a
 Python build setting from looking like a native editable CAD parameter.</p>
