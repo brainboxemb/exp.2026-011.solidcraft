@@ -6,7 +6,7 @@ actual BRep booleans, sketches, fillets and geometric verification.
 from math import isfinite
 
 from .core import (
-    Shape, Parameter, number_text, parameters_in, value_of,
+    Shape, Parameter, number_text, parameters_in, pv,
 )
 
 
@@ -15,7 +15,7 @@ class ModelError(ValueError):
 
 
 def _require_positive(value, label):
-    num = value_of(value)
+    num = pv(value)
     if not isfinite(num) or num <= 0:
         raise ModelError(f"{label} must be positive")
     return num
