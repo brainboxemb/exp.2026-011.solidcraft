@@ -113,8 +113,12 @@ class Display:
 
 If a public model parameter is consumed only by Python, for example through
 `pv()` or a non-associative occurrence placement, SCPF emits
-`ModelParameterWarning`. This is deliberate: a parameter visible in the model
-source should not silently stop being parametric in SolidCraft.
+`ModelParameterWarning`. Forge also warns when a parameter is **partly**
+native but is simultaneously flattened into a concrete
+`occurrence.move()`/rotation value. In that case changing the parameter in
+SolidCraft would update only part of the design. This is deliberate: a
+parameter visible in the model source should not silently stop being fully
+parametric in SolidCraft.
 
 Reusable components keep their own numeric defaults private by default. A
 parent model can couple a child input directly to one of its parameters:
