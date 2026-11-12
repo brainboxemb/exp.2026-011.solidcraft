@@ -15,7 +15,7 @@ import sys
 
 from . import core
 from .compiler import compile_model
-from .core import Expression, Parameter, Shape, pv
+from .core import Expression, Parameter, Shape, command_value, parameters_in, pv
 from .assembly import compile_assembly
 from .model_objects import Assembly, ModelDefinition, ModelInstance
 from .history import History, behavior
@@ -61,20 +61,22 @@ def _plain_model_fields(cls):
 
 
 def _parameter_input(value, name):
-    """Bind a model input to a fresh named parameter.
+    """Bind a model input without breaking an existing symbolic dependency.
 
-    Parent Parameter/Expression values are accepted directly. Their current
-    numeric value seeds the child parameter; the child keeps its own name.
+    A plain number defines a new local CAD parameter. Passing a Parameter or
+    Expression from a parent keeps that exact symbolic value, so a child
+    component depends on the parent parameter instead of creating a duplicate
+    child parameter with the same current numeric value.
     """
     if isinstance(value, bool):
         raise TypeError(f"{name} must be a numeric model parameter")
     if isinstance(value, (Parameter, Expression)):
-        concrete = pv(value)
-    elif isinstance(value, (int, float)):
+        external = tuple((p.name, p.value) for p in parameters_in(value))
+        return pv(value), value, external, (name, command_value(value))
+    if isinstance(value, (int, float)):
         concrete = float(value)
-    else:
-        raise TypeError(f"{name} must be a numeric model parameter")
-    return concrete, Parameter(name, concrete)
+        return concrete, Parameter(name, concrete), (), None
+    raise TypeError(f"{name} must be a numeric model parameter")
 
 
 def _plain_model_data(cls, *args, **kwargs):
@@ -106,11 +108,22 @@ def _plain_model_data(cls, *args, **kwargs):
 
     instance = cls()
     concrete = []
+    external = {}
+    bindings = []
     for name in names:
-        value, symbolic = _parameter_input(values[name], name)
-        concrete.append((name, value))
+        value, symbolic, inherited, binding = _parameter_input(values[name], name)
+        if binding is None:
+            concrete.append((name, value))
+        else:
+            bindings.append(binding)
+            for parameter_name, parameter_value in inherited:
+                previous = external.setdefault(parameter_name, parameter_value)
+                if previous != parameter_value:
+                    raise ValueError(
+                        f"conflicting inherited parameter {parameter_name!r}"
+                    )
         object.__setattr__(instance, name, symbolic)
-    return instance, tuple(concrete)
+    return instance, tuple(concrete), tuple(external.items()), tuple(bindings)
 
 
 def _plain_model_instance(cls, *args, **kwargs):
@@ -128,23 +141,36 @@ def _parameterized_instance(cls, *args, **kwargs):
     bound = signature.bind(*args, **kwargs)
     bound.apply_defaults()
     concrete = []
+    external = {}
+    bindings = []
     for name, value in bound.arguments.items():
         if name not in vars(instance):
             continue
         if isinstance(value, (int, float, Parameter, Expression)) and not isinstance(value, bool):
-            number, symbolic = _parameter_input(value, name)
-            concrete.append((name, number))
+            number, symbolic, inherited, binding = _parameter_input(value, name)
+            if binding is None:
+                concrete.append((name, number))
+            else:
+                bindings.append(binding)
+                for parameter_name, parameter_value in inherited:
+                    previous = external.setdefault(parameter_name, parameter_value)
+                    if previous != parameter_value:
+                        raise ValueError(
+                            f"conflicting inherited parameter {parameter_name!r}"
+                        )
             object.__setattr__(instance, name, symbolic)
-    return instance, tuple(concrete)
+    return instance, tuple(concrete), tuple(external.items()), tuple(bindings)
 
 
 def _build_object(cls, *args, **kwargs):
     """Build one user model and return its result plus concrete parameters."""
-    instance, concrete = _parameterized_instance(cls, *args, **kwargs)
+    instance, concrete, external, bindings = _parameterized_instance(
+        cls, *args, **kwargs
+    )
     build = getattr(instance, "build", None)
     if not callable(build):
         raise TypeError(f"{cls.__name__} must define build()")
-    return build(), concrete
+    return build(), concrete, external, bindings
 
 
 def _design_object(cls, *args, **kwargs):
@@ -153,7 +179,7 @@ def _design_object(cls, *args, **kwargs):
     A root model may still produce one Shape, or it may compose reusable model
     instances into an Assembly.
     """
-    result, _ = _build_object(cls, *args, **kwargs)
+    result, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (Shape, ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must finish with a Shape or assembly"
@@ -163,7 +189,7 @@ def _design_object(cls, *args, **kwargs):
 
 def _reusable_model_object(cls, *args, **kwargs):
     """Build a nested user model as a reusable component definition."""
-    result, concrete = _build_object(cls, *args, **kwargs)
+    result, concrete, external, bindings = _build_object(cls, *args, **kwargs)
     if not isinstance(result, Shape):
         raise TypeError(
             f"{cls.__name__}.build() must produce one Shape when reused as a component"
@@ -173,6 +199,8 @@ def _reusable_model_object(cls, *args, **kwargs):
             class_name=cls.__name__,
             parameters=concrete,
             shape=result,
+            external_parameters=external,
+            input_bindings=bindings,
         )
     )
 
@@ -194,7 +222,7 @@ def component(cls):
 
 def _reusable_assembly_object(cls, *args, **kwargs):
     """Build an imported assembly class without exposing build_* helpers."""
-    result, _ = _build_object(cls, *args, **kwargs)
+    result, _, _, _ = _build_object(cls, *args, **kwargs)
     if not isinstance(result, (ModelInstance, Assembly)):
         raise TypeError(
             f"{cls.__name__}.build() must produce a component or assembly"
