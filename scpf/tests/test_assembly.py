@@ -494,6 +494,51 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual(names, ["Bracket_radius"])
 
+    def test_private_component_build_input_can_bind_parent_parameter(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Direction, Parameter, Polygon2D
+        from scpf.runner import component
+
+        class Bracket:
+            width = 24.0
+            _x_position = 0.0
+
+            def build(self):
+                x0 = self._x_position
+                profile = Polygon2D([
+                    (x0, 0),
+                    (x0 + self.width, 0),
+                    (x0 + self.width, 10),
+                    (x0, 10),
+                ], plane="XZ", world=True)
+                return profile.extrude(10, direction=Direction.POSITIVE)
+
+        BracketObject = component(Bracket)
+        opening_width = Parameter("opening_width", 844.0)
+        bracket = BracketObject(_x_position=opening_width / 2)
+
+        self.assertNotIn(
+            "_x_position",
+            dict(bracket.definition.parameters),
+        )
+        self.assertEqual(
+            dict(bracket.definition.external_parameters)["opening_width"],
+            844.0,
+        )
+        self.assertIn(
+            "opening_width",
+            str(bracket.definition.shape.data),
+        )
+
+        commands = compile_assembly(bracket, "Display")["commands"]
+        names = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(names, ["opening_width"])
+        self.assertFalse(any(name.startswith("Bracket_") for name in names))
+
     def test_component_preserves_parent_parameter_dependency(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Box, Parameter
