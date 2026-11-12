@@ -45,14 +45,19 @@ def _model_function(function):
 
 
 def _plain_model_fields(cls):
-    """Ordered numeric class attributes used as implicit SCPF parameters."""
-    return [
-        (name, value)
-        for name, value in vars(cls).items()
-        if not name.startswith("_")
-        and isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    ]
+    """Ordered numeric class attributes, including inherited model fields."""
+    fields = {}
+    # Base model dimensions come first; subclasses may override defaults
+    # without reimplementing build(). Existing key order stays stable.
+    for base in reversed(cls.__mro__):
+        if base is object:
+            continue
+        for name, value in vars(base).items():
+            if (not name.startswith("_")
+                    and isinstance(value, (int, float))
+                    and not isinstance(value, bool)):
+                fields[name] = value
+    return list(fields.items())
 
 
 def _plain_model_data(cls, *args, **kwargs):
