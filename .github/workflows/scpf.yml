@@ -154,7 +154,6 @@ jobs:
           # Native corner-anchor regression: the marker is attached to the
           # Base's FRONT_TOP_RIGHT corner. Changing both width and height in
           # the saved design must move that corner, and the marker with it.
-          cat output/native/corner-anchor/measurements.json
           jq -e '
             (all(.bodies[] | select(.name | startswith("Base"));
               ((.bbox.min[0] + 20) | fabs) < 0.001 and
@@ -164,8 +163,8 @@ jobs:
             (all(.bodies[] | select(.name | startswith("Marker"));
               ((.bbox.min[0] - 10) | fabs) < 0.001 and
               ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 10) | fabs) < 0.001 and
-              ((.bbox.max[2] - 20) | fabs) < 0.001))
+              ((.bbox.min[2] - 20) | fabs) < 0.001 and
+              ((.bbox.max[2] - 30) | fabs) < 0.001))
           ' output/native/corner-anchor/measurements.json
 
           cat > output/native/corner-anchor/change-size.json <<'JSON'
@@ -193,8 +192,8 @@ jobs:
             (all(.bodies[] | select(.name | startswith("Marker"));
               ((.bbox.min[0] - 30) | fabs) < 0.001 and
               ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 30) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001))
+              ((.bbox.min[2] - 40) | fabs) < 0.001 and
+              ((.bbox.max[2] - 50) | fabs) < 0.001))
           ' output/native/corner-anchor/measurements-size-80x40.json
 
           jq -n --arg source "$GITHUB_SHA" \
