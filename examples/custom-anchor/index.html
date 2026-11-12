@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>5 · Component-defined anchor · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap"><div class="crumb"><a href="../../">← Examples</a> / 5 · Component-defined anchor</div>
+<section class="hero small"><p class="eyebrow">Small API regression fixture</p>
+<h1>5 · Component-defined anchor</h1><p>Define a local AnchorFrame on a component and let SolidCraft carry it through occurrence rotation.</p>
+<p class="meta"><span>Compiled: 17 native commands</span><span>Native SolidCraft 0.30.1 render, verified against this source commit.</span></p></section>
+<figure class="example-image"><img src="preview.png" alt="5 · Component-defined anchor: Native SolidCraft 0.30.1 render, verified against this source commit." loading="lazy">
+<figcaption>Native SolidCraft 0.30.1 render, verified against this source commit.</figcaption></figure>
+<div class="twocol"><section class="panel"><h2>Python source</h2><pre><code>class Arm:
+    def anchors(self):
+        return {
+            &quot;tip&quot;: AnchorFrame(
+                origin=(20, 0, 5),
+                z=(1, 0, 0),
+                x=(0, 0, 1),
+            ),
+        }
+
+    def build(self):
+        return Box(40, 10, 10)
+
+
+class Marker:
+    def anchors(self):
+        return {
+            &quot;mount&quot;: AnchorFrame(
+                origin=(0, 0, 5),
+                z=(-1, 0, 0),
+                x=(0, 0, 1),
+            ),
+        }
+
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class CustomAnchor:
+    def build(self):
+        arm = Arm().rotate(Axis.Z, 90)
+        marker = Marker().attach(
+            arm,
+            parent=&quot;tip&quot;,
+            child=&quot;mount&quot;,
+        )
+        return arm + marker
+
+
+CustomAnchor()
+</code></pre>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge/blob/main/examples/custom-anchor/scpf/model.py">Open the editable source in GitHub →</a></section>
+<section class="panel"><h2>Generated command sequence</h2><ol class="commands"><li><code>component.create</code></li><li><code>sketch.create</code></li><li><code>sketch.rectangle.two_point</code></li><li><code>sketch.finish</code></li><li><code>solid.extrude</code></li><li><code>component.activate</code></li><li><code>joint.origin</code></li><li><code>occurrence.move</code></li><li><code>component.create</code></li><li><code>sketch.create</code></li><li><code>sketch.rectangle.two_point</code></li><li><code>sketch.finish</code></li><li><code>solid.extrude</code></li><li><code>component.activate</code></li><li><code>joint.origin</code></li><li><code>occurrence.move</code></li><li><code>joint.create</code></li></ol>
+<p><a class="button" href="commands.json">View command JSON →</a></p></section></div>
+<section class="notice">The generated JSON is automatically rebuilt and checked by CI for every relevant change.
+These examples are API smoke tests, not substitutes for a full mechanical CAD project or a native geometry certification.</section>
+<p><a href="../../cheatsheet/">Related SCPF syntax in the cheatsheet →</a></p></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
