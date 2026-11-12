@@ -548,6 +548,28 @@ SolidCraft keeps the referenced edge, face and corner by topology name, so the
 attachment follows dimension changes in a saved design. No public `Joint`
 object is exposed; native joints are an implementation detail of `attach()`.
 
+
+Non-rectangular components can define their own named local attachment frames:
+
+```python
+class CornerBracket:
+    def anchors(self):
+        return {
+            "mount": AnchorFrame(
+                origin=(0, 0, 0),
+                z=(0, 0, 1),
+                x=(1, 0, 0),
+            ),
+        }
+```
+
+Use the name in `attach()`, for example `child="mount"`. The frame belongs
+to the reusable component definition. Forge creates the native SolidCraft
+joint origin before occurrence placement, so later `move()` or `rotate()`
+operations carry that anchor with the occurrence. `AnchorFrame` is a fixed
+component-local datum; it is not a public Joint object and it does not itself
+track changing component geometry.
+
 ## Sketches versus direct features
 
 SCPF currently handles sketches **implicitly**. `Rectangle2D(...).extrude(...)`
