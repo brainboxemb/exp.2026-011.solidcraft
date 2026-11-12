@@ -409,9 +409,23 @@ class Shape:
             raise ValueError("only XY linear patterns are supported")
         return Shape("linear_pattern", (self, count, spacing, axis))
 
+    def on(self, target, *, offset=(0, 0)):
+        """Place a supported feature on the target's top surface.
+
+        This is the simple within-component placement API. It intentionally
+        hides anchor terminology; explicit anchors are reserved for attaching
+        reusable components in assemblies.
+        """
+        return self._anchor_to(target, Anchor.TOP, Anchor.BOTTOM, offset)
+
     def attach(self, target, *, parent=Anchor.TOP, child=Anchor.BOTTOM,
                offset=(0, 0)):
-        """Match a parent anchor to a child anchor (BOSL2-inspired)."""
+        """Legacy explicit feature anchoring.
+
+        Prefer on() for ordinary feature placement inside one component.
+        Explicit Anchor values belong primarily to reusable component
+        attachment at assembly level.
+        """
         return self._anchor_to(target, parent, child, offset)
 
     def _anchor_to(self, target, parent_anchor, child_anchor, offset):
