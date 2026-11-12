@@ -928,7 +928,7 @@ class AssemblyTests(unittest.TestCase):
             ["Marker:1", "Marker:2"],
         )
 
-    def test_only_used_custom_anchors_are_materialized_per_occurrence(self):
+    def test_unrotated_custom_anchors_are_inlined_per_occurrence(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, Box
         from scpf.runner import component
@@ -969,23 +969,36 @@ class AssemblyTests(unittest.TestCase):
         )
 
         commands = compile_assembly(base + front + rear, "SelectiveAnchors")["commands"]
-        origins = [
-            command["params"]["name"]
-            for command in commands
-            if command["command"] == "joint.origin"
-        ]
-
-        self.assertEqual(
-            origins,
-            [
-                "Base:1.front_mount",
-                "Base:1.rear_mount",
-                "Bracket:1.front_mount",
-                "Bracket:2.rear_mount",
-            ],
+        self.assertFalse(
+            any(command["command"] == "joint.origin" for command in commands)
         )
-        self.assertNotIn("Bracket:1.rear_mount", origins)
-        self.assertNotIn("Bracket:2.front_mount", origins)
+
+        joints = [
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        ]
+        self.assertEqual(len(joints), 2)
+        self.assertEqual(
+            joints[0]["a"],
+            {
+                "occurrence": "Base:1",
+                "point": [0.0, 0.0, 0.0],
+                "z": [0.0, 0.0, 1.0],
+                "x": [1.0, 0.0, 0.0],
+            },
+        )
+        self.assertEqual(
+            joints[0]["b"],
+            {
+                "occurrence": "Bracket:1",
+                "point": [0.0, 0.0, 0.0],
+                "z": [0.0, 0.0, 1.0],
+                "x": [1.0, 0.0, 0.0],
+            },
+        )
+        self.assertEqual(joints[1]["a"]["z"], [0.0, 0.0, -1.0])
+        self.assertEqual(joints[1]["b"]["z"], [0.0, 0.0, -1.0])
 
     def test_generated_joint_glyphs_are_hidden_after_assembly_compile(self):
         from scpf.assembly import compile_assembly
@@ -1022,7 +1035,7 @@ class AssemblyTests(unittest.TestCase):
                 for command in no_joint_commands)
         )
 
-    def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
+    def test_rotated_custom_anchor_materializes_before_rotation(self):
         commands = run_script(
             ROOT / "examples/custom-anchor/scpf/model.py"
         )["commands"]
@@ -1041,15 +1054,6 @@ class AssemblyTests(unittest.TestCase):
                     "frame": {
                         "origin": [20.0, 0.0, 5.0],
                         "z": [1.0, 0.0, 0.0],
-                        "x": [0.0, 0.0, 1.0],
-                    },
-                },
-                {
-                    "name": "Marker:1.mount",
-                    "occurrence": "Marker:1",
-                    "frame": {
-                        "origin": [0.0, 0.0, 5.0],
-                        "z": [-1.0, 0.0, 0.0],
                         "x": [0.0, 0.0, 1.0],
                     },
                 },
@@ -1074,7 +1078,15 @@ class AssemblyTests(unittest.TestCase):
             if command["command"] == "joint.create"
         )
         self.assertEqual(joint["a"], "Arm:1.tip")
-        self.assertEqual(joint["b"], "Marker:1.mount")
+        self.assertEqual(
+            joint["b"],
+            {
+                "occurrence": "Marker:1",
+                "point": [20.0, 0.0, 5.0],
+                "z": [-1.0, 0.0, 0.0],
+                "x": [0.0, 0.0, 1.0],
+            },
+        )
 
     def test_corner_anchor_compiles_to_native_edge_and_corner_origins(self):
         commands = run_script(
