@@ -136,18 +136,25 @@ def _hole_commands(feature, position, name, refs=None):
 
 
 def _resolve_profile_edges(base, selection):
-    """Translate named sketch segments/vertices to native SolidCraft edge picks.
+    """Translate named XZ profile segments/vertices to native edge picks.
 
-    A named segment selects its top and bottom extrusion-face edges. A named
-    vertex selects the perpendicular sweep edge through its midpoint. These
-    selectors intentionally target symmetric XZ polygon extrusions only.
+    The sketch may be extruded symmetric, positive or negative along Y and
+    may itself sit on a shifted Y plane. Pick points are only used to select
+    the native edge when the feature is authored; the resulting SolidCraft
+    fillet/chamfer remains attached to that edge after parameter edits.
     """
     if not isinstance(selection, _ProfileEdgeSelection):
         return selection
-    if (base.get("profile") != "polygon" or
-            base.get("sketch_plane") != "XZ" or
-            base.get("extrusion_direction") != "symmetric"):
-        raise ModelError("named profile edges currently require a symmetric XZ polygon extrusion")
+    if (
+        base.get("profile") != "polygon"
+        or base.get("sketch_plane") != "XZ"
+        or base.get("extrusion_direction") not in (
+            "symmetric", "positive", "negative"
+        )
+    ):
+        raise ModelError(
+            "named profile edges require an XZ polygon extrusion"
+        )
     points = base["profile_points"]
     names = base["profile_ids"]
     if names is None:
@@ -160,19 +167,30 @@ def _resolve_profile_edges(base, selection):
         i for i, label in enumerate(names)
         if any(fnmatchcase(label, pattern) for pattern in selection.patterns)
     ]
+    plane_y = pv(base.get("sketch_plane_offset", 0))
+    thickness = pv(base["thickness"])
+    direction = base["extrusion_direction"]
+    if direction == "symmetric":
+        start_y = plane_y - thickness / 2
+        end_y = plane_y + thickness / 2
+    elif direction == "positive":
+        start_y = plane_y
+        end_y = plane_y + thickness
+    else:
+        start_y = plane_y
+        end_y = plane_y - thickness
+
     if selection.kind == "vertices":
-        # For an XZ profile extruded symmetrically along Y, the sweep edge
-        # passes through (x, 0, z) at the original sketch vertex.
+        sweep_mid_y = (start_y + end_y) / 2
         return [
-            (pv(points[i][0]), 0, -pv(points[i][1]))
+            (pv(points[i][0]), sweep_mid_y, -pv(points[i][1]))
             for i in matches
         ]
     if selection.kind != "segments":
         raise ModelError(f"unsupported profile edge selection: {selection.kind}")
 
-    half_width = pv(base["thickness"]) / 2
     picks = []
-    for y in (-half_width, half_width):
+    for y in (start_y, end_y):
         for i in matches:
             a, b = points[i], points[(i + 1) % len(points)]
             picks.append((

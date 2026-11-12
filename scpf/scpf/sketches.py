@@ -39,6 +39,29 @@ def _rectangle_profile(shape):
     raise ValueError("Base shape must be a Rectangle")
 
 
+def _polygon_profile(shape):
+    """Return polygon data plus an optional sketch-plane offset.
+
+    Positioned XZ polygons use .at(y=...) to select the world-Y plane while
+    keeping their X/Z profile coordinates unchanged. This lets an editable
+    parameter such as cabinet_depth move the sketch plane natively.
+    """
+    if shape.kind == "polygon":
+        points, plane, ids = shape.data
+        return points, plane, ids, None
+    if shape.kind == "positioned":
+        child, x, y, z = shape.data
+        if child.kind != "polygon" or child.data[1] != "XZ":
+            raise ValueError("positioned Polygon2D currently requires plane='XZ'")
+        if pv(x) != 0 or pv(z) != 0:
+            raise ValueError(
+                "positioned XZ Polygon2D currently supports only .at(y=...)"
+            )
+        points, plane, ids = child.data
+        return points, plane, ids, y
+    raise ValueError("Base shape must be a Polygon2D")
+
+
 
 def compile_base(shape, name):
     """Create a native editable base body, regardless of example/model name."""
@@ -148,8 +171,14 @@ def compile_base(shape, name):
             ], {"profile": "rectangle", "width": width, "depth": depth,
                 "thickness": distance, "origin": (x, y, z)}
 
-    if profile.kind == "polygon":
-        points, plane, segment_ids = profile.data
+    if (
+        profile.kind == "polygon"
+        or (profile.kind == "positioned" and profile.data[0].kind == "polygon")
+    ):
+        try:
+            points, plane, segment_ids, plane_offset = _polygon_profile(profile)
+        except ValueError as exc:
+            raise ModelError(str(exc)) from exc
         concrete = [tuple(pv(v) for v in point) for point in points]
         if not all(isfinite(v) for point in concrete for v in point):
             raise ModelError("non-finite polygon coordinate")
@@ -157,15 +186,20 @@ def compile_base(shape, name):
             raise ModelError("duplicate polygon vertices")
         if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
             raise ModelError("zero-length polygon edge")
-        # Preserve existing (non-symmetric) SCPF JSON fixtures.
-        # Symmetric bracket extrusions need named coordinates so their
-        # profile continues to follow editable native CAD parameters.
-        symbolic = (
-            [[command_value(v) for v in point] for point in points]
-            if direction == "symmetric" else [list(p) for p in concrete]
-        )
+
+        # Keep parameter expressions in the native sketch for every extrusion
+        # direction. Numeric coordinates remain numeric, so existing literal
+        # polygon command plans are unchanged.
+        symbolic = [
+            [command_value(v) for v in point]
+            for point in points
+        ]
+        sketch = {"plane": plane, "name": "Profile"}
+        if plane_offset is not None:
+            sketch["offset"] = command_value(plane_offset)
+
         return [
-            _command("sketch.create", plane=plane, name="Profile"),
+            _command("sketch.create", **sketch),
             _command("sketch.line",
                      points=symbolic, closed=True,
                      ids=list(segment_ids) if segment_ids is not None else
@@ -174,6 +208,7 @@ def compile_base(shape, name):
             _command("solid.extrude", distance=command_value(distance),
                      direction=direction, body_name=name),
         ], {"profile": "polygon", "sketch_plane": plane,
+            "sketch_plane_offset": plane_offset if plane_offset is not None else 0,
             "thickness": distance, "extrusion_direction": direction,
             "profile_points": points, "profile_ids": segment_ids}
 

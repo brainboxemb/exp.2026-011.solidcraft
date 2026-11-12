@@ -26,6 +26,48 @@ class GenericGeometryAPI(unittest.TestCase):
             with self.subTest(tags=tags), self.assertRaises(ValueError):
                 Polygon2D(points, ids=tags)
 
+    def test_positioned_xz_polygon_keeps_parameterized_y_plane(self):
+        from scpf.core import Direction, Edges, Parameter, Polygon2D
+        from scpf.features import compile_features
+
+        rear = Parameter("cabinet_depth", 100.0)
+        depth = Parameter("panel_wood_thickness", 9.0)
+        shape = Polygon2D([
+            ("lower_left", (-10, 0)),
+            ("lower_right", (10, 0)),
+            ("upper_right", (10, 20)),
+            ("upper_left", (-10, 20)),
+        ], plane="XZ", world=True).at(y=rear).extrude(
+            depth,
+            direction=Direction.POSITIVE,
+        ).fillet(
+            1,
+            edges=Edges.from_vertices("lower_left"),
+        )
+
+        commands = compile_features(shape, "BackBoard")
+        sketch = next(
+            item["params"]
+            for item in commands
+            if item["command"] == "sketch.create"
+        )
+        extrusion = next(
+            item["params"]
+            for item in commands
+            if item["command"] == "solid.extrude"
+        )
+        fillet = next(
+            item["params"]
+            for item in commands
+            if item["command"] == "solid.fillet"
+        )
+
+        self.assertEqual(sketch["plane"], "XZ")
+        self.assertEqual(sketch["offset"], "cabinet_depth")
+        self.assertEqual(extrusion["distance"], "panel_wood_thickness")
+        self.assertEqual(extrusion["direction"], "positive")
+        self.assertEqual(fillet["edges"], [[-10.0, 104.5, 0.0]])
+
     def test_missing_profile_edge_name_is_rejected(self):
         from scpf.core import Polygon2D, Direction, Edges
         from scpf.features import compile_features
