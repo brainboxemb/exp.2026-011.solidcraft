@@ -1013,21 +1013,30 @@ class AssemblyTests(unittest.TestCase):
 
         BlockObject = component(Block)
         base = BlockObject()
-        child = BlockObject().attach(
+        zero = BlockObject().attach(
             base,
             parent=Anchor.RIGHT,
             child=Anchor.LEFT,
+            angle=0,
+        )
+        quarter = BlockObject().attach(
+            base,
+            parent=Anchor.TOP,
+            child=Anchor.BOTTOM,
             angle=90,
         )
 
-        commands = compile_assembly(base + child, "AngleAttach")["commands"]
-        joint = next(
+        commands = compile_assembly(
+            base + zero + quarter,
+            "AngleAttach",
+        )["commands"]
+        joints = [
             command["params"]
             for command in commands
             if command["command"] == "joint.create"
-        )
-        self.assertEqual(joint["type"], "rigid")
-        self.assertEqual(joint["angle"], 90)
+        ]
+        self.assertEqual([joint["type"] for joint in joints], ["rigid", "rigid"])
+        self.assertEqual([joint["angle"] for joint in joints], [0, 90])
 
     def test_parametric_attach_keeps_gap_as_native_joint_expression(self):
         commands = run_script(
