@@ -1,5 +1,5 @@
 {
-  "library_commit": "8fef19f3ad587de6c8eea29da966a3021de8508f",
+  "library_commit": "02be9de73d60cfab7b7d3d2bd847d18d3db8188b",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
@@ -33,7 +33,7 @@
     "custom-anchor": {
       "source": "examples/custom-anchor/model.py",
       "commands": "examples/custom-anchor/commands.json",
-      "command_count": 18,
+      "command_count": 17,
       "preview": "examples/custom-anchor/preview.png",
       "preview_kind": "native-snapshot"
     }
