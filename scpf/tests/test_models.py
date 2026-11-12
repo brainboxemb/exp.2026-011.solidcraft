@@ -101,7 +101,7 @@ class SCPFExamples(unittest.TestCase):
             self.assertFalse(hasattr(scpf, name), name)
 
     def test_attached_hole_pattern_builds_one_sketch_cut(self):
-        from scpf.core import Anchor, Axis, Depth, Hole, Rectangle2D, Parameter
+        from scpf.core import Axis, Depth, Faces, Hole, Rectangle2D, Parameter
         from scpf.compiler import compile_model
         width = Parameter("width", 100)
         depth = Parameter("depth", 60)
@@ -109,7 +109,7 @@ class SCPFExamples(unittest.TestCase):
         plate = Rectangle2D(width, depth).extrude(thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=40, axis=Axis.Y
-        ).attach(plate, parent=Anchor.TOP)
+        ).on(plate, face=Faces.TOP)
         commands = compile_model(plate + holes, "Plate")["commands"]
 
         sketches = [c["params"]["name"] for c in commands
@@ -126,10 +126,10 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(commands[-1]["params"]["distance"], "thickness")
 
     def test_hole_attach_starts_at_exterior_top(self):
-        from scpf.core import Hole, Anchor, Rectangle2D
+        from scpf.core import Faces, Hole, Rectangle2D
         from scpf.compiler import compile_model, ModelError
         plate = Rectangle2D(80, 50).extrude(8)
-        attached = Hole(d=8).attach(plate, parent=Anchor.TOP)
+        attached = Hole(d=8).on(plate, face=Faces.TOP)
         commands = compile_model(plate + attached, "Plate")["commands"]
         self.assertEqual(commands[-1]["command"], "solid.extrude")
         self.assertEqual(commands[-1]["params"]["operation"], "cut")
@@ -158,15 +158,14 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual([c["operation"] for c in cylinders], ["cut", "cut"])
 
     def test_attached_boss_tracks_plate_top_and_offsets(self):
-        from scpf.core import Anchor, Cylinder, Rectangle2D, Parameter
+        from scpf.core import Cylinder, Faces, Rectangle2D, Parameter
         from scpf.compiler import compile_model
         width, depth, thickness = (
             Parameter("width", 80), Parameter("depth", 50),
             Parameter("thickness", 8)
         )
         base = Rectangle2D(width, depth).extrude(thickness)
-        boss = Cylinder(d=24, h=14).attach(
-            base, parent=Anchor.TOP, child=Anchor.BOTTOM)
+        boss = Cylinder(d=24, h=14).on(base, face=Faces.TOP)
         commands = compile_model(base + boss, "Plate")["commands"]
         self.assertEqual(commands[-1]["command"], "solid.extrude")
         self.assertEqual(commands[-1]["params"]["operation"], "join")
@@ -338,8 +337,8 @@ class SCPFExamples(unittest.TestCase):
         box = Box(80, 50, 8)
         rectangle = Rectangle2D(80, 50).extrude(8)
         for model in (
-            box + Hole(d=6).attach(box, parent=Anchor.TOP),
-            rectangle + Hole(d=6).attach(rectangle, parent=Anchor.TOP),
+            box + Hole(d=6).on(box, face=Faces.TOP),
+            rectangle + Hole(d=6).on(rectangle, face=Faces.TOP),
         ):
             commands = compile_model(model, "Widget")["commands"]
             self.assertEqual(commands[-1]["command"], "solid.extrude")
