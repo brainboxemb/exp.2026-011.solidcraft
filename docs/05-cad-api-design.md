@@ -81,6 +81,10 @@ A component default that should be independently public can be selected with
   the eight rectangular corners such as `FRONT_TOP_RIGHT`. Corner anchors
   lower to native SolidCraft edge/corner origins, so saved-model parameter
   edits can move the referenced corner and the attached component together.
+- A non-rectangular reusable component may expose `anchors()` containing
+  named `AnchorFrame` values. These are local component datums. Forge authors
+  them as native SolidCraft joint origins before occurrence placement, so
+  occurrence translation/rotation carries them without Forge transform math.
 - `shell()` is a modifier like `fillet()`: for example
   `body.shell(2, open=Faces.TOP)`.
 - `Lip`, `SnapFit`, `Boss` and `Rest` are ordinary object-level
