@@ -125,7 +125,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(commands[-1]["params"]["direction"], "positive")
         self.assertEqual(commands[-1]["params"]["distance"], "thickness")
 
-    def test_hole_attach_starts_at_exterior_top(self):
+    def test_hole_on_starts_at_exterior_top(self):
         from scpf.core import Faces, Hole, Rectangle2D
         from scpf.compiler import compile_model, ModelError
         plate = Rectangle2D(80, 50).extrude(8)
@@ -140,6 +140,21 @@ class SCPFExamples(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             Hole(d=-2)
+
+
+    def test_on_uses_faces_without_exposing_assembly_anchors(self):
+        from scpf.core import Anchor, Faces, Hole, Rectangle2D
+
+        plate = Rectangle2D(80, 50).extrude(8)
+        top = Hole(d=8).on(plate, face=Faces.TOP)
+        bottom = Hole(d=8).on(plate, face=Faces.BOTTOM)
+
+        self.assertEqual(top.kind, "anchored")
+        self.assertEqual(bottom.kind, "anchored")
+        self.assertIs(top.data[2], Anchor.TOP)
+        self.assertIs(bottom.data[2], Anchor.BOTTOM)
+        self.assertIs(top.data[3], Anchor.BOTTOM)
+        self.assertIs(bottom.data[3], Anchor.BOTTOM)
 
     def test_symmetric_anchored_cylinder_pattern_follows_plate_dimensions(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D
@@ -333,7 +348,7 @@ class SCPFExamples(unittest.TestCase):
 
     def test_attached_hole_uses_sketch_while_explicit_at_can_be_native(self):
         from scpf.compiler import compile_model
-        from scpf.core import Box, Rectangle2D, Polygon2D, Direction, Hole, Anchor
+        from scpf.core import Box, Rectangle2D, Polygon2D, Direction, Hole, Faces
         box = Box(80, 50, 8)
         rectangle = Rectangle2D(80, 50).extrude(8)
         for model in (
