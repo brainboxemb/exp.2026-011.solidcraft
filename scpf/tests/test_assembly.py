@@ -494,6 +494,74 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual(names, ["Bracket_radius"])
 
+    def test_decorated_component_file_runs_as_standalone_root(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "component.py"
+            script.write_text(
+                "from scpf import component\n"
+                "@component\n"
+                "class Block:\n"
+                "    width = 40.0\n"
+                "    depth = 20.0\n"
+                "    height = 10.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, self.depth, self.height)\n",
+                encoding="utf-8",
+            )
+            commands = run_script(script)["commands"]
+
+        self.assertFalse(
+            any(command["command"] == "component.create" for command in commands)
+        )
+        self.assertEqual(
+            [
+                command["params"]["name"]
+                for command in commands
+                if command["command"] == "parameters.add"
+            ],
+            ["width", "depth", "height"],
+        )
+        self.assertTrue(
+            any(command["command"] == "solid.box" for command in commands)
+        )
+
+    def test_decorated_component_is_reused_without_second_wrapper(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "assembly.py"
+            script.write_text(
+                "from scpf import component\n"
+                "@component\n"
+                "class Block:\n"
+                "    width = 40.0\n"
+                "    def build(self):\n"
+                "        return Box(self.width, 20, 10)\n"
+                "class Pair:\n"
+                "    def build(self):\n"
+                "        first = Block()\n"
+                "        return first + first.copy().move(x=50)\n"
+                "Pair()\n",
+                encoding="utf-8",
+            )
+            commands = run_script(script)["commands"]
+
+        self.assertEqual(
+            [
+                command["params"]["name"]
+                for command in commands
+                if command["command"] == "component.create"
+            ],
+            ["Block"],
+        )
+        self.assertEqual(
+            len([
+                command for command in commands
+                if command["command"] == "occurrence.copy"
+                and command["params"]["component"] == "Block"
+            ]),
+            1,
+        )
+
+
     def test_private_component_build_input_can_bind_parent_parameter(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Direction, Parameter, Polygon2D

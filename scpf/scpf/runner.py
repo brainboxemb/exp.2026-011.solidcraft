@@ -489,7 +489,10 @@ def _model_factory(cls, include=()):
             **kwargs,
         )
 
+    factory._scpf_component_class = cls
+    factory._scpf_component_include = include
     return factory
+
 
 def component(cls=None, *, include=()):
     """Declare a reusable component; local defaults are fixed unless included.
@@ -527,6 +530,7 @@ def _assembly_factory(cls):
     @functools.wraps(cls)
     def factory(*args, **kwargs):
         return _reusable_assembly_object(cls, *args, **kwargs)
+    factory._scpf_assembly_class = cls
     return factory
 
 
@@ -690,36 +694,60 @@ def run_script(path: str | Path) -> dict:
         exec(compile(syntax, str(path), "exec"), context)
 
         root_object = context.get(name)
+        root_component_class = getattr(
+            root_object, "_scpf_component_class", None
+        )
+        root_assembly_class = getattr(
+            root_object, "_scpf_assembly_class", None
+        )
         root_is_class = isinstance(root_object, type)
+        root_is_component = root_component_class is not None
+        root_is_assembly = root_assembly_class is not None
         for class_name in model_classes:
-            if class_name != name:
-                context[class_name] = _model_factory(context[class_name])
+            if class_name == name:
+                continue
+            model_object = context[class_name]
+            if (
+                getattr(model_object, "_scpf_component_class", None) is not None
+                or getattr(model_object, "_scpf_assembly_class", None) is not None
+            ):
+                continue
+            context[class_name] = _model_factory(model_object)
 
         if isinstance(definition, ast.FunctionDef):
             context[name] = _model_function(context[name])
             result = eval(
                 compile(ast.Expression(body=last.value), str(path), "eval"), context
             )
-        elif root_is_class:
-            # A root model may be declared here or imported from a reusable
-            # component module. Both paths instantiate exactly the same class.
+        elif root_is_class or root_is_component:
+            # A reusable @component source remains directly runnable as a
+            # standalone design. Compile its original model class as the root
+            # shape, while imported/nested uses keep the component factory.
+            root_class = (
+                root_object if root_is_class else root_component_class
+            )
             constructor = ast.Call(
                 func=ast.Name(id="_scpf_design_object", ctx=ast.Load()),
                 args=[ast.Name(id="_scpf_root_class", ctx=ast.Load()), *last.value.args],
                 keywords=last.value.keywords,
             )
             context["_scpf_design_object"] = _design_object
-            context["_scpf_root_class"] = root_object
+            context["_scpf_root_class"] = root_class
             ast.fix_missing_locations(constructor)
             built = eval(
                 compile(ast.Expression(body=constructor), str(path), "eval"),
                 context,
             )
             result = built.result
+        elif root_is_assembly:
+            result = eval(
+                compile(ast.Expression(body=last.value), str(path), "eval"),
+                context,
+            )
         else:
             raise SyntaxError(
                 f"the last call must use a defined function/class or "
-                f"an imported model class: {name}"
+                f"an imported model/component/assembly: {name}"
             )
 
     if isinstance(result, Shape):
@@ -729,7 +757,7 @@ def run_script(path: str | Path) -> dict:
     else:
         raise TypeError(f"{name}() must produce CAD geometry or an assembly")
 
-    if root_is_class:
+    if root_is_class or root_is_component:
         instances = (
             (result,)
             if isinstance(result, ModelInstance)
