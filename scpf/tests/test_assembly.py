@@ -346,5 +346,69 @@ class AssemblyTests(unittest.TestCase):
         )
 
 
+    def test_component_accepts_parent_parameter_without_manual_pv(self):
+        from scpf.core import Box, Parameter
+        from scpf.runner import component
+
+        class Panel:
+            width = 100.0
+            height = 20.0
+            thickness = 2.0
+
+            def build(self):
+                return Box(self.width, self.thickness, self.height)
+
+        PanelObject = component(Panel)
+        parent_width = Parameter("opening_width", 844.0)
+        instance = PanelObject(width=parent_width)
+
+        self.assertEqual(
+            dict(instance.definition.parameters)["width"],
+            844.0,
+        )
+        self.assertEqual(
+            instance.definition.shape.data[0].name,
+            "width",
+        )
+
+    def test_imported_assembly_class_uses_object_syntax(self):
+        from scpf.core import Box, Parameter
+        from scpf.runner import assembly, component
+        from scpf.model_objects import Assembly
+
+        class Panel:
+            width = 100.0
+            height = 20.0
+            thickness = 2.0
+
+            def build(self):
+                return Box(self.width, self.thickness, self.height)
+
+        PanelObject = component(Panel)
+
+        class PanelRow:
+            width = 100.0
+            pitch = 110.0
+
+            def build(self):
+                left = PanelObject(width=self.width)
+                right = left.copy().move(x=self.pitch)
+                return (left + right).group("Panels")
+
+        PanelRowObject = assembly(PanelRow)
+        row = PanelRowObject(
+            width=Parameter("panel_width", 160.0),
+            pitch=Parameter("panel_pitch", 170.0),
+        )
+
+        self.assertIsInstance(row, Assembly)
+        self.assertEqual(len(row.instances), 2)
+        self.assertEqual(row.instances[1].translation, (170.0, 0.0, 0.0))
+        self.assertEqual(
+            dict(row.instances[0].definition.parameters)["width"],
+            160.0,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

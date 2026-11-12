@@ -15,7 +15,7 @@ import sys
 
 from . import core
 from .compiler import compile_model
-from .core import Parameter, Shape
+from .core import Expression, Parameter, Shape, pv
 from .assembly import compile_assembly
 from .model_objects import Assembly, ModelDefinition, ModelInstance
 from .history import History, behavior
@@ -60,6 +60,23 @@ def _plain_model_fields(cls):
     return list(fields.items())
 
 
+def _parameter_input(value, name):
+    """Bind a model input to a fresh named parameter.
+
+    Parent Parameter/Expression values are accepted directly. Their current
+    numeric value seeds the child parameter; the child keeps its own name.
+    """
+    if isinstance(value, bool):
+        raise TypeError(f"{name} must be a numeric model parameter")
+    if isinstance(value, (Parameter, Expression)):
+        concrete = pv(value)
+    elif isinstance(value, (int, float)):
+        concrete = float(value)
+    else:
+        raise TypeError(f"{name} must be a numeric model parameter")
+    return concrete, Parameter(name, concrete)
+
+
 def _plain_model_data(cls, *args, **kwargs):
     """Instantiate a plain model and return its concrete parameter values."""
     fields = _plain_model_fields(cls)
@@ -90,11 +107,9 @@ def _plain_model_data(cls, *args, **kwargs):
     instance = cls()
     concrete = []
     for name in names:
-        value = values[name]
-        if not isinstance(value, (int, float)) or isinstance(value, bool):
-            raise TypeError(f"{name} must be a numeric model parameter")
-        concrete.append((name, float(value)))
-        object.__setattr__(instance, name, _symbolic(value, name))
+        value, symbolic = _parameter_input(values[name], name)
+        concrete.append((name, value))
+        object.__setattr__(instance, name, symbolic)
     return instance, tuple(concrete)
 
 
@@ -116,9 +131,10 @@ def _parameterized_instance(cls, *args, **kwargs):
     for name, value in bound.arguments.items():
         if name not in vars(instance):
             continue
-        if isinstance(value, (int, float)) and not isinstance(value, bool):
-            concrete.append((name, float(value)))
-            object.__setattr__(instance, name, _symbolic(value, name))
+        if isinstance(value, (int, float, Parameter, Expression)) and not isinstance(value, bool):
+            number, symbolic = _parameter_input(value, name)
+            concrete.append((name, number))
+            object.__setattr__(instance, name, symbolic)
     return instance, tuple(concrete)
 
 
@@ -170,15 +186,34 @@ def _model_factory(cls):
 
 
 def component(cls):
-    """Declare an imported CAD model class as a reusable SCPF component.
-
-    Nested model classes in a script are wrapped automatically. An external
-    class imported from another Python file needs explicit component(...).
-    Both paths share the same native definition and occurrence compilation.
-    """
+    """Declare an imported CAD model class as a reusable SCPF component."""
     if not isinstance(cls, type) or not callable(getattr(cls, "build", None)):
         raise TypeError("component() expects a model class with build()")
     return _model_factory(cls)
+
+
+def _reusable_assembly_object(cls, *args, **kwargs):
+    """Build an imported assembly class without exposing build_* helpers."""
+    result, _ = _build_object(cls, *args, **kwargs)
+    if not isinstance(result, (ModelInstance, Assembly)):
+        raise TypeError(
+            f"{cls.__name__}.build() must produce a component or assembly"
+        )
+    return result
+
+
+def _assembly_factory(cls):
+    @functools.wraps(cls)
+    def factory(*args, **kwargs):
+        return _reusable_assembly_object(cls, *args, **kwargs)
+    return factory
+
+
+def assembly(cls):
+    """Declare an imported class whose build() returns an SCPF assembly."""
+    if not isinstance(cls, type) or not callable(getattr(cls, "build", None)):
+        raise TypeError("assembly() expects a model class with build()")
+    return _assembly_factory(cls)
 
 
 def _implicit_shape(body):
