@@ -707,5 +707,65 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(fillet["params"]["radius"], "corner_radius")
 
 
+    def test_parameter_naming_distinguishes_model_build_and_constant_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Display:\n"
+                "    opening_width = 844.0\n"
+                "    panel_count = 5\n"
+                "    _panel_pitch = 160.0\n"
+                "    PANEL_DEPTH = 14.5\n"
+                "    def build(self):\n"
+                "        count = int(pv(self.panel_count))\n"
+                "        assert count == 5\n"
+                "        return Box(self.opening_width, self._panel_pitch, self.PANEL_DEPTH)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            with self.assertWarnsRegex(
+                UserWarning,
+                "parameter 'panel_count' has no native SolidCraft dependency",
+            ):
+                generated = run_script(file)
+
+        names = [
+            command["params"]["name"]
+            for command in generated["commands"]
+            if command["command"] == "parameters.add"
+        ]
+        self.assertEqual(names, ["opening_width"])
+        self.assertNotIn("_panel_pitch", names)
+        self.assertNotIn("PANEL_DEPTH", names)
+
+    def test_public_parameter_kept_in_native_geometry_does_not_warn(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "model.py"
+            file.write_text(
+                "class Display:\n"
+                "    opening_width = 844.0\n"
+                "    def build(self):\n"
+                "        return Box(self.opening_width, 100, 20)\n"
+                "Display()\n",
+                encoding="utf-8",
+            )
+            # No ModelParameterWarning should be emitted.
+            import warnings
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                generated = run_script(file)
+
+        self.assertFalse(
+            any("no native SolidCraft dependency" in str(item.message)
+                for item in caught)
+        )
+        self.assertEqual(
+            [c["params"]["name"] for c in generated["commands"]
+             if c["command"] == "parameters.add"],
+            ["opening_width"],
+        )
+
+
+
 if __name__ == "__main__":
     unittest.main()
