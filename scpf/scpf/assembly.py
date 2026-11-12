@@ -92,6 +92,22 @@ def compile_assembly(value, name):
     inherited_parameters = {}
     shared_materials = {}
 
+    # Named anchors describe the attachment points a reusable component can
+    # offer. Materialize only the anchors that a concrete occurrence actually
+    # uses in an attachment; unused alternatives should not become visible
+    # native joint origins in SolidCraft.
+    required_custom_anchors = set()
+    for instance in assembly.instances:
+        attachment = instance.attachment
+        if attachment is None or attachment.as_built:
+            continue
+        if not isinstance(attachment.parent, Anchor):
+            required_custom_anchors.add(
+                (id(attachment.target), attachment.parent)
+            )
+        if not isinstance(attachment.child, Anchor):
+            required_custom_anchors.add((id(instance), attachment.child))
+
     # Named groups are actual empty native components, not just labels in
     # Python. Child component definitions are created under their parent.
     # Native "component.create(parent=...)" makes the browser expandable.
@@ -210,8 +226,11 @@ def compile_assembly(value, name):
         # carry the anchors with the part without Forge composing transforms.
         for instance, native_name in occurrences:
             for anchor_name, frame in instance.definition.anchors:
+                anchor_key = (id(instance), anchor_name)
+                if anchor_key not in required_custom_anchors:
+                    continue
                 origin_name = f"{native_name}.{anchor_name}"
-                custom_origin_names[(id(instance), anchor_name)] = origin_name
+                custom_origin_names[anchor_key] = origin_name
                 commands.append(_command(
                     "joint.origin",
                     name=origin_name,

@@ -928,6 +928,65 @@ class AssemblyTests(unittest.TestCase):
             ["Marker:1", "Marker:2"],
         )
 
+    def test_only_used_custom_anchors_are_materialized_per_occurrence(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import AnchorFrame, Box
+        from scpf.runner import component
+
+        class Base:
+            def anchors(self):
+                return {
+                    "front_mount": AnchorFrame(origin=(0, 0, 0)),
+                    "rear_mount": AnchorFrame(origin=(0, 0, 0), z=(0, 0, -1)),
+                }
+
+            def build(self):
+                return Box(20, 20, 10)
+
+        class Bracket:
+            def anchors(self):
+                return {
+                    "front_mount": AnchorFrame(origin=(0, 0, 0)),
+                    "rear_mount": AnchorFrame(origin=(0, 0, 0), z=(0, 0, -1)),
+                }
+
+            def build(self):
+                return Box(10, 10, 10)
+
+        BaseObject = component(Base)
+        BracketObject = component(Bracket)
+
+        base = BaseObject()
+        front = BracketObject().attach(
+            base,
+            parent="front_mount",
+            child="front_mount",
+        )
+        rear = BracketObject().attach(
+            base,
+            parent="rear_mount",
+            child="rear_mount",
+        )
+
+        commands = compile_assembly(base + front + rear, "SelectiveAnchors")["commands"]
+        origins = [
+            command["params"]["name"]
+            for command in commands
+            if command["command"] == "joint.origin"
+        ]
+
+        self.assertEqual(
+            origins,
+            [
+                "Base:1.front_mount",
+                "Base:1.rear_mount",
+                "Bracket:1.front_mount",
+                "Bracket:2.rear_mount",
+            ],
+        )
+        self.assertNotIn("Bracket:1.rear_mount", origins)
+        self.assertNotIn("Bracket:2.front_mount", origins)
+
     def test_custom_anchor_frames_are_native_and_created_before_rotation(self):
         commands = run_script(
             ROOT / "examples/custom-anchor/scpf/model.py"
