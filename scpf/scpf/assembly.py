@@ -92,21 +92,28 @@ def compile_assembly(value, name):
     inherited_parameters = {}
     shared_materials = {}
 
-    # Named anchors describe the attachment points a reusable component can
-    # offer. Materialize only the anchors that a concrete occurrence actually
-    # uses in an attachment; unused alternatives should not become visible
-    # native joint origins in SolidCraft.
-    required_custom_anchors = set()
+    # Unrotated named AnchorFrames can be supplied directly to joint.create
+    # as an inline occurrence/point/z/x reference. That avoids creating a
+    # persistent native joint.origin (and its visible RGB axes). Keep the
+    # existing native-origin route only for explicitly rotated occurrences,
+    # where SolidCraft can own the local-to-world transform.
+    required_custom_origins = set()
     for instance in assembly.instances:
         attachment = instance.attachment
         if attachment is None or attachment.as_built:
             continue
-        if not isinstance(attachment.parent, Anchor):
-            required_custom_anchors.add(
+        if (
+            not isinstance(attachment.parent, Anchor)
+            and attachment.target.rotation is not None
+        ):
+            required_custom_origins.add(
                 (id(attachment.target), attachment.parent)
             )
-        if not isinstance(attachment.child, Anchor):
-            required_custom_anchors.add((id(instance), attachment.child))
+        if (
+            not isinstance(attachment.child, Anchor)
+            and instance.rotation is not None
+        ):
+            required_custom_origins.add((id(instance), attachment.child))
 
     # Named groups are actual empty native components, not just labels in
     # Python. Child component definitions are created under their parent.
@@ -227,7 +234,7 @@ def compile_assembly(value, name):
         for instance, native_name in occurrences:
             for anchor_name, frame in instance.definition.anchors:
                 anchor_key = (id(instance), anchor_name)
-                if anchor_key not in required_custom_anchors:
+                if anchor_key not in required_custom_origins:
                     continue
                 origin_name = f"{native_name}.{anchor_name}"
                 custom_origin_names[anchor_key] = origin_name
@@ -279,6 +286,21 @@ def compile_assembly(value, name):
             ))
             continue
 
+        def custom_anchor_reference(model, anchor_name, occurrence):
+            key = (id(model), anchor_name)
+            if model.rotation is not None:
+                return custom_origin_names[key]
+            frame = dict(model.definition.anchors)[anchor_name]
+            return {
+                "occurrence": occurrence,
+                "point": [
+                    frame.origin[i] + model.translation[i]
+                    for i in range(3)
+                ],
+                "z": list(frame.z),
+                "x": list(frame.x),
+            }
+
         if isinstance(attachment.parent, Anchor):
             parent_origin = _anchor_origin(
                 attachment.target,
@@ -286,9 +308,11 @@ def compile_assembly(value, name):
                 parent_occurrence,
             )
         else:
-            parent_origin = custom_origin_names[
-                (id(attachment.target), attachment.parent)
-            ]
+            parent_origin = custom_anchor_reference(
+                attachment.target,
+                attachment.parent,
+                parent_occurrence,
+            )
         if isinstance(attachment.child, Anchor):
             child_origin = _anchor_origin(
                 instance,
@@ -296,9 +320,11 @@ def compile_assembly(value, name):
                 child_occurrence,
             )
         else:
-            child_origin = custom_origin_names[
-                (id(instance), attachment.child)
-            ]
+            child_origin = custom_anchor_reference(
+                instance,
+                attachment.child,
+                child_occurrence,
+            )
         for parameter in parameters_in(attachment.gap):
             if not any(
                 command["command"] == "parameters.add"
