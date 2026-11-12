@@ -326,17 +326,30 @@ Do not assume every curved or lofted surface supports it.</p>""",
         "summary": "Reusable definitions, occurrence transforms, grouping and attachments.",
         "body": """
 <h2 id="definition">One definition, several occurrences</h2>
-""" + code("""from scpf import Box, component
+""" + code("""from scpf import Box, assembly, component
 
+@component
 class Beam:
     length = 100.0
+
     def build(self):
         return Box(self.length, 20, 20)
 
-BeamComponent = component(Beam)
-left = BeamComponent()
-right = left.copy().move(x=120)
-assembly = (left + right).group("Beams")""") + """
+@assembly
+class BeamPair:
+    spacing = 120.0
+
+    def build(self):
+        left = Beam()
+        right = left.copy().move(x=self.spacing)
+        return (left + right).group("Beams")
+
+pair = BeamPair()""") + """
+<p><code>@component</code> marks a reusable physical part whose
+<code>build()</code> returns one Shape. <code>@assembly</code> marks a class
+whose <code>build()</code> composes component occurrences. Both decorators
+return callable model objects, so normal model code stays readable as
+<code>Beam()</code> and <code>BeamPair()</code>.</p>
 <p>SolidCraft receives one reusable definition and multiple occurrences.
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
