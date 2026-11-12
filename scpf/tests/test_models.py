@@ -656,5 +656,28 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(fillet["params"]["radius"], "corner_radius")
 
 
+    def test_model_local_imports_do_not_create_pycache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "helper.py").write_text(
+                "from scpf import Box\n"
+                "class HelperBox:\n"
+                "    size = 10.0\n"
+                "    def build(self):\n"
+                "        return Box(self.size, self.size, self.size)\n"
+            )
+            model = root / "model.py"
+            model.write_text(
+                "from helper import HelperBox\n"
+                "class Wrapper:\n"
+                "    size = 20.0\n"
+                "    def build(self):\n"
+                "        return Box(self.size, self.size, self.size)\n"
+                "Wrapper()\n"
+            )
+            run_script(model)
+            self.assertFalse((root / "__pycache__").exists())
+
+
 if __name__ == "__main__":
     unittest.main()
