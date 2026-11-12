@@ -1,9 +1,12 @@
-"""Execute a trusted SCPF script, then compile its final model expression.
+"""Execute a trusted SCPF model and compile it to native SolidCraft commands.
 
-Scripts end with a function call (Plate()) or a dataclass design instance
-(Bracket()). SCPF automatically calls build() on a design instance.
-Within the model's build() or final function, a last geometry expression
-acts as an implicit return. No show() or main() is required.
+A script may end with an explicit model call such as Plate(). If the file
+instead defines exactly one public class with build(), that class is used as
+the root model automatically. This lets reusable component source files run
+standalone without a launcher or duplicate model definition.
+
+Within build() or a final model function, a last geometry expression acts as
+an implicit return. No show() or main() is required.
 """
 import ast
 from contextlib import contextmanager
@@ -505,12 +508,49 @@ def run_script(path: str | Path) -> dict:
     """Run a trusted SCPF script and return its native command document."""
     path = Path(path).resolve()
     syntax = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    if not syntax.body or not isinstance(syntax.body[-1], ast.Expr):
-        raise SyntaxError("SCPF script must end with a model expression")
-    last = syntax.body.pop()
-    if not isinstance(last.value, ast.Call) or not isinstance(last.value.func, ast.Name):
-        raise SyntaxError("SCPF script must end with a call such as Bracket()")
-    name = last.value.func.id
+
+    explicit_root = (
+        bool(syntax.body)
+        and isinstance(syntax.body[-1], ast.Expr)
+        and isinstance(syntax.body[-1].value, ast.Call)
+        and isinstance(syntax.body[-1].value.func, ast.Name)
+    )
+
+    if explicit_root:
+        last = syntax.body.pop()
+        name = last.value.func.id
+    else:
+        # A reusable component file should also be a valid standalone model.
+        # Auto-select only when the choice is unambiguous: exactly one public
+        # top-level class that defines build(). Never guess between models.
+        candidates = []
+        for item in syntax.body:
+            if not isinstance(item, ast.ClassDef) or item.name.startswith("_"):
+                continue
+            if any(
+                isinstance(member, ast.FunctionDef) and member.name == "build"
+                for member in item.body
+            ):
+                candidates.append(item)
+
+        if len(candidates) != 1:
+            names = ", ".join(item.name for item in candidates) or "none"
+            raise SyntaxError(
+                "SCPF needs an explicit final model call unless the file "
+                "defines exactly one public class with build(); "
+                f"candidates: {names}"
+            )
+
+        name = candidates[0].name
+        last = ast.Expr(
+            value=ast.Call(
+                func=ast.Name(id=name, ctx=ast.Load()),
+                args=[],
+                keywords=[],
+            )
+        )
+        ast.fix_missing_locations(last)
+
     definitions = {
         item.name: item for item in syntax.body
         if isinstance(item, (ast.FunctionDef, ast.ClassDef))
