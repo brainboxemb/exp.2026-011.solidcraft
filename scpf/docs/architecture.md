@@ -70,6 +70,12 @@ describe *where* a feature belongs. For example, it can calculate
 a corner's coordinate from a rectangular part's width. That is different
 from inventing a geometry engine.
 
+Symbolic dimensions must survive into native geometry regardless of the
+operation direction. In particular, `Polygon2D` coordinates containing
+model parameters stay as SolidCraft expressions for positive, negative and
+symmetric extrusions; extrusion direction must not silently freeze an
+otherwise editable profile.
+
 Some modules import `math.isfinite`. This is a simple input check:
 it rejects invalid values such as `NaN` or infinity. It does
 **not** rotate or construct geometry.
