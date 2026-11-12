@@ -125,6 +125,28 @@ def _plain_model_fields(cls):
     return list(fields.items())
 
 
+def _plain_reference_fields(cls):
+    """Ordered non-parametric object inputs declared with a None default.
+
+    These values are passed through to build() unchanged. They are intended
+    for assembly/component references such as an already-built WoodFrame and
+    never become SolidCraft parameters.
+    """
+    fields = {}
+    for base in reversed(cls.__mro__):
+        if base is object:
+            continue
+        for name, value in vars(base).items():
+            if (
+                name.startswith("__")
+                or name.isupper()
+                or value is not None
+            ):
+                continue
+            fields[name] = value
+    return list(fields.items())
+
+
 def _parameter_input(
     value, name, *, expose_local=True, alias=None, build_only=False
 ):
@@ -174,22 +196,33 @@ def _parameter_input(
 def _plain_model_data(cls, *args, _include=None, _aliases=None, **kwargs):
     """Instantiate a plain model and classify public vs fixed inputs."""
     fields = _plain_model_fields(cls)
+    references = _plain_reference_fields(cls)
     names = [name for name, _ in fields]
+    reference_names = [name for name, _ in references]
     if len(args) > len(fields):
         raise TypeError(
-            f"{cls.__name__}() takes at most {len(fields)} model arguments"
+            f"{cls.__name__}() takes at most {len(fields)} positional model arguments"
         )
 
     values = dict(fields)
+    reference_values = dict(references)
     assigned = set()
     for (name, _), value in zip(fields, args):
         values[name] = value
         assigned.add(name)
 
     for name, value in kwargs.items():
+        if name in reference_values:
+            if name in assigned:
+                raise TypeError(
+                    f"{cls.__name__}() got multiple values for input {name!r}"
+                )
+            reference_values[name] = value
+            assigned.add(name)
+            continue
         if name not in values:
             raise TypeError(
-                f"{cls.__name__}() got an unexpected model parameter {name!r}"
+                f"{cls.__name__}() got an unexpected model input {name!r}"
             )
         if name in assigned:
             raise TypeError(
@@ -199,6 +232,9 @@ def _plain_model_data(cls, *args, _include=None, _aliases=None, **kwargs):
         assigned.add(name)
 
     instance = cls()
+    for name in reference_names:
+        object.__setattr__(instance, name, reference_values[name])
+
     aliases = {} if _aliases is None else dict(_aliases)
     concrete = []
     fixed = []
