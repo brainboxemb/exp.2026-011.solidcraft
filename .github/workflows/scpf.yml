@@ -89,11 +89,11 @@ jobs:
           # not the Python model. The rigid attachment must re-solve from gap.
           jq -e '
             (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] - 0) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001)) and
+              ((.bbox.min[0] + 20) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
             (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 50) | fabs) < 0.001 and
-              ((.bbox.max[0] - 70) | fabs) < 0.001))
+              ((.bbox.min[0] - 30) | fabs) < 0.001 and
+              ((.bbox.max[0] - 50) | fabs) < 0.001))
           ' output/native/parametric-attach/measurements.json
 
           cat > output/native/parametric-attach/change-gap.json <<'JSON'
@@ -111,11 +111,11 @@ jobs:
             --json-out output/native/parametric-attach/measurements-gap-30.json
           jq -e '
             (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] - 0) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001)) and
+              ((.bbox.min[0] + 20) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
             (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 70) | fabs) < 0.001 and
-              ((.bbox.max[0] - 90) | fabs) < 0.001))
+              ((.bbox.min[0] - 50) | fabs) < 0.001 and
+              ((.bbox.max[0] - 70) | fabs) < 0.001))
           ' output/native/parametric-attach/measurements-gap-30.json
 
           jq -n --arg source "$GITHUB_SHA" \
