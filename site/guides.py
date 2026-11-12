@@ -45,10 +45,12 @@ Plate()""") + """
 The JSON is a native command plan, not a mesh or STEP file.</p>
 """ + code("""python -m scpf model.py --out output/model.json
 python -m json.tool output/model.json""") + """
-<p>For a live GUI run, open an <strong>empty design</strong> in SolidCraft,
-enable <em>Preferences → Assistant → Let AI agents connect</em>, and use:</p>
-""" + code("""python -m scpf model.py --connect""") + """
-<p>This sends commands to the active document; it does not save the design.
+<p>For a live GUI run, open SolidCraft, enable
+<em>Preferences → Assistant → Let AI agents connect</em>, and use:</p>
+""" + code("""python -m scpf model.py --connect --new""") + """
+<p><code>--new</code> asks SolidCraft to replace the active design with a new,
+empty one before the model batch is sent. Leave it off when you deliberately
+want to add commands to the current design. Neither form saves the design.
 The CAD project also provides a separate native CLI qualification workflow.</p>
 <h2 id="next">Where to continue</h2>
 <p>Read <a href="../model-objects/">Model objects</a> to understand the difference
