@@ -34,12 +34,14 @@ def _rewrite_value(value, mapping):
     return value
 
 
-def _namespace_commands(commands, component_name):
-    """Make design-wide SolidCraft parameter names unique per component definition."""
+def _namespace_commands(commands, component_name, external_names=()):
+    """Namespace local component parameters, but keep inherited names intact."""
+    external_names = set(external_names)
     local_names = [
         command["params"]["name"]
         for command in commands
         if command["command"] == "parameters.add"
+        and command["params"]["name"] not in external_names
     ]
     prefix = _component_slug(component_name)
     mapping = {name: f"{prefix}_{name}" for name in local_names}
@@ -84,6 +86,7 @@ def compile_assembly(value, name):
     names = _definition_names(assembly)
     commands = []
     occurrence_names = {}
+    inherited_parameters = {}
 
     # Named groups are actual empty native components, not just labels in
     # Python. Child component definitions are created under their parent.
@@ -122,7 +125,15 @@ def compile_assembly(value, name):
             definition.shape,
             _component_slug(component_name),
         )["commands"]
-        compiled = _namespace_commands(compiled, component_name)
+        external_names = {
+            parameter_name
+            for parameter_name, _ in definition.external_parameters
+        }
+        compiled = _namespace_commands(
+            compiled,
+            component_name,
+            external_names=external_names,
+        )
         parameter_commands = [
             command for command in compiled
             if command["command"] == "parameters.add"
@@ -132,7 +143,25 @@ def compile_assembly(value, name):
             if command["command"] != "parameters.add"
         ]
 
-        commands.extend(parameter_commands)
+        for command in parameter_commands:
+            parameter_name = command["params"]["name"]
+            if parameter_name in external_names:
+                expression = command["params"]["expression"]
+                previous = inherited_parameters.setdefault(
+                    parameter_name,
+                    expression,
+                )
+                if previous != expression:
+                    raise ModelError(
+                        f"conflicting inherited parameter {parameter_name}"
+                    )
+                if previous == expression and any(
+                    existing["command"] == "parameters.add"
+                    and existing["params"]["name"] == parameter_name
+                    for existing in commands
+                ):
+                    continue
+            commands.append(command)
         first_is_root = (
             instances[0] is assembly.instances[0] and parent_name is None
         )
