@@ -101,3 +101,34 @@ EXPECTED_MUTATION_BOUNDS = {
         {"label": "left Marker", "min": [-40, -10, 30], "max": [-30, 0, 40]},
     ],
 }
+
+
+# Visual overlays may use a more detailed decomposition than the Q4 outer
+# bounds. In particular an L-profile can be mirrored/rotated incorrectly while
+# retaining the same overall bounding box, so draw its two arms separately.
+EXPECTED_VISUAL_BOXES = dict(EXPECTED_BOUNDS)
+
+EXPECTED_VISUAL_BOXES["bracket"] = [
+    {"label": "arm X", "min": [0, -12, -12], "max": [40, 12, 0]},
+    {"label": "arm Z", "min": [0, -12, -40], "max": [12, 12, 0]},
+]
+
+EXPECTED_VISUAL_BOXES["four-corner-l"] = [
+    {"label": "FrameBlock", "min": [-60, -15, 0], "max": [60, 15, 80]},
+
+    # top-left: inward +X, downward -Z
+    {"label": "TL arm X", "min": [-60, -27, 68], "max": [-20, -3, 80]},
+    {"label": "TL arm Z", "min": [-60, -27, 40], "max": [-48, -3, 80]},
+
+    # top-right: inward -X, downward -Z
+    {"label": "TR arm X", "min": [20, -27, 68], "max": [60, -3, 80]},
+    {"label": "TR arm Z", "min": [48, -27, 40], "max": [60, -3, 80]},
+
+    # bottom-right: inward -X, upward +Z
+    {"label": "BR arm X", "min": [20, -27, 0], "max": [60, -3, 12]},
+    {"label": "BR arm Z", "min": [48, -27, 0], "max": [60, -3, 40]},
+
+    # bottom-left: inward +X, upward +Z
+    {"label": "BL arm X", "min": [-60, -27, 0], "max": [-20, -3, 12]},
+    {"label": "BL arm Z", "min": [-60, -27, 0], "max": [-48, -3, 40]},
+]
