@@ -96,7 +96,9 @@ class FourHub75CornerBrackets:
             z=BACK,
             x=DOWN,
         )
-        gap = -(Hub75CornerBracket.arm_width / 2)
+        # Positive gap moves the symmetric bracket to the outside of the
+        # FRONT face: its rear broad face lands exactly on the cabinet face.
+        gap = Hub75CornerBracket.arm_width / 2
 
         top_left = bracket.copy().attach(
             frame,

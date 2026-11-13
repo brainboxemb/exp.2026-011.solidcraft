@@ -129,7 +129,9 @@ class FourHub75CornerBrackets:
             z=BACK,
             x=DOWN,
         )
-        gap = -(Hub75CornerBracket.arm_width / 2)
+        # Positive gap moves the symmetric bracket to the outside of the
+        # FRONT face: its rear broad face lands exactly on the cabinet face.
+        gap = Hub75CornerBracket.arm_width / 2
 
         top_left = bracket.copy().attach(
             frame,
@@ -162,7 +164,7 @@ class FourHub75CornerBrackets:
 FourHub75CornerBrackets()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>Hub75CornerBracket + AnchorFrame mount_a/mount_b; attach(parent=FRONT corner, child=mount frame, gap=-arm_width/2)</code></p>
+  <p><code>Hub75CornerBracket + AnchorFrame mount_a/mount_b; attach(parent=FRONT corner, child=mount frame, gap=+arm_width/2)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One neutral real CornerBracket component plus four occurrences. The component owns only the reviewed XZ profile, fillet and chamfers; the assembly owns mount-A/mount-B, front normal, clocking and face offset.</p>
 </section>
@@ -214,7 +216,7 @@ FourHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -259,7 +261,7 @@ FourHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -304,7 +306,7 @@ FourHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -349,7 +351,7 @@ FourHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   }

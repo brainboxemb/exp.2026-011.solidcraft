@@ -137,7 +137,9 @@ class EightHub75CornerBrackets:
             z=FRONT,
             x=RIGHT,
         )
-        gap = -(Hub75CornerBracket.arm_width / 2)
+        # Positive gap moves front brackets outward to -Y and rear brackets
+        # outward to +Y; their inner broad faces touch the cabinet faces.
+        gap = Hub75CornerBracket.arm_width / 2
 
         front_top_left = bracket.copy().attach(
             frame, parent=Anchor.FRONT_TOP_LEFT,
@@ -192,7 +194,7 @@ EightHub75CornerBrackets()
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid joints use topology-backed FRONT/BACK corner references. Child AnchorFrames and a -arm_width/2 gap place each symmetric bracket on the correct broad face.</p>
+  <p>Eight rigid joints use topology-backed FRONT/BACK corner references. Child AnchorFrames and a +arm_width/2 gap place each symmetric bracket outside the correct broad face.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -237,7 +239,7 @@ EightHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -282,7 +284,7 @@ EightHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -327,7 +329,7 @@ EightHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -372,7 +374,7 @@ EightHub75CornerBrackets()
           -1.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -417,7 +419,7 @@ EightHub75CornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -462,7 +464,7 @@ EightHub75CornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -507,7 +509,7 @@ EightHub75CornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -552,7 +554,7 @@ EightHub75CornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: -12.0,
+      &quot;offset&quot;: 12.0,
       &quot;angle&quot;: 0.0
     }
   }
