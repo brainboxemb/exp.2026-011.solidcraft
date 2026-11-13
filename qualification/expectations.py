@@ -46,6 +46,35 @@ EXPECTED_BOUNDS = {
         {"label": "back-right foot", "min": [32, 12, -30], "max": [60, 40, 0]},
         {"label": "back-left foot", "min": [-60, 12, -30], "max": [-32, 40, 0]},
     ],
+    "four-corner-brackets": [
+        {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+        {"label": "front top-left", "min": [-72, -64, 12], "max": [0, -40, 84]},
+        {"label": "front top-right", "min": [0, -64, 12], "max": [72, -40, 84]},
+        {"label": "front bottom-right", "min": [0, -64, -24], "max": [72, -40, 48]},
+        {"label": "front bottom-left", "min": [-72, -64, -24], "max": [0, -40, 48]},
+    ],
+    "eight-hub75-corner-brackets": [
+        {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+        {"label": "front top-left", "min": [-72, -64, 12], "max": [0, -40, 84]},
+        {"label": "front top-right", "min": [0, -64, 12], "max": [72, -40, 84]},
+        {"label": "front bottom-right", "min": [0, -64, -24], "max": [72, -40, 48]},
+        {"label": "front bottom-left", "min": [-72, -64, -24], "max": [0, -40, 48]},
+        {"label": "rear top-left", "min": [-72, 40, 12], "max": [0, 64, 84]},
+        {"label": "rear top-right", "min": [0, 40, 12], "max": [72, 64, 84]},
+        {"label": "rear bottom-right", "min": [0, 40, -24], "max": [72, 64, 48]},
+        {"label": "rear bottom-left", "min": [-72, 40, -24], "max": [0, 64, 48]},
+    ],
+    "eight-flightcase-corners": [
+        {"label": "CaseBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+        {"label": "front top-left", "min": [-64, -44, 30], "max": [-30, -10, 64]},
+        {"label": "front top-right", "min": [30, -44, 30], "max": [64, -10, 64]},
+        {"label": "front bottom-right", "min": [30, -44, -4], "max": [64, -10, 30]},
+        {"label": "front bottom-left", "min": [-64, -44, -4], "max": [-30, -10, 30]},
+        {"label": "rear top-left", "min": [-64, 10, 30], "max": [-30, 44, 64]},
+        {"label": "rear top-right", "min": [30, 10, 30], "max": [64, 44, 64]},
+        {"label": "rear bottom-right", "min": [30, 10, -4], "max": [64, 44, 30]},
+        {"label": "rear bottom-left", "min": [-64, 10, -4], "max": [-30, 44, 30]},
+    ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
         {"label": "front top-left", "min": [-60, -44, 32], "max": [-32, -40, 60]},
@@ -106,6 +135,35 @@ EXPECTED_MUTATION_BOUNDS = {
         {"label": "back-right foot", "min": [52, 32, -30], "max": [80, 60, 0]},
         {"label": "back-left foot", "min": [-80, 32, -30], "max": [-52, 60, 0]},
     ],
+    "four-corner-brackets": [
+        {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
+        {"label": "front top-left", "min": [-92, -84, 42], "max": [-20, -60, 114]},
+        {"label": "front top-right", "min": [20, -84, 42], "max": [92, -60, 114]},
+        {"label": "front bottom-right", "min": [20, -84, -24], "max": [92, -60, 48]},
+        {"label": "front bottom-left", "min": [-92, -84, -24], "max": [-20, -60, 48]},
+    ],
+    "eight-hub75-corner-brackets": [
+        {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
+        {"label": "front top-left", "min": [-92, -84, 42], "max": [-20, -60, 114]},
+        {"label": "front top-right", "min": [20, -84, 42], "max": [92, -60, 114]},
+        {"label": "front bottom-right", "min": [20, -84, -24], "max": [92, -60, 48]},
+        {"label": "front bottom-left", "min": [-92, -84, -24], "max": [-20, -60, 48]},
+        {"label": "rear top-left", "min": [-92, 60, 42], "max": [-20, 84, 114]},
+        {"label": "rear top-right", "min": [20, 60, 42], "max": [92, 84, 114]},
+        {"label": "rear bottom-right", "min": [20, 60, -24], "max": [92, 84, 48]},
+        {"label": "rear bottom-left", "min": [-92, 60, -24], "max": [-20, 84, 48]},
+    ],
+    "eight-flightcase-corners": [
+        {"label": "CaseBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
+        {"label": "front top-left", "min": [-84, -64, 60], "max": [-50, -30, 94]},
+        {"label": "front top-right", "min": [50, -64, 60], "max": [84, -30, 94]},
+        {"label": "front bottom-right", "min": [50, -64, -4], "max": [84, -30, 30]},
+        {"label": "front bottom-left", "min": [-84, -64, -4], "max": [-50, -30, 30]},
+        {"label": "rear top-left", "min": [-84, 30, 60], "max": [-50, 64, 94]},
+        {"label": "rear top-right", "min": [50, 30, 60], "max": [84, 64, 94]},
+        {"label": "rear bottom-right", "min": [50, 30, -4], "max": [84, 64, 30]},
+        {"label": "rear bottom-left", "min": [-84, 30, -4], "max": [-50, 64, 30]},
+    ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
         {"label": "front top-left", "min": [-80, -64, 62], "max": [-52, -60, 90]},
@@ -153,6 +211,18 @@ EXPECTED_VISUAL_BOXES["four-corner-l"] = [
     # back-left: same foot rotated 270 degrees
     {"label": "BL arm X", "min": [-60, 12, -30], "max": [-52, 40, 0]},
     {"label": "BL arm Y", "min": [-60, 32, -30], "max": [-32, 40, 0]},
+]
+
+EXPECTED_VISUAL_BOXES["four-corner-brackets"] = [
+    {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+    {"label": "FTL top arm", "min": [-60, -44, 52], "max": [-32, -40, 60]},
+    {"label": "FTL side arm", "min": [-60, -44, 32], "max": [-52, -40, 60]},
+    {"label": "FTR top arm", "min": [32, -44, 52], "max": [60, -40, 60]},
+    {"label": "FTR side arm", "min": [52, -44, 32], "max": [60, -40, 60]},
+    {"label": "FBR bottom arm", "min": [32, -44, 0], "max": [60, -40, 8]},
+    {"label": "FBR side arm", "min": [52, -44, 0], "max": [60, -40, 28]},
+    {"label": "FBL bottom arm", "min": [-60, -44, 0], "max": [-32, -40, 8]},
+    {"label": "FBL side arm", "min": [-60, -44, 0], "max": [-52, -40, 28]},
 ]
 
 EXPECTED_VISUAL_BOXES["eight-corner-brackets"] = [
