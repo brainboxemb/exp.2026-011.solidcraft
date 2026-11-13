@@ -66,7 +66,7 @@ class FourCornerLCommandTests(unittest.TestCase):
             1,
         ):
             self.assertEqual(joint["type"], "rigid")
-            self.assertEqual(joint["offset"], 12.0)
+            self.assertNotIn("offset", joint)
             self.assertNotIn("values", joint)
             self.assertEqual(joint["angle"], 0)
             self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
@@ -116,10 +116,10 @@ class FourCornerLNativeTests(unittest.TestCase):
             for body in brackets
         )
         expected = sorted([
-            ((-60.0, -39.0, 40.0), (-20.0, -15.0, 80.0)),
-            ((20.0, -39.0, 40.0), (60.0, -15.0, 80.0)),
-            ((20.0, -39.0, 0.0), (60.0, -15.0, 40.0)),
-            ((-60.0, -39.0, 0.0), (-20.0, -15.0, 40.0)),
+            ((-60.0, -27.0, 40.0), (-20.0, -3.0, 80.0)),
+            ((20.0, -27.0, 40.0), (60.0, -3.0, 80.0)),
+            ((20.0, -27.0, 0.0), (60.0, -3.0, 40.0)),
+            ((-60.0, -27.0, 0.0), (-20.0, -3.0, 40.0)),
         ])
         self.assertEqual(actual, expected)
 
@@ -193,10 +193,10 @@ class FourCornerLNativeTests(unittest.TestCase):
             for body in brackets
         )
         expected = sorted([
-            ((-80.0, -39.0, 80.0), (-40.0, -15.0, 120.0)),
-            ((40.0, -39.0, 80.0), (80.0, -15.0, 120.0)),
-            ((40.0, -39.0, 0.0), (80.0, -15.0, 40.0)),
-            ((-80.0, -39.0, 0.0), (-40.0, -15.0, 40.0)),
+            ((-80.0, -27.0, 80.0), (-40.0, -3.0, 120.0)),
+            ((40.0, -27.0, 80.0), (80.0, -3.0, 120.0)),
+            ((40.0, -27.0, 0.0), (80.0, -3.0, 40.0)),
+            ((-80.0, -27.0, 0.0), (-40.0, -3.0, 40.0)),
         ])
         self.assertEqual(actual, expected)
 
