@@ -122,7 +122,7 @@
       "command": "solid.extrude",
       "params": {
         "distance": 4.0,
-        "direction": "negative",
+        "direction": "positive",
         "body_name": "LBracket"
       }
     },
