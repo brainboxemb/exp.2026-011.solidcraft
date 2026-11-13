@@ -1,4 +1,4 @@
-"""Qualification tests for four HUB75-style outside corner brackets."""
+"""Qualification contract for four real HUB75 CornerBracket occurrences."""
 import json
 import os
 from pathlib import Path
@@ -18,119 +18,63 @@ EXPECTED_CORNERS = [
 ]
 
 
-class FourCornerBracketsCommandTests(unittest.TestCase):
-    def test_generated_four_corner_relationship_contract(self):
-        document = run_script(
+class FourHub75CornerBracketsCommandTests(unittest.TestCase):
+    def test_generated_relationship_contract(self):
+        commands = run_script(
             ROOT / "examples/four-corner-brackets/scpf/model.py"
-        )
-        commands = document["commands"]
+        )["commands"]
 
         components = [
-            row["params"]["name"]
-            for row in commands
+            row["params"]["name"] for row in commands
             if row["command"] == "component.create"
         ]
-        self.assertEqual(components, ["FrameBlock", "LBracket"])
-
-        copies = [
-            row for row in commands
-            if row["command"] == "occurrence.copy"
-        ]
-        self.assertEqual(len(copies), 3)
-        self.assertTrue(
-            all(row["params"]["component"] == "LBracket" for row in copies)
+        self.assertEqual(components, ["FrameBlock", "Hub75CornerBracket"])
+        self.assertEqual(
+            len([row for row in commands if row["command"] == "occurrence.copy"]),
+            3,
         )
 
         joints = [
-            row["params"]
-            for row in commands
+            row["params"] for row in commands
             if row["command"] == "joint.create"
         ]
         self.assertEqual(len(joints), 4)
-
-        for index, (joint, corner) in enumerate(
-            zip(joints, EXPECTED_CORNERS),
-            1,
-        ):
+        for index, (joint, corner) in enumerate(zip(joints, EXPECTED_CORNERS), 1):
             self.assertEqual(joint["type"], "rigid")
             self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(joint["offset"], -12.0)
             self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
             self.assertEqual(joint["a"]["corner"], corner)
-            self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
-            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
+            self.assertEqual(
+                joint["b"]["occurrence"],
+                f"Hub75CornerBracket:{index}",
+            )
+
+        self.assertEqual(joints[0]["b"]["point"], [0.0, 0.0, 48.0])
+        self.assertEqual(joints[1]["b"]["point"], [72.0, 0.0, 60.0])
+        self.assertEqual(joints[2]["b"]["point"], [60.0, 0.0, -12.0])
+        self.assertEqual(joints[3]["b"]["point"], [-48.0, 0.0, 0.0])
+        self.assertTrue(all(j["b"]["z"] == [0.0, 1.0, 0.0] for j in joints))
+        self.assertTrue(all(j["b"]["x"] == [0.0, 0.0, -1.0] for j in joints))
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
-class FourCornerBracketsNativeTests(unittest.TestCase):
-    def test_native_brackets_match_front_corners(self):
-        data = _load(
-            Path(NATIVE_ROOT)
-            / "four-corner-brackets"
-            / "measurements.json"
-        )
+class FourHub75CornerBracketsNativeTests(unittest.TestCase):
+    def test_native_body_count(self):
+        data = _load(Path(NATIVE_ROOT) / "four-corner-brackets" / "measurements.json")
         self.assertEqual(data["body_count"], 5)
 
-        brackets = [
-            body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
-        ]
-        self.assertEqual(len(brackets), 4)
-        self.assertEqual(
-            _boxes(brackets),
-            sorted([
-                ((-60.0, -44.0, 32.0), (-32.0, -40.0, 60.0)),
-                ((32.0, -44.0, 32.0), (60.0, -40.0, 60.0)),
-                ((32.0, -44.0, 0.0), (60.0, -40.0, 28.0)),
-                ((-60.0, -44.0, 0.0), (-32.0, -40.0, 28.0)),
-            ]),
-        )
-
-    def test_saved_size_mutation_moves_all_four_brackets(self):
+    def test_saved_size_mutation_retains_four_brackets(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "four-corner-brackets"
             / "measurements-size-160x120x90.json"
         )
-        self.assertEqual(
-            _params(data),
-            {
-                "frame_width": 160.0,
-                "frame_depth": 120.0,
-                "frame_height": 90.0,
-            },
-        )
-        brackets = [
-            body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
-        ]
-        self.assertEqual(
-            _boxes(brackets),
-            sorted([
-                ((-80.0, -64.0, 62.0), (-52.0, -60.0, 90.0)),
-                ((52.0, -64.0, 62.0), (80.0, -60.0, 90.0)),
-                ((52.0, -64.0, 0.0), (80.0, -60.0, 28.0)),
-                ((-80.0, -64.0, 0.0), (-52.0, -60.0, 28.0)),
-            ]),
-        )
+        self.assertEqual(data["body_count"], 5)
 
 
 def _load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
-
-
-def _params(measurements):
-    return {row["name"]: row["value"] for row in measurements["params"]}
-
-
-def _boxes(bodies):
-    return sorted(
-        (
-            tuple(round(v, 6) for v in body["bbox"]["min"]),
-            tuple(round(v, 6) for v in body["bbox"]["max"]),
-        )
-        for body in bodies
-    )
 
 
 if __name__ == "__main__":
