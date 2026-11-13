@@ -164,8 +164,12 @@ def check(site: Path, sha: str, require_native: bool = False):
             ):
                 assert required_image in native_images, (slug, required_image)
 
-            assert "<h2>Test goal</h2>" in page_text, slug
+            assert "<h2>1. Test setup</h2>" in page_text, slug
+            assert "<h3>Test goal</h3>" in page_text, slug
             assert "<h3>Pass criteria</h3>" in page_text, slug
+            assert "<h2>2. Implementation under test</h2>" in page_text, slug
+            assert "<h2>4. Machine verification</h2>" in page_text, slug
+            assert "<h2>5. Visual verification</h2>" in page_text, slug
             assert 'class="panel qualification-visual-check"' in page_text, slug
             assert 'class="qualification-image-link"' in page_text, slug
             assert 'href="model-iso.png"' in page_text, slug
@@ -183,6 +187,11 @@ def check(site: Path, sha: str, require_native: bool = False):
                 assert structured_result["levels"]["q4"]["status"] == "fail", slug
 
             if slug == "four-corner-l":
+                diagram = site / "qualification" / slug / "four-corner-l.svg"
+                assert diagram.is_file() and diagram.stat().st_size > 0
+                assert 'href="four-corner-l.svg"' in page_text
+                assert 'FRONT_TOP_LEFT' in diagram.read_text(encoding="utf-8")
+                assert 'child "mount"' in diagram.read_text(encoding="utf-8")
                 mutation_image = site / "qualification" / slug / "model-size-160x120.png"
                 assert mutation_image.is_file() and mutation_image.stat().st_size > 0
                 assert "model-size-160x120.png" in native_images
