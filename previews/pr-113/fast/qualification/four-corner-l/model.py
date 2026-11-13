@@ -64,6 +64,12 @@ class FourCornerL:
         # SolidCraft's native BOTTOM frame uses local X along world -Y and
         # local in-plane Y along world -X.  offset=(u, v) is deliberately
         # expressed in that local frame, not as world X/Y coordinates.
+        foot_origin_reversed = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
@@ -81,7 +87,7 @@ class FourCornerL:
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=foot_origin_reversed,
             offset=(-half_depth, -half_width),
             angle=-90,
         )

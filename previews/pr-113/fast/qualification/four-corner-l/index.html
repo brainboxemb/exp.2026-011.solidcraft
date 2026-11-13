@@ -97,6 +97,12 @@ class FourCornerL:
         # SolidCraft&#x27;s native BOTTOM frame uses local X along world -Y and
         # local in-plane Y along world -X.  offset=(u, v) is deliberately
         # expressed in that local frame, not as world X/Y coordinates.
+        foot_origin_reversed = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
@@ -114,7 +120,7 @@ class FourCornerL:
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=foot_origin_reversed,
             offset=(-half_depth, -half_width),
             angle=-90,
         )
@@ -134,7 +140,7 @@ FourCornerL()
   <h3>Public Forge API used</h3>
   <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/-90/0)</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and rotations.</p>
+  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and clocking. The back-right occurrence uses the same origin with an explicit reversed local X direction.</p>
 </section>
 
 <section class="panel">
@@ -245,7 +251,7 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
+          -1.0,
           0.0,
           0.0
         ]
