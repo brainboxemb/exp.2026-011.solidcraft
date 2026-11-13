@@ -95,6 +95,22 @@ class SCPFExamples(unittest.TestCase):
         with self.assertRaises(ValueError):
             Circle2D(d=8).extrude(8, direction="sideways")
 
+    def test_anchor_directions_have_vectors_and_aliases(self):
+        from scpf.core import Anchor, AnchorFrame
+
+        self.assertIs(Anchor.UP, Anchor.TOP)
+        self.assertIs(Anchor.DOWN, Anchor.BOTTOM)
+        self.assertEqual(Anchor.RIGHT.vector, (1.0, 0.0, 0.0))
+        self.assertEqual(Anchor.FRONT.vector, (0.0, -1.0, 0.0))
+        self.assertEqual(
+            Anchor.FRONT_TOP_LEFT.vector,
+            (-1.0, -1.0, 1.0),
+        )
+
+        frame = AnchorFrame(z=Anchor.BACK, x=Anchor.DOWN)
+        self.assertEqual(frame.z, (0.0, 1.0, 0.0))
+        self.assertEqual(frame.x, (0.0, 0.0, -1.0))
+
     def test_removed_aliases_are_not_exposed(self):
         import scpf
         for name in ("Rectangle", "Circle", "Polygon", "Cube", "Box3D", "Cylinder3D", "Sphere3D"):
