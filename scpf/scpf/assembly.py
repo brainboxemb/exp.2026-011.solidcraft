@@ -2,7 +2,7 @@
 import re
 
 from .compiler import ModelError
-from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in
+from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in, pv
 from .model_objects import Assembly, ModelInstance, _anchor_origin
 from .compiler import compile_model
 
