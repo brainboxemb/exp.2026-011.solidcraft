@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab normalized-corner-anchor-lab history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab normalized-corner-anchor-lab; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -433,6 +433,29 @@ jobs:
             --json-out output/native/corner-axis-lab/joint-inspect.json
           jq . output/native/corner-axis-lab/joint-inspect.json
 
+          # Normalized corner-anchor lab: assembly-specified quarter-turn
+          # rotations must make every parent corner frame use world +Z as its
+          # local X axis. Front normals stay world -Y; rear normals world +Y.
+          cat > output/native/normalized-corner-anchor-lab/inspect-normalized.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/normalized-corner-anchor-lab/inspect-normalized.json \
+            --in output/native/normalized-corner-anchor-lab/model.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/normalized-corner-anchor-lab/joint-inspect.json
+          jq -e '
+            (.[0].joints | length) == 9 and
+            ([.[0].joints[] | select(.a.component_name == "Parent")
+              | select(.a.frame.x == [0,0,1])] | length) == 8 and
+            ([.[0].joints[] | select(.a.component_name == "Parent")
+              | select(.a.frame.z == [0,-1,0])] | length) == 4 and
+            ([.[0].joints[] | select(.a.component_name == "Parent")
+              | select(.a.frame.z == [0,1,0])] | length) == 4
+          ' output/native/normalized-corner-anchor-lab/joint-inspect.json
+
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
           jq -e '
@@ -683,6 +706,12 @@ jobs:
         with:
           name: corner-axis-lab
           path: output/native/corner-axis-lab
+          if-no-files-found: error
+      - name: Upload normalized corner anchor lab evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: normalized-corner-anchor-lab
+          path: output/native/normalized-corner-anchor-lab
           if-no-files-found: error
       - name: Build the lightweight library Pages site
         shell: bash
