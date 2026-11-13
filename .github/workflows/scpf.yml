@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab corner-axis-lab; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -419,6 +419,20 @@ jobs:
               ((.bbox.max[2] + 6) | fabs) < 0.001))
           ' output/native/planar-fixed-lab/measurements-shift-18.json
 
+          # Four-corner axis lab: record the native parent frame of every
+          # front corner. Do not infer which planar coordinate is world Z.
+          cat > output/native/corner-axis-lab/inspect-corners.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/corner-axis-lab/inspect-corners.json \
+            --in output/native/corner-axis-lab/model.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/corner-axis-lab/joint-inspect.json
+          jq . output/native/corner-axis-lab/joint-inspect.json
+
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
           jq -e '
@@ -663,6 +677,12 @@ jobs:
         with:
           name: planar-fixed-lab
           path: output/native/planar-fixed-lab
+          if-no-files-found: error
+      - name: Upload four-corner axis lab evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: corner-axis-lab
+          path: output/native/corner-axis-lab
           if-no-files-found: error
       - name: Build the lightweight library Pages site
         shell: bash
