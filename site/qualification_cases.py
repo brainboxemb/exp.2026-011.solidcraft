@@ -5,6 +5,13 @@ contract between the public Forge API, Forge's compiler model and native
 SolidCraft behaviour.  The site and site tests both consume this table.
 """
 
+REFERENCE_URLS = {
+    "BOSL2": "https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview",
+    "OpenSCAD": "https://openscad.org/documentation.html",
+    "PythonSCAD": "https://github.com/gsohler/openscad",
+}
+
+
 QUALIFICATION_LEVELS = [
     ("Q1", "Python API", "Public API validation, symbolic values and compiler invariants."),
     ("Q2", "Command contract", "Generated SolidCraft command JSON is complete and inspectable."),
