@@ -1,0 +1,141 @@
+{
+  "commands": [
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Base",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Base footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          -20.0,
+          -15.0
+        ],
+        "p1": [
+          20.0,
+          15.0
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 10,
+        "body_name": "Base"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Block",
+        "grounded": false
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Block footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          -10.0,
+          -10.0
+        ],
+        "p1": [
+          10.0,
+          10.0
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 10,
+        "body_name": "Block"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Block:1",
+        "translate": [
+          30.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "gap",
+        "expression": "10 mm"
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Block:1 to Base:1",
+        "a": {
+          "occurrence": "Base:1",
+          "face": [
+            20.0,
+            0.0,
+            5.0
+          ]
+        },
+        "b": {
+          "occurrence": "Block:1",
+          "face": [
+            20.0,
+            0.0,
+            5.0
+          ]
+        },
+        "offset": "gap"
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Cheatsheet · SCPF Python library</title>
+<link rel="stylesheet" href="../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../">Examples</a><a href="../guide/">API Guide</a><a href="../qualification/">Qualification</a><a href="./">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap"><div class="crumb"><a href="../">← Library</a> / Cheatsheet</div>
+<section class="hero small"><p class="eyebrow">SCPF reference</p><h1>Cheatsheet</h1><p>SolidCraft version: <strong>0.30.1 tested</strong>; older versions are refused and newer versions trigger a compatibility warning.</p>
+<p>Common SCPF syntax alongside tiny examples that CI compiles. For explanations, examples and limitations, read the
+<a href="../guide/">full API Guide</a>.</p></section>
+<div class="notice"><strong>What is verified?</strong> The linked examples and API unit tests run in GitHub Actions.
+Cheatsheet fragments describe API calls; a fragment alone is not a complete runnable model.</div>
+<section><h2>Model classes</h2><div class="reference-grid"><article class="reference"><h3><code>class Example: ... build(self)</code></h3>
+<p>Write a Python model. No main() or show() is required.</p><pre><code>class SimpleBox:
+    def build(self):
+        return Box(40, 30, 10)</code></pre><p class="tip"><a href="../examples/simple-box/">View working example →</a></p></article><article class="reference"><h3><code>Model parameters</code></h3>
+<p>Numeric model fields become named SolidCraft parameters.</p><pre><code>length = 40.0
+Box(self.length, 30, 10)</code></pre><p class="tip"><a href="../examples/simple-box/">View working example →</a></p></article></div></section><section><h2>Shapes and sketches</h2><div class="reference-grid"><article class="reference"><h3><code>Box(length, width, height)</code></h3>
+<p>Solid, centered in XY; its bottom is at Z=0.</p><pre><code>Box(40, 30, 10)</code></pre><p class="tip"><a href="../examples/simple-box/">View working example →</a></p></article><article class="reference"><h3><code>Rectangle2D(width, depth)</code></h3>
+<p>Planar XY profile. Extrude it to create a solid.</p><pre><code>Rectangle2D(100, 60).extrude(10)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>Circle2D(d=...)</code></h3>
+<p>A round 2D sketch. Use .at() or sketch operations to position it.</p><pre><code>Circle2D(d=8).at(12, 25)</code></pre></article><article class="reference"><h3><code>Polygon2D(points, plane=...)</code></h3>
+<p>A closed profile on XY, XZ or YZ.</p><pre><code>Polygon2D([(0,0), (40,0), (0,30)], plane=&#x27;XZ&#x27;)</code></pre></article><article class="reference"><h3><code>Cylinder(d=..., h=...)</code></h3>
+<p>Direct 3D cylinder, with its base at the placement point.</p><pre><code>Cylinder(d=24, h=14).at(0, 0, 8)</code></pre></article></div></section><section><h2>Features and placement</h2><div class="reference-grid"><article class="reference"><h3><code>profile.extrude(distance)</code></h3>
+<p>Convert a supported 2D profile into an editable native extrude.</p><pre><code>Rectangle2D(80, 50).extrude(8)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>Hole(d=..., depth=...)</code></h3>
+<p>A native hole. THROUGH_ALL follows the target body.</p><pre><code>Hole(d=8, depth=Depth.THROUGH_ALL)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>shape.on(target, face=...)</code></h3>
+<p>Place a feature on a selected face of another shape.</p><pre><code>Hole(d=8, depth=Depth.THROUGH_ALL).on(plate, face=Faces.TOP)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>shape.pattern(...)</code></h3>
+<p>Repeat a supported feature before placing it on its parent shape.</p><pre><code>Hole(d=8, depth=Depth.THROUGH_ALL).pattern(count=2, spacing=40, axis=Axis.Y)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>shape.fillet(...)</code></h3>
+<p>Round selected edges of a feature-based body.</p><pre><code>body.fillet(2, edges=Edges.VERTICAL)</code></pre></article><article class="reference"><h3><code>shape.shell(...)</code></h3>
+<p>Create an open-sided shell (supported feature trees only).</p><pre><code>Box(80, 50, 30).shell(2, open=Faces.TOP)</code></pre></article><article class="reference"><h3><code>a + b / a - b / a &amp; b</code></h3>
+<p>Join, cut or intersect supported shapes; operation support depends on the shape types.</p><pre><code>body + Hole(d=8).at(0, 0, 10)</code></pre></article></div></section><section><h2>Reusable components</h2><div class="reference-grid"><article class="reference"><h3><code>model.copy().move(x=...)</code></h3>
+<p>Copy an occurrence of one definition; preserve editable feature history.</p><pre><code>second = first.copy().move(x=40)</code></pre><p class="tip"><a href="../examples/components/">View working example →</a></p></article><article class="reference"><h3><code>model.attach(...)</code></h3>
+<p>Fix one reusable component to another through explicit attachment references.</p><pre><code>right = Block().attach(left, parent=Anchor.RIGHT, child=Anchor.LEFT)</code></pre><p class="tip"><a href="../examples/components/">View working example →</a></p></article><article class="reference"><h3><code>attach(offset=(u, v))</code></h3>
+<p>Keep an in-plane attachment offset associative; parameter expressions become native planar-joint values.</p><pre><code>part.attach(base, parent=Anchor.FRONT_TOP_LEFT, child=mount, offset=(0, -wall + 12))</code></pre><p class="tip"><a href="../examples/components/">View working example →</a></p></article><article class="reference"><h3><code>assembly.with_anchor(...) / anchor(...)</code></h3>
+<p>Expose a semantic attachment datum owned by an assembly without adding application-specific anchors to a generic component.</p><pre><code>frame = (left + right).with_anchor(&quot;front_top_left&quot;, left, ref)
+parent = frame.anchor(&quot;front_top_left&quot;)</code></pre><p class="tip"><a href="../examples/components/">View working example →</a></p></article><article class="reference"><h3><code>corner anchors</code></h3>
+<p>Use one of the eight rectangular corner references when attaching components.</p><pre><code>marker = Marker().attach(base, parent=Anchor.FRONT_TOP_RIGHT, child=Anchor.BACK_TOP_RIGHT)</code></pre><p class="tip"><a href="../examples/corner-anchor/">View working example →</a></p></article><article class="reference"><h3><code>AnchorFrame</code></h3>
+<p>Define an oriented local attachment frame. Return it from anchors() when the datum belongs to the reusable component, or pass it directly to attach() when it belongs only to the assembly.</p><pre><code>mount = AnchorFrame(origin=(0,0,-12), z=(0,1,0), x=(0,0,-1))
+part.attach(base, parent=Anchor.FRONT_TOP_LEFT, child=mount)</code></pre><p class="tip"><a href="../examples/custom-anchor/">View working example →</a></p></article><article class="reference"><h3><code>AnchorTopology</code></h3>
+<p>Keep a named or assembly-local attachment reference on a planar-face edge or one of its endpoints so SolidCraft can follow changing geometry.</p><pre><code>def anchors(self):
+    return {&quot;mount&quot;: AnchorTopology(edge=(0,10,5), on=(0,10,10), corner=(0,0,5))}</code></pre><p class="tip"><a href="../examples/custom-anchor/">View working example →</a></p></article><article class="reference"><h3><code>model.rotate(axis=..., degrees=...)</code></h3>
+<p>Orient a native occurrence; rotation does not alter the shared component.</p><pre><code>second = first.copy().move(x=40).rotate(axis=(0,0,1), degrees=180)</code></pre></article></div></section><section><h2>Compile and inspect</h2><div class="reference-grid"><article class="reference"><h3><code>python -m scpf ... --out</code></h3>
+<p>Compile a model to SolidCraft command JSON; no SolidCraft app needed.</p><pre><code>python -m scpf examples/simple-box/scpf/model.py --out output/box.json</code></pre><p class="tip"><a href="../examples/simple-box/">View working example →</a></p></article><article class="reference"><h3><code>python -m scpf replay ...</code></h3>
+<p>Send existing command JSON to an open SolidCraft session; does not recompile.</p><pre><code>python -m scpf replay output/box.json</code></pre></article><article class="reference"><h3><code>python -m scpf ... --connect</code></h3>
+<p>Execute a model in an open SolidCraft GUI document.</p><pre><code>python -m scpf examples/simple-box/scpf/model.py --connect</code></pre></article></div></section></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
