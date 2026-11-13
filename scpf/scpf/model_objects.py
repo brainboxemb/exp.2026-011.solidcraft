@@ -491,6 +491,8 @@ class ModelInstance:
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
+        if assembled_rotation is not None:
+            child_local = _quarter_turn_y(child_local, assembled_rotation)
         tangent = (0.0, 0.0, 0.0)
         target_world = tuple(
             target_local[i] + target.translation[i] + tangent[i]
@@ -512,6 +514,11 @@ class ModelInstance:
         return replace(
             self,
             translation=translation,
+            rotation=(
+                ((0.0, 1.0, 0.0), float(assembled_rotation))
+                if assembled_rotation is not None
+                else self.rotation
+            ),
             attachment=Attachment(
                 target=target,
                 parent=parent,
