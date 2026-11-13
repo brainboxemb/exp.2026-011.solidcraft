@@ -157,9 +157,19 @@
         "name": "Attach CornerFoot:1 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "face": [
+          "point": [
             0.0,
             0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            0.0,
+            -1.0,
             0.0
           ]
         },
@@ -195,9 +205,19 @@
         "name": "Attach CornerFoot:2 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "face": [
+          "point": [
             0.0,
             0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            0.0,
+            -1.0,
             0.0
           ]
         },
@@ -233,9 +253,19 @@
         "name": "Attach CornerFoot:3 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "face": [
+          "point": [
             0.0,
             0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            0.0,
+            -1.0,
             0.0
           ]
         },
@@ -271,9 +301,19 @@
         "name": "Attach CornerFoot:4 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "face": [
+          "point": [
             0.0,
             0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            0.0,
+            -1.0,
             0.0
           ]
         },

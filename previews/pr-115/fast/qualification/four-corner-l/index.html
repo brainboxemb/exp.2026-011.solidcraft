@@ -86,6 +86,12 @@ class FourCornerL:
         # Placement belongs to this assembly. All four frames use the same
         # local origin and Z direction; only local X changes to express the
         # required clocking. The reusable CornerFoot itself remains neutral.
+        bottom_frame = AnchorFrame(
+            origin=(0, 0, 0),
+            z=DOWN,
+            x=FRONT,
+        )
+
         front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=UP,
@@ -115,25 +121,25 @@ class FourCornerL:
         # frame; no extra joint angle is required.
         front_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=front_left_origin,
             offset=(half_depth, half_width),
         )
         front_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=front_right_origin,
             offset=(half_depth, -half_width),
         )
         back_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=back_right_origin,
             offset=(-half_depth, -half_width),
         )
         back_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=back_left_origin,
             offset=(-half_depth, half_width),
         )
@@ -144,14 +150,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v)); child X uses FRONT/LEFT/BACK/RIGHT for the four clockings</code></p>
+  <p><code>attach(parent=assembly-local bottom AnchorFrame, child=assembly-local AnchorFrame, offset=(u, v)); parent uses z=DOWN/x=FRONT and child X uses FRONT/LEFT/BACK/RIGHT</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns position and clocking through four explicit AnchorFrames with the same origin/Z and different X directions.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-face basis; child AnchorFrame X directions provide the four orientations without extra joint angles.</p>
+  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=DOWN; x=FRONT). Parametric (u,v) expressions move to the four corners; explicit child X directions provide the four orientations without ambiguous automatic half-turns.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -162,9 +168,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -200,9 +216,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -238,9 +264,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:3 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -276,9 +312,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:4 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -328,7 +374,7 @@ FourCornerL()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The useful comparison is attachment in the local plane of the selected parent face: position and spin belong to the assembly, not to the reusable foot.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A bottom-face planar joint is the natural native relationship for a foot whose placement moves in the frame&#x27;s XY plane.</li></ul>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The useful comparison is attachment in a local parent frame: position and clocking belong to the assembly, not to the reusable foot.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A planar joint between explicit parent/child frames keeps the in-plane offsets parametric while avoiding automatic half-turn ambiguity.</li></ul>
     </div>
   </div>
 </section>

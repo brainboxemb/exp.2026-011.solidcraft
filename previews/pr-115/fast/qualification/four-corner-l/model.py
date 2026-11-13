@@ -53,6 +53,12 @@ class FourCornerL:
         # Placement belongs to this assembly. All four frames use the same
         # local origin and Z direction; only local X changes to express the
         # required clocking. The reusable CornerFoot itself remains neutral.
+        bottom_frame = AnchorFrame(
+            origin=(0, 0, 0),
+            z=DOWN,
+            x=FRONT,
+        )
+
         front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=UP,
@@ -82,25 +88,25 @@ class FourCornerL:
         # frame; no extra joint angle is required.
         front_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=front_left_origin,
             offset=(half_depth, half_width),
         )
         front_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=front_right_origin,
             offset=(half_depth, -half_width),
         )
         back_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=back_right_origin,
             offset=(-half_depth, -half_width),
         )
         back_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
+            parent=bottom_frame,
             child=back_left_origin,
             offset=(-half_depth, half_width),
         )
