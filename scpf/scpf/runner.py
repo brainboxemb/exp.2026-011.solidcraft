@@ -362,9 +362,10 @@ def _component_anchor_frames(instance):
             raise ValueError(
                 f"component anchor {name!r} conflicts with a standard Anchor"
             )
-        if not isinstance(frame, core.AnchorFrame):
+        if not isinstance(frame, (core.AnchorFrame, core.AnchorTopology)):
             raise TypeError(
-                f"component anchor {name!r} must be an AnchorFrame"
+                f"component anchor {name!r} must be an AnchorFrame "
+                "or AnchorTopology"
             )
         anchors.append((name, frame))
     return tuple(anchors)
@@ -663,6 +664,7 @@ def run_script(path: str | Path) -> dict:
         "Faces": core.Faces,
         "Anchor": core.Anchor,
         "AnchorFrame": core.AnchorFrame,
+        "AnchorTopology": core.AnchorTopology,
         "Axis": core.Axis,
         "Shape": core.Shape,
         "pv": core.pv,
