@@ -429,14 +429,15 @@ class ModelInstance:
         if not isinstance(offset, (tuple, list)) or len(offset) not in (2, 3):
             raise ValueError("component attach offset must be an (u, v) pair or (x, y, z) triple")
         spatial_offset = tuple(offset)
-        spatial_offset_values = tuple(pv(value) for value in spatial_offset)
-        if not all(isfinite(value) for value in spatial_offset_values):
+        offset_values = tuple(pv(value) for value in spatial_offset)
+        if not all(isfinite(value) for value in offset_values):
             raise ValueError("component attach offset must be finite")
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
+        placement_offset = offset_values if len(offset_values) == 3 else (0.0, 0.0, 0.0)
         target_world = tuple(
-            target_local[i] + target.translation[i] + spatial_offset_values[i]
+            target_local[i] + target.translation[i] + placement_offset[i]
             for i in range(3)
         )
         translation = tuple(
