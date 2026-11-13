@@ -9,23 +9,42 @@
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / Named oriented AnchorFrame</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · Q1/Q2 documented</p>
-<h1>Named oriented AnchorFrame</h1><p>Verify that a reusable component can publish a named attachment datum with both position and orientation.</p></section>
-<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>anchors() -&gt; {&#x27;tip&#x27;: AnchorFrame(origin=..., z=..., x=...)}; attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
-<h3>Internal Forge model</h3><p>AnchorFrame is explicitly a local frame: origin plus Z axis and X axis. It is not merely a named point.</p>
-<h3>SolidCraft lowering</h3><p>For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.</p>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case · Q1/Q2 documented</p>
+  <h1>Named oriented AnchorFrame</h1>
+  <p>Verify that a reusable component can publish a named attachment datum with both position and orientation.</p>
 </section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.</p>
-<h3>Parametric mutation</h3><p>No parameter mutation; this fixture isolates occurrence rotation plus named-frame attachment.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
-</section></div>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<div class="twocol">
+  <section class="panel">
+    <h2>1. Forge contract</h2>
+    <h3>Public API</h3>
+    <p><code>anchors() -&gt; {&#x27;tip&#x27;: AnchorFrame(origin=..., z=..., x=...)}; attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
+    <h3>Internal Forge model</h3>
+    <p>AnchorFrame is explicitly a local frame: origin plus Z axis and X axis. It is not merely a named point.</p>
+    <h3>SolidCraft lowering</h3>
+    <p>For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.</p>
+  </section>
+
+  <section class="panel">
+    <h2>2. Native verification</h2>
+    <h3>Expected result</h3>
+    <p>After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.</p>
+    <h3>Parametric mutation</h3>
+    <p>No parameter mutation; this fixture isolates occurrence rotation plus named-frame attachment.</p>
+    <h3>Evidence</h3>
+    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+  </section>
+</div>
+
 <section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>[
+
+<section class="panel">
+  <h2>4. Generated native relationship/command path</h2>
+  <pre><code>[
   {
     &quot;command&quot;: &quot;joint.origin&quot;,
     &quot;params&quot;: {
@@ -76,11 +95,18 @@
       }
     }
   }
-]</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Closest conceptual match: an anchor defines position, local Z direction and spin/orientation information.</li></ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>class Arm:
+]</code></pre>
+</section>
+
+<section class="panel">
+  <h2>5. Reference models</h2>
+  <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+  <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Closest conceptual match: an anchor defines position, local Z direction and spin/orientation information.</li></ul>
+</section>
+
+<section class="panel">
+  <h2>6. Fixture source</h2>
+  <pre><code>class Arm:
     def anchors(self):
         return {
             &quot;tip&quot;: AnchorFrame(
@@ -120,8 +146,10 @@ class CustomAnchor:
 
 
 CustomAnchor()
-</code></pre></section>
+</code></pre>
+</section>
 </main>
+
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
 </body></html>
