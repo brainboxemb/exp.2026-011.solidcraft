@@ -90,6 +90,56 @@ class AnchorFrame:
         object.__setattr__(self, "x", x)
 
 
+@dataclass(frozen=True)
+class AnchorTopology:
+    """Topology-backed attachment reference on a planar-face edge.
+
+    edge is a pick point on the edge and on selects the adjacent planar face.
+    corner optionally selects one endpoint. SolidCraft keeps the selected
+    topology by name, so the reference follows dimension changes. z and x may
+    override the resulting frame orientation.
+    """
+
+    edge: tuple[float, float, float]
+    on: tuple[float, float, float]
+    corner: tuple[float, float, float] | None = None
+    z: tuple[float, float, float] | None = None
+    x: tuple[float, float, float] | None = None
+
+    def __post_init__(self):
+        for name in ("edge", "on", "corner", "z", "x"):
+            value = getattr(self, name)
+            if value is None:
+                continue
+            if not isinstance(value, (tuple, list)) or len(value) != 3:
+                raise ValueError(f"AnchorTopology {name} must be an XYZ triple")
+            if any(
+                isinstance(v, bool)
+                or not isinstance(v, (int, float))
+                or not isfinite(v)
+                for v in value
+            ):
+                raise ValueError(
+                    f"AnchorTopology {name} must contain finite numeric values"
+                )
+            object.__setattr__(self, name, tuple(float(v) for v in value))
+
+        if self.z is not None and sum(v * v for v in self.z) <= 0:
+            raise ValueError("AnchorTopology z direction must be non-zero")
+        if self.x is not None and sum(v * v for v in self.x) <= 0:
+            raise ValueError("AnchorTopology x direction must be non-zero")
+        if self.z is not None and self.x is not None:
+            cross = (
+                self.z[1] * self.x[2] - self.z[2] * self.x[1],
+                self.z[2] * self.x[0] - self.z[0] * self.x[2],
+                self.z[0] * self.x[1] - self.z[1] * self.x[0],
+            )
+            if sum(v * v for v in cross) <= 1e-18:
+                raise ValueError(
+                    "AnchorTopology x direction must not be parallel to z"
+                )
+
+
 class Depth(str, Enum):
     THROUGH_ALL = "through_all"
 
