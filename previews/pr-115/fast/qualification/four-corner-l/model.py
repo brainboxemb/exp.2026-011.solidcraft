@@ -61,33 +61,47 @@ class FourCornerL:
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
+        # SolidCraft's BOTTOM joint frame is local to the selected face:
+        # local X runs along world -Y and local Y along world -X.  Express
+        # the four corner positions in that local (u, v) frame.
+        #
+        # The back-right position needs the same reusable foot turned 180
+        # degrees. SolidCraft 0.30.1 does not give the intended result for a
+        # 270/-90 planar turn here, so use the same origin with reversed local
+        # X clocking. The reusable foot geometry itself stays unchanged.
+        foot_origin_reversed = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, -half_depth),
-            angle=0,
+            offset=(half_depth, half_width),
+            angle=90,
         )
         front_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(half_width, -half_depth),
-            angle=90,
+            offset=(half_depth, -half_width),
+            angle=180,
         )
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
-            offset=(half_width, half_depth),
-            angle=180,
+            child=foot_origin_reversed,
+            offset=(-half_depth, -half_width),
+            angle=-90,
         )
         back_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, half_depth),
-            angle=270,
+            offset=(-half_depth, half_width),
+            angle=0,
         )
 
         return frame + front_left + front_right + back_right + back_left
