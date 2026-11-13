@@ -43,6 +43,7 @@ class Attachment:
     offset: tuple[object, object]
     gap: object = 0
     angle: float | None = None
+    assembled_rotation: float | None = None
     as_built: bool = False
 
 
@@ -423,9 +424,9 @@ class ModelInstance:
         normal. Both stay native SolidCraft joint values.
 
         ``assembled_rotation`` states the child's expected final quarter-turn
-        orientation around world Y at a rectangular parent corner. It is used
-        only to orient the native joint frame; SolidCraft performs the actual
-        child placement through that joint.
+        orientation around world Y. It does not rotate the occurrence or alter
+        either joint frame; Forge uses it only to express the planar ``offset``
+        in the native local axes of that assembled orientation.
 
         ``as_built=True`` keeps both occurrences exactly where they already
         are and records only a fixed assembly relationship.
@@ -458,29 +459,13 @@ class ModelInstance:
         parent = _resolve_anchor_reference(target, parent)
         child = _resolve_anchor_reference(self, child)
         if assembled_rotation is not None:
-            if not isinstance(parent, Anchor) or parent not in _CORNER_ANCHORS:
-                raise ValueError(
-                    "assembled_rotation requires a rectangular parent corner Anchor"
-                )
-            child_frame = child
-            if isinstance(child_frame, str):
-                child_frame = _custom_anchor(self, child_frame)
-            if not isinstance(child_frame, (AnchorFrame, AnchorTopology)):
-                raise ValueError(
-                    "assembled_rotation requires a child AnchorFrame or AnchorTopology"
-                )
-            if child_frame.x is None:
-                raise ValueError(
-                    "assembled_rotation requires a child reference with an x axis"
-                )
-            edge, on, corner = _corner_origin_points(target, parent)
-            parent = AnchorTopology(
-                edge=edge,
-                on=on,
-                corner=corner,
-                z=_CORNER_NORMALS[parent],
-                x=_quarter_turn_y(child_frame.x, assembled_rotation),
-            )
+            rotation_value = pv(assembled_rotation)
+            if not isfinite(rotation_value):
+                raise ValueError("assembled_rotation must be finite")
+            quarter_turn = rotation_value / 90.0
+            if abs(quarter_turn - round(quarter_turn)) > 1e-9:
+                raise ValueError("assembled_rotation must be a multiple of 90 degrees")
+            assembled_rotation = rotation_value % 360.0
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
@@ -520,6 +505,7 @@ class ModelInstance:
                 offset=face_offset,
                 gap=gap,
                 angle=angle_value,
+                assembled_rotation=assembled_rotation,
             ),
         )
 
