@@ -1173,7 +1173,7 @@ class AssemblyTests(unittest.TestCase):
             Block().attach(
                 parent,
                 parent=Anchor.FRONT_TOP_LEFT,
-                child=AnchorFrame(x=(0, 0, -1)),
+                child=AnchorFrame(z=(0, 1, 0), x=(0, 0, -1)),
                 assembled_rotation=45,
             )
 
@@ -1358,29 +1358,36 @@ class AssemblyTests(unittest.TestCase):
             },
         )
 
-    def test_direct_anchor_frame_rejects_rotated_occurrence(self):
+    def test_direct_anchor_frame_tracks_rotated_occurrence(self):
         from scpf.assembly import compile_assembly
-        from scpf.compiler import ModelError
-        from scpf.core import Anchor, AnchorFrame, Axis, Box
+        from scpf.core import Anchor, AnchorFrame, Box
         from scpf.runner import component
 
         @component
         class Block:
             def build(self):
-                return Box(20, 20, 20)
+                return Box(20, 20, 10)
 
-        base = Block()
-        child = Block().rotate(Axis.Z, 90).attach(
-            base,
-            parent=Anchor.RIGHT,
-            child=AnchorFrame(),
+        parent = Block(name="parent")
+        child = Block(name="child").rotate("Y", 180).attach(
+            parent,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=AnchorFrame(
+                origin=(2, 0, -3),
+                z=(0, 1, 0),
+                x=(0, 0, -1),
+            ),
         )
 
-        with self.assertRaisesRegex(
-            ModelError, "direct AnchorFrame attachments.*rotated"
-        ):
-            compile_assembly(base + child, "RotatedDirectFrame")
-
+        commands = compile_assembly(parent + child, "RotatedAnchorFrame")["commands"]
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertAlmostEqual(joint["b"]["point"][0], child.translation[0] - 2.0)
+        self.assertAlmostEqual(joint["b"]["point"][2], child.translation[2] + 3.0)
+        self.assertAlmostEqual(joint["b"]["x"][2], 1.0)
 
     def test_generated_joint_glyphs_are_hidden_after_assembly_compile(self):
         from scpf.assembly import compile_assembly
