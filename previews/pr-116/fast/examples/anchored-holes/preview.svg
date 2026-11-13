@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 260" role="img" aria-label="Schematic preview; not a SolidCraft render"><path d="M68 116 286 42 430 104 207 189Z" fill="#bbd9f1" stroke="#31577c" stroke-width="4"/>
+<path d="M68 116 V143 L207 216 V189Z" fill="#6f9fc9" stroke="#31577c" stroke-width="4"/>
+<path d="M207 189 430 104 V131 L207 216Z" fill="#8bb8dc" stroke="#31577c" stroke-width="4"/>
+<ellipse cx="175" cy="111" rx="18" ry="10" fill="#f6faff" stroke="#31577c" stroke-width="3"/>
+<ellipse cx="321" cy="117" rx="18" ry="10" fill="#f6faff" stroke="#31577c" stroke-width="3"/></svg>

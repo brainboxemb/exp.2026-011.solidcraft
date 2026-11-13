@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Four real HUB75 corner brackets · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Four real HUB75 corner brackets</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Four real HUB75 corner brackets</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="four-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="four-corner-brackets.svg" alt="Four real HUB75 corner brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="four-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="four-corner-brackets.dxf">DXF</a></figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Use the real HUB75 CornerBracket profile and its real mount-A/mount-B datums on the four front corners. This is the first qualification step that mirrors the wooden display bracket assembly rather than a generic L-profile.</p>
+  <h3>Pass criteria</h3>
+  <p>The real 60 mm HUB75 brackets wrap the four front corners with their broad faces outside the cabinet front and their two arms following the adjacent frame edges.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved design; all four real brackets must follow the moved front corners without rerunning Python.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Four real HUB75 CornerBracket occurrences on the front corners.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    _width = 120.0
+    _depth = 80.0
+    _height = 60.0
+
+    def build(self):
+        return Box(self._width, self._depth, self._height)
+
+
+class Hub75CornerBracket:
+    arm_width = 24.0
+    arm_height = 12.0
+    horizontal_arm_length = 60.0
+    vertical_arm_length = 60.0
+
+    outer_corner_chamfer = 6.0
+    arm_end_chamfer = 3.0
+    side_edge_chamfer = 2.0
+    elephant_foot_relief = 0.6
+    inside_corner_radius = 4.0
+
+    def build(self):
+        w = self.arm_height
+        h = self.horizontal_arm_length
+        v = self.vertical_arm_length
+        end = self.arm_end_chamfer
+        outer = self.outer_corner_chamfer
+
+        # Same neutral XZ profile used by the real HUB75 wood-frame model.
+        points = [
+            (&quot;i_corner&quot;, (0, 0)),
+            (&quot;o_hor_tip&quot;, (h, 0)),
+            (&quot;o_hor_bevel&quot;, (h, w - end)),
+            (&quot;o_hor&quot;, (h - end, w)),
+            (&quot;o_corner&quot;, (-w + outer, w)),
+            (&quot;o_vert&quot;, (-w, w - outer)),
+            (&quot;o_vert_bevel&quot;, (-w, -v + end)),
+            (&quot;o_vert_end&quot;, (-w + end, -v)),
+            (&quot;v_tip&quot;, (0, -v)),
+        ]
+
+        body = Polygon2D(
+            points,
+            plane=&quot;XZ&quot;,
+            world=True,
+        ).extrude(
+            self.arm_width,
+            direction=Direction.SYMMETRIC,
+        )
+
+        body = body.fillet(
+            self.inside_corner_radius,
+            edges=Edges.from_vertices(&quot;i_corner&quot;),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_vertices(&quot;o_hor_tip&quot;, &quot;v_tip&quot;),
+        )
+        body = body.chamfer(
+            self.side_edge_chamfer,
+            edges=Edges.from_profile(&quot;o_*&quot;, sides=&quot;both&quot;),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_profile(&quot;i_corner&quot;, sides=&quot;both&quot;),
+        )
+        return body
+
+
+class FourHub75CornerBrackets:
+    frame_width = 120.0
+    frame_depth = 80.0
+    frame_height = 60.0
+
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+            _height=self.frame_height,
+        )
+        bracket = Hub75CornerBracket()
+
+        # These are the same mount-A / mount-B datums used by the real
+        # HUB75 wood-frame assembly. The component remains placement-neutral.
+        w = Hub75CornerBracket.arm_height
+        front_mount_a = AnchorFrame(
+            origin=(0, 0, -w),
+            z=BACK,
+            x=DOWN,
+        )
+        front_mount_b = AnchorFrame(
+            origin=(w, 0, 0),
+            z=BACK,
+            x=DOWN,
+        )
+        gap = -(Hub75CornerBracket.arm_width / 2)
+
+        top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=front_mount_a,
+            gap=gap,
+        )
+        top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=front_mount_b,
+            gap=gap,
+        )
+        bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=front_mount_a,
+            gap=gap,
+        )
+        bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=front_mount_b,
+            gap=gap,
+        )
+
+        return frame + top_left + top_right + bottom_right + bottom_left
+
+
+FourHub75CornerBrackets()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Hub75CornerBracket + AnchorFrame mount_a/mount_b; attach(parent=FRONT corner, child=mount frame, gap=-arm_width/2)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One neutral real CornerBracket component plus four occurrences. The component owns only the reviewed XZ profile, fillet and chamfers; the assembly owns mount-A/mount-B, front normal, clocking and face offset.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Four rigid native joints use topology-backed FRONT corners. Child AnchorFrames use BACK/DOWN and the joint gap moves the symmetric 24 mm bracket from its centre plane onto the front broad face.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:1 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:1&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: -12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:2 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:2&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: -12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:3&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: -12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:4&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: -12.0,
+      &quot;angle&quot;: 0.0
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The qualification uses the same mount-A/mount-B datum strategy as the real HUB75 CornerBrackets assembly.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The component remains placement-neutral; the assembly supplies the local attachment frame.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
