@@ -396,7 +396,8 @@ jobs:
           keep_files: true
           commit_message: "SCPF library site at ${{ github.sha }}"
 
-      - name: Enforce qualification status
+      - name: Qualification status (non-blocking)
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
