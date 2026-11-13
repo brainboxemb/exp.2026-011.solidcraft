@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -101,6 +101,79 @@ jobs:
             --results \
             --json-out output/native/rigid-anchor-lab/joint-inspect.json
           jq . output/native/rigid-anchor-lab/joint-inspect.json
+
+          # Planar angle-limit lab: capture the free planar solve first.
+          cat > output/native/planar-limit-lab/inspect-free.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-free.json \
+            --in output/native/planar-limit-lab/model.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-free.json
+          solidcraft-cli snapshot output/native/planar-limit-lab/model.sc \
+            --out output/native/planar-limit-lab/free.png --no-grid --no-axes
+
+          # Apply exactly the UI setting reported from the HUB75 model:
+          # planar rotation minimum -180 deg, maximum 0 deg.
+          cat > output/native/planar-limit-lab/set-angle-limits.json <<'JSON'
+          {"commands":[
+            {"command":"joint.limits","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":2,
+              "min":-180,
+              "max":0
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/set-angle-limits.json \
+            --in output/native/planar-limit-lab/model.sc \
+            --param-check strict \
+            --save output/native/planar-limit-lab/model-limited.sc
+
+          cat > output/native/planar-limit-lab/inspect-limited.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-limited.json \
+            --in output/native/planar-limit-lab/model-limited.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-limited.json
+          solidcraft-cli eval output/native/planar-limit-lab/model-limited.sc \
+            --json-out output/native/planar-limit-lab/measurements-limited.json
+          solidcraft-cli snapshot output/native/planar-limit-lab/model-limited.sc \
+            --out output/native/planar-limit-lab/limited.png --no-grid --no-axes
+
+          # Change the saved design parameter after the limit has been applied.
+          cat > output/native/planar-limit-lab/change-shift.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"shift","expression":"18 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/change-shift.json \
+            --in output/native/planar-limit-lab/model-limited.sc \
+            --param-check strict \
+            --save output/native/planar-limit-lab/model-limited-shift-18.sc
+          solidcraft-cli eval output/native/planar-limit-lab/model-limited-shift-18.sc \
+            --json-out output/native/planar-limit-lab/measurements-limited-shift-18.json
+          cat > output/native/planar-limit-lab/inspect-shifted.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-shifted.json \
+            --in output/native/planar-limit-lab/model-limited-shift-18.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-limited-shift-18.json
+          solidcraft-cli snapshot output/native/planar-limit-lab/model-limited-shift-18.sc \
+            --out output/native/planar-limit-lab/limited-shift-18.png --no-grid --no-axes
 
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -334,6 +407,12 @@ jobs:
         with:
           name: rigid-anchor-lab
           path: output/native/rigid-anchor-lab
+          if-no-files-found: error
+      - name: Upload planar angle-limit lab evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: planar-limit-lab
+          path: output/native/planar-limit-lab
           if-no-files-found: error
       - name: Build the lightweight library Pages site
         shell: bash
