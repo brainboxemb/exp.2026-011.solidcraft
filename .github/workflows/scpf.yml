@@ -181,6 +181,65 @@ jobs:
           solidcraft-cli snapshot output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
             --out output/native/planar-limit-lab/angle-minus-180.png --no-grid --no-axes
 
+          # Hysteresis/state-history repro: after selecting the -180 branch,
+          # drive the same planar angle DOF back to 0 and compare that physical
+          # state with a freshly-created limited joint at 0.
+          cat > output/native/planar-limit-lab/drive-angle-back-zero.json <<'JSON'
+          {"commands":[
+            {"command":"joint.drive","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":2,
+              "value":0
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/drive-angle-back-zero.json \
+            --in output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/drive-angle-back-zero-results.json \
+            --save output/native/planar-limit-lab/model-returned-zero.sc
+          solidcraft-cli eval output/native/planar-limit-lab/model-returned-zero.sc \
+            --json-out output/native/planar-limit-lab/measurements-returned-zero.json
+          cat > output/native/planar-limit-lab/inspect-returned-zero.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-returned-zero.json \
+            --in output/native/planar-limit-lab/model-returned-zero.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-returned-zero.json
+          solidcraft-cli snapshot output/native/planar-limit-lab/model-returned-zero.sc \
+            --out output/native/planar-limit-lab/returned-zero.png --no-grid --no-axes
+
+          # Reload and perform a no-op parameter edit to expose any solver
+          # history dependence that survives serialization.
+          cat > output/native/planar-limit-lab/noop-shift-returned-zero.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"shift","expression":"12 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/noop-shift-returned-zero.json \
+            --in output/native/planar-limit-lab/model-returned-zero.sc \
+            --param-check strict \
+            --save output/native/planar-limit-lab/model-returned-zero-noop.sc
+          solidcraft-cli eval output/native/planar-limit-lab/model-returned-zero-noop.sc \
+            --json-out output/native/planar-limit-lab/measurements-returned-zero-noop.json
+          cat > output/native/planar-limit-lab/inspect-returned-zero-noop.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-returned-zero-noop.json \
+            --in output/native/planar-limit-lab/model-returned-zero-noop.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-returned-zero-noop.json
+
           # Change the saved design parameter after the limit has been applied.
           cat > output/native/planar-limit-lab/change-shift.json <<'JSON'
           {"commands":[
