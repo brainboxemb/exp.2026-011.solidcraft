@@ -164,6 +164,80 @@ role="img" aria-label="Expected CAD placement: front and depth views">
 </svg>"""
 
 
+def qualification_explanation(slug):
+    """Plain-language teaching text shown before the technical case contract."""
+    if slug != "custom-anchor":
+        return ""
+
+    return """<section class="panel explanation-panel">
+<h2>Nederlands · Joint origin op een bracket</h2>
+<p><strong>Een joint origin op een bracket (beugel) is het digitale ankerpunt waarmee je het onderdeel vastzet.</strong>
+Je kunt dit het beste zien als een klein lokaal assenstelsel met een eigen X-, Y- en Z-as.</p>
+<h3>1. Eenvoudige uitleg: de basisassen</h3>
+<ul>
+<li><strong>Origin (het nulpunt):</strong> het precieze punt op de beugel waar het lokale assenstelsel begint, bijvoorbeeld het midden van een schroefgat.</li>
+<li><strong>Z-as (de normaal):</strong> bepaalt welke kant het bevestigingspunt op wijst. Denk aan de richting waarin een bout of schroef vanaf dat punt wegloopt.</li>
+<li><strong>X-as (de draaiing):</strong> zodra Z vastligt kan het onderdeel nog om Z draaien. X legt die klokstand vast.</li>
+<li><strong>Y-as (automatisch):</strong> zodra Z en X bekend zijn volgt de derde loodrechte as automatisch.</li>
+</ul>
+<pre><code>origin = waar zit het punt?
+Z      = welke kant kijkt het punt op?
+X      = hoe is het rond die richting gedraaid?
+Y      = volgt automatisch</code></pre>
+<h3>2. API-definitie als JSON</h3>
+<pre><code>{
+  "joint_origin": {
+    "name": "beugel_bevestigingspunt_1",
+    "description": "Midden van het bovenste schroefgat",
+    "origin": {"x": 10.0, "y": 25.0, "z": 0.0},
+    "axes": {
+      "z_direction": [0, 0, 1],
+      "x_direction": [1, 0, 0],
+      "y_direction": "auto_calculated"
+    }
+  }
+}</code></pre>
+<p><code>origin</code> is de positie in millimeters. <code>z_direction</code>
+bepaalt de lokale normaal, <code>x_direction</code> de klokstand, en de Y-as
+kan uit X en Z worden afgeleid.</p>
+<h3>3. Dezelfde gedachte in Forge</h3>
+<pre><code>AnchorFrame(
+    origin=(10, 25, 0),
+    z=RIGHT,
+    x=UP,
+)</code></pre>
+<p>Voor gewone 90°-richtingen gebruikt Forge de leesbare namen
+<code>RIGHT</code>, <code>LEFT</code>, <code>FRONT</code>,
+<code>BACK</code>, <code>UP</code> en <code>DOWN</code>. Voor een schuine
+richting mag nog steeds een gewone XYZ-vector worden gebruikt.</p>
+
+<hr>
+<h2>English · Joint origin on a bracket</h2>
+<p><strong>A joint origin on a bracket is the digital attachment point used to connect the part.</strong>
+The easiest way to understand it is as a small local coordinate system with its own X, Y and Z axes.</p>
+<h3>1. Simple explanation: the local axes</h3>
+<ul>
+<li><strong>Origin:</strong> the exact point where the local coordinate system starts, for example the centre of a screw hole.</li>
+<li><strong>Z axis (normal):</strong> defines which way the attachment point faces.</li>
+<li><strong>X axis (clocking):</strong> once Z is fixed, X fixes the remaining rotation around Z.</li>
+<li><strong>Y axis (automatic):</strong> once Z and X are known, the third perpendicular axis follows automatically.</li>
+</ul>
+<pre><code>origin = where is the point?
+Z      = which way does it face?
+X      = how is it rotated around that direction?
+Y      = calculated automatically</code></pre>
+<h3>2. The same idea in Forge</h3>
+<pre><code>AnchorFrame(
+    origin=(10, 25, 0),
+    z=RIGHT,
+    x=UP,
+)</code></pre>
+<p>For axis-aligned frames Forge exposes <code>RIGHT</code>, <code>LEFT</code>,
+<code>FRONT</code>, <code>BACK</code>, <code>UP</code> and <code>DOWN</code>.
+Arbitrary XYZ vectors remain valid for angled frames.</p>
+</section>"""
+
+
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -497,6 +571,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 <div class="native-render">{native_preview_html}</div>
 <p class="visual-caption">Source-matched SolidCraft render when native qualification evidence is available.</p></section>
 </div>
+{qualification_explanation(slug)}
 <div class="twocol">
 <section class="panel"><h2>1. Forge contract</h2>
 <h3>Public API</h3><p><code>{escape(case["forge_api"])}</code></p>
