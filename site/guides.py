@@ -118,14 +118,12 @@ bracket = Bracket(
     inside_corner_radius=self.corner_radius,
 )""") + """
 <p>Here the wooden fillets and bracket inside fillet all depend on the same
-<code>corner_radius</code>. A reusable component default can also be published
-under an explicit shared name:</p>
-""" + code("""Bracket = component(
-    CornerBracket,
-    include={"inside_corner_radius": "corner_radius"},
-)""") + """
-<p>Use a tuple such as <code>include=("outer_corner_chamfer",)</code> when the
-component should expose its own namespaced editable parameter instead.</p>
+<code>corner_radius</code>. Passing the parent parameter into the child input
+reuses that existing native dependency rather than creating a duplicate child
+parameter.</p>
+<p>If a reusable component owns a public lower-case numeric default itself,
+that default automatically becomes an editable, namespaced component
+parameter. No extra publication or alias declaration is needed.</p>
 <h2 id="shape">Shape versus component occurrence</h2>
 <p><strong>Shape</strong> describes geometry or a feature expression
 (<code>Box</code>, <code>Hole</code>, an extrusion). A <strong>component
@@ -395,20 +393,19 @@ return callable model objects, so normal model code stays readable as
 A group is a native parent component in the browser, not a Boolean
 fusion of its children.</p>
 <h2 id="component-parameters">Component parameter visibility</h2>
-<p>Reusable component defaults are <strong>fixed by default</strong>. They
-still define the component geometry, but they do not automatically clutter the
-design-wide SolidCraft parameter list. Publish only the defaults you actually
-want users to edit:</p>
-""" + code("""Bracket = component(
-    CornerBracket,
-    include=("inside_corner_radius",),
-)
+<p>Public lower-case numeric component defaults are editable automatically.
+Forge namespaces component-local parameter names when necessary, so normal
+component code stays simple:</p>
+""" + code("""@component
+class CornerBracket:
+    width = 24.0
+    inside_corner_radius = 4.0
 
-# Or expose every local default:
-EditableBracket = component(CornerBracket, include="*")""") + """
-<p>A parent <code>Parameter</code> or expression passed into a component always
-stays symbolic, even when it is not in <code>include</code>. For example,
-<code>Bracket(inside_corner_radius=self.corner_radius)</code> reuses the
+    def build(self):
+        ...""") + """
+<p>When a parent <code>Parameter</code> or expression is passed into a child
+input, that existing dependency stays symbolic. For example,
+<code>CornerBracket(inside_corner_radius=self.corner_radius)</code> reuses the
 parent design's <code>corner_radius</code>; it does not create a separate
 <code>CornerBracket_inside_corner_radius</code> parameter.</p>
 <h2 id="placement">Occurrence placement</h2>

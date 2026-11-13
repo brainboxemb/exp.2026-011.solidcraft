@@ -63,6 +63,7 @@ SOLIDCRAFT_CAPABILITIES = [
     ("features", "Materials / appearance", "Native material and appearance support.", "Partial", "Useful", "PythonSCAD", "Important for readable assemblies, not core geometry."),
 
     ("components", "Components and repeated occurrences", "Native component definitions and occurrence copies.", "Q6 basic", "Core", "PythonSCAD objects + SolidCraft components", "One definition, many physical placements."),
+    ("components", "Component-local parameters and inherited expressions", "Native user parameters and expressions can drive reusable component geometry.", "Q5 · implicit component parameters and inherited expressions verified through saved-design mutation.", "Core", "PythonSCAD + SolidCraft", "Public defaults are implicit editable parameters; inherited expressions reuse the parent dependency."),
     ("components", "Occurrence local/world placement", "Native local/world translation, axis-angle and matrices.", "Partial", "Core", "PythonSCAD + OpenSCAD", "Forge should expose a smaller coherent transform API."),
     ("components", "Parent/child relation via a face", "Native face/topology references can remain associative.", "Partial", "Core", "SolidCraft + BOSL2", "Conceptually comes before custom anchors or joints."),
     ("components", "Local attachment frame / joint origin", "Native face, circle, edge, corner, point, plane or axis origins plus orientation.", "Partial Anchor/AnchorFrame/AnchorTopology", "Core", "BOSL2", "Key capability behind robust anchors."),

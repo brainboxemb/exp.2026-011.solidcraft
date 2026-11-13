@@ -8,6 +8,7 @@ on:
     paths:
       - "scpf/**"
       - "examples/**"
+      - "qualification/**"
       - "site/qualification_cases.py"
       - "site/api_coverage.py"
       - ".github/workflows/scpf.yml"
@@ -19,6 +20,8 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    env:
+      SOLIDCRAFT_VERSION: "0.30.1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,10 +52,9 @@ jobs:
             count="$(jq '.commands | length' "output/$model.json")"
             printf "%s\t%s\tPASS\n" "$model" "$count" >> output/qualification/q2-command-contract.tsv
           done
+          python qualification/parameter_scope.py commands output/parameter-scope.json
       - name: Install official SolidCraft 0.30.1 (checksum-verified)
         shell: bash
-        env:
-          SOLIDCRAFT_VERSION: "0.30.1"
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP"
@@ -90,6 +92,23 @@ jobs:
             test -s "output/native/$model/model.png"
             printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
+          # Parameter scope regression: use the exact generated Forge command
+          # plan, retain both native save formats, export public parameters,
+          # then edit only the saved design and verify inherited expressions.
+          python qualification/parameter_scope.py prepare-native             output/native/parameter-scope
+
+          solidcraft-cli run output/parameter-scope.json             --param-check strict             --save output/native/parameter-scope/model.json
+
+          solidcraft-cli run output/native/parameter-scope/export-parameters.json             --in output/native/parameter-scope/model.sc             --param-check strict             --json-out output/native/parameter-scope/parameters-export-results.json
+
+          python qualification/parameter_scope.py baseline             output/native/parameter-scope/measurements.json             output/native/parameter-scope/parameters.json             output/native/parameter-scope/model.json             --solidcraft-version "$SOLIDCRAFT_VERSION"
+
+          solidcraft-cli run output/native/parameter-scope/change-shared-width.json             --in output/native/parameter-scope/model.sc             --param-check strict             --save output/native/parameter-scope/model-shared-width-100.sc
+
+          solidcraft-cli eval output/native/parameter-scope/model-shared-width-100.sc             --json-out output/native/parameter-scope/measurements-shared-width-100.json
+
+          python qualification/parameter_scope.py shared-mutation             output/native/parameter-scope/measurements-shared-width-100.json
+
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
           jq -e '
@@ -315,14 +334,15 @@ jobs:
           ' output/native/xz-anchor/measurements-size-80x40.json
 
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
+          printf "parameter-scope\tshared_width 80 -> 100 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
 
-          jq -n --arg source "$GITHUB_SHA" \
-            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true,
+          jq -n --arg source "$GITHUB_SHA" --arg version "$SOLIDCRAFT_VERSION" \
+            '{source_commit:$source,solidcraft_version:$version,verified:true,
               levels:{q1:"python-api",q2:"command-contract",q3:"native-build",
                       q4:"native-measurement",q5:"parametric-mutation",
                       q6:"native-snapshot"}}' \
@@ -338,7 +358,7 @@ jobs:
             echo "# SCPF Forge qualification"
             echo
             echo "- Commit: $GITHUB_SHA"
-            echo "- Target SolidCraft: 0.30.1"
+            echo "- Target SolidCraft: $SOLIDCRAFT_VERSION"
             echo
             echo "## Q1 — Python API regressions"
             echo
@@ -384,9 +404,9 @@ jobs:
             echo
             echo "- generated command JSON"
             echo "- native SolidCraft results and timeline evaluation"
-            echo "- saved .sc designs"
+            echo "- saved .sc designs and version-specific plain model.json evidence"
             echo "- STEP exports"
-            echo "- measurement JSON"
+            echo "- parameter exports and measurement JSON"
             echo "- native PNG snapshots"
             echo
             echo "See scpf/docs/architecture.md for the required per-case sheet:"

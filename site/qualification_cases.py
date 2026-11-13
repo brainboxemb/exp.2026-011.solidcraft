@@ -25,9 +25,10 @@ QUALIFICATION_LEVELS = [
 QUALIFICATION_GROUPS = [
     ("fundamentals", "1 · Basic geometry", "Primitives, profiles, CSG and simple reusable reference geometry."),
     ("features", "2 · Parent/child features and faces", "Features that belong to an existing object and use a meaningful parent face."),
-    ("components", "3 · Components and occurrences", "Reusable physical parts and more than one placed occurrence."),
-    ("anchors", "4 · Anchors and local frames", "Richer component references: faces, corners, topology and oriented local frames."),
-    ("associativity", "5 · Associative relationships", "Editable distances and local offsets that must keep their meaning after parameter changes."),
+    ("parameters", "3 · Parameters and dependencies", "Editable values, component-local parameters and inherited symbolic dependencies."),
+    ("components", "4 · Components and occurrences", "Reusable physical parts and more than one placed occurrence."),
+    ("anchors", "5 · Anchors and local frames", "Richer component references: faces, corners, topology and oriented local frames."),
+    ("associativity", "6 · Associative relationships", "Editable distances and local offsets that must keep their meaning after parameter changes."),
 ]
 
 
@@ -58,6 +59,21 @@ QUALIFICATION_CASES = [
         "mutation": "No saved-design mutation in this fixture; geometry and feature placement are measured at Q4.",
         "references": [
             ("OpenSCAD", "Comparable geometry would normally use difference() and repeated cylinders; Forge intentionally prefers SolidCraft hole features."),
+        ],
+    },
+    {
+        "slug": "parameter-scope",
+        "group": "parameters",
+        "title": "Implicit component parameters and shared dependencies",
+        "intent": "Verify that public component defaults become editable native parameters automatically, while parent Parameters/Expressions are reused rather than duplicated in the child.",
+        "forge_api": "plain reusable class fields; Panel(width=self.shared_width); Panel(width=self.shared_width / 2)",
+        "forge_model": "Local numeric defaults become component-local Parameters; inherited Parameter/Expression inputs become external bindings to the existing parent dependency.",
+        "lowering": "Local component parameters are namespaced (for example Panel_width); inherited names such as shared_width remain unprefixed and are emitted once even when several child definitions use them.",
+        "native_expectation": "The saved SolidCraft design exposes Panel_width, Panel_2_width and shared_width; changing shared_width updates both directly-bound children and the derived half-width child without rerunning Python.",
+        "mutation": "Change shared_width from 80 to 100 mm in the saved native design; widths must change from [40,40,60,80,80] to [40,50,60,100,100].",
+        "references": [
+            ("PythonSCAD", "Primary API reference: normal Python objects/defaults should remain natural; users should not need a separate parameter-publication switch."),
+            ("SolidCraft", "Native parameters and expressions are the source of truth for saved-design editability and rebuild behaviour."),
         ],
     },
     {
