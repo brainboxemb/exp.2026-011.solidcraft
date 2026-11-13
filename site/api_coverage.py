@@ -7,8 +7,8 @@ the highest dedicated coverage currently available.
 
 EXPORT_COVERAGE = {
     "Box": ("Q6", "Q6", ["simple-box"], "Native primitive and parameter baseline."),
-    "Cylinder": ("Q6", "GAP", [], "Needs a dedicated native primitive/orient/pattern fixture."),
-    "Sphere": ("Q6", "GAP", [], "Needs a dedicated native primitive/CSG fixture."),
+    "Cylinder": ("Q6", "Q6", ["primitive-csg"], "Primitive creation/orientation is native-qualified in SolidCraft 0.30.1."),
+    "Sphere": ("Q6", "Q6", ["primitive-csg"], "Primitive CSG creation is native-qualified in SolidCraft 0.30.1."),
     "Hole": ("Q6", "Q6", ["anchored-holes"], "Through-hole feature is native-qualified; directional/countersink variants need separate capability rows."),
     "Lip": ("Q6", "GAP", [], "Plastic feature needs a dedicated native fixture."),
     "SnapFit": ("Q6", "GAP", [], "Plastic feature needs a dedicated native fixture."),
@@ -28,9 +28,9 @@ EXPORT_COVERAGE = {
     "AnchorFrame": ("Q6", "Q6", ["custom-anchor"], "Named oriented local frame on a rotated occurrence."),
     "AnchorTopology": ("Q6", "GAP", [], "Class has regression coverage but needs a dedicated native topology fixture."),
     "Axis": ("Q2", "Q6", ["anchored-holes", "custom-anchor"], "Pattern and occurrence rotation use Axis values."),
-    "X": ("Q2", "GAP", [], "Named shorthand token needs explicit command-contract coverage."),
-    "Y": ("Q2", "GAP", [], "Named shorthand token needs explicit command-contract coverage."),
-    "Z": ("Q2", "GAP", [], "Named shorthand token needs explicit command-contract coverage."),
+    "X": ("Q2", "Q2", ["primitive-csg"], "Used explicitly by Cylinder.orient() in the qualification contract."),
+    "Y": ("Q2", "Q2", ["primitive-csg"], "Used explicitly by Cylinder.orient() in the qualification contract."),
+    "Z": ("Q2", "Q2", ["primitive-csg"], "Used explicitly by Cylinder.orient() in the qualification contract."),
     "pv": ("Q1", "Q1", [], "Build-time numeric extraction/validation helper; native coverage is not appropriate."),
     "History": ("Q3", "Q2", ["history-policy"], "Compiler fixture exists; native history-policy qualification still required."),
     "behavior": ("Q3", "Q2", ["history-policy"], "Compiler fixture exists; native history-policy qualification still required."),
@@ -45,10 +45,10 @@ EXPORT_COVERAGE = {
 
 
 CAPABILITY_COVERAGE = [
-    ("Primitive CSG", "Sphere + Cylinder creation", "Q6", "GAP", [], "Add measured primitive/CSG fixture."),
-    ("Primitive CSG", "union / difference / intersection", "Q6", "GAP", [], "Add one fixture measuring all three boolean operations."),
-    ("Shape transforms", "Shape.move(x,y,z)", "Q6", "GAP", [], "Add measured CSG translation case."),
-    ("Shape transforms", "Cylinder.orient(X/Y/Z)", "Q6", "GAP", [], "Add native oriented-cylinder case; compare with occurrence.rotate."),
+    ("Primitive CSG", "Sphere + Cylinder creation", "Q6", "Q6", ["primitive-csg"], "Native SolidCraft build/evaluation and snapshot passed."),
+    ("Primitive CSG", "union / difference / intersection", "Q6", "Q6", ["primitive-csg"], "All three Boolean operators passed native SolidCraft qualification."),
+    ("Shape transforms", "Shape.move(x,y,z)", "Q6", "Q6", ["primitive-csg"], "Translated primitive passed native SolidCraft qualification."),
+    ("Shape transforms", "Cylinder.orient(X/Y/Z)", "Q6", "Q6", ["primitive-csg"], "Three-axis Cylinder orientation passed native SolidCraft qualification."),
     ("Profiles", "Circle2D.extrude()", "Q6", "GAP", [], "Add native circle profile extrusion."),
     ("Profiles", "Extrude Direction.NEGATIVE", "Q6", "GAP", [], "Positive/symmetric exist; add negative measurement."),
     ("Features", "fillet()", "Q6", "GAP", [], "Add named and explicit edge selection cases."),
