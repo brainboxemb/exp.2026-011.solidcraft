@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+from io import BytesIO
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw
@@ -29,8 +30,14 @@ def encode_reference(image: Image.Image) -> str:
     return base64.b64encode(image.tobytes()).decode("ascii")
 
 
-def decode_reference(text: str) -> Image.Image:
-    raw = base64.b64decode(text)
+def decode_reference(data: dict) -> Image.Image:
+    if data.get("png_base64"):
+        raw = base64.b64decode(data["png_base64"])
+        image = Image.open(BytesIO(raw)).convert("RGB")
+        image = image.resize(REFERENCE_SIZE, Image.Resampling.LANCZOS)
+        return image.convert("L")
+
+    raw = base64.b64decode(data["pixels"])
     expected = REFERENCE_SIZE[0] * REFERENCE_SIZE[1]
     if len(raw) != expected:
         raise ValueError(f"invalid visual baseline byte count: {len(raw)} != {expected}")
@@ -87,7 +94,7 @@ def validate_case(case_dir: Path, slug: str, baseline: dict | None) -> dict:
             review = True
             continue
 
-        reference = decode_reference(reference_data["pixels"])
+        reference = decode_reference(reference_data)
         result = metrics(current, reference)
         mean_limit = float(reference_data.get("mean_abs_threshold", DEFAULT_MEAN_ABS_THRESHOLD))
         changed_limit = float(reference_data.get(
