@@ -2,7 +2,6 @@ name: SCPF Python package qualification
 
 on:
   pull_request:
-    branches: [main]
     paths:
       - "scpf/**"
       - "examples/**"
