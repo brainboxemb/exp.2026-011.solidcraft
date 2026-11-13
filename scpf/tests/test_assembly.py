@@ -1068,6 +1068,76 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joints[1]["a"]["z"], [0.0, 0.0, -1.0])
         self.assertEqual(joints[1]["b"]["z"], [0.0, 0.0, -1.0])
 
+    def test_direct_anchor_frame_attachment_is_inlined(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, AnchorFrame, Box
+        from scpf.runner import component
+
+        @component
+        class Base:
+            def build(self):
+                return Box(40, 40, 40)
+
+        @component
+        class Bracket:
+            def build(self):
+                return Box(10, 10, 10)
+
+        base = Base()
+        mount = AnchorFrame(
+            origin=(0, 0, -5),
+            z=(0, 1, 0),
+            x=(0, 0, -1),
+        )
+        bracket = Bracket().attach(
+            base,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=mount,
+        )
+
+        commands = compile_assembly(base + bracket, "DirectFrame")["commands"]
+        self.assertFalse(
+            any(command["command"] == "joint.origin" for command in commands)
+        )
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(
+            joint["b"],
+            {
+                "occurrence": "Bracket:1",
+                "point": [20.0, -20.0, 40.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [0.0, 0.0, -1.0],
+            },
+        )
+
+    def test_direct_anchor_frame_rejects_rotated_occurrence(self):
+        from scpf.assembly import compile_assembly
+        from scpf.compiler import ModelError
+        from scpf.core import Anchor, AnchorFrame, Axis, Box
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(20, 20, 20)
+
+        base = Block()
+        child = Block().rotate(Axis.Z, 90).attach(
+            base,
+            parent=Anchor.RIGHT,
+            child=AnchorFrame(),
+        )
+
+        with self.assertRaisesRegex(
+            ModelError, "direct AnchorFrame attachments.*rotated"
+        ):
+            compile_assembly(base + child, "RotatedDirectFrame")
+
+
     def test_generated_joint_glyphs_are_hidden_after_assembly_compile(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, Box

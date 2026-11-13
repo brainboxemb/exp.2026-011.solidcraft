@@ -38,8 +38,8 @@ class Attachment:
     """Associative face-to-face relationship between two model occurrences."""
 
     target: "ModelInstance"
-    parent: Anchor | str | None
-    child: Anchor | str | None
+    parent: Anchor | str | AnchorFrame | None
+    child: Anchor | str | AnchorFrame | None
     offset: tuple[float, float]
     gap: object = 0
     angle: float | None = None
@@ -56,8 +56,8 @@ def _custom_anchor_frame(instance, name):
 
 
 def _resolve_anchor_reference(instance, value):
-    """Resolve a standard Anchor or a named component-local AnchorFrame."""
-    if isinstance(value, Anchor):
+    """Resolve a standard, named, or direct component attachment frame."""
+    if isinstance(value, (Anchor, AnchorFrame)):
         return value
     if isinstance(value, str):
         try:
@@ -65,12 +65,16 @@ def _resolve_anchor_reference(instance, value):
         except ValueError:
             _custom_anchor_frame(instance, value)
             return value
-    raise ValueError("component attach requires an Anchor value or anchor name")
+    raise ValueError(
+        "component attach requires an Anchor, AnchorFrame or anchor name"
+    )
 
 
 def _anchor_local_point(instance, anchor):
     if isinstance(anchor, Anchor):
         return _anchor_point(instance, anchor)
+    if isinstance(anchor, AnchorFrame):
+        return anchor.origin
     return _custom_anchor_frame(instance, anchor).origin
 
 
