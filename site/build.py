@@ -13,14 +13,23 @@ from string import Template
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
 
 from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
-from qualification.cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, QUALIFICATION_GROUPS, REFERENCE_URLS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
+
+sys.path.insert(0, str(ROOT))
+try:
+    from qualification.cases import (
+        QUALIFICATION_CASES,
+        QUALIFICATION_LEVELS,
+        QUALIFICATION_GROUPS,
+        REFERENCE_URLS,
+    )
+finally:
+    sys.path.pop(0)
 
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
 CAD_SITE = "https://brainboxemb.github.io/2026-011-02.cad.solidcraft/"
