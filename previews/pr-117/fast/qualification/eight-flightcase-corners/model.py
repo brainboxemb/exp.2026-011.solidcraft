@@ -1,135 +1,109 @@
-"""Eight reusable three-face flightcase corners on a rectangular frame."""
+"""Eight proportional three-face flightcase corner protectors."""
 
 
-class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+class CaseBlock:
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
 class FlightcaseCorner:
-    ARM_LENGTH = 28.0
-    THICKNESS = 4.0
+    # 25% of the default case size per axis:
+    # 320 x 120 x 160 -> 80 x 30 x 40 mm.
+    X_ARM = 80.0
+    Y_ARM = 30.0
+    Z_ARM = 40.0
+    THICKNESS = 6.0
+    OVERLAP = 0.5
 
     def build(self):
-        arm = self.ARM_LENGTH
-        wall = self.THICKNESS
-        overlap = 1.0
+        x_arm = self.X_ARM
+        y_arm = self.Y_ARM
+        z_arm = self.Z_ARM
+        t = self.THICKNESS
+        overlap = self.OVERLAP
 
-        # Local mount point is (0, 0, 0).
-        #
-        # +X and +Z run inward along the two visible frame edges.
-        # +Y points outward from the front/rear face.
-        #
-        # The plates overlap by 1 mm around the local corner. Their external
-        # envelope is still exactly x=[-4,28], y=[-28,4], z=[-4,28], but the
-        # native union has real volume at every join instead of zero-thickness
-        # edge contact.
-        face_plate = Box(
-            arm + overlap,
-            wall + overlap,
-            arm + overlap,
-        ).move(
-            x=(arm - overlap) / 2,
-            y=(wall - overlap) / 2,
-            z=(arm - overlap) / 2,
+        # Canonical FRONT_TOP_LEFT protector: the case extends inward along
+        # +X, +Y and -Z. Three plates genuinely wrap the corner.
+        top = Box(x_arm, y_arm, t).move(
+            x=x_arm / 2,
+            y=y_arm / 2,
+            z=t / 2,
         )
-        horizontal_plate = Box(
-            arm + overlap,
-            arm + overlap,
-            wall + overlap,
+        front = Box(
+            x_arm,
+            t + overlap,
+            z_arm + overlap,
         ).move(
-            x=(arm - overlap) / 2,
-            y=(overlap - arm) / 2,
-            z=(overlap - wall) / 2,
+            x=x_arm / 2,
+            y=(overlap - t) / 2,
+            z=(overlap - z_arm) / 2,
         )
-        side_plate = Box(
-            wall + overlap,
-            arm + overlap,
-            arm + overlap,
+        side = Box(
+            t + overlap,
+            y_arm,
+            z_arm + overlap,
         ).move(
-            x=(overlap - wall) / 2,
-            y=(overlap - arm) / 2,
-            z=(arm - overlap) / 2,
+            x=(overlap - t) / 2,
+            y=y_arm / 2,
+            z=(overlap - z_arm) / 2,
         )
-
-        return face_plate + horizontal_plate + side_plate
+        return top + front + side
 
 
 class EightFlightcaseCorners:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    case_width = 320.0
+    case_depth = 120.0
+    case_height = 160.0
 
     def build(self):
-        frame = FrameBlock(
-            _width=self.frame_width,
-            _depth=self.frame_depth,
-            _height=self.frame_height,
+        case = CaseBlock(
+            _width=self.case_width,
+            _depth=self.case_depth,
+            _height=self.case_height,
         )
-        corner = FlightcaseCorner()
+        protector = FlightcaseCorner()
 
-        mount = AnchorFrame(
+        corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=FRONT,
-            x=UP,
+            z=BACK,
+            x=DOWN,
         )
 
-        front_top_left = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=mount,
+        front_top_left = protector.copy().attach(
+            case, parent=Anchor.FRONT_TOP_LEFT, child=corner_frame,
         )
-        front_top_right = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=mount,
+        front_top_right = protector.copy().attach(
+            case, parent=Anchor.FRONT_TOP_RIGHT, child=corner_frame,
         )
-        front_bottom_right = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=mount,
+        front_bottom_right = protector.copy().attach(
+            case, parent=Anchor.FRONT_BOTTOM_RIGHT, child=corner_frame,
         )
-        front_bottom_left = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=mount,
+        front_bottom_left = protector.copy().attach(
+            case, parent=Anchor.FRONT_BOTTOM_LEFT, child=corner_frame,
         )
-
-        rear_top_left = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_LEFT,
-            child=mount,
+        rear_top_left = protector.copy().attach(
+            case, parent=Anchor.BACK_TOP_LEFT, child=corner_frame,
         )
-        rear_top_right = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_RIGHT,
-            child=mount,
+        rear_top_right = protector.copy().attach(
+            case, parent=Anchor.BACK_TOP_RIGHT, child=corner_frame,
         )
-        rear_bottom_right = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=mount,
+        rear_bottom_right = protector.copy().attach(
+            case, parent=Anchor.BACK_BOTTOM_RIGHT, child=corner_frame,
         )
-        rear_bottom_left = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_LEFT,
-            child=mount,
+        rear_bottom_left = protector.copy().attach(
+            case, parent=Anchor.BACK_BOTTOM_LEFT, child=corner_frame,
         )
 
         return (
-            frame
-            + front_top_left
-            + front_top_right
-            + front_bottom_right
-            + front_bottom_left
-            + rear_top_left
-            + rear_top_right
-            + rear_bottom_right
-            + rear_bottom_left
+            case
+            + front_top_left + front_top_right
+            + front_bottom_right + front_bottom_left
+            + rear_top_left + rear_top_right
+            + rear_bottom_right + rear_bottom_left
         )
 
 

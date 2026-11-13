@@ -1,56 +1,56 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Four HUB75-style outside corner brackets · SCPF Python library</title>
+<title>Qualification · Four middle-plane corner brackets · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
 <nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Four HUB75-style outside corner brackets</div>
+<div class="crumb"><a href="../">← Qualification</a> / Four middle-plane corner brackets</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Four HUB75-style outside corner brackets</h1>
+  <h1>Four middle-plane corner brackets</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="four-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="four-corner-brackets.svg" alt="Four HUB75-style outside corner brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="four-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="four-corner-brackets.dxf">DXF</a></figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="four-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="four-corner-brackets.svg" alt="Four middle-plane corner brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="four-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="four-corner-brackets.dxf">DXF</a></figcaption></figure>
   <h3>Test goal</h3>
-  <p>Mount one neutral flat L-bracket on the four outside corners of the front face. This is the direct step after four bottom feet and matches the corner-placement pattern used by the HUB75 frame before adding the rear set.</p>
+  <p>Reuse one simple polygon L-bracket four times around the frame&#x27;s middle cross-section. This isolates 2D corner position and clocking before moving the same component to the eight physical box corners.</p>
   <h3>Pass criteria</h3>
-  <p>Four brackets sit outside the front face: top-left, top-right, bottom-right and bottom-left. Their two equal L arms run inward along the adjacent frame edges.</p>
-  <h3>Mutation criterion</h3><p>Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved .sc design; all four front brackets must follow their moved corners without rerunning Python.</p>
+  <p>Four small L-brackets form one ring through the centre of the frame depth. Their inside corners follow the left/right and top/bottom frame edges and the brackets are centred around Y=0.</p>
+  <h3>Mutation criterion</h3><p>Resize the saved frame from 320x120x160 mm to 400x160x200 mm; the four brackets must remain on the middle plane and follow the moved X/Z edges without rerunning Python.</p>
 </section>
 
 <section class="panel">
   <h2>2. Implementation under test</h2>
   <h3>Fixture source</h3>
-  <pre><code>&quot;&quot;&quot;Four reusable outside L-brackets on the front corners of a frame.&quot;&quot;&quot;
+  <pre><code>&quot;&quot;&quot;Four simple L-brackets around the frame&#x27;s middle cross-section.&quot;&quot;&quot;
 
 
 class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
-class LBracket:
-    ARM_LENGTH = 28.0
+class CornerBracket:
+    ARM_LENGTH = 36.0
     WALL = 8.0
-    THICKNESS = 4.0
+    THICKNESS = 8.0
 
     def build(self):
-        # Neutral reusable component in its own local XZ plane.
-        # Placement/orientation belongs entirely to the assembly.
+        # Qualification geometry only: one plain L polygon in local XZ.
+        # The local inside corner at (0, 0, 0) is the attachment datum.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -64,14 +64,14 @@ class LBracket:
         )
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
 class FourCornerBrackets:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    frame_width = 320.0
+    frame_depth = 120.0
+    frame_height = 160.0
 
     def build(self):
         frame = FrameBlock(
@@ -79,7 +79,7 @@ class FourCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        bracket = CornerBracket()
 
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
@@ -87,25 +87,26 @@ class FourCornerBrackets:
             x=RIGHT,
         )
 
+        # Start at the four FRONT topology corners and move inward by half
+        # the current frame depth. This keeps the ring on Y=0 after a native
+        # depth change without rerunning Python.
+        middle_gap = -(self.frame_depth / 2)
+
         top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
         top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left
@@ -114,14 +115,14 @@ class FourCornerBrackets:
 FourCornerBrackets()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.FRONT_TOP_/BOTTOM_... corner, child=assembly-local AnchorFrame)</code></p>
+  <p><code>CornerBracket Polygon2D + attach(parent=FRONT corner, child=AnchorFrame, gap=-(frame_depth/2))</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One parametric frame plus four occurrences of one neutral LBracket definition. LBracket contains only local XZ geometry; the assembly owns which front corner each occurrence uses.</p>
+  <p>One 320x120x160 frame plus four occurrences of one neutral CornerBracket. The bracket is a plain 36x36 mm L-profile with 8 mm wall and 8 mm symmetric thickness.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four rigid joint.create commands use topology-backed FRONT corner references. The explicit child AnchorFrame fixes the bracket clocking without repeated angle=0 in the model.</p>
+  <p>The four topology-backed FRONT corner references supply X/Z corner identity; a symbolic negative half-depth gap moves the set to Y=0 while preserving native depth associativity.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -129,31 +130,31 @@ FourCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:1&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -166,6 +167,7 @@ FourCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: &quot;-(frame_depth / 2)&quot;,
       &quot;angle&quot;: 0.0
     }
   },
@@ -173,31 +175,31 @@ FourCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:2&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -210,6 +212,7 @@ FourCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: &quot;-(frame_depth / 2)&quot;,
       &quot;angle&quot;: 0.0
     }
   },
@@ -217,30 +220,30 @@ FourCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:3 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:3&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -254,6 +257,7 @@ FourCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: &quot;-(frame_depth / 2)&quot;,
       &quot;angle&quot;: 0.0
     }
   },
@@ -261,30 +265,30 @@ FourCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:4 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:4&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -298,6 +302,7 @@ FourCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: &quot;-(frame_depth / 2)&quot;,
       &quot;angle&quot;: 0.0
     }
   }
@@ -322,7 +327,7 @@ FourCornerBrackets()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The four FRONT corner references provide the native topology relationship used by this HUB75-style placement.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable bracket remains local; the assembly selects the parent corner and therefore owns placement.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A native corner reference plus symbolic joint gap keeps the relationship editable.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable L-profile stays local while the assembly owns position and clocking.</li></ul>
     </div>
   </div>
 </section>

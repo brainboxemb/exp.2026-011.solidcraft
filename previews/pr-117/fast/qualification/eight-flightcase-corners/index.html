@@ -1,182 +1,156 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Eight reusable three-face flightcase corners · SCPF Python library</title>
+<title>Qualification · Eight proportional flightcase corner protectors · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
 <nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Eight reusable three-face flightcase corners</div>
+<div class="crumb"><a href="../">← Qualification</a> / Eight proportional flightcase corner protectors</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Eight reusable three-face flightcase corners</h1>
+  <h1>Eight proportional flightcase corner protectors</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight reusable three-face flightcase corners expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight proportional flightcase corner protectors expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
   <h3>Test goal</h3>
-  <p>Replace the flat L-bracket with a true 3D corner protector. One neutral component has three perpendicular plates around a local mount point and is reused on all eight frame corners.</p>
+  <p>Replace the flat L-bracket with a genuinely wrapping three-face protector. One neutral protector is reused at all eight box corners.</p>
   <h3>Pass criteria</h3>
-  <p>Each physical box corner is wrapped by three perpendicular plates. All protectors extend 4 mm outside the frame and 28 mm inward along each adjacent face.</p>
-  <h3>Mutation criterion</h3><p>Change the saved frame from 120x80x60 mm to 160x120x90 mm; all eight 3D corner protectors must follow their corresponding corner without rerunning Python.</p>
+  <p>Each protector truly wraps three adjacent case faces: 80 mm along X, 30 mm along Y and 40 mm along Z, with 6 mm material extending outside the case surfaces.</p>
+  <h3>Mutation criterion</h3><p>Resize the saved case to 400x160x200 mm; the protectors keep their physical size but all eight attachment points follow the moved corners.</p>
 </section>
 
 <section class="panel">
   <h2>2. Implementation under test</h2>
   <h3>Fixture source</h3>
-  <pre><code>&quot;&quot;&quot;Eight reusable three-face flightcase corners on a rectangular frame.&quot;&quot;&quot;
+  <pre><code>&quot;&quot;&quot;Eight proportional three-face flightcase corner protectors.&quot;&quot;&quot;
 
 
-class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+class CaseBlock:
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
 class FlightcaseCorner:
-    ARM_LENGTH = 28.0
-    THICKNESS = 4.0
+    # 25% of the default case size per axis:
+    # 320 x 120 x 160 -&gt; 80 x 30 x 40 mm.
+    X_ARM = 80.0
+    Y_ARM = 30.0
+    Z_ARM = 40.0
+    THICKNESS = 6.0
+    OVERLAP = 0.5
 
     def build(self):
-        arm = self.ARM_LENGTH
-        wall = self.THICKNESS
-        overlap = 1.0
+        x_arm = self.X_ARM
+        y_arm = self.Y_ARM
+        z_arm = self.Z_ARM
+        t = self.THICKNESS
+        overlap = self.OVERLAP
 
-        # Local mount point is (0, 0, 0).
-        #
-        # +X and +Z run inward along the two visible frame edges.
-        # +Y points outward from the front/rear face.
-        #
-        # The plates overlap by 1 mm around the local corner. Their external
-        # envelope is still exactly x=[-4,28], y=[-28,4], z=[-4,28], but the
-        # native union has real volume at every join instead of zero-thickness
-        # edge contact.
-        face_plate = Box(
-            arm + overlap,
-            wall + overlap,
-            arm + overlap,
-        ).move(
-            x=(arm - overlap) / 2,
-            y=(wall - overlap) / 2,
-            z=(arm - overlap) / 2,
+        # Canonical FRONT_TOP_LEFT protector: the case extends inward along
+        # +X, +Y and -Z. Three plates genuinely wrap the corner.
+        top = Box(x_arm, y_arm, t).move(
+            x=x_arm / 2,
+            y=y_arm / 2,
+            z=t / 2,
         )
-        horizontal_plate = Box(
-            arm + overlap,
-            arm + overlap,
-            wall + overlap,
+        front = Box(
+            x_arm,
+            t + overlap,
+            z_arm + overlap,
         ).move(
-            x=(arm - overlap) / 2,
-            y=(overlap - arm) / 2,
-            z=(overlap - wall) / 2,
+            x=x_arm / 2,
+            y=(overlap - t) / 2,
+            z=(overlap - z_arm) / 2,
         )
-        side_plate = Box(
-            wall + overlap,
-            arm + overlap,
-            arm + overlap,
+        side = Box(
+            t + overlap,
+            y_arm,
+            z_arm + overlap,
         ).move(
-            x=(overlap - wall) / 2,
-            y=(overlap - arm) / 2,
-            z=(arm - overlap) / 2,
+            x=(overlap - t) / 2,
+            y=y_arm / 2,
+            z=(overlap - z_arm) / 2,
         )
-
-        return face_plate + horizontal_plate + side_plate
+        return top + front + side
 
 
 class EightFlightcaseCorners:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    case_width = 320.0
+    case_depth = 120.0
+    case_height = 160.0
 
     def build(self):
-        frame = FrameBlock(
-            _width=self.frame_width,
-            _depth=self.frame_depth,
-            _height=self.frame_height,
+        case = CaseBlock(
+            _width=self.case_width,
+            _depth=self.case_depth,
+            _height=self.case_height,
         )
-        corner = FlightcaseCorner()
+        protector = FlightcaseCorner()
 
-        mount = AnchorFrame(
+        corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=FRONT,
-            x=UP,
+            z=BACK,
+            x=DOWN,
         )
 
-        front_top_left = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=mount,
+        front_top_left = protector.copy().attach(
+            case, parent=Anchor.FRONT_TOP_LEFT, child=corner_frame,
         )
-        front_top_right = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=mount,
+        front_top_right = protector.copy().attach(
+            case, parent=Anchor.FRONT_TOP_RIGHT, child=corner_frame,
         )
-        front_bottom_right = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=mount,
+        front_bottom_right = protector.copy().attach(
+            case, parent=Anchor.FRONT_BOTTOM_RIGHT, child=corner_frame,
         )
-        front_bottom_left = corner.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=mount,
+        front_bottom_left = protector.copy().attach(
+            case, parent=Anchor.FRONT_BOTTOM_LEFT, child=corner_frame,
         )
-
-        rear_top_left = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_LEFT,
-            child=mount,
+        rear_top_left = protector.copy().attach(
+            case, parent=Anchor.BACK_TOP_LEFT, child=corner_frame,
         )
-        rear_top_right = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_RIGHT,
-            child=mount,
+        rear_top_right = protector.copy().attach(
+            case, parent=Anchor.BACK_TOP_RIGHT, child=corner_frame,
         )
-        rear_bottom_right = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=mount,
+        rear_bottom_right = protector.copy().attach(
+            case, parent=Anchor.BACK_BOTTOM_RIGHT, child=corner_frame,
         )
-        rear_bottom_left = corner.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_LEFT,
-            child=mount,
+        rear_bottom_left = protector.copy().attach(
+            case, parent=Anchor.BACK_BOTTOM_LEFT, child=corner_frame,
         )
 
         return (
-            frame
-            + front_top_left
-            + front_top_right
-            + front_bottom_right
-            + front_bottom_left
-            + rear_top_left
-            + rear_top_right
-            + rear_bottom_right
-            + rear_bottom_left
+            case
+            + front_top_left + front_top_right
+            + front_bottom_right + front_bottom_left
+            + rear_top_left + rear_top_right
+            + rear_bottom_right + rear_bottom_left
         )
 
 
 EightFlightcaseCorners()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>FlightcaseCorner local geometry + attach(parent=all 8 FRONT/BACK corner Anchors, child=AnchorFrame(z=FRONT, x=UP))</code></p>
+  <p><code>FlightcaseCorner three-plate geometry + attach(parent=all 8 corner Anchors, child=AnchorFrame(z=BACK, x=DOWN))</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One frame plus eight occurrences of one FlightcaseCorner definition. The component owns face/horizontal/side plates only; all front/rear, top/bottom and left/right orientation comes from the assembly relationship.</p>
+  <p>One 320x120x160 case plus eight occurrences of one trihedral protector. Its default reach is 25% of the case size per axis: X=80, Y=30 and Z=40 mm.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid native joints reuse the same child frame (z=FRONT, x=UP) against eight topology-backed parent corner references. The UP clocking makes the three-face protector line up with the two inward frame edges while keeping occurrence-specific geometry out of FlightcaseCorner.</p>
+  <p>Eight rigid topology-backed corner joints orient the same three-face component around the eight physical box corners.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -184,41 +158,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:1 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:1 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:1&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -228,41 +202,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:2 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:2 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:2&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -272,41 +246,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:3 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:3 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:3&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -316,41 +290,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:4 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:4 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:4&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -360,41 +334,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:5 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:5 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
+          -160.0,
+          60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          -60.0,
-          40.0,
-          60.0
+          -160.0,
+          60.0,
+          160.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:5&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
-          60.0
+          -160.0,
+          60.0,
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -404,41 +378,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:6 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:6 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
+          160.0,
           60.0,
-          40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          160.0,
           60.0,
-          40.0,
-          60.0
+          160.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:6&quot;,
         &quot;point&quot;: [
+          160.0,
           60.0,
-          40.0,
-          60.0
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -448,41 +422,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:7 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:7 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
+          160.0,
           60.0,
-          40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          160.0,
           60.0,
-          40.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:7&quot;,
         &quot;point&quot;: [
+          160.0,
           60.0,
-          40.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -492,41 +466,41 @@ EightFlightcaseCorners()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach FlightcaseCorner:8 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach FlightcaseCorner:8 to CaseBlock:1&quot;,
       &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
         &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
+          -160.0,
+          60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          -60.0,
-          40.0,
+          -160.0,
+          60.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:8&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
+          -160.0,
+          60.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
+          1.0,
           0.0
         ],
         &quot;x&quot;: [
           0.0,
           0.0,
-          1.0
+          -1.0
         ]
       },
       &quot;angle&quot;: 0.0
@@ -553,7 +527,7 @@ EightFlightcaseCorners()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> This qualifies native corner relationships with a genuinely three-dimensional reusable child component.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The progression mirrors attachable design: component-local geometry stays neutral while parent anchors determine full occurrence orientation.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> This proves the corner-frame semantics with a genuinely 3D child instead of another flat bracket.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The component is neutral; all eight orientations are assembly relationships.</li></ul>
     </div>
   </div>
 </section>

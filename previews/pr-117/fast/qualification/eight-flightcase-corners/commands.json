@@ -3,7 +3,15 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "frame_width",
+        "name": "case_width",
+        "expression": "320",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "case_depth",
         "expression": "120",
         "unit": "mm"
       }
@@ -11,23 +19,15 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "frame_depth",
-        "expression": "80",
-        "unit": "mm"
-      }
-    },
-    {
-      "command": "parameters.add",
-      "params": {
-        "name": "frame_height",
-        "expression": "60",
+        "name": "case_height",
+        "expression": "160",
         "unit": "mm"
       }
     },
     {
       "command": "component.create",
       "params": {
-        "name": "FrameBlock",
+        "name": "CaseBlock",
         "grounded": true
       }
     },
@@ -35,19 +35,19 @@
       "command": "sketch.create",
       "params": {
         "plane": "XY",
-        "name": "FrameBlock footprint"
+        "name": "CaseBlock footprint"
       }
     },
     {
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          "-frame_width / 2",
-          "-frame_depth / 2"
+          "-case_width / 2",
+          "-case_depth / 2"
         ],
         "p1": [
-          "frame_width / 2",
-          "frame_depth / 2"
+          "case_width / 2",
+          "case_depth / 2"
         ]
       }
     },
@@ -58,8 +58,8 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": "frame_height",
-        "body_name": "FrameBlock"
+        "distance": "case_height",
+        "body_name": "CaseBlock"
       }
     },
     {
@@ -78,13 +78,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 29.0,
-        "width": 5.0,
-        "height": 29.0,
+        "length": 80.0,
+        "width": 30.0,
+        "height": 6.0,
         "center": [
-          13.5,
-          1.5,
-          13.5
+          40.0,
+          15.0,
+          3.0
         ],
         "operation": "new",
         "body_name": "FlightcaseCorner"
@@ -93,13 +93,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 29.0,
-        "width": 29.0,
-        "height": 5.0,
+        "length": 80.0,
+        "width": 6.5,
+        "height": 40.5,
         "center": [
-          13.5,
-          -13.5,
-          -1.5
+          40.0,
+          -2.75,
+          -19.75
         ],
         "operation": "join",
         "targets": [
@@ -110,13 +110,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 5.0,
-        "width": 29.0,
-        "height": 29.0,
+        "length": 6.5,
+        "width": 30.0,
+        "height": 40.5,
         "center": [
-          -1.5,
-          -13.5,
-          13.5
+          -2.75,
+          15.0,
+          -19.75
         ],
         "operation": "join",
         "targets": [
@@ -177,9 +177,9 @@
       "params": {
         "occurrence": "FlightcaseCorner:1",
         "translate": [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ]
       }
     },
@@ -188,9 +188,9 @@
       "params": {
         "occurrence": "FlightcaseCorner:2",
         "translate": [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ]
       }
     },
@@ -199,8 +199,8 @@
       "params": {
         "occurrence": "FlightcaseCorner:3",
         "translate": [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ]
       }
@@ -210,8 +210,8 @@
       "params": {
         "occurrence": "FlightcaseCorner:4",
         "translate": [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ]
       }
@@ -221,9 +221,9 @@
       "params": {
         "occurrence": "FlightcaseCorner:5",
         "translate": [
-          -60.0,
-          40.0,
-          60.0
+          -160.0,
+          60.0,
+          160.0
         ]
       }
     },
@@ -232,9 +232,9 @@
       "params": {
         "occurrence": "FlightcaseCorner:6",
         "translate": [
+          160.0,
           60.0,
-          40.0,
-          60.0
+          160.0
         ]
       }
     },
@@ -243,8 +243,8 @@
       "params": {
         "occurrence": "FlightcaseCorner:7",
         "translate": [
+          160.0,
           60.0,
-          40.0,
           0.0
         ]
       }
@@ -254,8 +254,8 @@
       "params": {
         "occurrence": "FlightcaseCorner:8",
         "translate": [
-          -60.0,
-          40.0,
+          -160.0,
+          60.0,
           0.0
         ]
       }
@@ -264,41 +264,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:1 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:1 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
+            -160.0,
             -60.0,
-            -40.0,
-            30.0
+            80.0
           ],
           "on": [
             0.0,
-            -40.0,
-            30.0
+            -60.0,
+            80.0
           ],
           "corner": [
+            -160.0,
             -60.0,
-            -40.0,
-            60.0
+            160.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:1",
           "point": [
+            -160.0,
             -60.0,
-            -40.0,
-            60.0
+            160.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -308,41 +308,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:2 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:2 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
-            60.0,
-            -40.0,
-            30.0
+            160.0,
+            -60.0,
+            80.0
           ],
           "on": [
             0.0,
-            -40.0,
-            30.0
+            -60.0,
+            80.0
           ],
           "corner": [
-            60.0,
-            -40.0,
-            60.0
+            160.0,
+            -60.0,
+            160.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:2",
           "point": [
-            60.0,
-            -40.0,
-            60.0
+            160.0,
+            -60.0,
+            160.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -352,41 +352,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:3 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:3 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
-            60.0,
-            -40.0,
-            30.0
+            160.0,
+            -60.0,
+            80.0
           ],
           "on": [
             0.0,
-            -40.0,
-            30.0
+            -60.0,
+            80.0
           ],
           "corner": [
-            60.0,
-            -40.0,
+            160.0,
+            -60.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:3",
           "point": [
-            60.0,
-            -40.0,
+            160.0,
+            -60.0,
             0.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -396,41 +396,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:4 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:4 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
+            -160.0,
             -60.0,
-            -40.0,
-            30.0
+            80.0
           ],
           "on": [
             0.0,
-            -40.0,
-            30.0
+            -60.0,
+            80.0
           ],
           "corner": [
+            -160.0,
             -60.0,
-            -40.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:4",
           "point": [
+            -160.0,
             -60.0,
-            -40.0,
             0.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -440,41 +440,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:5 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:5 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
-            -60.0,
-            40.0,
-            30.0
+            -160.0,
+            60.0,
+            80.0
           ],
           "on": [
             0.0,
-            40.0,
-            30.0
+            60.0,
+            80.0
           ],
           "corner": [
-            -60.0,
-            40.0,
-            60.0
+            -160.0,
+            60.0,
+            160.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:5",
           "point": [
-            -60.0,
-            40.0,
-            60.0
+            -160.0,
+            60.0,
+            160.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -484,41 +484,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:6 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:6 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
+            160.0,
             60.0,
-            40.0,
-            30.0
+            80.0
           ],
           "on": [
             0.0,
-            40.0,
-            30.0
+            60.0,
+            80.0
           ],
           "corner": [
+            160.0,
             60.0,
-            40.0,
-            60.0
+            160.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:6",
           "point": [
+            160.0,
             60.0,
-            40.0,
-            60.0
+            160.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -528,41 +528,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:7 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:7 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
+            160.0,
             60.0,
-            40.0,
-            30.0
+            80.0
           ],
           "on": [
             0.0,
-            40.0,
-            30.0
+            60.0,
+            80.0
           ],
           "corner": [
+            160.0,
             60.0,
-            40.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:7",
           "point": [
+            160.0,
             60.0,
-            40.0,
             0.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0
@@ -572,41 +572,41 @@
       "command": "joint.create",
       "params": {
         "type": "rigid",
-        "name": "Attach FlightcaseCorner:8 to FrameBlock:1",
+        "name": "Attach FlightcaseCorner:8 to CaseBlock:1",
         "a": {
-          "occurrence": "FrameBlock:1",
+          "occurrence": "CaseBlock:1",
           "edge": [
-            -60.0,
-            40.0,
-            30.0
+            -160.0,
+            60.0,
+            80.0
           ],
           "on": [
             0.0,
-            40.0,
-            30.0
+            60.0,
+            80.0
           ],
           "corner": [
-            -60.0,
-            40.0,
+            -160.0,
+            60.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "FlightcaseCorner:8",
           "point": [
-            -60.0,
-            40.0,
+            -160.0,
+            60.0,
             0.0
           ],
           "z": [
             0.0,
-            -1.0,
+            1.0,
             0.0
           ],
           "x": [
             0.0,
             0.0,
-            1.0
+            -1.0
           ]
         },
         "angle": 0.0

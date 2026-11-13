@@ -1,23 +1,23 @@
-"""Four reusable outside L-brackets on the front corners of a frame."""
+"""Four simple L-brackets around the frame's middle cross-section."""
 
 
 class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
-class LBracket:
-    ARM_LENGTH = 28.0
+class CornerBracket:
+    ARM_LENGTH = 36.0
     WALL = 8.0
-    THICKNESS = 4.0
+    THICKNESS = 8.0
 
     def build(self):
-        # Neutral reusable component in its own local XZ plane.
-        # Placement/orientation belongs entirely to the assembly.
+        # Qualification geometry only: one plain L polygon in local XZ.
+        # The local inside corner at (0, 0, 0) is the attachment datum.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -31,14 +31,14 @@ class LBracket:
         )
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
 class FourCornerBrackets:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    frame_width = 320.0
+    frame_depth = 120.0
+    frame_height = 160.0
 
     def build(self):
         frame = FrameBlock(
@@ -46,7 +46,7 @@ class FourCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        bracket = CornerBracket()
 
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
@@ -54,25 +54,26 @@ class FourCornerBrackets:
             x=RIGHT,
         )
 
+        # Start at the four FRONT topology corners and move inward by half
+        # the current frame depth. This keeps the ring on Y=0 after a native
+        # depth change without rerunning Python.
+        middle_gap = -(self.frame_depth / 2)
+
         top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
         top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left

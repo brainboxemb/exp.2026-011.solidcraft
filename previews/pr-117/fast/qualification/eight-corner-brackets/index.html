@@ -1,57 +1,56 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Eight reusable outside L-brackets · SCPF Python library</title>
+<title>Qualification · Eight outer corner brackets · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
 <nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Eight reusable outside L-brackets</div>
+<div class="crumb"><a href="../">← Qualification</a> / Eight outer corner brackets</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Eight reusable outside L-brackets</h1>
+  <h1>Eight outer corner brackets</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="eight-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-corner-brackets.svg" alt="Eight reusable outside L-brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="eight-corner-brackets.dxf">DXF</a></figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="eight-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-corner-brackets.svg" alt="Eight outer corner brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="eight-corner-brackets.dxf">DXF</a></figcaption></figure>
   <h3>Test goal</h3>
-  <p>Mount one neutral flat L-bracket on every outside corner of a rectangular frame: four on the front face and four on the rear face. The assembly owns all eight placements; the bracket component owns only its local geometry.</p>
+  <p>Move the exact same simple polygon L-bracket from the middle-plane exercise to all eight physical box corners: four at the front and four at the rear.</p>
   <h3>Pass criteria</h3>
-  <p>Four brackets sit fully outside the front face and four sit fully outside the rear face. At each corner the two equal L arms run inward over the adjacent frame edges.</p>
-  <h3>Mutation criterion</h3><p>Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved .sc design; all eight brackets must follow their corresponding moved corners without rerunning Python.</p>
+  <p>The eight inside L corners coincide with the eight box corner points. Front brackets occupy Y=-68..-60 and rear brackets Y=60..68; their L arms run inward along X/Z edges.</p>
+  <h3>Mutation criterion</h3><p>Resize the saved frame to 400x160x200 mm; all eight brackets must follow their moved box corners without rerunning Python.</p>
 </section>
 
 <section class="panel">
   <h2>2. Implementation under test</h2>
   <h3>Fixture source</h3>
-  <pre><code>&quot;&quot;&quot;Eight reusable L-brackets mounted outside a rectangular frame.&quot;&quot;&quot;
+  <pre><code>&quot;&quot;&quot;Eight simple L-brackets on the eight outer frame corners.&quot;&quot;&quot;
 
 
 class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
-class LBracket:
-    ARM_LENGTH = 28.0
+class CornerBracket:
+    ARM_LENGTH = 36.0
     WALL = 8.0
-    THICKNESS = 4.0
+    THICKNESS = 8.0
 
     def build(self):
-        # Neutral reusable component in its own local XZ plane.
-        # The profile starts at its local corner and the material is extruded
-        # in local +Y. It has no front/rear/top/bottom frame knowledge.
+        # Qualification geometry only: one plain L polygon in local XZ.
+        # The local inside corner at (0, 0, 0) is the attachment datum.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -65,14 +64,14 @@ class LBracket:
         )
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
 class EightCornerBrackets:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    frame_width = 320.0
+    frame_depth = 120.0
+    frame_height = 160.0
 
     def build(self):
         frame = FrameBlock(
@@ -80,83 +79,71 @@ class EightCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        bracket = CornerBracket()
 
-        # Placement belongs to this assembly. The same local bracket corner is
-        # used for all eight occurrences; SolidCraft&#x27;s parent corner reference
-        # supplies the corner position/orientation on the front or rear face.
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
             z=FRONT,
             x=RIGHT,
         )
 
+        # Symmetric extrusion plus half-thickness outward gap makes the
+        # bracket touch the selected face without floating or cutting through.
+        outside_gap = CornerBracket.THICKNESS / 2
+
         front_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
-
         rear_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_TOP_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_TOP_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_BOTTOM_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
 
         return (
             frame
-            + front_top_left
-            + front_top_right
-            + front_bottom_right
-            + front_bottom_left
-            + rear_top_left
-            + rear_top_right
-            + rear_bottom_right
-            + rear_bottom_left
+            + front_top_left + front_top_right
+            + front_bottom_right + front_bottom_left
+            + rear_top_left + rear_top_right
+            + rear_bottom_right + rear_bottom_left
         )
 
 
 EightCornerBrackets()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.FRONT_/BACK_... corner, child=assembly-local AnchorFrame); explicit child frame fixes mating clocking automatically</code></p>
+  <p><code>CornerBracket Polygon2D + attach(parent=all FRONT/BACK corner Anchors, child=AnchorFrame, gap=THICKNESS/2)</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One parametric frame plus eight occurrences of one neutral LBracket definition. The same assembly-local bracket-corner reference is reused for front/rear, top/bottom and left/right placements.</p>
+  <p>One 320x120x160 frame plus eight occurrences of the same 36x36x8 mm CornerBracket used by the four-bracket case.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid joint.create commands use topology-backed parent corner references. Forge may pre-position occurrences so SolidCraft can resolve the selected references, but the saved assembly relationship is the native joint rather than a frozen world-coordinate placement.</p>
+  <p>Eight topology-backed corner joints place the shared L-profile on the real front/rear corner points. A half-thickness outward gap keeps every bracket completely outside the selected face.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -164,31 +151,31 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:1&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          60.0
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -201,6 +188,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -208,31 +196,31 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:2&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          160.0,
+          -60.0,
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -245,6 +233,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -252,30 +241,30 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:3 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
+          160.0,
+          -60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:3&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
+          160.0,
+          -60.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -289,6 +278,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -296,30 +286,30 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:4 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          -40.0,
-          30.0
+          -60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:4&quot;,
         &quot;point&quot;: [
+          -160.0,
           -60.0,
-          -40.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -333,6 +323,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -340,31 +331,31 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:5 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:5 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
+          -160.0,
+          60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          -60.0,
-          40.0,
-          60.0
+          -160.0,
+          60.0,
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:5&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:5&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
-          60.0
+          -160.0,
+          60.0,
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -377,6 +368,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -384,31 +376,31 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:6 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:6 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          160.0,
           60.0,
-          40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          160.0,
           60.0,
-          40.0,
-          60.0
+          160.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:6&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:6&quot;,
         &quot;point&quot;: [
+          160.0,
           60.0,
-          40.0,
-          60.0
+          160.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -421,6 +413,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -428,30 +421,30 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:7 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:7 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
+          160.0,
           60.0,
-          40.0,
-          30.0
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
+          160.0,
           60.0,
-          40.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:7&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:7&quot;,
         &quot;point&quot;: [
+          160.0,
           60.0,
-          40.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -465,6 +458,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   },
@@ -472,30 +466,30 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:8 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach CornerBracket:8 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
+          -160.0,
+          60.0,
+          80.0
         ],
         &quot;on&quot;: [
           0.0,
-          40.0,
-          30.0
+          60.0,
+          80.0
         ],
         &quot;corner&quot;: [
-          -60.0,
-          40.0,
+          -160.0,
+          60.0,
           0.0
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:8&quot;,
+        &quot;occurrence&quot;: &quot;CornerBracket:8&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
+          -160.0,
+          60.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -509,6 +503,7 @@ EightCornerBrackets()
           0.0
         ]
       },
+      &quot;offset&quot;: 4.0,
       &quot;angle&quot;: 0.0
     }
   }
@@ -533,7 +528,7 @@ EightCornerBrackets()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Front/rear corner topology is a natural native reference for a flat bracket mounted on those faces.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable part stays local; the assembly chooses which parent corner each occurrence attaches to.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Front/rear corner topology provides the eight native attachment points.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> This is the same reusable component at eight assembly-owned corner frames.</li></ul>
     </div>
   </div>
 </section>

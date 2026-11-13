@@ -1,5 +1,5 @@
 {
-  "library_commit": "3ca5a48e88a71dfa239eedef62a73101a368c644",
+  "library_commit": "f079da279d65c25e49e1a93274a8eedb9afffcf8",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -121,7 +121,7 @@
       "parameter_count": null
     },
     "four-corner-brackets": {
-      "title": "Four HUB75-style outside corner brackets",
+      "title": "Four middle-plane corner brackets",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 27,
@@ -134,7 +134,7 @@
       "parameter_count": null
     },
     "eight-corner-brackets": {
-      "title": "Eight reusable outside L-brackets",
+      "title": "Eight outer corner brackets",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 39,
@@ -147,7 +147,7 @@
       "parameter_count": null
     },
     "eight-flightcase-corners": {
-      "title": "Eight reusable three-face flightcase corners",
+      "title": "Eight proportional flightcase corner protectors",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 38,
