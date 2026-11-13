@@ -1,0 +1,79 @@
+{
+  "library_commit": "92d1cf17ef57b824cc62dc1d11a8045a5613ae7a",
+  "solidcraft_version": "0.30.1",
+  "native_verified": false,
+  "cases": {
+    "simple-box": {
+      "title": "Parameterized Box",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": []
+    },
+    "anchored-holes": {
+      "title": "Face-relative hole pattern",
+      "status": "Q1/Q2 documented",
+      "command_count": 13,
+      "native_evidence": []
+    },
+    "parameter-scope": {
+      "title": "Implicit component parameters and shared dependencies",
+      "status": "Q1/Q2 documented",
+      "command_count": 32,
+      "native_evidence": []
+    },
+    "components": {
+      "title": "Place one component relative to another",
+      "status": "Q1/Q2 documented",
+      "command_count": 13,
+      "native_evidence": []
+    },
+    "parametric-attach": {
+      "title": "Editable distance between attached components",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "parametric-offset": {
+      "title": "Editable local offset at an attachment",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "parametric-anchor": {
+      "title": "Face anchor follows parent geometry",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "corner-anchor": {
+      "title": "Topology-backed corner anchor",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": []
+    },
+    "custom-anchor": {
+      "title": "Named oriented AnchorFrame",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": []
+    },
+    "xz-anchor": {
+      "title": "Anchors on XZ-profile extrusion",
+      "status": "Q1/Q2 documented",
+      "command_count": 23,
+      "native_evidence": []
+    },
+    "primitive-csg": {
+      "title": "Primitive CSG",
+      "status": "Q1/Q2 documented",
+      "command_count": 4,
+      "native_evidence": []
+    },
+    "bracket": {
+      "title": "Minimal L-profile",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": []
+    }
+  }
+}
