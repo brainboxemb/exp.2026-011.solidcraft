@@ -1,56 +1,63 @@
-"""Eight trihedral flightcase corner protectors around one case."""
+"""Eight proportional three-face flightcase corner protectors."""
 
 
 class CaseBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
 class FlightcaseCorner:
-    ARM = 30.0
-    THICKNESS = 4.0
+    # 25% of the default case size per axis:
+    # 320 x 120 x 160 -> 80 x 30 x 40 mm.
+    X_ARM = 80.0
+    Y_ARM = 30.0
+    Z_ARM = 40.0
+    THICKNESS = 6.0
     OVERLAP = 0.5
 
     def build(self):
-        arm = self.ARM
+        x_arm = self.X_ARM
+        y_arm = self.Y_ARM
+        z_arm = self.Z_ARM
         t = self.THICKNESS
         overlap = self.OVERLAP
 
-        # Neutral outside corner cap for FRONT_TOP_LEFT.
-        # The case extends inward along +X, +Y and -Z.
-        #
-        # Three square plates meet at the same corner:
-        #   top plate   : +X / +Y, thickness outward in +Z
-        #   front plate : +X / -Z, thickness outward in -Y
-        #   side plate  : +Y / -Z, thickness outward in -X
-        top = Box(arm, arm, t).move(
-            x=arm / 2,
-            y=arm / 2,
+        # Canonical FRONT_TOP_LEFT protector: the case extends inward along
+        # +X, +Y and -Z. Three plates genuinely wrap the corner.
+        top = Box(x_arm, y_arm, t).move(
+            x=x_arm / 2,
+            y=y_arm / 2,
             z=t / 2,
         )
-        # A tiny internal overlap keeps the three native box joins robust.
-        # It is entirely inside the cap and does not change the outer bounds.
-        front = Box(arm, t + overlap, arm + overlap).move(
-            x=arm / 2,
+        front = Box(
+            x_arm,
+            t + overlap,
+            z_arm + overlap,
+        ).move(
+            x=x_arm / 2,
             y=(overlap - t) / 2,
-            z=(overlap - arm) / 2,
+            z=(overlap - z_arm) / 2,
         )
-        side = Box(t + overlap, arm, arm + overlap).move(
+        side = Box(
+            t + overlap,
+            y_arm,
+            z_arm + overlap,
+        ).move(
             x=(overlap - t) / 2,
-            y=arm / 2,
-            z=(overlap - arm) / 2,
+            y=y_arm / 2,
+            z=(overlap - z_arm) / 2,
         )
         return top + front + side
 
 
 class EightFlightcaseCorners:
-    case_width = 120.0
-    case_depth = 80.0
-    case_height = 60.0
+    case_width = 320.0
+    case_depth = 120.0
+    case_height = 160.0
 
     def build(self):
         case = CaseBlock(
@@ -60,9 +67,6 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral trihedral protector is reused at all eight topology
-        # corners. Its three plates must always wrap the outside corner and
-        # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
             z=BACK,

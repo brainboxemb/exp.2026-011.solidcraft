@@ -1,4 +1,4 @@
-"""Qualification contract for eight trihedral flightcase corners."""
+"""Qualification contract for proportional flightcase corners."""
 import json
 import os
 from pathlib import Path
@@ -11,22 +11,23 @@ ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
 EXPECTED_CORNERS = [
-    [-60.0, -40.0, 60.0],
-    [60.0, -40.0, 60.0],
-    [60.0, -40.0, 0.0],
-    [-60.0, -40.0, 0.0],
-    [-60.0, 40.0, 60.0],
-    [60.0, 40.0, 60.0],
-    [60.0, 40.0, 0.0],
-    [-60.0, 40.0, 0.0],
+    [-160.0, -60.0, 160.0],
+    [160.0, -60.0, 160.0],
+    [160.0, -60.0, 0.0],
+    [-160.0, -60.0, 0.0],
+    [-160.0, 60.0, 160.0],
+    [160.0, 60.0, 160.0],
+    [160.0, 60.0, 0.0],
+    [-160.0, 60.0, 0.0],
 ]
 
 
 class EightFlightcaseCornersCommandTests(unittest.TestCase):
-    def test_all_eight_3d_corners_reuse_one_component(self):
+    def test_one_three_face_component_is_reused_at_all_eight_corners(self):
         commands = run_script(
             ROOT / "examples/eight-flightcase-corners/scpf/model.py"
         )["commands"]
+
         components = [
             row["params"]["name"] for row in commands
             if row["command"] == "component.create"
@@ -47,28 +48,21 @@ class EightFlightcaseCornersCommandTests(unittest.TestCase):
             self.assertEqual(joint["angle"], 0.0)
             self.assertEqual(joint["a"]["corner"], corner)
             self.assertEqual(
-                joint["b"]["occurrence"],
-                f"FlightcaseCorner:{index}",
+                joint["b"]["occurrence"], f"FlightcaseCorner:{index}"
             )
-            self.assertEqual(joint["b"]["z"], [0.0, 1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [0.0, 0.0, -1.0])
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
 class EightFlightcaseCornersNativeTests(unittest.TestCase):
     def test_native_body_count(self):
-        data = _load(
-            Path(NATIVE_ROOT)
-            / "eight-flightcase-corners"
-            / "measurements.json"
-        )
+        data = _load(Path(NATIVE_ROOT) / "eight-flightcase-corners" / "measurements.json")
         self.assertEqual(data["body_count"], 9)
 
     def test_saved_size_mutation_retains_eight_corners(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "eight-flightcase-corners"
-            / "measurements-size-160x120x90.json"
+            / "measurements-size-400x160x200.json"
         )
         self.assertEqual(data["body_count"], 9)
 

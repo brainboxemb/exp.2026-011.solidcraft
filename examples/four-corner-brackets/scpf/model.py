@@ -1,79 +1,44 @@
-"""Four real HUB75 CornerBracket occurrences on the front corners."""
+"""Four simple L-brackets around the frame's middle cross-section."""
 
 
 class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
-class Hub75CornerBracket:
-    arm_width = 24.0
-    arm_height = 12.0
-    horizontal_arm_length = 60.0
-    vertical_arm_length = 60.0
-
-    outer_corner_chamfer = 6.0
-    arm_end_chamfer = 3.0
-    side_edge_chamfer = 2.0
-    elephant_foot_relief = 0.6
-    inside_corner_radius = 4.0
+class CornerBracket:
+    ARM_LENGTH = 36.0
+    WALL = 8.0
+    THICKNESS = 8.0
 
     def build(self):
-        w = self.arm_height
-        h = self.horizontal_arm_length
-        v = self.vertical_arm_length
-        end = self.arm_end_chamfer
-        outer = self.outer_corner_chamfer
-
-        # Same neutral XZ profile used by the real HUB75 wood-frame model.
-        points = [
-            ("i_corner", (0, 0)),
-            ("o_hor_tip", (h, 0)),
-            ("o_hor_bevel", (h, w - end)),
-            ("o_hor", (h - end, w)),
-            ("o_corner", (-w + outer, w)),
-            ("o_vert", (-w, w - outer)),
-            ("o_vert_bevel", (-w, -v + end)),
-            ("o_vert_end", (-w + end, -v)),
-            ("v_tip", (0, -v)),
-        ]
-
-        body = Polygon2D(
-            points,
+        # Qualification geometry only: one plain L polygon in local XZ.
+        # The local inside corner at (0, 0, 0) is the attachment datum.
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
             plane="XZ",
-            world=True,
-        ).extrude(
-            self.arm_width,
+        )
+        return profile.extrude(
+            self.THICKNESS,
             direction=Direction.SYMMETRIC,
         )
 
-        body = body.fillet(
-            self.inside_corner_radius,
-            edges=Edges.from_vertices("i_corner"),
-        )
-        body = body.chamfer(
-            self.elephant_foot_relief,
-            edges=Edges.from_vertices("o_hor_tip", "v_tip"),
-        )
-        body = body.chamfer(
-            self.side_edge_chamfer,
-            edges=Edges.from_profile("o_*", sides="both"),
-        )
-        body = body.chamfer(
-            self.elephant_foot_relief,
-            edges=Edges.from_profile("i_corner", sides="both"),
-        )
-        return body
 
-
-class FourHub75CornerBrackets:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+class FourCornerBrackets:
+    frame_width = 320.0
+    frame_depth = 120.0
+    frame_height = 160.0
 
     def build(self):
         frame = FrameBlock(
@@ -81,51 +46,37 @@ class FourHub75CornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = Hub75CornerBracket()
+        bracket = CornerBracket()
 
-        # These are the same mount-A / mount-B datums used by the real
-        # HUB75 wood-frame assembly. The component remains placement-neutral.
-        w = Hub75CornerBracket.arm_height
-        front_mount_a = AnchorFrame(
-            origin=(0, 0, -w),
-            z=BACK,
-            x=DOWN,
+        bracket_corner = AnchorFrame(
+            origin=(0, 0, 0),
+            z=FRONT,
+            x=RIGHT,
         )
-        front_mount_b = AnchorFrame(
-            origin=(w, 0, 0),
-            z=BACK,
-            x=DOWN,
-        )
-        # Positive gap moves the symmetric bracket to the outside of the
-        # FRONT face: its rear broad face lands exactly on the cabinet face.
-        gap = Hub75CornerBracket.arm_width / 2
+
+        # Start at the four FRONT topology corners and move inward by half
+        # the current frame depth. This keeps the ring on Y=0 after a native
+        # depth change without rerunning Python.
+        middle_gap = -(self.frame_depth / 2)
 
         top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=front_mount_a,
-            gap=gap,
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
         top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=front_mount_b,
-            gap=gap,
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=front_mount_a,
-            gap=gap,
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner, gap=middle_gap,
         )
         bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=front_mount_b,
-            gap=gap,
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner, gap=middle_gap,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left
 
 
-FourHub75CornerBrackets()
+FourCornerBrackets()
