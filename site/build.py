@@ -547,6 +547,23 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         case_dir.mkdir(exist_ok=True)
         source = text(source_path)
         (case_dir / "model.py").write_text(source, encoding="utf-8")
+
+        diagram_html = ""
+        diagram_name = case.get("diagram")
+        if diagram_name:
+            diagram_source = ROOT / "qualification" / "diagrams" / diagram_name
+            if not diagram_source.is_file():
+                raise ValueError(f"Qualification diagram missing: {diagram_source}")
+            shutil.copyfile(diagram_source, case_dir / diagram_name)
+            diagram_html = (
+                '<figure class="qualification-setup-diagram">'
+                f'<a href="{escape(diagram_name)}" class="qualification-image-link" '
+                'title="Open full-size setup diagram">'
+                f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} setup and anchor diagram">'
+                '</a>'
+                '<figcaption>Expected setup and anchor relationships. Click for the full-size diagram.</figcaption>'
+                '</figure>'
+            )
         (case_dir / "commands.json").write_text(
             json.dumps(commands, indent=2) + "\n",
             encoding="utf-8",
@@ -658,6 +675,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "case.html",
             title=escape(case["title"]),
             status_badge=_qualification_status_html(status, status_detail),
+            setup_diagram=diagram_html,
             intent=escape(case["intent"]),
             gallery=preview_html,
             forge_api=escape(case["forge_api"]),
