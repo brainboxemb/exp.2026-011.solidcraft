@@ -188,46 +188,35 @@ _CORNER_ANCHORS = {
     Anchor.BACK_BOTTOM_RIGHT,
 }
 
-# Native SolidCraft rectangular-corner frames measured with joint.inspect.
-# z is the face normal; x is the default in-plane axis at that corner.
-_CORNER_NATIVE_FRAMES = {
-    Anchor.FRONT_TOP_LEFT:     ((0.0, -1.0, 0.0), (0.0, 0.0, -1.0)),
-    Anchor.FRONT_TOP_RIGHT:    ((0.0, -1.0, 0.0), (-1.0, 0.0, 0.0)),
-    Anchor.FRONT_BOTTOM_RIGHT: ((0.0, -1.0, 0.0), (0.0, 0.0, 1.0)),
-    Anchor.FRONT_BOTTOM_LEFT:  ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0)),
-    Anchor.BACK_TOP_LEFT:      ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0)),
-    Anchor.BACK_TOP_RIGHT:     ((0.0, 1.0, 0.0), (0.0, 0.0, -1.0)),
-    Anchor.BACK_BOTTOM_RIGHT:  ((0.0, 1.0, 0.0), (-1.0, 0.0, 0.0)),
-    Anchor.BACK_BOTTOM_LEFT:   ((0.0, 1.0, 0.0), (0.0, 0.0, 1.0)),
+# Native SolidCraft rectangular-corner face normals.  The in-plane axis is
+# supplied by attach(..., assembled_rotation=...) when an assembly wants an
+# absolute final orientation for the child.
+_CORNER_NORMALS = {
+    Anchor.FRONT_TOP_LEFT:     (0.0, -1.0, 0.0),
+    Anchor.FRONT_TOP_RIGHT:    (0.0, -1.0, 0.0),
+    Anchor.FRONT_BOTTOM_RIGHT: (0.0, -1.0, 0.0),
+    Anchor.FRONT_BOTTOM_LEFT:  (0.0, -1.0, 0.0),
+    Anchor.BACK_TOP_LEFT:      (0.0, 1.0, 0.0),
+    Anchor.BACK_TOP_RIGHT:     (0.0, 1.0, 0.0),
+    Anchor.BACK_BOTTOM_RIGHT:  (0.0, 1.0, 0.0),
+    Anchor.BACK_BOTTOM_LEFT:   (0.0, 1.0, 0.0),
 }
 
 
-def _rotate_corner_x(anchor, rotation):
-    """Rotate the native corner X axis around its local Z normal.
-
-    Corner-anchor orientation is intentionally limited to quarter turns. This
-    keeps the mapping exact and matches the rectangular corner topology.
-    """
+def _quarter_turn_y(vector, rotation):
+    """Rotate a direction by an absolute quarter-turn around world Y."""
     if isinstance(rotation, bool) or not isinstance(rotation, (int, float)):
-        raise TypeError("assembly anchor rotation must be numeric degrees")
+        raise TypeError("assembled_rotation must be numeric degrees")
     if not isfinite(rotation):
-        raise ValueError("assembly anchor rotation must be finite")
+        raise ValueError("assembled_rotation must be finite")
     quarter_turns = round(rotation / 90.0)
     if abs(rotation - quarter_turns * 90.0) > 1e-9:
-        raise ValueError(
-            "assembly anchor rotation must be a multiple of 90 degrees"
-        )
+        raise ValueError("assembled_rotation must be a multiple of 90 degrees")
 
-    z, x = _CORNER_NATIVE_FRAMES[anchor]
-    result = x
+    x, y, z = map(float, vector)
     for _ in range(quarter_turns % 4):
-        result = (
-            z[1] * result[2] - z[2] * result[1],
-            z[2] * result[0] - z[0] * result[2],
-            z[0] * result[1] - z[1] * result[0],
-        )
-    return z, result
-
+        x, z = z, -x
+    return (x, y, z)
 
 def _anchor_point(instance, anchor):
     """Local point represented by one reusable-component anchor."""
@@ -433,9 +422,9 @@ class ModelInstance:
         ``angle`` is their relative turn in degrees around the attachment
         normal. Both stay native SolidCraft joint values.
 
-        ``assembled_rotation`` states the expected final quarter-turn
-        orientation for a rectangular parent corner. Forge uses it only to
-        choose the native corner frame; the assembly still owns the intent.
+        ``assembled_rotation`` states the child's absolute final quarter-turn
+        orientation around world Y at a rectangular parent corner. Forge uses
+        the child reference axis to author the matching native corner frame.
 
         ``as_built=True`` keeps both occurrences exactly where they already
         are and records only a fixed assembly relationship.
@@ -472,14 +461,24 @@ class ModelInstance:
                 raise ValueError(
                     "assembled_rotation requires a rectangular parent corner Anchor"
                 )
+            child_frame = child
+            if isinstance(child_frame, str):
+                child_frame = _custom_anchor(self, child_frame)
+            if not isinstance(child_frame, (AnchorFrame, AnchorTopology)):
+                raise ValueError(
+                    "assembled_rotation requires a child AnchorFrame or AnchorTopology"
+                )
+            if child_frame.x is None:
+                raise ValueError(
+                    "assembled_rotation requires a child reference with an x axis"
+                )
             edge, on, corner = _corner_origin_points(target, parent)
-            z, x = _rotate_corner_x(parent, assembled_rotation)
             parent = AnchorTopology(
                 edge=edge,
                 on=on,
                 corner=corner,
-                z=z,
-                x=x,
+                z=_CORNER_NORMALS[parent],
+                x=_quarter_turn_y(child_frame.x, assembled_rotation),
             )
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
