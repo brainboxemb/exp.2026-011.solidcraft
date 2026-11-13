@@ -177,7 +177,7 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Four real HUB75 corner brackets",
         "intent": "Use the real HUB75 CornerBracket profile and its real mount-A/mount-B datums on the four front corners. This is the first qualification step that mirrors the wooden display bracket assembly rather than a generic L-profile.",
-        "forge_api": "Hub75CornerBracket + AnchorFrame mount_a/mount_b; attach(parent=FRONT corner, child=mount frame, gap=-arm_width/2)",
+        "forge_api": "Hub75CornerBracket + AnchorFrame mount_a/mount_b; attach(parent=FRONT corner, child=mount frame, gap=+arm_width/2)",
         "forge_model": "One neutral real CornerBracket component plus four occurrences. The component owns only the reviewed XZ profile, fillet and chamfers; the assembly owns mount-A/mount-B, front normal, clocking and face offset.",
         "lowering": "Four rigid native joints use topology-backed FRONT corners. Child AnchorFrames use BACK/DOWN and the joint gap moves the symmetric 24 mm bracket from its centre plane onto the front broad face.",
         "native_expectation": "The real 60 mm HUB75 brackets wrap the four front corners with their broad faces outside the cabinet front and their two arms following the adjacent frame edges.",
@@ -196,7 +196,7 @@ QUALIFICATION_CASES = [
         "intent": "Extend the four-bracket HUB75 case to the real display pattern: front and rear brackets at all four corners, while reusing the exact same CornerBracket component.",
         "forge_api": "Four FRONT and four BACK corner attachments using the real front/rear mount-A/mount-B AnchorFrames.",
         "forge_model": "One frame plus eight occurrences of one real Hub75CornerBracket definition. Front and rear mounting frames differ only in local normal/clocking; the reusable bracket geometry is unchanged.",
-        "lowering": "Eight rigid joints use topology-backed FRONT/BACK corner references. Child AnchorFrames and a -arm_width/2 gap place each symmetric bracket on the correct broad face.",
+        "lowering": "Eight rigid joints use topology-backed FRONT/BACK corner references. Child AnchorFrames and a +arm_width/2 gap place each symmetric bracket outside the correct broad face.",
         "native_expectation": "Four real brackets sit outside the front face and four outside the rear face, matching the bracket pattern of the wooden HUB75 display.",
         "mutation": "Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm; all eight brackets must follow their corresponding moved corners.",
         "references": [

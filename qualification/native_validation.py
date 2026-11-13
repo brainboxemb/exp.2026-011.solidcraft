@@ -295,9 +295,11 @@ def validate_four_corner_l(root: Path) -> Validation:
 def validate_four_corner_brackets(root: Path) -> Validation:
     v = Validation("four-corner-brackets")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "four-corner-brackets")
     v.check("five bodies: frame plus four real HUB75 brackets",
             d["body_count"] == 5, 5, d["body_count"])
     m = load(root / "measurements-size-160x120x90.json")
+    _check_declared_bounds(v, m, "four-corner-brackets", level="q5", mutation=True)
     v.check("five bodies after saved-design mutation",
             m["body_count"] == 5, 5, m["body_count"], "q5")
     return v
@@ -306,9 +308,11 @@ def validate_four_corner_brackets(root: Path) -> Validation:
 def validate_eight_hub75_corner_brackets(root: Path) -> Validation:
     v = Validation("eight-hub75-corner-brackets")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "eight-hub75-corner-brackets")
     v.check("nine bodies: frame plus eight real HUB75 brackets",
             d["body_count"] == 9, 9, d["body_count"])
     m = load(root / "measurements-size-160x120x90.json")
+    _check_declared_bounds(v, m, "eight-hub75-corner-brackets", level="q5", mutation=True)
     v.check("nine bodies after saved-design mutation",
             m["body_count"] == 9, 9, m["body_count"], "q5")
     return v

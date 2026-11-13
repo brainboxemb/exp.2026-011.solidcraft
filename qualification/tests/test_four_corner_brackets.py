@@ -42,7 +42,7 @@ class FourHub75CornerBracketsCommandTests(unittest.TestCase):
         for index, (joint, corner) in enumerate(zip(joints, EXPECTED_CORNERS), 1):
             self.assertEqual(joint["type"], "rigid")
             self.assertEqual(joint["angle"], 0.0)
-            self.assertEqual(joint["offset"], -12.0)
+            self.assertEqual(joint["offset"], 12.0)
             self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
             self.assertEqual(joint["a"]["corner"], corner)
             self.assertEqual(

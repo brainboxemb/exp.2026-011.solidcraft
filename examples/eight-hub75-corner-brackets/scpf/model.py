@@ -104,7 +104,9 @@ class EightHub75CornerBrackets:
             z=FRONT,
             x=RIGHT,
         )
-        gap = -(Hub75CornerBracket.arm_width / 2)
+        # Positive gap moves front brackets outward to -Y and rear brackets
+        # outward to +Y; their inner broad faces touch the cabinet faces.
+        gap = Hub75CornerBracket.arm_width / 2
 
         front_top_left = bracket.copy().attach(
             frame, parent=Anchor.FRONT_TOP_LEFT,
