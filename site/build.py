@@ -208,6 +208,62 @@ def _image_sort_key(name):
     return (10, name, 0)
 
 
+def _visual_view_html(case, view, native_images):
+    names = [
+        (f"model-{view}.png", "Actual", f"Current SolidCraft {view} view"),
+        (f"goal-{view}.png", "Goal", f"Expected geometry in the same {view} view"),
+        (f"overlay-{view}.png", "Overlay", f"Expected geometry over the actual {view} view"),
+    ]
+    figures = []
+    for name, label, caption in names:
+        if name not in native_images:
+            continue
+        figures.append(
+            '<figure class="qualification-visual-item">'
+            f'<a href="{escape(name)}" class="qualification-image-link" '
+            f'title="Open full-size {escape(label)} image">'
+            f'<img src="{escape(name)}" '
+            f'alt="{escape(case["title"])} {escape(view)} {escape(label)}" loading="lazy">'
+            '</a>'
+            f'<figcaption><strong>{escape(label)}</strong><br>{escape(caption)}</figcaption>'
+            '</figure>'
+        )
+    if not figures:
+        return ""
+    return (
+        f'<section class="qualification-view" data-view="{escape(view)}">'
+        f'<h3>{escape(view.title())}</h3>'
+        '<div class="qualification-view-grid">'
+        + "".join(figures)
+        + '</div></section>'
+    )
+
+
+def _render_visual_evidence(case, native_images):
+    iso = _visual_view_html(case, "iso", native_images)
+    additional = "".join(
+        _visual_view_html(case, view, native_images)
+        for view in ("front", "right")
+    )
+    if not iso and not additional:
+        return ""
+    extra = (
+        '<details class="qualification-extra-views">'
+        '<summary>Additional front/right views</summary>'
+        + additional
+        + '</details>'
+        if additional else ""
+    )
+    return (
+        '<section class="panel qualification-visual-check">'
+        '<h2>Visual check</h2>'
+        '<p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. '
+        'Overlay shows both together. Click any image for the full-size PNG.</p>'
+        + iso + extra +
+        '</section>'
+    )
+
+
 def _image_caption(name):
     if name == "model.png":
         return "Native baseline render."
@@ -566,20 +622,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
-            figures = []
-            for index, image_name in enumerate(native_images):
-                caption = _image_caption(image_name)
-                figures.append(
-                    '<figure class="qualification-image">'
-                    f'<img src="{escape(image_name)}" '
-                    f'alt="{escape(case["title"])} native SolidCraft evidence {index + 1}" loading="lazy">'
-                    f'<figcaption>{escape(caption)}</figcaption></figure>'
-                )
-            preview_html = (
-                '<div class="qualification-gallery">'
-                + "".join(figures)
-                + "</div>"
-            )
+            preview_html = _render_visual_evidence(case, native_images)
             status, status_detail = _qualification_status(qualification_result)
             results_html, body_count, parameter_count = _render_native_results(
                 native_case,
