@@ -495,6 +495,26 @@ persistent visible <code>joint.origin</code>. Named frames on explicitly
 rotated occurrences currently use the native origin fallback so SolidCraft
 owns the transform. A direct <code>AnchorFrame</code> on an explicitly rotated
 occurrence is not supported yet.</p>
+<h2 id="anchor-topology">AnchorTopology: follow an edge or corner</h2>
+<p><code>AnchorTopology</code> is a named component datum that stays attached to native SolidCraft topology. <code>edge</code> picks an edge, <code>on</code> selects its adjacent planar face and <code>corner</code> optionally chooses one endpoint. The coordinates are selection picks; SolidCraft keeps the selected edge, face and endpoint by topology name as the design changes.</p>
+""" + code("""from scpf import AnchorTopology, Box, component
+
+@component
+class Board:
+    def anchors(self):
+        return {
+            "mount": AnchorTopology(
+                edge=(-20, 50, 5),
+                on=(-20, 50, 10),
+                corner=(-20, 0, 5),
+                z=(0, 1, 0),
+                x=(0, 0, 1),
+            )
+        }
+
+    def build(self):
+        return Box(40, 100, 20)""") + """
+<p>This is useful for references such as the straight tangent edge beside a fillet: if dimensions move that edge, the joint can follow it without freezing the original XYZ point. The current implementation supports named <code>AnchorTopology</code> values on non-rotated occurrences; SCPF deliberately does not transform topology picks itself.</p>
 <p>SolidCraft joints remain an internal implementation detail; Forge does not
 expose a separate public Joint object.</p>
 <h2 id="verify">What to test in an assembly</h2>

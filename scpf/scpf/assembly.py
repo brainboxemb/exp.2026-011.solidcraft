@@ -2,7 +2,7 @@
 import re
 
 from .compiler import ModelError
-from .core import Anchor, AnchorFrame, command_value, parameters_in
+from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in
 from .model_objects import Assembly, ModelInstance, _anchor_origin
 from .compiler import compile_model
 
@@ -106,6 +106,14 @@ def compile_assembly(value, name):
             isinstance(attachment.parent, str)
             and attachment.target.rotation is not None
         ):
+            parent_anchor = dict(attachment.target.definition.anchors)[
+                attachment.parent
+            ]
+            if isinstance(parent_anchor, AnchorTopology):
+                raise ModelError(
+                    "AnchorTopology on explicitly rotated occurrences "
+                    "is not supported yet"
+                )
             required_custom_origins.add(
                 (id(attachment.target), attachment.parent)
             )
@@ -113,6 +121,12 @@ def compile_assembly(value, name):
             isinstance(attachment.child, str)
             and instance.rotation is not None
         ):
+            child_anchor = dict(instance.definition.anchors)[attachment.child]
+            if isinstance(child_anchor, AnchorTopology):
+                raise ModelError(
+                    "AnchorTopology on explicitly rotated occurrences "
+                    "is not supported yet"
+                )
             required_custom_origins.add((id(instance), attachment.child))
 
     # Named groups are actual empty native components, not just labels in
@@ -293,20 +307,47 @@ def compile_assembly(value, name):
                         "direct AnchorFrame attachments on explicitly rotated "
                         "occurrences are not supported yet"
                     )
-                frame = anchor
+                custom = anchor
             else:
-                key = (id(model), anchor)
+                custom = dict(model.definition.anchors)[anchor]
                 if model.rotation is not None:
-                    return custom_origin_names[key]
-                frame = dict(model.definition.anchors)[anchor]
+                    if isinstance(custom, AnchorTopology):
+                        raise ModelError(
+                            "AnchorTopology on explicitly rotated occurrences "
+                            "is not supported yet"
+                        )
+                    return custom_origin_names[(id(model), anchor)]
+
+            if isinstance(custom, AnchorTopology):
+                def world(point):
+                    if point is None:
+                        return None
+                    return [
+                        point[i] + model.translation[i]
+                        for i in range(3)
+                    ]
+
+                reference = {
+                    "occurrence": occurrence,
+                    "edge": world(custom.edge),
+                    "on": world(custom.on),
+                }
+                if custom.corner is not None:
+                    reference["corner"] = world(custom.corner)
+                if custom.z is not None:
+                    reference["z"] = list(custom.z)
+                if custom.x is not None:
+                    reference["x"] = list(custom.x)
+                return reference
+
             return {
                 "occurrence": occurrence,
                 "point": [
-                    frame.origin[i] + model.translation[i]
+                    custom.origin[i] + model.translation[i]
                     for i in range(3)
                 ],
-                "z": list(frame.z),
-                "x": list(frame.x),
+                "z": list(custom.z),
+                "x": list(custom.x),
             }
 
         if isinstance(attachment.parent, Anchor):

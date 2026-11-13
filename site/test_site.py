@@ -32,9 +32,12 @@ def check(site: Path, sha: str, require_native: bool = False):
         "anchors()",
         "joint.create",
         "direct <code>AnchorFrame</code>",
+        "AnchorTopology",
+        "follow an edge or corner",
     ):
         assert term in components, term
     assert "AnchorFrame" in cheatsheet and "child=mount" in cheatsheet
+    assert "AnchorTopology" in cheatsheet
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
     assert (site / "style.css").is_file()

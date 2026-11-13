@@ -37,7 +37,8 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          python -m unittest discover -s scpf/tests -v
+          cd "$RUNNER_TEMP"
+          python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v
       - name: Compile self-contained API fixtures
         shell: bash
         run: |
