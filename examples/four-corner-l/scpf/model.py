@@ -54,40 +54,43 @@ class FourCornerL:
         # CornerFoot itself stays completely placement-agnostic.
         foot_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 0, 1),
-            x=(1, 0, 0),
+            z=UP,
+            x=RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
+        # SolidCraft's native BOTTOM frame uses local X along world -Y and
+        # local in-plane Y along world -X.  offset=(u, v) is deliberately
+        # expressed in that local frame, not as world X/Y coordinates.
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, -half_depth),
-            angle=0,
+            offset=(half_depth, half_width),
+            angle=90,
         )
         front_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(half_width, -half_depth),
-            angle=90,
+            offset=(half_depth, -half_width),
+            angle=180,
         )
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(half_width, half_depth),
-            angle=180,
+            offset=(-half_depth, -half_width),
+            angle=270,
         )
         back_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, half_depth),
-            angle=270,
+            offset=(-half_depth, half_width),
+            angle=0,
         )
 
         return frame + front_left + front_right + back_right + back_left

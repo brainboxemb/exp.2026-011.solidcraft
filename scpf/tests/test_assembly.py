@@ -1421,6 +1421,13 @@ class AssemblyTests(unittest.TestCase):
         )
         self.assertEqual(joint["a"], "Base:1.front_top_right")
         self.assertEqual(joint["b"], "Marker:1.back_top_right")
+        self.assertFalse(
+            any(
+                command["command"] == "occurrence.move"
+                and command["params"]["occurrence"] == "Marker:1"
+                for command in commands
+            )
+        )
 
     def test_as_built_attach_keeps_current_occurrence_placement(self):
         from scpf.assembly import compile_assembly

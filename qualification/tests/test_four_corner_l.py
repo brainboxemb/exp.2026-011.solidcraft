@@ -55,7 +55,7 @@ class FourCornerLCommandTests(unittest.TestCase):
         self.assertEqual(len(joints), 4)
         self.assertEqual(
             [joint["values"][2] for joint in joints],
-            [0, 90, 180, 270],
+            [90, 180, 270, 0],
         )
 
         for index, joint in enumerate(joints, 1):
@@ -79,11 +79,17 @@ class FourCornerLCommandTests(unittest.TestCase):
                 },
             )
 
-        # Position is expressed in the parent BOTTOM face, not as four
-        # occurrence.move() world coordinates.
-        values = [joint["values"][:2] for joint in joints]
-        self.assertTrue(all("frame_width" in str(pair[0]) for pair in values))
-        self.assertTrue(all("frame_depth" in str(pair[1]) for pair in values))
+        # Position is expressed in the parent BOTTOM face's local (u, v)
+        # basis, not as world X/Y occurrence.move() coordinates.
+        self.assertEqual(
+            [joint["values"] for joint in joints],
+            [
+                ["frame_depth / 2", "frame_width / 2", 90],
+                ["frame_depth / 2", "-(frame_width / 2)", 180],
+                ["-(frame_depth / 2)", "-(frame_width / 2)", 270],
+                ["-(frame_depth / 2)", "frame_width / 2", 0],
+            ],
+        )
         self.assertFalse(
             any(
                 row["command"] == "occurrence.move"

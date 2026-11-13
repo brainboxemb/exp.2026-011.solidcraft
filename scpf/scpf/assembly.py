@@ -106,6 +106,10 @@ def compile_assembly(value, name):
     def register_standard_corner(model, anchor):
         if not isinstance(anchor, Anchor):
             return
+        if model.rotation is not None:
+            raise ModelError(
+                "corner anchors on explicitly rotated occurrences are not supported yet"
+            )
         try:
             _corner_origin_points(model, anchor)
         except ValueError:
@@ -304,6 +308,19 @@ def compile_assembly(value, name):
         # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
         # The model's move() values are absolute from the component origin.
         for instance, native_name in occurrences:
+            attachment = instance.attachment
+            child_corner_is_native = (
+                attachment is not None
+                and not attachment.as_built
+                and isinstance(attachment.child, Anchor)
+                and (id(instance), attachment.child)
+                in standard_corner_origin_names
+            )
+            if child_corner_is_native:
+                # The child joint origin was authored at identity above.
+                # Do not pre-position this occurrence as well: SolidCraft
+                # must apply the joint solution exactly once.
+                continue
             if instance.rotation is None and not any(instance.translation):
                 continue
             params = {
