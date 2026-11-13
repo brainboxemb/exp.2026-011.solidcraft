@@ -448,7 +448,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
 
-            for image in sorted(native_case.glob("model*.png")):
+            image_paths = sorted(
+                native_case.glob("*.png"),
+                key=lambda path: (path.name != "model.png", path.name),
+            )
+            for image in image_paths:
                 if image.stat().st_size == 0:
                     raise ValueError(f"Qualification snapshot empty: {image}")
                 shutil.copyfile(image, case_dir / image.name)
