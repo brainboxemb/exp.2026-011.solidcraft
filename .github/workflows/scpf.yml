@@ -59,7 +59,7 @@ jobs:
           unset PYTHONPATH
           mkdir -p output/qualification
           printf "case\tcommands\tstatus\n" > output/qualification/q2-command-contract.tsv
-          native_models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          native_models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $native_models history-policy plate; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
@@ -88,7 +88,7 @@ jobs:
           solidcraft-cli --version
           mkdir -p output/native output/qualification
           printf "case\tbuild\teval\tsnapshot\tstatus\n" > output/qualification/q3-q4-q6-native.tsv
-          native_models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          native_models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $native_models; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
