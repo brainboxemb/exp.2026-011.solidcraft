@@ -1,862 +1,163 @@
 {
-  "library_commit": "784e1ed6d3a538d97d91b8e3d83b7462eec6f50b",
+  "library_commit": "e2da7ec68876c0a8d3abad9f12a4a9e3bee1bbc6",
   "solidcraft_version": "0.30.1",
-  "native_verified": true,
+  "native_verified": false,
   "cases": {
     "simple-box": {
       "title": "Parameterized Box",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 7,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 7,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 1,
-      "parameter_count": 3
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "anchored-holes": {
       "title": "Face-relative hole pattern",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 13,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 13,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 1,
-      "parameter_count": 4
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "parameter-scope": {
       "title": "Implicit component parameters and shared dependencies",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 32,
-      "native_evidence": [
-        "results.json",
-        "measurements-shared-width-100.json",
-        "measurements.json",
-        "parameters-export-results.json",
-        "parameters.json",
-        "model.json",
-        "model-shared-width-100.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 32,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-shared-width-100.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "shared_width 80 -> 100 mm",
-          "evidence": [
-            "measurements-shared-width-100.json",
-            "model-shared-width-100.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 5,
-      "parameter_count": 3
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "components": {
       "title": "Place one component relative to another",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 13,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 13,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 3
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "parametric-attach": {
       "title": "Editable distance between attached components",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 16,
-      "native_evidence": [
-        "results.json",
-        "measurements-gap-30.json",
-        "measurements.json",
-        "change-gap.json",
-        "model-gap-30.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 16,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-gap-30.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "gap 10 -> 30 mm",
-          "evidence": [
-            "change-gap.json",
-            "measurements-gap-30.json",
-            "model-gap-30.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 1
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "parametric-offset": {
       "title": "Editable local offset at an attachment",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 16,
-      "native_evidence": [
-        "results.json",
-        "measurements-shift-10.json",
-        "measurements.json",
-        "change-shift.json",
-        "model-shift-10.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 16,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-shift-10.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "shift 5 -> 10 mm",
-          "evidence": [
-            "change-shift.json",
-            "measurements-shift-10.json",
-            "model-shift-10.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 1
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "parametric-anchor": {
       "title": "Face anchor follows parent geometry",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 16,
-      "native_evidence": [
-        "results.json",
-        "measurements-width-80.json",
-        "measurements.json",
-        "change-base-width.json",
-        "model-width-80.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 16,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-width-80.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "base_width 40 -> 80 mm",
-          "evidence": [
-            "change-base-width.json",
-            "measurements-width-80.json",
-            "model-width-80.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 1
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "corner-anchor": {
       "title": "Topology-backed corner anchor",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 17,
-      "native_evidence": [
-        "results.json",
-        "measurements-size-80x40.json",
-        "measurements.json",
-        "change-size.json",
-        "model-size-80x40.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 17,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-size-80x40.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "base 40x20 -> 80x40 mm",
-          "evidence": [
-            "change-size.json",
-            "measurements-size-80x40.json",
-            "model-size-80x40.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 2
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "four-corner-l": {
       "title": "One L-profile on all four front corners",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 26,
-      "native_evidence": [
-        "results.json",
-        "measurements-size-160x120.json",
-        "measurements.json",
-        "joint-inspect-size-160x120.json",
-        "joint-inspect.json",
-        "model-size-160x120.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model-size-160x120.png",
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 26,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "joint-inspect-size-160x120.json",
-            "joint-inspect.json",
-            "measurements-size-160x120.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "FrameBlock 120x80 -> 160x120 mm",
-          "evidence": [
-            "joint-inspect-size-160x120.json",
-            "measurements-size-160x120.json",
-            "model-size-160x120.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model-size-160x120.png",
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 5,
-      "parameter_count": 2
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "custom-anchor": {
       "title": "Named oriented AnchorFrame",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 17,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 17,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 0
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "xz-anchor": {
       "title": "Anchors on XZ-profile extrusion",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q5 Q6",
+      "status": "Q1/Q2 documented",
       "command_count": 23,
-      "native_evidence": [
-        "results.json",
-        "measurements-size-80x40.json",
-        "measurements.json",
-        "change-size.json",
-        "model-size-80x40.sc",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 23,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements-size-80x40.json",
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "pass",
-          "required": true,
-          "mutation": "board 40x20 -> 80x40 mm",
-          "evidence": [
-            "change-size.json",
-            "measurements-size-80x40.json",
-            "model-size-80x40.sc"
-          ]
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 3,
-      "parameter_count": 3
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "primitive-csg": {
       "title": "Primitive CSG",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 4,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 4,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 1,
-      "parameter_count": 0
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     },
     "bracket": {
       "title": "Minimal L-profile",
-      "status": "PASS \u00b7 Q1 Q2 Q3 Q4 Q6 \u00b7 Q5 N/R",
+      "status": "Q1/Q2 documented",
       "command_count": 7,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json"
-      ],
-      "native_images": [
-        "model.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 7,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "measurements.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 1,
-      "parameter_count": 3
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
     }
   }
 }

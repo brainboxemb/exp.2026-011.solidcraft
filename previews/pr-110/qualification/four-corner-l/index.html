@@ -11,12 +11,12 @@
 <div class="crumb"><a href="../">← Qualification</a> / One L-profile on all four front corners</div>
 
 <section class="hero small">
-  <p class="eyebrow">Forge qualification case · PASS · Q1 Q2 Q3 Q4 Q5 Q6</p>
+  <p class="eyebrow">Forge qualification case · Q1/Q2 documented</p>
   <h1>One L-profile on all four front corners</h1>
   <p>Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.</p>
 </section>
 
-<div class="qualification-gallery"><figure class="qualification-image"><img src="model-size-160x120.png" alt="One L-profile on all four front corners native SolidCraft evidence 1" loading="lazy"><figcaption>Additional native evidence: model-size-160x120.png.</figcaption></figure><figure class="qualification-image"><img src="model.png" alt="One L-profile on all four front corners native SolidCraft evidence 2" loading="lazy"><figcaption>Native SolidCraft 0.30.1 baseline snapshot from this exact CI source commit.</figcaption></figure></div>
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
 
 <div class="twocol">
   <section class="panel">
@@ -36,11 +36,11 @@
     <h3>Parametric mutation</h3>
     <p>After the fixed baseline is proven, change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four brackets and solved joint origins must follow their corners without rerunning Python.</p>
     <h3>Evidence</h3>
-    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="model-size-160x120.png">Native snapshot: model-size-160x120.png</a></li><li><a href="model.png">Native snapshot: model.png</a></li></ul>
+    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
   </section>
 </div>
 
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>160.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -15, 0]</code></td><td><code>[80, 15, 120]</code></td></tr><tr><td>LBracket</td><td><code>[-80, -27, 80]</code></td><td><code>[-40, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[40, -27, 80]</code></td><td><code>[80, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[40, -27, 0]</code></td><td><code>[80, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-80, -27, 0]</code></td><td><code>[-40, -3, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>120.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -15, 0]</code></td><td><code>[60, 15, 80]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -27, 40]</code></td><td><code>[-20, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[20, -27, 40]</code></td><td><code>[60, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[20, -27, 0]</code></td><td><code>[60, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -27, 0]</code></td><td><code>[-20, -3, 40]</code></td></tr></tbody></table></details></section>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
 
 <section class="panel">
   <h2>4. Generated native relationship/command path</h2>
