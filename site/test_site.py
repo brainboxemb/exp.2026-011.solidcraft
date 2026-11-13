@@ -108,12 +108,14 @@ def check(site: Path, sha: str, require_native: bool = False):
             site / "qualification" / slug / "index.html"
         ).read_text(encoding="utf-8")
         for heading in (
-            "Forge contract",
-            "Internal Forge model",
-            "SolidCraft lowering",
-            "Native verification",
-            "Parametric mutation",
-            "Results",
+            "1. Test setup",
+            "Test goal",
+            "Pass criteria",
+            "2. Implementation under test",
+            "Public Forge API used",
+            "Forge model represented by this fixture",
+            "3. Generated SolidCraft relationship",
+            "6. Evidence and references",
             "Reference models",
         ):
             assert heading in page_text, (slug, heading)
