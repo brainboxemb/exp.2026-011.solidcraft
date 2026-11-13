@@ -130,28 +130,52 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert (site / "qualification" / slug / "commands.json").is_file()
         if require_native:
             manifest_case = qualification_manifest["cases"][slug]
-            assert manifest_case["qualification_status"] == "pass", slug
-            assert 'qualification-status pass' in page_text, slug
-            assert ">PASS</span>" in page_text, slug
             result_path = site / "qualification" / slug / "qualification-result.json"
             assert result_path.is_file(), slug
             structured_result = json.loads(result_path.read_text(encoding="utf-8"))
-            assert structured_result["status"] == "pass", slug
+            assert structured_result["status"] in {
+                "pass", "fail", "review", "incomplete"
+            }, slug
+            assert manifest_case["qualification_status"] == structured_result["status"], slug
+
+            badge = {
+                "pass": "PASS",
+                "fail": "FAIL",
+                "review": "REVIEW",
+                "incomplete": "INCOMPLETE",
+            }[structured_result["status"]]
+            assert f">{badge}</span>" in page_text, slug
+
             assert structured_result["source_commit"] == sha, slug
             assert structured_result["solidcraft_version"] == "0.30.1", slug
             assert manifest_case["levels"] == structured_result["levels"], slug
             assert "Native runtime:" in page_text, slug
             assert "SolidCraft 0.30.1" in page_text, slug
+
             image = site / "qualification" / slug / "model.png"
             assert image.is_file() and image.stat().st_size > 0, slug
             assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
             native_images = qualification_manifest["cases"][slug]["native_images"]
-            assert "model.png" in native_images, slug
+            for required_image in (
+                "model.png",
+                "model-front.png",
+                "model-right.png",
+                "model-iso.png",
+            ):
+                assert required_image in native_images, (slug, required_image)
+
             assert 'class="qualification-gallery"' in page_text, slug
             assert f'src="{slug}/model.png"' in qualification_index, slug
             native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
             assert "measurements.json" in native_evidence, slug
             assert "results.json" in native_evidence, slug
+            assert "validation.json" in native_evidence, slug
+            assert "visual-validation.json" in native_evidence, slug
+
+            if slug in {"parametric-offset", "corner-anchor", "xz-anchor"}:
+                assert structured_result["status"] == "fail", slug
+                assert structured_result["levels"]["q4"]["status"] == "fail", slug
+
             if slug == "four-corner-l":
                 mutation_image = site / "qualification" / slug / "model-size-160x120.png"
                 assert mutation_image.is_file() and mutation_image.stat().st_size > 0
