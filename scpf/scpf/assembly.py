@@ -14,22 +14,52 @@ def _command(command_name, **params):
     return {"command": command_name, "params": params}
 
 
-def _shift_joint_reference(reference, offset):
-    """Translate a native joint reference by an XYZ assembly-space offset.
+def _dot_axis(vector, axis):
+    """Project an XYZ vector onto one signed world basis axis."""
+    result = 0
+    for value, scale in zip(vector, axis):
+        if scale:
+            result = result + value * scale
+    return result
 
-    Position-bearing fields are shifted together so the reference keeps its
-    original orientation/topology. Symbolic offsets remain expressions in
-    the emitted SolidCraft command.
+
+def _corner_joint_axes(anchor):
+    """Return native corner-origin x/y/z axes in world coordinates.
+
+    SolidCraft's edge-origin convention is z out of the picked face and y
+    from the picked vertical edge into that face. x follows from the
+    right-handed frame. These axes let Forge express a world-XYZ relation
+    through native planar joint values without changing the saved topology.
     """
-    shifted = dict(reference)
-    for key in ("face", "point", "edge", "on", "corner"):
-        if key not in shifted:
-            continue
-        shifted[key] = [
-            command_value(shifted[key][i] + offset[i])
-            for i in range(3)
-        ]
-    return shifted
+    if not isinstance(anchor, Anchor) or not (
+        anchor.value.startswith("front_") or anchor.value.startswith("back_")
+    ):
+        raise ModelError(
+            "XYZ attachment offset currently requires a standard corner parent anchor"
+        )
+
+    front = anchor.value.startswith("front_")
+    left = anchor.value.endswith("_left")
+
+    z_axis = (0, -1, 0) if front else (0, 1, 0)
+    y_axis = (1, 0, 0) if left else (-1, 0, 0)
+
+    # x = y × z
+    x_axis = (
+        y_axis[1] * z_axis[2] - y_axis[2] * z_axis[1],
+        y_axis[2] * z_axis[0] - y_axis[0] * z_axis[2],
+        y_axis[0] * z_axis[1] - y_axis[1] * z_axis[0],
+    )
+    return x_axis, y_axis, z_axis
+
+
+def _xyz_offset_in_joint_frame(parent, offset):
+    x_axis, y_axis, z_axis = _corner_joint_axes(parent)
+    return (
+        _dot_axis(offset, x_axis),
+        _dot_axis(offset, y_axis),
+        _dot_axis(offset, z_axis),
+    )
 
 
 def _component_slug(name):
@@ -408,19 +438,36 @@ def compile_assembly(value, name):
                     expression=f"{parameter.value:g} mm",
                 ))
 
-        parent_origin = _shift_joint_reference(
-            parent_origin,
+        u, v, normal = _xyz_offset_in_joint_frame(
+            attachment.parent,
             attachment.offset,
         )
+        has_planar_offset = (
+            pv(u) != 0
+            or pv(v) != 0
+            or bool(parameters_in(u, v))
+        )
+        normal_offset = attachment.gap + normal
+        has_normal_offset = (
+            pv(normal_offset) != 0
+            or bool(parameters_in(normal_offset))
+        )
+
         params = {
-            "type": "rigid",
+            "type": "planar" if has_planar_offset else "rigid",
             "name": f"Attach {child_occurrence} to {parent_occurrence}",
             "a": parent_origin,
             "b": child_origin,
         }
-        if attachment.gap != 0:
-            params["offset"] = command_value(attachment.gap)
-        if attachment.angle is not None:
+        if has_normal_offset:
+            params["offset"] = command_value(normal_offset)
+        if has_planar_offset:
+            params["values"] = [
+                command_value(u),
+                command_value(v),
+                attachment.angle if attachment.angle is not None else 0.0,
+            ]
+        elif attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
