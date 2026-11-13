@@ -1124,8 +1124,8 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
         self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
 
-    def test_attach_assembled_rotation_uses_quarter_turns(self):
-        from scpf.core import Anchor, AnchorTopology, Box
+    def test_attach_assembled_rotation_uses_absolute_child_quarter_turn(self):
+        from scpf.core import Anchor, AnchorFrame, AnchorTopology, Box
         from scpf.runner import component
 
         @component
@@ -1136,7 +1136,12 @@ class AssemblyTests(unittest.TestCase):
         parent = Block(name="parent")
         child = Block(name="child").attach(
             parent,
-            parent=Anchor.FRONT_TOP_LEFT,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=AnchorFrame(
+                origin=(0, 0, 0),
+                z=(0, 1, 0),
+                x=(0, 0, -1),
+            ),
             assembled_rotation=180,
         )
 
@@ -1148,6 +1153,7 @@ class AssemblyTests(unittest.TestCase):
             Block().attach(
                 parent,
                 parent=Anchor.FRONT_TOP_LEFT,
+                child=AnchorFrame(x=(0, 0, -1)),
                 assembled_rotation=45,
             )
 
