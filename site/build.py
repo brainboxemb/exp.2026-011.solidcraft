@@ -658,10 +658,16 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "body_count": body_count,
             "parameter_count": parameter_count,
         }
+        card_preview = (
+            "model-iso.png" if "model-iso.png" in native_images
+            else "model.png" if "model.png" in native_images
+            else None
+        )
         card_image = (
             f'<a href="{escape(slug)}/" class="qualification-card-image">'
-            f'<img src="{escape(slug)}/model.png" alt="{escape(case["title"])} native preview" loading="lazy"></a>'
-            if native_images else ""
+            f'<img src="{escape(slug)}/{escape(card_preview)}" '
+            f'alt="{escape(case["title"])} native isometric preview" loading="lazy"></a>'
+            if card_preview else ""
         )
         qualification_cards[case["group"]].append(
             f'<article class="reference qualification-card">{card_image}'
