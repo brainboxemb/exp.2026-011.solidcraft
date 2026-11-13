@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Eight real HUB75 corner brackets · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Eight real HUB75 corner brackets</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 · Q6</span></div>
+  <h1>Eight real HUB75 corner brackets</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Eight real HUB75 corner brackets native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="eight-hub75-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-hub75-corner-brackets.svg" alt="Eight real HUB75 corner brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-hub75-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="eight-hub75-corner-brackets.dxf">DXF</a></figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Extend the four-bracket HUB75 case to the real display pattern: front and rear brackets at all four corners, while reusing the exact same CornerBracket component.</p>
+  <h3>Pass criteria</h3>
+  <p>Four real brackets sit outside the front face and four outside the rear face, matching the bracket pattern of the wooden HUB75 display.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm; all eight brackets must follow their corresponding moved corners.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Eight real HUB75 CornerBracket occurrences: front + rear at four corners.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    _width = 120.0
+    _depth = 80.0
+    _height = 60.0
+
+    def build(self):
+        return Box(self._width, self._depth, self._height)
+
+
+class Hub75CornerBracket:
+    arm_width = 24.0
+    arm_height = 12.0
+    horizontal_arm_length = 60.0
+    vertical_arm_length = 60.0
+
+    outer_corner_chamfer = 6.0
+    arm_end_chamfer = 3.0
+    side_edge_chamfer = 2.0
+    elephant_foot_relief = 0.6
+    inside_corner_radius = 4.0
+
+    def build(self):
+        w = self.arm_height
+        h = self.horizontal_arm_length
+        v = self.vertical_arm_length
+        end = self.arm_end_chamfer
+        outer = self.outer_corner_chamfer
+
+        # Same neutral XZ profile used by the real HUB75 wood-frame model.
+        points = [
+            (&quot;i_corner&quot;, (0, 0)),
+            (&quot;o_hor_tip&quot;, (h, 0)),
+            (&quot;o_hor_bevel&quot;, (h, w - end)),
+            (&quot;o_hor&quot;, (h - end, w)),
+            (&quot;o_corner&quot;, (-w + outer, w)),
+            (&quot;o_vert&quot;, (-w, w - outer)),
+            (&quot;o_vert_bevel&quot;, (-w, -v + end)),
+            (&quot;o_vert_end&quot;, (-w + end, -v)),
+            (&quot;v_tip&quot;, (0, -v)),
+        ]
+
+        body = Polygon2D(
+            points,
+            plane=&quot;XZ&quot;,
+            world=True,
+        ).extrude(
+            self.arm_width,
+            direction=Direction.SYMMETRIC,
+        )
+
+        body = body.fillet(
+            self.inside_corner_radius,
+            edges=Edges.from_vertices(&quot;i_corner&quot;),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_vertices(&quot;o_hor_tip&quot;, &quot;v_tip&quot;),
+        )
+        body = body.chamfer(
+            self.side_edge_chamfer,
+            edges=Edges.from_profile(&quot;o_*&quot;, sides=&quot;both&quot;),
+        )
+        body = body.chamfer(
+            self.elephant_foot_relief,
+            edges=Edges.from_profile(&quot;i_corner&quot;, sides=&quot;both&quot;),
+        )
+        return body
+
+
+class EightHub75CornerBrackets:
+    frame_width = 120.0
+    frame_depth = 80.0
+    frame_height = 60.0
+
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+            _height=self.frame_height,
+        )
+        bracket = Hub75CornerBracket()
+
+        w = Hub75CornerBracket.arm_height
+        front_mount_a = AnchorFrame(
+            origin=(0, 0, -w),
+            z=BACK,
+            x=DOWN,
+        )
+        front_mount_b = AnchorFrame(
+            origin=(w, 0, 0),
+            z=BACK,
+            x=DOWN,
+        )
+        rear_mount_a = AnchorFrame(
+            origin=(0, 0, -w),
+            z=FRONT,
+            x=RIGHT,
+        )
+        rear_mount_b = AnchorFrame(
+            origin=(w, 0, 0),
+            z=FRONT,
+            x=RIGHT,
+        )
+        # Positive gap moves front brackets outward to -Y and rear brackets
+        # outward to +Y; their inner broad faces touch the cabinet faces.
+        gap = Hub75CornerBracket.arm_width / 2
+
+        front_top_left = bracket.copy().attach(
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=front_mount_a, gap=gap,
+        )
+        front_top_right = bracket.copy().attach(
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=front_mount_b, gap=gap,
+        )
+        front_bottom_right = bracket.copy().attach(
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=front_mount_a, gap=gap,
+        )
+        front_bottom_left = bracket.copy().attach(
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=front_mount_b, gap=gap,
+        )
+
+        rear_top_left = bracket.copy().attach(
+            frame, parent=Anchor.BACK_TOP_LEFT,
+            child=rear_mount_a, gap=gap,
+        )
+        rear_top_right = bracket.copy().attach(
+            frame, parent=Anchor.BACK_TOP_RIGHT,
+            child=rear_mount_b, gap=gap,
+        )
+        rear_bottom_right = bracket.copy().attach(
+            frame, parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=rear_mount_a, gap=gap,
+        )
+        rear_bottom_left = bracket.copy().attach(
+            frame, parent=Anchor.BACK_BOTTOM_LEFT,
+            child=rear_mount_b, gap=gap,
+        )
+
+        return (
+            frame
+            + front_top_left + front_top_right
+            + front_bottom_right + front_bottom_left
+            + rear_top_left + rear_top_right
+            + rear_bottom_right + rear_bottom_left
+        )
+
+
+EightHub75CornerBrackets()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Four FRONT and four BACK corner attachments using the real front/rear mount-A/mount-B AnchorFrames.</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One frame plus eight occurrences of one real Hub75CornerBracket definition. Front and rear mounting frames differ only in local normal/clocking; the reusable bracket geometry is unchanged.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Eight rigid joints use topology-backed FRONT/BACK corner references. Child AnchorFrames and a +arm_width/2 gap place each symmetric bracket outside the correct broad face.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:1 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:1&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:2 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:2&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:3&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:4&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:5 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:5&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:6 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:6&quot;,
+        &quot;point&quot;: [
+          60.0,
+          40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:7 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:7&quot;,
+        &quot;point&quot;: [
+          60.0,
+          40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Hub75CornerBracket:8 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Hub75CornerBracket:8&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: 12.0,
+      &quot;angle&quot;: 0.0
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120x90</strong> · 9 bodies · <a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>160.0</td></tr><tr><td><code>frame_depth</code></td><td>120.0</td></tr><tr><td><code>frame_height</code></td><td>90.0</td></tr><tr><td><code>Hub75CornerBracket_arm_width</code></td><td>24.0</td></tr><tr><td><code>Hub75CornerBracket_horizontal_arm_length</code></td><td>60.0</td></tr><tr><td><code>Hub75CornerBracket_arm_height</code></td><td>12.0</td></tr><tr><td><code>Hub75CornerBracket_arm_end_chamfer</code></td><td>3.0</td></tr><tr><td><code>Hub75CornerBracket_outer_corner_chamfer</code></td><td>6.0</td></tr><tr><td><code>Hub75CornerBracket_vertical_arm_length</code></td><td>60.0</td></tr><tr><td><code>Hub75CornerBracket_inside_corner_radius</code></td><td>4.0</td></tr><tr><td><code>Hub75CornerBracket_elephant_foot_relief</code></td><td>0.6</td></tr><tr><td><code>Hub75CornerBracket_side_edge_chamfer</code></td><td>2.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -60, 0]</code></td><td><code>[80, 60, 90]</code></td></tr><tr><td>Hub75CornerBracket</td><td><code>[-92, -84, 42]</code></td><td><code>[-20, -60, 114]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:2)</td><td><code>[20, -84, 42]</code></td><td><code>[92, -60, 114]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:3)</td><td><code>[20, -84, -24]</code></td><td><code>[92, -60, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:4)</td><td><code>[-92, -84, -24]</code></td><td><code>[-20, -60, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:5)</td><td><code>[-92, 60, 42]</code></td><td><code>[-20, 84, 114]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:6)</td><td><code>[20, 60, 42]</code></td><td><code>[92, 84, 114]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:7)</td><td><code>[20, 60, -24]</code></td><td><code>[92, 84, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:8)</td><td><code>[-92, 60, -24]</code></td><td><code>[-20, 84, 48]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 9 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>120.0</td></tr><tr><td><code>frame_depth</code></td><td>80.0</td></tr><tr><td><code>frame_height</code></td><td>60.0</td></tr><tr><td><code>Hub75CornerBracket_arm_width</code></td><td>24.0</td></tr><tr><td><code>Hub75CornerBracket_horizontal_arm_length</code></td><td>60.0</td></tr><tr><td><code>Hub75CornerBracket_arm_height</code></td><td>12.0</td></tr><tr><td><code>Hub75CornerBracket_arm_end_chamfer</code></td><td>3.0</td></tr><tr><td><code>Hub75CornerBracket_outer_corner_chamfer</code></td><td>6.0</td></tr><tr><td><code>Hub75CornerBracket_vertical_arm_length</code></td><td>60.0</td></tr><tr><td><code>Hub75CornerBracket_inside_corner_radius</code></td><td>4.0</td></tr><tr><td><code>Hub75CornerBracket_elephant_foot_relief</code></td><td>0.6</td></tr><tr><td><code>Hub75CornerBracket_side_edge_chamfer</code></td><td>2.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -40, 0]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>Hub75CornerBracket</td><td><code>[-72, -64, 12]</code></td><td><code>[8.88178e-16, -40, 84]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:2)</td><td><code>[-3.33067e-15, -64, 12]</code></td><td><code>[72, -40, 84]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:3)</td><td><code>[-8.88178e-16, -64, -24]</code></td><td><code>[72, -40, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:4)</td><td><code>[-72, -64, -24]</code></td><td><code>[3.33067e-15, -40, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:5)</td><td><code>[-72, 40, 12]</code></td><td><code>[4.44089e-16, 64, 84]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:6)</td><td><code>[-2.66454e-15, 40, 12]</code></td><td><code>[72, 64, 84]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:7)</td><td><code>[-4.44089e-16, 40, -24]</code></td><td><code>[72, 64, 48]</code></td></tr><tr><td>Hub75CornerBracket (Hub75CornerBracket:8)</td><td><code>[-72, 40, -24]</code></td><td><code>[2.66454e-15, 64, 48]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-60, -40, 0], &quot;max&quot;: [60, 40, 60]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-72, -64, 12], &quot;max&quot;: [0, -40, 84]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [0, -64, 12], &quot;max&quot;: [72, -40, 84]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [0, -64, -24], &quot;max&quot;: [72, -40, 48]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-72, -64, -24], &quot;max&quot;: [0, -40, 48]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-72, 40, 12], &quot;max&quot;: [0, 64, 84]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [0, 40, 12], &quot;max&quot;: [72, 64, 84]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [0, 40, -24], &quot;max&quot;: [72, 64, 48]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-72, 40, -24], &quot;max&quot;: [0, 64, 48]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -40.0, 0.0], &quot;max&quot;: [60.0, 40.0, 60.0]}, {&quot;min&quot;: [-72.0, -64.00000000000001, 11.999999999999996], &quot;max&quot;: [8.881784197001252e-16, -39.999999999999986, 84.0]}, {&quot;min&quot;: [-3.3306690738754696e-15, -64.00000000000003, 12.0], &quot;max&quot;: [72.0, -39.999999999999986, 84.0]}, {&quot;min&quot;: [-8.881784197001252e-16, -64.00000000000001, -24.0], &quot;max&quot;: [72.0, -39.999999999999986, 48.0]}, {&quot;min&quot;: [-72.0, -64.00000000000001, -24.0], &quot;max&quot;: [3.3306690738754696e-15, -39.999999999999986, 48.0]}, {&quot;min&quot;: [-72.0, 39.99999999999999, 11.999999999999996], &quot;max&quot;: [4.440892098500626e-16, 64.00000000000003, 84.0]}, {&quot;min&quot;: [-2.6645352591003757e-15, 39.999999999999986, 12.0], &quot;max&quot;: [72.0, 64.00000000000001, 84.0]}, {&quot;min&quot;: [-4.440892098500626e-16, 39.99999999999999, -24.0], &quot;max&quot;: [72.0, 64.00000000000003, 48.0]}, {&quot;min&quot;: [-72.0, 39.99999999999999, -24.0], &quot;max&quot;: [2.6645352591003757e-15, 64.00000000000006, 48.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>nine bodies: frame plus eight real HUB75 brackets</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 90]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-92, -84, 42], &quot;max&quot;: [-20, -60, 114]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [20, -84, 42], &quot;max&quot;: [92, -60, 114]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [20, -84, -24], &quot;max&quot;: [92, -60, 48]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-92, -84, -24], &quot;max&quot;: [-20, -60, 48]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-92, 60, 42], &quot;max&quot;: [-20, 84, 114]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [20, 60, 42], &quot;max&quot;: [92, 84, 114]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [20, 60, -24], &quot;max&quot;: [92, 84, 48]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-92, 60, -24], &quot;max&quot;: [-20, 84, 48]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -60.0, 0.0], &quot;max&quot;: [80.0, 60.0, 90.0]}, {&quot;min&quot;: [-92.0, -84.00000000000003, 42.0], &quot;max&quot;: [-20.0, -59.99999999999998, 114.0]}, {&quot;min&quot;: [19.999999999999996, -84.00000000000001, 42.0], &quot;max&quot;: [92.0, -59.999999999999986, 114.0]}, {&quot;min&quot;: [20.0, -84.00000000000003, -24.0], &quot;max&quot;: [92.0, -59.999999999999986, 48.0]}, {&quot;min&quot;: [-92.0, -84.00000000000004, -24.0], &quot;max&quot;: [-19.999999999999996, -59.999999999999986, 48.0]}, {&quot;min&quot;: [-92.0, 59.99999999999999, 42.0], &quot;max&quot;: [-20.0, 84.00000000000004, 114.0]}, {&quot;min&quot;: [19.999999999999996, 59.99999999999999, 42.0], &quot;max&quot;: [92.0, 84.00000000000003, 114.0]}, {&quot;min&quot;: [20.0, 59.999999999999986, -24.0], &quot;max&quot;: [92.0, 84.00000000000009, 48.0]}, {&quot;min&quot;: [-92.0, 59.99999999999998, -24.000000000000004], &quot;max&quot;: [-19.999999999999996, 84.00000000000003, 48.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>nine bodies after saved-design mutation</td><td><code>9</code></td><td><code>9</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Eight real HUB75 corner brackets iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Eight real HUB75 corner brackets iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Eight real HUB75 corner brackets iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Eight real HUB75 corner brackets front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Eight real HUB75 corner brackets front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Eight real HUB75 corner brackets front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Eight real HUB75 corner brackets right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Eight real HUB75 corner brackets right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Eight real HUB75 corner brackets right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120x90.sc">model-size-160x120x90.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> This case mirrors the real front/rear CornerBrackets assembly structure.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Eight occurrences reuse one local part while the assembly chooses the parent corner and child frame.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

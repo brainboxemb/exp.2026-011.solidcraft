@@ -1,0 +1,1438 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              -60.0,
+              -40.0,
+              60.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l1|F4:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l1",
+              "role": "face",
+              "role_in_feature": "side:l1",
+              "sketch": {
+                "curve": "l1",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F4:side:l1|F4:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l1|F4:top",
+            "edge": "F4:side:l1|F4:side:l4",
+            "face": "F4:side:l1",
+            "pick": [
+              -60.0,
+              -40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              -60.0,
+              -52.0,
+              60.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Hub75CornerBracket:1",
+          "path": "Hub75CornerBracket:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              -12.0
+            ],
+            "type": "point",
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 20,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:1 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              60.0,
+              -40.0,
+              60.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l2",
+                  "role_in_feature": "side:l2",
+                  "sketch": {
+                    "curve": "l2",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l1|F4:side:l2",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l1",
+              "role": "face",
+              "role_in_feature": "side:l1",
+              "sketch": {
+                "curve": "l1",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F4:side:l1|F4:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l1|F4:top",
+            "edge": "F4:side:l1|F4:side:l2",
+            "face": "F4:side:l1",
+            "pick": [
+              60.0,
+              -40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              60.0,
+              -52.0,
+              60.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 13,
+          "occurrence_name": "Hub75CornerBracket:2",
+          "path": "Hub75CornerBracket:2",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 21,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:2 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              60.0,
+              -40.0,
+              0.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l2",
+                  "role_in_feature": "side:l2",
+                  "sketch": {
+                    "curve": "l2",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l1|F4:side:l2",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l1",
+              "role": "face",
+              "role_in_feature": "side:l1",
+              "sketch": {
+                "curve": "l1",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:l1|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l1|F4:start",
+            "edge": "F4:side:l1|F4:side:l2",
+            "face": "F4:side:l1",
+            "pick": [
+              60.0,
+              -40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              60.0,
+              -52.0,
+              0.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 14,
+          "occurrence_name": "Hub75CornerBracket:3",
+          "path": "Hub75CornerBracket:3",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              -12.0
+            ],
+            "type": "point",
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 22,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:3 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              -60.0,
+              -40.0,
+              0.0
+            ],
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l1|F4:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l1",
+              "role": "face",
+              "role_in_feature": "side:l1",
+              "sketch": {
+                "curve": "l1",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:l1|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l1|F4:start",
+            "edge": "F4:side:l1|F4:side:l4",
+            "face": "F4:side:l1",
+            "pick": [
+              -60.0,
+              -40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              -60.0,
+              -52.0,
+              0.0
+            ],
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 15,
+          "occurrence_name": "Hub75CornerBracket:4",
+          "path": "Hub75CornerBracket:4",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 23,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:4 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              -60.0,
+              40.0,
+              60.0
+            ],
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l3|F4:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F4:side:l3|F4:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l3|F4:top",
+            "edge": "F4:side:l3|F4:side:l4",
+            "face": "F4:side:l3",
+            "pick": [
+              -60.0,
+              40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              -60.0,
+              52.0,
+              60.0
+            ],
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 16,
+          "occurrence_name": "Hub75CornerBracket:5",
+          "path": "Hub75CornerBracket:5",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              -12.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 24,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:5 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              60.0,
+              40.0,
+              60.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l2",
+                  "role_in_feature": "side:l2",
+                  "sketch": {
+                    "curve": "l2",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l2|F4:side:l3",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F4:side:l3|F4:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l3|F4:top",
+            "edge": "F4:side:l2|F4:side:l3",
+            "face": "F4:side:l3",
+            "pick": [
+              60.0,
+              40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              60.0,
+              52.0,
+              60.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 17,
+          "occurrence_name": "Hub75CornerBracket:6",
+          "path": "Hub75CornerBracket:6",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 25,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:6 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              60.0,
+              40.0,
+              0.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l2",
+                  "role_in_feature": "side:l2",
+                  "sketch": {
+                    "curve": "l2",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l2|F4:side:l3",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:l3|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l3|F4:start",
+            "edge": "F4:side:l2|F4:side:l3",
+            "face": "F4:side:l3",
+            "pick": [
+              60.0,
+              40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              60.0,
+              52.0,
+              0.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 18,
+          "occurrence_name": "Hub75CornerBracket:7",
+          "path": "Hub75CornerBracket:7",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              -12.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 26,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:7 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              -60.0,
+              40.0,
+              0.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l3|F4:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 3,
+                "name": "FrameBlock footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "FrameBlock footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:l3|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:l3|F4:start",
+            "edge": "F4:side:l3|F4:side:l4",
+            "face": "F4:side:l3",
+            "pick": [
+              -60.0,
+              40.0,
+              30.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Hub75CornerBracket",
+          "frame": {
+            "origin": [
+              -60.0,
+              52.0,
+              0.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 19,
+          "occurrence_name": "Hub75CornerBracket:8",
+          "path": "Hub75CornerBracket:8",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 27,
+        "links": [],
+        "name": "Attach Hub75CornerBracket:8 to FrameBlock:1",
+        "offset": 12.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

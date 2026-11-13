@@ -1,5 +1,5 @@
 {
-  "library_commit": "09db075cf18209e93ec7fa74c8691be89cf77df3",
+  "library_commit": "d58447c742c2f1b781d1bc0e5af2dfa56998c5c1",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -963,6 +963,324 @@
       "solidcraft_version": "0.30.1",
       "body_count": 5,
       "parameter_count": 2
+    },
+    "four-corner-brackets": {
+      "title": "Four real HUB75 corner brackets",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
+      "command_count": 40,
+      "native_evidence": [
+        "results.json",
+        "measurements-size-160x120x90.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model-size-160x120x90.sc",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 40,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements-size-160x120x90.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "pass",
+          "required": true,
+          "mutation": "frame 120x80x60 -> 160x120x90 mm",
+          "evidence": [
+            "measurements-size-160x120x90.json",
+            "model-size-160x120x90.sc"
+          ]
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 5,
+      "parameter_count": 12
+    },
+    "eight-hub75-corner-brackets": {
+      "title": "Eight real HUB75 corner brackets",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
+      "command_count": 52,
+      "native_evidence": [
+        "results.json",
+        "measurements-size-160x120x90.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model-size-160x120x90.sc",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 52,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements-size-160x120x90.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "pass",
+          "required": true,
+          "mutation": "frame 120x80x60 -> 160x120x90 mm",
+          "evidence": [
+            "measurements-size-160x120x90.json",
+            "model-size-160x120x90.sc"
+          ]
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 9,
+      "parameter_count": 12
+    },
+    "eight-flightcase-corners": {
+      "title": "Eight flightcase corner protectors",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
+      "command_count": 38,
+      "native_evidence": [
+        "results.json",
+        "measurements-size-160x120x90.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model-size-160x120x90.sc",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 38,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements-size-160x120x90.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "pass",
+          "required": true,
+          "mutation": "case 120x80x60 -> 160x120x90 mm",
+          "evidence": [
+            "measurements-size-160x120x90.json",
+            "model-size-160x120x90.sc"
+          ]
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 9,
+      "parameter_count": 3
     },
     "eight-corner-brackets": {
       "title": "Eight reusable outside L-brackets",

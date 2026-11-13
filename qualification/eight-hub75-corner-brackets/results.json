@@ -1,0 +1,1019 @@
+[
+  {
+    "display_value": 120.0,
+    "name": "frame_width",
+    "unit": "mm",
+    "value": 120.0
+  },
+  {
+    "display_value": 80.0,
+    "name": "frame_depth",
+    "unit": "mm",
+    "value": 80.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "frame_height",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "component": 1,
+    "grounded": true,
+    "name": "FrameBlock",
+    "occurrence": 2,
+    "parent": 0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "FrameBlock footprint",
+    "projected": null,
+    "sketch": 3
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 3
+  },
+  {
+    "bodies": [
+      "FrameBlock"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "FrameBlock"
+    ],
+    "feature": 4,
+    "ms": 0.803439,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "active": 0
+  },
+  {
+    "display_value": 24.0,
+    "name": "Hub75CornerBracket_arm_width",
+    "unit": "mm",
+    "value": 24.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "Hub75CornerBracket_horizontal_arm_length",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 12.0,
+    "name": "Hub75CornerBracket_arm_height",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
+    "display_value": 3.0,
+    "name": "Hub75CornerBracket_arm_end_chamfer",
+    "unit": "mm",
+    "value": 3.0
+  },
+  {
+    "display_value": 6.0,
+    "name": "Hub75CornerBracket_outer_corner_chamfer",
+    "unit": "mm",
+    "value": 6.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "Hub75CornerBracket_vertical_arm_length",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 4.0,
+    "name": "Hub75CornerBracket_inside_corner_radius",
+    "unit": "mm",
+    "value": 4.0
+  },
+  {
+    "display_value": 0.6,
+    "name": "Hub75CornerBracket_elephant_foot_relief",
+    "unit": "mm",
+    "value": 0.6
+  },
+  {
+    "display_value": 2.0,
+    "name": "Hub75CornerBracket_side_edge_chamfer",
+    "unit": "mm",
+    "value": 2.0
+  },
+  {
+    "component": 5,
+    "grounded": false,
+    "name": "Hub75CornerBracket",
+    "occurrence": 6,
+    "parent": 0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Profile",
+    "projected": null,
+    "sketch": 7
+  },
+  {
+    "constraints": [
+      "k1"
+    ],
+    "created": {
+      "constraints": [
+        "k1"
+      ],
+      "curves": [
+        "i_corner",
+        "o_hor_tip",
+        "o_hor_bevel",
+        "o_hor",
+        "o_corner",
+        "o_vert",
+        "o_vert_bevel",
+        "o_vert_end",
+        "v_tip"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+        "p6",
+        "p7",
+        "p8",
+        "i_corner.start"
+      ]
+    },
+    "curves": [
+      "i_corner",
+      "o_hor_tip",
+      "o_hor_bevel",
+      "o_hor",
+      "o_corner",
+      "o_vert",
+      "o_vert_bevel",
+      "o_vert_end",
+      "v_tip"
+    ],
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 7
+  },
+  {
+    "bodies": [
+      "FrameBlock",
+      "Hub75CornerBracket"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Hub75CornerBracket"
+    ],
+    "feature": 8,
+    "ms": 0.462726,
+    "name": "Extrude2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "FrameBlock",
+      "Hub75CornerBracket"
+    ],
+    "changed_bodies": [
+      "Hub75CornerBracket"
+    ],
+    "created_bodies": [],
+    "feature": 9,
+    "ms": 12.564319,
+    "name": "Fillet1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "FrameBlock",
+      "Hub75CornerBracket"
+    ],
+    "changed_bodies": [
+      "Hub75CornerBracket"
+    ],
+    "created_bodies": [],
+    "feature": 10,
+    "ms": 45.353821,
+    "name": "Chamfer1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "FrameBlock",
+      "Hub75CornerBracket"
+    ],
+    "changed_bodies": [
+      "Hub75CornerBracket"
+    ],
+    "created_bodies": [],
+    "feature": 11,
+    "ms": 249.396388,
+    "name": "Chamfer2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "FrameBlock",
+      "Hub75CornerBracket"
+    ],
+    "changed_bodies": [
+      "Hub75CornerBracket"
+    ],
+    "created_bodies": [],
+    "feature": 12,
+    "ms": 91.873491,
+    "name": "Chamfer3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "active": 0
+  },
+  {
+    "component": 5,
+    "occurrence": 13
+  },
+  {
+    "component": 5,
+    "occurrence": 14
+  },
+  {
+    "component": 5,
+    "occurrence": 15
+  },
+  {
+    "component": 5,
+    "occurrence": 16
+  },
+  {
+    "component": 5,
+    "occurrence": 17
+  },
+  {
+    "component": 5,
+    "occurrence": 18
+  },
+  {
+    "component": 5,
+    "occurrence": 19
+  },
+  {
+    "occurrence": 6,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        -60.0,
+        -40.0,
+        72.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 13,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        48.0,
+        -40.0,
+        60.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 14,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        60.0,
+        -40.0,
+        12.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 15,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        -72.0,
+        -40.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 16,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        -60.0,
+        40.0,
+        72.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 17,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        48.0,
+        40.0,
+        60.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 18,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        60.0,
+        40.0,
+        12.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "occurrence": 19,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        -72.0,
+        40.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 6,
+        "occurrence": 13
+      },
+      {
+        "dof": 6,
+        "occurrence": 14
+      },
+      {
+        "dof": 6,
+        "occurrence": 15
+      },
+      {
+        "dof": 6,
+        "occurrence": 16
+      },
+      {
+        "dof": 6,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 20,
+    "name": "Attach Hub75CornerBracket:1 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 6,
+        "occurrence": 14
+      },
+      {
+        "dof": 6,
+        "occurrence": 15
+      },
+      {
+        "dof": 6,
+        "occurrence": 16
+      },
+      {
+        "dof": 6,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 21,
+    "name": "Attach Hub75CornerBracket:2 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 6,
+        "occurrence": 15
+      },
+      {
+        "dof": 6,
+        "occurrence": 16
+      },
+      {
+        "dof": 6,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 22,
+    "name": "Attach Hub75CornerBracket:3 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 0,
+        "occurrence": 15
+      },
+      {
+        "dof": 6,
+        "occurrence": 16
+      },
+      {
+        "dof": 6,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 23,
+    "name": "Attach Hub75CornerBracket:4 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 0,
+        "occurrence": 15
+      },
+      {
+        "dof": 0,
+        "occurrence": 16
+      },
+      {
+        "dof": 6,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 24,
+    "name": "Attach Hub75CornerBracket:5 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 0,
+        "occurrence": 15
+      },
+      {
+        "dof": 0,
+        "occurrence": 16
+      },
+      {
+        "dof": 0,
+        "occurrence": 17
+      },
+      {
+        "dof": 6,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 25,
+    "name": "Attach Hub75CornerBracket:6 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 0,
+        "occurrence": 15
+      },
+      {
+        "dof": 0,
+        "occurrence": 16
+      },
+      {
+        "dof": 0,
+        "occurrence": 17
+      },
+      {
+        "dof": 0,
+        "occurrence": 18
+      },
+      {
+        "dof": 6,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 26,
+    "name": "Attach Hub75CornerBracket:7 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 0,
+        "occurrence": 6
+      },
+      {
+        "dof": 0,
+        "occurrence": 13
+      },
+      {
+        "dof": 0,
+        "occurrence": 14
+      },
+      {
+        "dof": 0,
+        "occurrence": 15
+      },
+      {
+        "dof": 0,
+        "occurrence": 16
+      },
+      {
+        "dof": 0,
+        "occurrence": 17
+      },
+      {
+        "dof": 0,
+        "occurrence": 18
+      },
+      {
+        "dof": 0,
+        "occurrence": 19
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 27,
+    "name": "Attach Hub75CornerBracket:8 to FrameBlock:1"
+  },
+  {
+    "changed": 8,
+    "visibility": {
+      "hidden_bodies": [],
+      "hidden_joints": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "hidden_occurrences": [],
+      "hidden_origin": [],
+      "hidden_sketches": [],
+      "shown_sketches": []
+    },
+    "visible": false
+  }
+]

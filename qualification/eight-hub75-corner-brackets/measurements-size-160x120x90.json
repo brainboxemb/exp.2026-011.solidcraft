@@ -1,0 +1,616 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 88800.0,
+      "bbox": {
+        "max": [
+          80.0,
+          60.0,
+          90.0
+        ],
+        "min": [
+          -80.0,
+          -60.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 2229.12,
+      "material": "Default",
+      "name": "FrameBlock",
+      "vertices": 8,
+      "volume_mm3": 1728000.0
+    },
+    {
+      "area_mm2": 9333.94131389112,
+      "bbox": {
+        "max": [
+          -20.0,
+          -59.99999999999998,
+          114.0
+        ],
+        "min": [
+          -92.0,
+          -84.00000000000003,
+          42.0
+        ]
+      },
+      "center_of_mass": [
+        -69.48970757372484,
+        -72.00000000041052,
+        91.48970757372767
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.43470279430417,
+      "material": "Default",
+      "name": "Hub75CornerBracket",
+      "vertices": 48,
+      "volume_mm3": 36771.087437445094
+    },
+    {
+      "area_mm2": 9333.941313891126,
+      "bbox": {
+        "max": [
+          92.0,
+          -59.999999999999986,
+          114.0
+        ],
+        "min": [
+          19.999999999999996,
+          -84.00000000000001,
+          42.0
+        ]
+      },
+      "center_of_mass": [
+        69.48970757372771,
+        -72.00000000041052,
+        91.48970757372484
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.434702794304144,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:2)",
+      "vertices": 48,
+      "volume_mm3": 36771.08743744507
+    },
+    {
+      "area_mm2": 9333.941313891119,
+      "bbox": {
+        "max": [
+          92.0,
+          -59.999999999999986,
+          48.0
+        ],
+        "min": [
+          20.0,
+          -84.00000000000003,
+          -24.0
+        ]
+      },
+      "center_of_mass": [
+        69.48970757372484,
+        -72.00000000041052,
+        -1.4897075737277063
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.43470279430419,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:3)",
+      "vertices": 48,
+      "volume_mm3": 36771.0874374451
+    },
+    {
+      "area_mm2": 9333.941313891126,
+      "bbox": {
+        "max": [
+          -19.999999999999996,
+          -59.999999999999986,
+          48.0
+        ],
+        "min": [
+          -92.0,
+          -84.00000000000004,
+          -24.0
+        ]
+      },
+      "center_of_mass": [
+        -69.48970757372771,
+        -72.00000000041052,
+        -1.4897075737248453
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.434702794304144,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:4)",
+      "vertices": 48,
+      "volume_mm3": 36771.08743744507
+    },
+    {
+      "area_mm2": 9333.941313891117,
+      "bbox": {
+        "max": [
+          -20.0,
+          84.00000000000004,
+          114.0
+        ],
+        "min": [
+          -92.0,
+          59.99999999999999,
+          42.0
+        ]
+      },
+      "center_of_mass": [
+        -69.48970757372483,
+        71.99999999958948,
+        91.48970757372769
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.4347027943042,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:5)",
+      "vertices": 48,
+      "volume_mm3": 36771.087437445116
+    },
+    {
+      "area_mm2": 9333.941313891124,
+      "bbox": {
+        "max": [
+          92.0,
+          84.00000000000003,
+          114.0
+        ],
+        "min": [
+          19.999999999999996,
+          59.99999999999999,
+          42.0
+        ]
+      },
+      "center_of_mass": [
+        69.4897075737277,
+        71.99999999958948,
+        91.48970757372483
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.4347027943042,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:6)",
+      "vertices": 48,
+      "volume_mm3": 36771.087437445116
+    },
+    {
+      "area_mm2": 9333.941313891117,
+      "bbox": {
+        "max": [
+          92.0,
+          84.00000000000009,
+          48.0
+        ],
+        "min": [
+          20.0,
+          59.999999999999986,
+          -24.0
+        ]
+      },
+      "center_of_mass": [
+        69.48970757372483,
+        71.99999999958949,
+        -1.4897075737276884
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.43470279430422,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:7)",
+      "vertices": 48,
+      "volume_mm3": 36771.08743744513
+    },
+    {
+      "area_mm2": 9333.941313891124,
+      "bbox": {
+        "max": [
+          -19.999999999999996,
+          84.00000000000003,
+          48.0
+        ],
+        "min": [
+          -92.0,
+          59.99999999999998,
+          -24.000000000000004
+        ]
+      },
+      "center_of_mass": [
+        -69.48970757372771,
+        71.99999999958948,
+        -1.4897075737248402
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 80,
+      "face_types": {
+        "cone": 2,
+        "cylinder": 1,
+        "plane": 31
+      },
+      "faces": 34,
+      "kernel": {
+        "edges": 80,
+        "faces": 34,
+        "shells": 1,
+        "vertices": 48
+      },
+      "mass_g": 47.43470279430419,
+      "material": "Default",
+      "name": "Hub75CornerBracket (Hub75CornerBracket:8)",
+      "vertices": 48,
+      "volume_mm3": 36771.0874374451
+    }
+  ],
+  "body_count": 9,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "160 mm",
+      "model": false,
+      "name": "frame_width",
+      "unit": "mm",
+      "value": 160.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "120 mm",
+      "model": false,
+      "name": "frame_depth",
+      "unit": "mm",
+      "value": 120.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "90 mm",
+      "model": false,
+      "name": "frame_height",
+      "unit": "mm",
+      "value": 90.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "24",
+      "model": false,
+      "name": "Hub75CornerBracket_arm_width",
+      "unit": "mm",
+      "value": 24.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "60",
+      "model": false,
+      "name": "Hub75CornerBracket_horizontal_arm_length",
+      "unit": "mm",
+      "value": 60.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "12",
+      "model": false,
+      "name": "Hub75CornerBracket_arm_height",
+      "unit": "mm",
+      "value": 12.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "3",
+      "model": false,
+      "name": "Hub75CornerBracket_arm_end_chamfer",
+      "unit": "mm",
+      "value": 3.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "6",
+      "model": false,
+      "name": "Hub75CornerBracket_outer_corner_chamfer",
+      "unit": "mm",
+      "value": 6.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "60",
+      "model": false,
+      "name": "Hub75CornerBracket_vertical_arm_length",
+      "unit": "mm",
+      "value": 60.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "4",
+      "model": false,
+      "name": "Hub75CornerBracket_inside_corner_radius",
+      "unit": "mm",
+      "value": 4.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "0.6",
+      "model": false,
+      "name": "Hub75CornerBracket_elephant_foot_relief",
+      "unit": "mm",
+      "value": 0.6
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "2",
+      "model": false,
+      "name": "Hub75CornerBracket_side_edge_chamfer",
+      "unit": "mm",
+      "value": 2.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 3,
+      "name": "FrameBlock footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 9,
+      "dof": 0,
+      "id": 7,
+      "name": "Profile",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 0.21612599999999998,
+      "name": "FrameBlock footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 0.712413,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 0.0995,
+      "name": "Profile",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 0.390808,
+      "name": "Extrude2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 9,
+      "ms": 12.314721,
+      "name": "Fillet1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 10,
+      "ms": 45.958471,
+      "name": "Chamfer1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ChamferFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 11,
+      "ms": 230.034945,
+      "name": "Chamfer2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ChamferFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 12,
+      "ms": 90.091798,
+      "name": "Chamfer3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ChamferFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 163471.53051112895,
+    "edges": 652,
+    "faces": 278,
+    "mass_g": 2608.597622354432,
+    "open_bodies_skipped": 0,
+    "vertices": 392,
+    "volume_mm3": 2022168.6994995605
+  }
+}

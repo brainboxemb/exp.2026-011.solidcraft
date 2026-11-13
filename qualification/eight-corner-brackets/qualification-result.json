@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "eight-corner-brackets",
   "title": "Eight reusable outside L-brackets",
-  "source_commit": "09db075cf18209e93ec7fa74c8691be89cf77df3",
+  "source_commit": "d58447c742c2f1b781d1bc0e5af2dfa56998c5c1",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
