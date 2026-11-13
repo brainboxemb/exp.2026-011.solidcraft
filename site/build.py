@@ -166,10 +166,21 @@ def _qualification_status(result):
         for name in ("q1", "q2", "q3", "q4", "q5", "q6")
         if levels.get(name, {}).get("status") == "not-required"
     ]
-    label = f"{result.get('status', 'incomplete').upper()} · {' '.join(passed)}"
+    detail = " ".join(passed)
     if not_required:
-        label += f" · {' '.join(not_required)} N/R"
-    return label
+        detail += f" · {' '.join(not_required)} N/R"
+    overall = "PASS" if result.get("status") == "pass" else "FAIL"
+    return overall, detail
+
+
+def _qualification_status_html(overall, detail):
+    status_class = "pass" if overall == "PASS" else "fail"
+    return (
+        '<div class="qualification-status-line">'
+        f'<span class="qualification-status {status_class}">{escape(overall)}</span>'
+        f'<span class="qualification-levels">{escape(detail)}</span>'
+        '</div>'
+    )
 
 
 def _render_native_results(native_case, solidcraft_version):
@@ -440,7 +451,8 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             '<div class="notice">No source-matched native verification was supplied '
             'to this site build. The case sheet and command contract are still shown.</div>'
         )
-        status = "Q1/Q2 documented"
+        status = "NOT RUN"
+        status_detail = "Q1 Q2 documented"
         if native_case is not None and native_case.is_dir():
             result_file = native_case / "qualification-result.json"
             if not result_file.is_file():
@@ -500,7 +512,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 + "".join(figures)
                 + "</div>"
             )
-            status = _qualification_status(qualification_result)
+            status, status_detail = _qualification_status(qualification_result)
             results_html, body_count, parameter_count = _render_native_results(
                 native_case,
                 metadata["solidcraft_version"],
@@ -534,7 +546,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         case_body = render_template(
             "case.html",
             title=escape(case["title"]),
-            status=escape(status),
+            status_badge=_qualification_status_html(status, status_detail),
             intent=escape(case["intent"]),
             gallery=preview_html,
             forge_api=escape(case["forge_api"]),
@@ -562,6 +574,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         qualification_manifest[slug] = {
             "title": case["title"],
             "status": status,
+            "status_detail": status_detail,
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
             "native_images": native_images,
@@ -584,7 +597,8 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         )
         qualification_cards[case["group"]].append(
             f'<article class="reference qualification-card">{card_image}'
-            f'<div class="qualification-card-content"><p class="eyebrow">{escape(status)}</p>'
+            f'<div class="qualification-card-content">'
+            + _qualification_status_html(status, status_detail)
             f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
             f'<p><code>{escape(case["forge_api"])}</code></p>'
@@ -604,7 +618,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         result_rows.append(
             f"<tr><td><a href=\"../{escape(case['slug'])}/\">"
             f"{escape(case['title'])}</a></td>"
-            f"<td><strong>{escape(row['status'])}</strong></td>"
+            f"<td>{_qualification_status_html(row['status'], row.get('status_detail', ''))}</td>"
             f"<td>{escape(row.get('solidcraft_version') or '—')}</td>"
             f"<td>{escape(row.get('body_count') if row.get('body_count') is not None else '—')}</td>"
             f"<td>{escape(row.get('parameter_count') if row.get('parameter_count') is not None else '—')}</td>"
