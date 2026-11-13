@@ -14,6 +14,24 @@ def _command(command_name, **params):
     return {"command": command_name, "params": params}
 
 
+def _shift_joint_reference(reference, offset):
+    """Translate a native joint reference by an XYZ assembly-space offset.
+
+    Position-bearing fields are shifted together so the reference keeps its
+    original orientation/topology. Symbolic offsets remain expressions in
+    the emitted SolidCraft command.
+    """
+    shifted = dict(reference)
+    for key in ("face", "point", "edge", "on", "corner"):
+        if key not in shifted:
+            continue
+        shifted[key] = [
+            command_value(shifted[key][i] + offset[i])
+            for i in range(3)
+        ]
+    return shifted
+
+
 def _component_slug(name):
     text = re.sub(r"[^A-Za-z0-9_]+", "_", name).strip("_")
     if not text:
@@ -33,27 +51,6 @@ def _rewrite_value(value, mapping):
     if isinstance(value, dict):
         return {key: _rewrite_value(item, mapping) for key, item in value.items()}
     return value
-
-
-def _rotate_vector(vector, rotation):
-    """Rotate one XYZ vector by an axis-angle tuple."""
-    if rotation is None:
-        return tuple(vector)
-    from math import cos, radians, sin, sqrt
-    axis, degrees = rotation
-    ax, ay, az = map(float, axis)
-    length = sqrt(ax * ax + ay * ay + az * az)
-    ax, ay, az = ax / length, ay / length, az / length
-    x, y, z = map(float, vector)
-    angle = radians(float(degrees))
-    c = cos(angle)
-    s = sin(angle)
-    dot = ax * x + ay * y + az * z
-    return (
-        x * c + (ay * z - az * y) * s + ax * dot * (1 - c),
-        y * c + (az * x - ax * z) * s + ay * dot * (1 - c),
-        z * c + (ax * y - ay * x) * s + az * dot * (1 - c),
-    )
 
 
 def _namespace_commands(commands, component_name, external_names=()):
@@ -323,9 +320,10 @@ def compile_assembly(value, name):
 
         def custom_anchor_reference(model, anchor, occurrence):
             if isinstance(anchor, (AnchorFrame, AnchorTopology)):
-                if model.rotation is not None and isinstance(anchor, AnchorTopology):
+                if model.rotation is not None:
+                    kind = type(anchor).__name__
                     raise ModelError(
-                        "direct AnchorTopology attachments on explicitly rotated "
+                        f"direct {kind} attachments on explicitly rotated "
                         "occurrences are not supported yet"
                     )
                 custom = anchor
@@ -361,17 +359,14 @@ def compile_assembly(value, name):
                     reference["x"] = list(custom.x)
                 return reference
 
-            origin = _rotate_vector(custom.origin, model.rotation)
-            z_axis = _rotate_vector(custom.z, model.rotation)
-            x_axis = _rotate_vector(custom.x, model.rotation)
             return {
                 "occurrence": occurrence,
                 "point": [
-                    origin[i] + model.translation[i]
+                    custom.origin[i] + model.translation[i]
                     for i in range(3)
                 ],
-                "z": list(z_axis),
-                "x": list(x_axis),
+                "z": list(custom.z),
+                "x": list(custom.x),
             }
 
         if isinstance(attachment.parent, Anchor):
@@ -413,33 +408,19 @@ def compile_assembly(value, name):
                     expression=f"{parameter.value:g} mm",
                 ))
 
-        has_planar_offset = (
-            any(pv(value) != 0 for value in attachment.offset)
-            or bool(parameters_in(*attachment.offset))
+        parent_origin = _shift_joint_reference(
+            parent_origin,
+            attachment.offset,
         )
         params = {
-            "type": "planar" if has_planar_offset else "rigid",
+            "type": "rigid",
             "name": f"Attach {child_occurrence} to {parent_occurrence}",
             "a": parent_origin,
             "b": child_origin,
         }
         if attachment.gap != 0:
             params["offset"] = command_value(attachment.gap)
-        if has_planar_offset:
-            u, v = attachment.offset
-            if attachment.assembled_rotation is not None:
-                quarter_turns = int(round(attachment.assembled_rotation / 90.0)) % 4
-                # offset is expressed in the assembled bracket's semantic
-                # planar axes. Convert it back into the native joint-local
-                # planar axes without changing either joint frame.
-                for _ in range(quarter_turns):
-                    u, v = v, -u
-            params["values"] = [
-                command_value(u),
-                command_value(v),
-                attachment.angle if attachment.angle is not None else 0.0,
-            ]
-        elif attachment.angle is not None:
+        if attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
