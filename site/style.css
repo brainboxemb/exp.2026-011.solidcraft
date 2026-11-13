@@ -67,6 +67,8 @@ color:var(--muted);border-top:1px solid var(--line)}
 font-weight:800;letter-spacing:.06em;line-height:1}
 .qualification-status.pass{background:#e5f6eb;color:#176b35;border:1px solid #a9ddb9}
 .qualification-status.fail{background:#fdeaea;color:#a12b2b;border:1px solid #efb3b3}
+.qualification-status.review{background:#fff4d8;color:#7a5b00;border:1px solid #ead18b}
+.qualification-status.incomplete{background:#fff0e5;color:#9a4b00;border:1px solid #edc09a}
 .qualification-status.not-run{background:#eef2f7;color:#596b82;border:1px solid #ccd6e2}
 .qualification-levels{font-size:.76rem;font-weight:700;letter-spacing:.05em;color:#70819a}
 .qualification-card{padding:0;overflow:hidden;width:340px}
