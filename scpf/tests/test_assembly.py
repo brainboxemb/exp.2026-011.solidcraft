@@ -1124,9 +1124,9 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
         self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
 
-    def test_attach_assembled_rotation_orients_joint_frame_only(self):
+    def test_attach_assembled_rotation_rotates_planar_offset_only(self):
         from scpf.assembly import compile_assembly
-        from scpf.core import Anchor, AnchorFrame, AnchorTopology, Box
+        from scpf.core import Anchor, AnchorFrame, Box
         from scpf.runner import component
 
         @component
@@ -1143,38 +1143,29 @@ class AssemblyTests(unittest.TestCase):
                 z=(0, 1, 0),
                 x=(0, 0, -1),
             ),
-            assembled_rotation=180,
+            offset=(5, 7),
+            assembled_rotation=90,
         )
 
         self.assertIsNone(child.rotation)
-        self.assertIsInstance(child.attachment.parent, AnchorTopology)
-        self.assertEqual(child.attachment.parent.z, (0.0, -1.0, 0.0))
-        self.assertEqual(child.attachment.parent.x, (0.0, 0.0, 1.0))
+        self.assertIs(child.attachment.parent, Anchor.FRONT_BOTTOM_RIGHT)
 
         commands = compile_assembly(parent + child, "AssembledRotation")["commands"]
-        child_moves = [
-            command["params"]
-            for command in commands
-            if command["command"] == "occurrence.move"
-            and command["params"]["occurrence"] == "Block:2"
-        ]
-        self.assertTrue(all("axis" not in move and "angle" not in move for move in child_moves))
-
         joint = next(
             command["params"]
             for command in commands
             if command["command"] == "joint.create"
         )
-        self.assertEqual(joint["a"]["z"], [0.0, -1.0, 0.0])
-        self.assertEqual(joint["a"]["x"], [0.0, 0.0, 1.0])
-        self.assertEqual(joint["b"]["z"], [0.0, 1.0, 0.0])
-        self.assertEqual(joint["b"]["x"], [0.0, 0.0, -1.0])
+        self.assertEqual(joint["values"], [7, -5, 0.0])
+        self.assertNotIn("x", joint["a"])
+        self.assertNotIn("z", joint["a"])
 
         with self.assertRaisesRegex(ValueError, "multiple of 90"):
             Block().attach(
                 parent,
                 parent=Anchor.FRONT_TOP_LEFT,
                 child=AnchorFrame(z=(0, 1, 0), x=(0, 0, -1)),
+                offset=(0, 1),
                 assembled_rotation=45,
             )
 
