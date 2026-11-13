@@ -1,0 +1,89 @@
+[
+  {
+    "display_value": 24.0,
+    "name": "width",
+    "unit": "mm",
+    "value": 24.0
+  },
+  {
+    "display_value": 40.0,
+    "name": "arm_length",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "display_value": 12.0,
+    "name": "arm_height",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Profile",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1"
+    ],
+    "created": {
+      "constraints": [
+        "k1"
+      ],
+      "curves": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+        "a.start"
+      ]
+    },
+    "curves": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "Bracket"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Bracket"
+    ],
+    "feature": 2,
+    "ms": 0.848427,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  }
+]
