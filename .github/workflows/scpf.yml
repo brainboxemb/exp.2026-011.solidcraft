@@ -396,6 +396,16 @@ jobs:
                       q4:"native-measurement",q5:"parametric-mutation",
                       q6:"native-snapshot"}}' \
             > output/native/verification.json
+      - name: Collect structured qualification results
+        shell: bash
+        run: |
+          set -euo pipefail
+          python qualification/results.py \
+            --qualification-dir output/qualification \
+            --native-root output/native \
+            --source-sha "$GITHUB_SHA" \
+            --solidcraft-version "$SOLIDCRAFT_VERSION"
+
       - name: Build qualification report
         if: always()
         shell: bash
