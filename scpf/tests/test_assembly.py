@@ -925,26 +925,25 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 2)
         self.assertEqual(
-            joints[0]["a"],
-            {
-                "occurrence": "Board:1",
-                "edge": [20.0, 0.0, 10.0],
-                "on": [0.0, 0.0, 10.0],
-                "corner": [20.0, 0.0, 20.0],
-            },
+            [joint["a"] for joint in joints],
+            ["Board:1.front_top_right", "Board:1.front_top_left"],
         )
         self.assertEqual(
-            joints[1]["a"],
-            {
-                "occurrence": "Board:1",
-                "edge": [-20.0, 0.0, 10.0],
-                "on": [0.0, 0.0, 10.0],
-                "corner": [-20.0, 0.0, 20.0],
-            },
+            [joint["b"] for joint in joints],
+            ["Marker:1.back_top_right", "Marker:2.back_top_left"],
+        )
+        origins = {
+            command["params"]["name"]: command["params"]
+            for command in commands
+            if command["command"] == "joint.origin"
+        }
+        self.assertEqual(
+            origins["Board:1.front_top_right"]["corner"],
+            [20.0, 0.0, 20.0],
         )
         self.assertEqual(
-            [joint["b"]["occurrence"] for joint in joints],
-            ["Marker:1", "Marker:2"],
+            origins["Board:1.front_top_left"]["corner"],
+            [-20.0, 0.0, 20.0],
         )
 
     def test_anchor_frame_accepts_named_axis_directions(self):
@@ -1241,8 +1240,17 @@ class AssemblyTests(unittest.TestCase):
         )
 
         commands = compile_assembly(base + bracket, "DirectFrame")["commands"]
+        origins = [
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.origin"
+        ]
+        self.assertEqual(
+            [origin["name"] for origin in origins],
+            ["Base:1.front_top_right"],
+        )
         self.assertFalse(
-            any(command["command"] == "joint.origin" for command in commands)
+            any(origin["occurrence"] == "Bracket:1" for origin in origins)
         )
         joint = next(
             command["params"]
@@ -1382,9 +1390,19 @@ class AssemblyTests(unittest.TestCase):
             if command["command"] == "joint.create"
         )
         self.assertEqual(joint["type"], "rigid")
+        origins = [
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.origin"
+        ]
         self.assertEqual(
-            joint["a"],
+            [origin["name"] for origin in origins],
+            ["Base:1.front_top_right", "Marker:1.back_top_right"],
+        )
+        self.assertEqual(
+            origins[0],
             {
+                "name": "Base:1.front_top_right",
                 "occurrence": "Base:1",
                 "edge": [20.0, -15.0, 10.0],
                 "on": [0.0, -15.0, 10.0],
@@ -1392,14 +1410,17 @@ class AssemblyTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            joint["b"],
+            origins[1],
             {
+                "name": "Marker:1.back_top_right",
                 "occurrence": "Marker:1",
-                "edge": [20.0, -15.0, 15.0],
-                "on": [15.0, -15.0, 15.0],
-                "corner": [20.0, -15.0, 20.0],
+                "edge": [5.0, 5.0, 5.0],
+                "on": [0.0, 5.0, 5.0],
+                "corner": [5.0, 5.0, 10.0],
             },
         )
+        self.assertEqual(joint["a"], "Base:1.front_top_right")
+        self.assertEqual(joint["b"], "Marker:1.back_top_right")
 
     def test_as_built_attach_keeps_current_occurrence_placement(self):
         from scpf.assembly import compile_assembly

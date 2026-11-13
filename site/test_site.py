@@ -90,10 +90,11 @@ def check(site: Path, sha: str, require_native: bool = False):
     ).read_text(encoding="utf-8")
     for term in (
         "Placing a corner bracket with Forge",
-        "The real SolidCraft JSON generated today",
-        "\"command\": \"joint.create\"",
-        "\"edge\": [-60, -40, 30]",
-        "\"z\": [0, -1, 0]",
+        "Nederlands — eenvoudige uitleg",
+        "English — simple explanation",
+        "The real SolidCraft relationship remains explicit",
+        "AnchorFrame(",
+        "<code>RIGHT</code>",
         "child joint origin",
         "4 brackets",
         "8 brackets",

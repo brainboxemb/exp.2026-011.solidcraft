@@ -3,7 +3,9 @@ import re
 
 from .compiler import ModelError
 from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in, pv
-from .model_objects import Assembly, ModelInstance, _anchor_origin
+from .model_objects import (
+    Assembly, ModelInstance, _anchor_origin, _corner_origin_points,
+)
 from .compiler import compile_model
 
 
@@ -98,10 +100,26 @@ def compile_assembly(value, name):
     # existing native-origin route only for explicitly rotated occurrences,
     # where SolidCraft can own the local-to-world transform.
     required_custom_origins = set()
+    standard_corner_anchors = {}
+    standard_corner_origin_names = {}
+
+    def register_standard_corner(model, anchor):
+        if not isinstance(anchor, Anchor):
+            return
+        try:
+            _corner_origin_points(model, anchor)
+        except ValueError:
+            return
+        standard_corner_anchors.setdefault(id(model), [])
+        if anchor not in standard_corner_anchors[id(model)]:
+            standard_corner_anchors[id(model)].append(anchor)
+
     for instance in assembly.instances:
         attachment = instance.attachment
         if attachment is None or attachment.as_built:
             continue
+        register_standard_corner(attachment.target, attachment.parent)
+        register_standard_corner(instance, attachment.child)
         if (
             isinstance(attachment.parent, str)
             and attachment.target.rotation is not None
@@ -263,6 +281,24 @@ def compile_assembly(value, name):
                     },
                 ))
 
+        # Standard rectangular corner anchors are topology-backed native
+        # joint origins. Author them while each occurrence is still at identity
+        # so later occurrence placement does not get baked into the topology
+        # pick coordinates a second time.
+        for instance, native_name in occurrences:
+            for anchor in standard_corner_anchors.get(id(instance), ()):
+                origin_name = f"{native_name}.{anchor.value}"
+                standard_corner_origin_names[(id(instance), anchor)] = origin_name
+                edge, on, corner = _corner_origin_points(instance, anchor)
+                commands.append(_command(
+                    "joint.origin",
+                    name=origin_name,
+                    occurrence=native_name,
+                    edge=list(edge),
+                    on=list(on),
+                    corner=list(corner),
+                ))
+
         # Each occurrence now starts at identity. SolidCraft itself applies
         # the requested translation and axis-angle rotation directly.
         # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
@@ -351,7 +387,15 @@ def compile_assembly(value, name):
                 "x": list(custom.x),
             }
 
-        if isinstance(attachment.parent, Anchor):
+        if (
+            isinstance(attachment.parent, Anchor)
+            and (id(attachment.target), attachment.parent)
+            in standard_corner_origin_names
+        ):
+            parent_origin = standard_corner_origin_names[
+                (id(attachment.target), attachment.parent)
+            ]
+        elif isinstance(attachment.parent, Anchor):
             parent_origin = _anchor_origin(
                 attachment.target,
                 attachment.parent,
@@ -363,7 +407,15 @@ def compile_assembly(value, name):
                 attachment.parent,
                 parent_occurrence,
             )
-        if isinstance(attachment.child, Anchor):
+        if (
+            isinstance(attachment.child, Anchor)
+            and (id(instance), attachment.child)
+            in standard_corner_origin_names
+        ):
+            child_origin = standard_corner_origin_names[
+                (id(instance), attachment.child)
+            ]
+        elif isinstance(attachment.child, Anchor):
             child_origin = _anchor_origin(
                 instance,
                 attachment.child,
