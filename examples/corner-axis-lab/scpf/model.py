@@ -16,28 +16,59 @@ class CornerAxisLab:
     def build(self):
         parent = Parent()
 
-        top_left = Marker(name="top_left").attach(
+        front_top_left = Marker(name="front_top_left").attach(
             parent,
             parent=Anchor.FRONT_TOP_LEFT,
             child=Anchor.BACK_TOP_RIGHT,
         )
-        top_right = Marker(name="top_right").attach(
+        front_top_right = Marker(name="front_top_right").attach(
             parent,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=Anchor.BACK_TOP_RIGHT,
         )
-        bottom_right = Marker(name="bottom_right").attach(
+        front_bottom_right = Marker(name="front_bottom_right").attach(
             parent,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
             child=Anchor.BACK_TOP_RIGHT,
         )
-        bottom_left = Marker(name="bottom_left").attach(
+        front_bottom_left = Marker(name="front_bottom_left").attach(
             parent,
             parent=Anchor.FRONT_BOTTOM_LEFT,
             child=Anchor.BACK_TOP_RIGHT,
         )
 
-        return parent + top_left + top_right + bottom_right + bottom_left
+        back_top_left = Marker(name="back_top_left").attach(
+            parent,
+            parent=Anchor.BACK_TOP_LEFT,
+            child=Anchor.FRONT_TOP_RIGHT,
+        )
+        back_top_right = Marker(name="back_top_right").attach(
+            parent,
+            parent=Anchor.BACK_TOP_RIGHT,
+            child=Anchor.FRONT_TOP_RIGHT,
+        )
+        back_bottom_right = Marker(name="back_bottom_right").attach(
+            parent,
+            parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=Anchor.FRONT_TOP_RIGHT,
+        )
+        back_bottom_left = Marker(name="back_bottom_left").attach(
+            parent,
+            parent=Anchor.BACK_BOTTOM_LEFT,
+            child=Anchor.FRONT_TOP_RIGHT,
+        )
+
+        return (
+            parent
+            + front_top_left
+            + front_top_right
+            + front_bottom_right
+            + front_bottom_left
+            + back_top_left
+            + back_top_right
+            + back_bottom_right
+            + back_bottom_left
+        )
 
 
 CornerAxisLab()
