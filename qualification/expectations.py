@@ -66,6 +66,14 @@ EXPECTED_BOUNDS = {
     ],
     "eight-flightcase-corners": [
         {"label": "CaseBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+        {"label": "front top-left", "min": [-64, -44, 30], "max": [-30, -10, 64]},
+        {"label": "front top-right", "min": [30, -44, 30], "max": [64, -10, 64]},
+        {"label": "front bottom-right", "min": [30, -44, -4], "max": [64, -10, 30]},
+        {"label": "front bottom-left", "min": [-64, -44, -4], "max": [-30, -10, 30]},
+        {"label": "rear top-left", "min": [-64, 10, 30], "max": [-30, 44, 64]},
+        {"label": "rear top-right", "min": [30, 10, 30], "max": [64, 44, 64]},
+        {"label": "rear bottom-right", "min": [30, 10, -4], "max": [64, 44, 30]},
+        {"label": "rear bottom-left", "min": [-64, 10, -4], "max": [-30, 44, 30]},
     ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
@@ -147,6 +155,14 @@ EXPECTED_MUTATION_BOUNDS = {
     ],
     "eight-flightcase-corners": [
         {"label": "CaseBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
+        {"label": "front top-left", "min": [-84, -64, 60], "max": [-50, -30, 94]},
+        {"label": "front top-right", "min": [50, -64, 60], "max": [84, -30, 94]},
+        {"label": "front bottom-right", "min": [50, -64, -4], "max": [84, -30, 30]},
+        {"label": "front bottom-left", "min": [-84, -64, -4], "max": [-50, -30, 30]},
+        {"label": "rear top-left", "min": [-84, 30, 60], "max": [-50, 64, 94]},
+        {"label": "rear top-right", "min": [50, 30, 60], "max": [84, 64, 94]},
+        {"label": "rear bottom-right", "min": [50, 30, -4], "max": [84, 64, 30]},
+        {"label": "rear bottom-left", "min": [-84, 30, -4], "max": [-50, 64, 30]},
     ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},

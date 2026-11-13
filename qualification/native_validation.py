@@ -321,9 +321,17 @@ def validate_eight_hub75_corner_brackets(root: Path) -> Validation:
 def validate_eight_flightcase_corners(root: Path) -> Validation:
     v = Validation("eight-flightcase-corners")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "eight-flightcase-corners")
     v.check("nine bodies: case plus eight flightcase corners",
             d["body_count"] == 9, 9, d["body_count"])
     m = load(root / "measurements-size-160x120x90.json")
+    _check_declared_bounds(
+        v,
+        m,
+        "eight-flightcase-corners",
+        level="q5",
+        mutation=True,
+    )
     v.check("nine bodies after saved-design mutation",
             m["body_count"] == 9, 9, m["body_count"], "q5")
     return v

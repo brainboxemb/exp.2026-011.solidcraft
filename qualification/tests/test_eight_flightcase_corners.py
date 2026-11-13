@@ -1,4 +1,4 @@
-"""Qualification contract for eight asymmetric 3D flightcase corners."""
+"""Qualification contract for eight trihedral flightcase corners."""
 import json
 import os
 from pathlib import Path
@@ -50,8 +50,8 @@ class EightFlightcaseCornersCommandTests(unittest.TestCase):
                 joint["b"]["occurrence"],
                 f"FlightcaseCorner:{index}",
             )
-            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
+            self.assertEqual(joint["b"]["z"], [0.0, 1.0, 0.0])
+            self.assertEqual(joint["b"]["x"], [0.0, 0.0, -1.0])
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")

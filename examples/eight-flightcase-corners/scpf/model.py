@@ -1,4 +1,4 @@
-"""Eight asymmetric 3D flightcase corner protectors around one case."""
+"""Eight trihedral flightcase corner protectors around one case."""
 
 
 class CaseBlock:
@@ -11,24 +11,40 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
-    # Deliberately unequal arms make every 3D orientation observable.
-    X_ARM = 36.0
-    Y_ARM = 28.0
-    Z_ARM = 24.0
-    THICKNESS = 8.0
+    ARM = 30.0
+    THICKNESS = 4.0
+    OVERLAP = 0.5
 
     def build(self):
+        arm = self.ARM
         t = self.THICKNESS
-        x_arm = Box(self.X_ARM, t, t).move(
-            x=self.X_ARM / 2,
-            z=-(t / 2),
+        overlap = self.OVERLAP
+
+        # Neutral outside corner cap for FRONT_TOP_LEFT.
+        # The case extends inward along +X, +Y and -Z.
+        #
+        # Three square plates meet at the same corner:
+        #   top plate   : +X / +Y, thickness outward in +Z
+        #   front plate : +X / -Z, thickness outward in -Y
+        #   side plate  : +Y / -Z, thickness outward in -X
+        top = Box(arm, arm, t).move(
+            x=arm / 2,
+            y=arm / 2,
+            z=t / 2,
         )
-        y_arm = Box(t, self.Y_ARM, t).move(
-            y=self.Y_ARM / 2,
-            z=-(t / 2),
+        # A tiny internal overlap keeps the three native box joins robust.
+        # It is entirely inside the cap and does not change the outer bounds.
+        front = Box(arm, t + overlap, arm + overlap).move(
+            x=arm / 2,
+            y=(overlap - t) / 2,
+            z=(overlap - arm) / 2,
         )
-        z_arm = Box(t, t, self.Z_ARM)
-        return x_arm + y_arm + z_arm
+        side = Box(t + overlap, arm, arm + overlap).move(
+            x=(overlap - t) / 2,
+            y=arm / 2,
+            z=(overlap - arm) / 2,
+        )
+        return top + front + side
 
 
 class EightFlightcaseCorners:
@@ -44,12 +60,13 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral 3D protector is reused at all eight topology corners.
-        # The unequal arms make accidental mirroring or clocking visible.
+        # One neutral trihedral protector is reused at all eight topology
+        # corners. Its three plates must always wrap the outside corner and
+        # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=FRONT,
-            x=RIGHT,
+            z=BACK,
+            x=DOWN,
         )
 
         front_top_left = protector.copy().attach(
