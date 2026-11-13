@@ -7,7 +7,7 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, AnchorFrame, Axis, Shape, parameters_in, pv
+from .core import Anchor, AnchorFrame, AnchorTopology, Axis, Shape, parameters_in, pv
 
 
 @dataclass(frozen=True)
@@ -20,7 +20,7 @@ class ModelDefinition:
     fixed_inputs: tuple[tuple[str, float], ...] = ()
     external_parameters: tuple[tuple[str, float], ...] = ()
     input_bindings: tuple[tuple[str, str], ...] = ()
-    anchors: tuple[tuple[str, AnchorFrame], ...] = ()
+    anchors: tuple[tuple[str, AnchorFrame | AnchorTopology], ...] = ()
 
     @property
     def key(self):
@@ -46,7 +46,7 @@ class Attachment:
     as_built: bool = False
 
 
-def _custom_anchor_frame(instance, name):
+def _custom_anchor(instance, name):
     try:
         return dict(instance.definition.anchors)[name]
     except KeyError as exc:
@@ -63,7 +63,7 @@ def _resolve_anchor_reference(instance, value):
         try:
             return Anchor(value)
         except ValueError:
-            _custom_anchor_frame(instance, value)
+            _custom_anchor(instance, value)
             return value
     raise ValueError(
         "component attach requires an Anchor, AnchorFrame or anchor name"
@@ -75,7 +75,12 @@ def _anchor_local_point(instance, anchor):
         return _anchor_point(instance, anchor)
     if isinstance(anchor, AnchorFrame):
         return anchor.origin
-    return _custom_anchor_frame(instance, anchor).origin
+    if isinstance(anchor, AnchorTopology):
+        return anchor.corner if anchor.corner is not None else anchor.edge
+    custom = _custom_anchor(instance, anchor)
+    if isinstance(custom, AnchorFrame):
+        return custom.origin
+    return custom.corner if custom.corner is not None else custom.edge
 
 
 def _unwrap_rectangular_shape(shape):
