@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab planar-limit-lab planar-fixed-lab; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -207,6 +207,108 @@ jobs:
             --json-out output/native/planar-limit-lab/joint-inspect-limited-shift-18.json
           solidcraft-cli snapshot output/native/planar-limit-lab/model-limited-shift-18.sc \
             --out output/native/planar-limit-lab/limited-shift-18.png --no-grid --no-axes
+
+          # Fully constrained planar lab. The parametric coordinate is the
+          # first planar value (world Z at FRONT_BOTTOM_RIGHT). Lock the second
+          # coordinate and the angle so there is no alternate orientation branch.
+          cat > output/native/planar-fixed-lab/fix-planar-dofs.json <<'JSON'
+          {"commands":[
+            {"command":"joint.limits","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":1,
+              "min":0,
+              "max":0
+            }},
+            {"command":"joint.limits","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":2,
+              "min":-180,
+              "max":-180
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/fix-planar-dofs.json \
+            --in output/native/planar-fixed-lab/model.sc \
+            --param-check strict \
+            --save output/native/planar-fixed-lab/model-fixed.sc
+
+          cat > output/native/planar-fixed-lab/inspect-fixed.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/inspect-fixed.json \
+            --in output/native/planar-fixed-lab/model-fixed.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-fixed-lab/joint-inspect-fixed.json
+          solidcraft-cli eval output/native/planar-fixed-lab/model-fixed.sc \
+            --json-out output/native/planar-fixed-lab/measurements-fixed.json
+          solidcraft-cli snapshot output/native/planar-fixed-lab/model-fixed.sc \
+            --out output/native/planar-fixed-lab/fixed.png --no-grid --no-axes
+
+          # Try to move the coordinates that should be locked. SolidCraft must
+          # clamp both requests to their fixed limits.
+          cat > output/native/planar-fixed-lab/try-drive-locked.json <<'JSON'
+          {"commands":[
+            {"command":"joint.drive","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":1,
+              "value":10
+            }},
+            {"command":"joint.drive","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":2,
+              "value":0
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/try-drive-locked.json \
+            --in output/native/planar-fixed-lab/model-fixed.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-fixed-lab/drive-locked-results.json \
+            --save output/native/planar-fixed-lab/model-after-drive.sc
+
+          # A no-op parameter edit must not pick another orientation branch.
+          cat > output/native/planar-fixed-lab/noop-shift.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"shift","expression":"12 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/noop-shift.json \
+            --in output/native/planar-fixed-lab/model-after-drive.sc \
+            --param-check strict \
+            --save output/native/planar-fixed-lab/model-noop.sc
+
+          # Then make the real parameter change. Only world Z should move.
+          cat > output/native/planar-fixed-lab/change-shift.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"shift","expression":"18 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/change-shift.json \
+            --in output/native/planar-fixed-lab/model-noop.sc \
+            --param-check strict \
+            --save output/native/planar-fixed-lab/model-shift-18.sc
+          solidcraft-cli eval output/native/planar-fixed-lab/model-shift-18.sc \
+            --json-out output/native/planar-fixed-lab/measurements-shift-18.json
+          cat > output/native/planar-fixed-lab/inspect-shift-18.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-fixed-lab/inspect-shift-18.json \
+            --in output/native/planar-fixed-lab/model-shift-18.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-fixed-lab/joint-inspect-shift-18.json
+          solidcraft-cli snapshot output/native/planar-fixed-lab/model-shift-18.sc \
+            --out output/native/planar-fixed-lab/shift-18.png --no-grid --no-axes
 
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -446,6 +548,12 @@ jobs:
         with:
           name: planar-limit-lab
           path: output/native/planar-limit-lab
+          if-no-files-found: error
+      - name: Upload fully constrained planar lab evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: planar-fixed-lab
+          path: output/native/planar-fixed-lab
           if-no-files-found: error
       - name: Build the lightweight library Pages site
         shell: bash
