@@ -31,6 +31,11 @@ CsgCube(50mm);
 That supports our goal: callers should see Part, Hole and Fillet,
 never `sketch.finish` or command IDs.
 
+The example's `.orient([X,Y,Z])` is µcad syntax, not an SCPF API target.
+Forge deliberately does not copy that Cylinder-specific multi-axis shortcut.
+If richer solid orientation is needed, it should come from a general transform
+or direction model shared by shapes.
+
 ### 2. Keep dimensions and parameter expressions explicit
 
 µcad uses typed quantities such as `50mm`. SCPF currently uses Python

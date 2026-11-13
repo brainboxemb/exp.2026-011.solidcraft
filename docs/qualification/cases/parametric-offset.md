@@ -1,4 +1,4 @@
-# Parametric in-plane attachment offset
+# Editable local offset at an attachment
 
 ## Use scenario
 

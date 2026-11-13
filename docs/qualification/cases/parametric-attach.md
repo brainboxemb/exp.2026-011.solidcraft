@@ -1,4 +1,4 @@
-# Parametric attachment gap
+# Editable distance between attached components
 
 ## Use scenario
 

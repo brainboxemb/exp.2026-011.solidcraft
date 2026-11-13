@@ -585,17 +585,20 @@ class SCPFExamples(unittest.TestCase):
             file.write_text(
                 "def CsgCube(size=50.0):\n"
                 "    body = Sphere(size / 1.5) & Box(size, size, size)\n"
-                "    holes = Cylinder(d=size / 1.5, h=size).orient(X, Y, Z)\n"
-                "    return (body - holes).move(x=10, y=20, z=30)\n"
+                "    hole = Cylinder(d=size / 1.5, h=size).move(z=-10)\n"
+                "    return (body - hole).move(x=10, y=20, z=30)\n"
                 "CsgCube()\n"
             )
             document = run_script(file)
         commands = document["commands"]
         self.assertEqual(commands[1]["params"]["center"], [10, 20, 30])
         self.assertEqual(commands[2]["params"]["center"], [10, 20, 30])
-        self.assertEqual(commands[3]["params"]["base"], ["(-(size) / 2) + 10", 20, 30])
-        self.assertEqual(commands[4]["params"]["base"], [10, "(-(size) / 2) + 20", 30])
-        self.assertEqual(commands[5]["params"]["base"], [10, 20, "(-(size) / 2) + 30"])
+        self.assertEqual(commands[3]["params"]["base"], [10, 20, 20])
+        self.assertEqual(commands[3]["params"]["axis"], "Z")
+
+    def test_cylinder_has_no_type_specific_orient_shortcut(self):
+        from scpf.core import Cylinder
+        self.assertFalse(hasattr(Cylinder(d=8, h=20), "orient"))
 
     def test_move_rejects_non_finite_coordinates(self):
         with tempfile.TemporaryDirectory() as directory:

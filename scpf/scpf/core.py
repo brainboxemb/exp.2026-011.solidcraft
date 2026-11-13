@@ -575,16 +575,6 @@ class Shape:
             self.history,
         )
 
-    def orient(self, *axes):
-        if self.kind != "cylinder":
-            raise ValueError("only cylinders support orient()")
-        if len(axes) == 1 and isinstance(axes[0], (tuple, list)):
-            axes = tuple(axes[0])
-        if not axes or any(a not in ("X", "Y", "Z") for a in axes):
-            raise ValueError("orient() requires X, Y, and/or Z")
-        return Shape("orient", (self, tuple(axes)))
-
-
 def _shape(value):
     if not isinstance(value, Shape):
         raise TypeError("boolean operations require a Shape")
