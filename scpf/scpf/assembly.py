@@ -35,6 +35,27 @@ def _rewrite_value(value, mapping):
     return value
 
 
+def _rotate_vector(vector, rotation):
+    """Rotate one XYZ vector by an axis-angle tuple."""
+    if rotation is None:
+        return tuple(vector)
+    from math import cos, radians, sin, sqrt
+    axis, degrees = rotation
+    ax, ay, az = map(float, axis)
+    length = sqrt(ax * ax + ay * ay + az * az)
+    ax, ay, az = ax / length, ay / length, az / length
+    x, y, z = map(float, vector)
+    angle = radians(float(degrees))
+    c = cos(angle)
+    s = sin(angle)
+    dot = ax * x + ay * y + az * z
+    return (
+        x * c + (ay * z - az * y) * s + ax * dot * (1 - c),
+        y * c + (az * x - ax * z) * s + ay * dot * (1 - c),
+        z * c + (ax * y - ay * x) * s + az * dot * (1 - c),
+    )
+
+
 def _namespace_commands(commands, component_name, external_names=()):
     """Namespace local component parameters, but keep inherited names intact."""
     external_names = set(external_names)
@@ -302,10 +323,9 @@ def compile_assembly(value, name):
 
         def custom_anchor_reference(model, anchor, occurrence):
             if isinstance(anchor, (AnchorFrame, AnchorTopology)):
-                if model.rotation is not None:
-                    kind = type(anchor).__name__
+                if model.rotation is not None and isinstance(anchor, AnchorTopology):
                     raise ModelError(
-                        f"direct {kind} attachments on explicitly rotated "
+                        "direct AnchorTopology attachments on explicitly rotated "
                         "occurrences are not supported yet"
                     )
                 custom = anchor
@@ -341,14 +361,17 @@ def compile_assembly(value, name):
                     reference["x"] = list(custom.x)
                 return reference
 
+            origin = _rotate_vector(custom.origin, model.rotation)
+            z_axis = _rotate_vector(custom.z, model.rotation)
+            x_axis = _rotate_vector(custom.x, model.rotation)
             return {
                 "occurrence": occurrence,
                 "point": [
-                    custom.origin[i] + model.translation[i]
+                    origin[i] + model.translation[i]
                     for i in range(3)
                 ],
-                "z": list(custom.z),
-                "x": list(custom.x),
+                "z": list(z_axis),
+                "x": list(x_axis),
             }
 
         if isinstance(attachment.parent, Anchor):
