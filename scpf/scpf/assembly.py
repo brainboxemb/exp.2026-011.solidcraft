@@ -375,7 +375,10 @@ def compile_assembly(value, name):
                 attachment.child,
                 child_occurrence,
             )
-        for parameter in parameters_in(attachment.gap):
+        for parameter in parameters_in(
+            attachment.gap,
+            *attachment.offset,
+        ):
             if not any(
                 command["command"] == "parameters.add"
                 and command["params"]["name"] == parameter.name
@@ -387,15 +390,26 @@ def compile_assembly(value, name):
                     expression=f"{parameter.value:g} mm",
                 ))
 
+        has_planar_offset = (
+            any(pv(value) != 0 for value in attachment.offset)
+            or bool(parameters_in(*attachment.offset))
+        )
         params = {
-            "type": "rigid",
+            "type": "planar" if has_planar_offset else "rigid",
             "name": f"Attach {child_occurrence} to {parent_occurrence}",
             "a": parent_origin,
             "b": child_origin,
         }
         if attachment.gap != 0:
             params["offset"] = command_value(attachment.gap)
-        if attachment.angle is not None:
+        if has_planar_offset:
+            u, v = attachment.offset
+            params["values"] = [
+                command_value(u),
+                command_value(v),
+                attachment.angle if attachment.angle is not None else 0.0,
+            ]
+        elif attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
