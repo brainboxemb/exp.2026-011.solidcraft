@@ -948,12 +948,12 @@ class AssemblyTests(unittest.TestCase):
         )
 
     def test_anchor_frame_accepts_named_axis_directions(self):
-        from scpf import AnchorFrame, AxisDirection
+        from scpf import AnchorFrame, RIGHT, UP
 
         frame = AnchorFrame(
             origin=(10, 25, 0),
-            z=AxisDirection.RIGHT,
-            x=AxisDirection.UP,
+            z=RIGHT,
+            x=UP,
         )
 
         self.assertEqual(frame.origin, (10.0, 25.0, 0.0))
