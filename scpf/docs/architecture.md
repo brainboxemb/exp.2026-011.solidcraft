@@ -264,6 +264,17 @@ than depending on undocumented internal design-file keys. A new SolidCraft
 version must rerun the native qualification before Forge carries Q3-Q5 claims
 forward to that version.
 
+Qualification assertions are standard Python `unittest` cases under
+`qualification/tests/`. TestCase classes are intentionally placed before
+their parsing/helper functions so reviewers encounter the contract first.
+The native workflow reruns the same suite with `SCPF_NATIVE_ROOT` and the
+pinned SolidCraft version set.
+
+Source-matched native results are published on the library Pages site at
+`qualification/results/`; each case page also renders parameters and body
+bounding boxes from the retained measurement JSON alongside raw evidence
+links.
+
 ### Qualification fixture rules
 
 Fixtures should isolate one concept at a time. Keep geometry deliberately

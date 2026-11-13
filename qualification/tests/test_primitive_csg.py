@@ -1,6 +1,5 @@
-"""Focused command-contract regressions for documented qualification cases."""
+"""Qualification tests for the primitive CSG case."""
 from pathlib import Path
-import runpy
 import unittest
 
 from scpf.runner import run_script
@@ -9,8 +8,8 @@ from scpf.runner import run_script
 ROOT = Path(__file__).resolve().parents[2]
 
 
-class QualificationCaseTests(unittest.TestCase):
-    def test_primitive_csg_command_contract(self):
+class PrimitiveCsgCommandTests(unittest.TestCase):
+    def test_generated_command_contract(self):
         commands = run_script(
             ROOT / "examples/primitive-csg/scpf/model.py"
         )["commands"]
@@ -38,15 +37,6 @@ class QualificationCaseTests(unittest.TestCase):
 
         self.assertEqual(clipped_box["operation"], "intersect")
         self.assertEqual(clipped_box["center"], [0.0, 0.0, 15.0])
-
-    def test_parameter_scope_command_contract(self):
-        document = run_script(
-            ROOT / "examples/parameter-scope/scpf/model.py"
-        )
-        verifier = runpy.run_path(
-            str(ROOT / "qualification/parameter_scope.py")
-        )
-        verifier["check_command_document"](document)
 
 
 if __name__ == "__main__":

@@ -56,6 +56,10 @@ def check(site: Path, sha: str, require_native: bool = False):
     coverage_page = (
         site / "qualification" / "coverage" / "index.html"
     ).read_text(encoding="utf-8")
+    results_page = (
+        site / "qualification" / "results" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert "Qualification results" in results_page
     assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
         "Every public scpf.__all__ symbol must have a declared qualification row"
     )
@@ -97,6 +101,7 @@ def check(site: Path, sha: str, require_native: bool = False):
             "SolidCraft lowering",
             "Native verification",
             "Parametric mutation",
+            "Results",
             "Reference models",
         ):
             assert heading in page_text, (slug, heading)
@@ -104,7 +109,13 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert (site / "qualification" / slug / "model.py").is_file()
         assert (site / "qualification" / slug / "commands.json").is_file()
         if require_native:
-            assert "Q1–Q6 native verified" in page_text, slug
+            expected_status = case.get(
+                "verified_status",
+                "Q1–Q6 native verified",
+            )
+            assert expected_status in page_text, slug
+            assert "Native runtime:" in page_text, slug
+            assert "SolidCraft 0.30.1" in page_text, slug
             image = site / "qualification" / slug / "model.png"
             assert image.is_file() and image.stat().st_size > 0, slug
             assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")

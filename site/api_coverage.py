@@ -72,6 +72,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "as_built=True", "Q6", "GAP", [], "Needs native fixed relationship fixture."),
     ("Assemblies", "standard face anchors", "Q5", "Q6", ["parametric-anchor"], "Parent topology mutation qualified."),
     ("Assemblies", "standard corner anchors", "Q5", "Q6", ["corner-anchor", "xz-anchor"], "Width/height mutation and mirrored corners qualified."),
+    ("Assemblies", "four-corner local-frame orientation", "Q6", "Q6", ["four-corner-l"], "One directional L and one child frame are native-qualified on all four front corners, including solved joint-frame rotation and measured bboxes."),
     ("Assemblies", "AnchorFrame", "Q6", "Q6", ["custom-anchor"], "Position + orientation on rotated parent."),
     ("Assemblies", "AnchorTopology", "Q5", "GAP", [], "Needs native mutation fixture."),
     ("Assemblies", "assembly.with_anchor()/anchor()", "Q5", "GAP", [], "Needs dedicated native semantic-datum fixture."),

@@ -6,6 +6,7 @@ SolidCraft behaviour.  The site and site tests both consume this table.
 """
 
 REFERENCE_URLS = {
+    "SolidCraft": "https://docs.solidcraft.io/guide/assemblies.html",
     "BOSL2": "https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview",
     "OpenSCAD": "https://openscad.org/documentation.html",
     "PythonSCAD": "https://github.com/pythonscad/pythonscad",
@@ -145,6 +146,22 @@ QUALIFICATION_CASES = [
         "mutation": "Change the base from 40x20 to 80x40 mm; the marker must follow both the new right side and new top.",
         "references": [
             ("BOSL2", "BOSL2 supports side/edge/corner anchors; its anchor also carries orientation, which is a useful design reference for Forge."),
+        ],
+    },
+    {
+        "slug": "four-corner-l",
+        "group": "anchors",
+        "verified_status": "Q1–Q4/Q6 native verified",
+        "title": "One L-profile on all four front corners",
+        "intent": "Verify that one directional L-profile and one child AnchorFrame are oriented correctly by each of the four semantic front-corner anchors before any parameter scaling is introduced.",
+        "forge_api": "Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0",
+        "forge_model": "One fixed rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.",
+        "lowering": "Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.",
+        "native_expectation": "The four 40x40 L bounding boxes occupy the four quadrants immediately inside the parent front-face corners, with the bracket width centred on that face.",
+        "mutation": "None in this case. Width/height mutation is deliberately deferred until the four initial corner orientations are proven.",
+        "references": [
+            ("BOSL2", "A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations."),
+            ("SolidCraft", "A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner."),
         ],
     },
     {
