@@ -112,6 +112,20 @@ jobs:
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect.json
 
+          # Saved-design width/height mutation. Python is not rerun here.
+          solidcraft-cli run qualification/commands/four-corner-l/change-size.json \
+            --in output/native/four-corner-l/model.sc \
+            --param-check strict \
+            --save output/native/four-corner-l/model-size-160x120.sc
+
+          solidcraft-cli eval output/native/four-corner-l/model-size-160x120.sc \
+            --json-out output/native/four-corner-l/measurements-size-160x120.json
+
+          solidcraft-cli run qualification/commands/four-corner-l/inspect-joints.json \
+            --in output/native/four-corner-l/model-size-160x120.sc \
+            --param-check strict --results \
+            --json-out output/native/four-corner-l/joint-inspect-size-160x120.json
+
           # Parameter-scope native evidence and saved-design mutation.
           solidcraft-cli run output/parameter-scope.json \
             --param-check strict \
@@ -365,6 +379,7 @@ jobs:
 
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
           printf "parameter-scope\tshared_width 80 -> 100 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "four-corner-l\tFrameBlock 120x80 -> 160x120 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv

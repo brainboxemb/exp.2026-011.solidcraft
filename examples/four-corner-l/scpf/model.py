@@ -1,13 +1,13 @@
-"""Four fixed front-corner placements using the minimal L-profile."""
+"""Four associative front-corner placements using the minimal L-profile."""
 
 
 class FrameBlock:
-    WIDTH = 120.0
+    width = 120.0
     DEPTH = 30.0
-    HEIGHT = 80.0
+    height = 80.0
 
     def build(self):
-        return Box(self.WIDTH, self.DEPTH, self.HEIGHT)
+        return Box(self.width, self.DEPTH, self.height)
 
 
 class LBracket:

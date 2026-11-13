@@ -25,8 +25,17 @@ class FourCornerLCommandTests(unittest.TestCase):
         )
         commands = document["commands"]
 
-        self.assertFalse(
-            any(row["command"] == "parameters.add" for row in commands)
+        parameters = [
+            row["params"]
+            for row in commands
+            if row["command"] == "parameters.add"
+        ]
+        self.assertEqual(
+            [(row["name"], row["expression"]) for row in parameters],
+            [
+                ("FrameBlock_width", "120"),
+                ("FrameBlock_height", "80"),
+            ],
         )
 
         components = [
@@ -145,9 +154,94 @@ class FourCornerLNativeTests(unittest.TestCase):
             self.assertEqual(joint["b"]["frame"]["z"], [0.0, 1.0, 0.0])
             self.assertEqual(joint["b"]["frame"]["x"], parent_x)
 
+    def test_saved_size_mutation_moves_all_four_brackets(self):
+        data = _load(
+            Path(NATIVE_ROOT)
+            / "four-corner-l"
+            / "measurements-size-160x120.json"
+        )
+        self.assertEqual(data["body_count"], 5)
+        self.assertEqual(
+            _params(data),
+            {
+                "FrameBlock_width": 160.0,
+                "FrameBlock_height": 120.0,
+            },
+        )
+
+        frame = next(
+            body for body in data["bodies"]
+            if body["name"] == "FrameBlock"
+        )
+        self.assertEqual(
+            _rounded_bbox(frame),
+            {
+                "min": [-80.0, -15.0, 0.0],
+                "max": [80.0, 15.0, 120.0],
+            },
+        )
+
+        brackets = [
+            body for body in data["bodies"]
+            if body["name"].startswith("LBracket")
+        ]
+        actual = sorted(
+            (
+                tuple(_rounded_bbox(body)["min"]),
+                tuple(_rounded_bbox(body)["max"]),
+            )
+            for body in brackets
+        )
+        expected = sorted([
+            ((-80.0, -27.0, 80.0), (-40.0, -3.0, 120.0)),
+            ((40.0, -27.0, 80.0), (80.0, -3.0, 120.0)),
+            ((40.0, -27.0, 0.0), (80.0, -3.0, 40.0)),
+            ((-80.0, -27.0, 0.0), (-40.0, -3.0, 40.0)),
+        ])
+        self.assertEqual(actual, expected)
+
+    def test_saved_size_mutation_preserves_corner_frame_cycle(self):
+        data = _load(
+            Path(NATIVE_ROOT)
+            / "four-corner-l"
+            / "joint-inspect-size-160x120.json"
+        )
+        joints = data[0]["joints"]
+        self.assertEqual(len(joints), 4)
+
+        expected_origins = [
+            [-80.0, -15.0, 120.0],
+            [80.0, -15.0, 120.0],
+            [80.0, -15.0, 0.0],
+            [-80.0, -15.0, 0.0],
+        ]
+        expected_parent_x = [
+            [0.0, 0.0, -1.0],
+            [-1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0],
+            [1.0, 0.0, 0.0],
+        ]
+
+        for joint, origin, parent_x in zip(
+            joints,
+            expected_origins,
+            expected_parent_x,
+        ):
+            self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(joint["a"]["frame"]["origin"], origin)
+            self.assertEqual(joint["a"]["frame"]["x"], parent_x)
+            self.assertEqual(joint["a"]["frame"]["z"], [0.0, -1.0, 0.0])
+            self.assertEqual(joint["b"]["frame"]["origin"], origin)
+            self.assertEqual(joint["b"]["frame"]["x"], parent_x)
+            self.assertEqual(joint["b"]["frame"]["z"], [0.0, 1.0, 0.0])
+
 
 def _load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _params(measurements):
+    return {row["name"]: row["value"] for row in measurements["params"]}
 
 
 def _rounded_bbox(body):
