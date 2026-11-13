@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Topology-backed corner anchor · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Topology-backed corner anchor</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Topology-backed corner anchor</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Topology-backed corner anchor expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify a corner reference that follows both parent width and height changes.</p>
+  <h3>Pass criteria</h3>
+  <p>The marker sits on the front-top-right corner of the base.</p>
+  <h3>Mutation criterion</h3><p>Change the base from 40x20 to 80x40 mm; the marker must follow both the new right side and new top.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>class Base:
+    width = 40.0
+    height = 20.0
+
+    def build(self):
+        return Box(self.width, 30, self.height)
+
+
+class Marker:
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class CornerAnchor:
+    base_width = 40.0
+    base_height = 20.0
+
+    def build(self):
+        base = Base(
+            width=self.base_width,
+            height=self.base_height,
+        )
+        marker = Marker().attach(
+            base,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=Anchor.BACK_TOP_RIGHT,
+        )
+        return base + marker
+
+
+CornerAnchor()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Anchor.FRONT_TOP_RIGHT paired with child Anchor.BACK_TOP_RIGHT</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>A standard corner Anchor is resolved to an edge/on/corner native topology reference rather than a free point.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>joint.create receives SolidCraft edge/on/corner picks so the saved design can re-find the corner after geometry changes.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Marker:1 to Base:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;Base:1&quot;,
+        &quot;edge&quot;: [
+          20.0,
+          -15.0,
+          10.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          10.0
+        ],
+        &quot;corner&quot;: [
+          20.0,
+          -15.0,
+          20.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:1&quot;,
+        &quot;edge&quot;: [
+          20.0,
+          -15.0,
+          15.0
+        ],
+        &quot;on&quot;: [
+          15.0,
+          -15.0,
+          15.0
+        ],
+        &quot;corner&quot;: [
+          20.0,
+          -15.0,
+          20.0
+        ]
+      }
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> BOSL2 supports side/edge/corner anchors; its anchor also carries orientation, which is a useful design reference for Forge.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

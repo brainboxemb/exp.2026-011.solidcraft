@@ -1,0 +1,124 @@
+"""Eight reusable L-brackets mounted outside a rectangular frame."""
+
+
+class FrameBlock:
+    _width = 120.0
+    _depth = 80.0
+    _height = 60.0
+
+    def build(self):
+        return Box(self._width, self._depth, self._height)
+
+
+class LBracket:
+    ARM_LENGTH = 28.0
+    WALL = 8.0
+    THICKNESS = 4.0
+
+    def build(self):
+        # Neutral reusable component in its own local XZ plane.
+        # The profile starts at its local corner and the material is extruded
+        # in local +Y. It has no front/rear/top/bottom frame knowledge.
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
+            plane="XZ",
+        )
+        return profile.extrude(
+            self.THICKNESS,
+            direction=Direction.POSITIVE,
+        )
+
+
+class EightCornerBrackets:
+    frame_width = 120.0
+    frame_depth = 80.0
+    frame_height = 60.0
+
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+            _height=self.frame_height,
+        )
+        bracket = LBracket()
+
+        # Placement belongs to this assembly. The same local bracket corner is
+        # used for all eight occurrences; SolidCraft's parent corner reference
+        # supplies the corner position/orientation on the front or rear face.
+        bracket_corner = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, -1, 0),
+            x=(1, 0, 0),
+        )
+
+        front_top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+
+        rear_top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_TOP_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_TOP_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_BOTTOM_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+
+        return (
+            frame
+            + front_top_left
+            + front_top_right
+            + front_bottom_right
+            + front_bottom_left
+            + rear_top_left
+            + rear_top_right
+            + rear_bottom_right
+            + rear_bottom_left
+        )
+
+
+EightCornerBrackets()
