@@ -23,7 +23,8 @@
 <h3>Parametric mutation</h3><p>No saved-design mutation in this fixture; geometry and feature placement are measured at Q4.</p>
 <h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>parameters.add
 parameters.add
 parameters.add
@@ -37,10 +38,10 @@ sketch.circle.center
 sketch.circle.center
 sketch.finish
 solid.extrude</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> Comparable geometry would normally use difference() and repeated cylinders; Forge intentionally prefers SolidCraft hole features.</li></ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>@dataclass
+<section class="panel"><h2>6. Fixture source</h2><pre><code>@dataclass
 class AnchoredHoles:
     &quot;&quot;&quot;Two through holes, each 20 mm from the center along the Y axis.&quot;&quot;&quot;
 

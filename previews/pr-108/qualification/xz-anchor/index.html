@@ -23,7 +23,8 @@
 <h3>Parametric mutation</h3><p>Change board width/height from 40x20 to 80x40 mm; both markers follow their own corners.</p>
 <h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
@@ -112,10 +113,10 @@
     }
   }
 ]</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> The profile/extrusion resembles polygon()+linear_extrude(), but Forge retains native SolidCraft parameters and attachment topology.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Mirrored corner anchors are a useful check that local anchor frames, not a single global direction assumption, control attachment.</li></ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>class Board:
+<section class="panel"><h2>6. Fixture source</h2><pre><code>class Board:
     width = 40.0
     height = 20.0
     depth = 12.0

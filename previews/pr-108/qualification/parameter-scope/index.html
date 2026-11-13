@@ -23,7 +23,8 @@
 <h3>Parametric mutation</h3><p>Change shared_width from 80 to 100 mm in the saved native design; widths must change from [40,40,60,80,80] to [40,50,60,100,100].</p>
 <h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>parameters.add
 component.create
 sketch.create
@@ -56,10 +57,10 @@ sketch.finish
 solid.extrude
 component.activate
 occurrence.move</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> Primary API reference: normal Python objects/defaults should remain natural; users should not need a separate parameter-publication switch.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Native parameters and expressions are the source of truth for saved-design editability and rebuild behaviour.</li></ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>&quot;&quot;&quot;Parameter scope qualification: implicit component parameters and inherited bindings.&quot;&quot;&quot;
+<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Parameter scope qualification: implicit component parameters and inherited bindings.&quot;&quot;&quot;
 
 
 class Panel:

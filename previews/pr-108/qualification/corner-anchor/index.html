@@ -23,7 +23,8 @@
 <h3>Parametric mutation</h3><p>Change the base from 40x20 to 80x40 mm; the marker must follow both the new right side and new top.</p>
 <h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
@@ -69,10 +70,10 @@
     }
   }
 ]</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> BOSL2 supports side/edge/corner anchors; its anchor also carries orientation, which is a useful design reference for Forge.</li></ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>class Base:
+<section class="panel"><h2>6. Fixture source</h2><pre><code>class Base:
     width = 40.0
     height = 20.0
 
