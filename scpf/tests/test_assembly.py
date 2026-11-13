@@ -1124,7 +1124,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
         self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
 
-    def test_attach_assembled_rotation_uses_absolute_child_quarter_turn(self):
+    def test_attach_assembled_rotation_orients_joint_frame_only(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, AnchorFrame, AnchorTopology, Box
         from scpf.runner import component
@@ -1146,28 +1146,29 @@ class AssemblyTests(unittest.TestCase):
             assembled_rotation=180,
         )
 
-        self.assertEqual(child.rotation, ((0.0, 1.0, 0.0), 180.0))
+        self.assertIsNone(child.rotation)
         self.assertIsInstance(child.attachment.parent, AnchorTopology)
         self.assertEqual(child.attachment.parent.z, (0.0, -1.0, 0.0))
         self.assertEqual(child.attachment.parent.x, (0.0, 0.0, 1.0))
 
         commands = compile_assembly(parent + child, "AssembledRotation")["commands"]
-        child_move = next(
+        child_moves = [
             command["params"]
             for command in commands
             if command["command"] == "occurrence.move"
             and command["params"]["occurrence"] == "Block:2"
-        )
-        self.assertEqual(child_move["axis"], [0.0, 1.0, 0.0])
-        self.assertEqual(child_move["angle"], "180 deg")
+        ]
+        self.assertTrue(all("axis" not in move and "angle" not in move for move in child_moves))
 
         joint = next(
             command["params"]
             for command in commands
             if command["command"] == "joint.create"
         )
+        self.assertEqual(joint["a"]["z"], [0.0, -1.0, 0.0])
+        self.assertEqual(joint["a"]["x"], [0.0, 0.0, 1.0])
         self.assertEqual(joint["b"]["z"], [0.0, 1.0, 0.0])
-        self.assertAlmostEqual(joint["b"]["x"][2], 1.0)
+        self.assertEqual(joint["b"]["x"], [0.0, 0.0, -1.0])
 
         with self.assertRaisesRegex(ValueError, "multiple of 90"):
             Block().attach(
