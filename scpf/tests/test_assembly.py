@@ -1068,6 +1068,68 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joints[1]["a"]["z"], [0.0, 0.0, -1.0])
         self.assertEqual(joints[1]["b"]["z"], [0.0, 0.0, -1.0])
 
+    def test_assembly_can_own_named_attachment_anchor(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, AnchorTopology, Box
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        left = Block(name="left")
+        right = Block(name="right").move(x=40)
+        topology = AnchorTopology(
+            edge=(-10, 0, 5),
+            on=(0, 0, 5),
+            corner=(-10, 0, 10),
+            z=(0, 0, -1),
+            x=(1, 0, 0),
+        )
+        frame = (left + right).with_anchor("top_left", left, topology)
+
+        anchor = frame.anchor("top_left")
+        self.assertIs(anchor.target, left)
+        self.assertIs(anchor.reference, topology)
+
+        marker = Block().attach(
+            anchor.target,
+            parent=anchor.reference,
+            child=Anchor.LEFT,
+        )
+        commands = compile_assembly(frame + marker, "AssemblyAnchor")["commands"]
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["a"]["occurrence"], "Block:1")
+        self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
+        self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
+
+    def test_group_preserves_assembly_anchor_target(self):
+        from scpf.core import AnchorTopology, Box
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        left = Block(name="left")
+        frame = (left + Block(name="right")).with_anchor(
+            "left_edge",
+            left,
+            AnchorTopology(edge=(-10, 0, 5), on=(0, 0, 5)),
+        )
+        grouped = frame.group("Frame")
+        anchor = grouped.anchor("left_edge")
+
+        self.assertEqual(anchor.target.name, "left")
+        self.assertEqual(anchor.target.group_name, "Frame")
+        self.assertIs(anchor.target, grouped.left)
+
     def test_named_topology_anchor_is_inlined_as_edge_reference(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, AnchorTopology, Box
