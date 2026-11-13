@@ -1,0 +1,623 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_width",
+        "expression": "120",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_depth",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_height",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "FrameBlock",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "FrameBlock footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-frame_width / 2",
+          "-frame_depth / 2"
+        ],
+        "p1": [
+          "frame_width / 2",
+          "frame_depth / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "frame_height",
+        "body_name": "FrameBlock"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "FlightcaseCorner",
+        "grounded": false
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 29.0,
+        "width": 5.0,
+        "height": 29.0,
+        "center": [
+          13.5,
+          1.5,
+          13.5
+        ],
+        "operation": "new",
+        "body_name": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 29.0,
+        "width": 29.0,
+        "height": 5.0,
+        "center": [
+          13.5,
+          -13.5,
+          -1.5
+        ],
+        "operation": "join",
+        "targets": [
+          "FlightcaseCorner"
+        ]
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 5.0,
+        "width": 29.0,
+        "height": 29.0,
+        "center": [
+          -1.5,
+          -13.5,
+          13.5
+        ],
+        "operation": "join",
+        "targets": [
+          "FlightcaseCorner"
+        ]
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "FlightcaseCorner"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:1",
+        "translate": [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:2",
+        "translate": [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:3",
+        "translate": [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:4",
+        "translate": [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:5",
+        "translate": [
+          -60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:6",
+        "translate": [
+          60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:7",
+        "translate": [
+          60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "FlightcaseCorner:8",
+        "translate": [
+          -60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:1 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:1",
+          "point": [
+            -60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:2 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:2",
+          "point": [
+            60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:3 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:3",
+          "point": [
+            60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:4 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:4",
+          "point": [
+            -60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:5 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:5",
+          "point": [
+            -60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:6 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:6",
+          "point": [
+            60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:7 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:7",
+          "point": [
+            60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach FlightcaseCorner:8 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "FlightcaseCorner:8",
+          "point": [
+            -60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}

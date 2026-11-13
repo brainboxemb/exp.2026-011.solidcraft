@@ -1,0 +1,23 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Eight three-face flightcase corners",
+  "commands": [
+    {"command":"layer.new","params":{"name":"FRAME","color":8,"lineweight":0.35,"current":true}},
+    {"command":"rectang","params":{"p1":[-60,0],"p2":[60,60]}},
+    {"command":"layer.new","params":{"name":"CORNER","color":3,"lineweight":0.5,"current":true}},
+    {"command":"rectang","params":{"p1":[-64,32],"p2":[-32,64]}},
+    {"command":"rectang","params":{"p1":[32,32],"p2":[64,64]}},
+    {"command":"rectang","params":{"p1":[32,-4],"p2":[64,28]}},
+    {"command":"rectang","params":{"p1":[-64,-4],"p2":[-32,28]}},
+    {"command":"layer.new","params":{"name":"DETAIL","color":7,"lineweight":0.35,"current":true}},
+    {"command":"rectang","params":{"p1":[110,0],"p2":[170,60]}},
+    {"command":"layer.current","params":{"name":"CORNER"}},
+    {"command":"rectang","params":{"p1":[106,32],"p2":[138,64]}},
+    {"command":"rectang","params":{"p1":[142,32],"p2":[174,64]}},
+    {"command":"layer.new","params":{"name":"TEXT","color":7,"current":true}},
+    {"command":"text","params":{"at":[-105,86],"text":"EIGHT THREE-FACE FLIGHTCASE CORNERS","height":5}},
+    {"command":"text","params":{"at":[-105,78],"text":"Front view shows 4; the same neutral 3D protector is reused on the 4 rear corners","height":3}},
+    {"command":"text","params":{"at":[108,70],"text":"SIDE / WRAP DETAIL","height":4}},
+    {"command":"text","params":{"at":[108,-18],"text":"Each protector has three perpendicular plates: face + horizontal + side","height":2.8}}
+  ]
+}
