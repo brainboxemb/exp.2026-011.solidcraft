@@ -58,3 +58,13 @@ color:var(--muted);border-top:1px solid var(--line)}
 .guide-article th{background:var(--soft)}
 .guide-lead{font-size:1.16rem;color:var(--muted)}
 @media(max-width:800px){.guide-layout{grid-template-columns:1fr}.guide-sidebar{position:static}.guide-article h1{font-size:1.8rem}}
+
+.qualification-visuals{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 0 26px}
+.visual-card{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.visual-card h2{font-size:1rem;margin:0;padding:14px 17px;border-bottom:1px solid var(--line)}
+.expected-cad,.native-render{height:300px;display:grid;place-items:center;background:linear-gradient(135deg,#f7f9fc,#e9f0f7);overflow:hidden}
+.expected-cad svg,.native-render img{display:block;width:100%;height:100%;object-fit:contain;padding:12px}
+.expected-cad p{padding:24px;color:var(--muted);max-width:42ch}
+.visual-placeholder{padding:28px;color:var(--muted);text-align:center}
+.visual-caption{margin:0;padding:10px 16px 13px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line)}
+@media(max-width:800px){.qualification-visuals{grid-template-columns:1fr}.expected-cad,.native-render{height:260px}}
