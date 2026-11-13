@@ -2,7 +2,9 @@ name: SCPF Python package qualification
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "qualify/**"
     paths:
       - "scpf/**"
       - "examples/**"
