@@ -390,6 +390,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
         native_case = native_root / slug if verified else None
         native_files = []
+        native_images = []
         body_count = None
         parameter_count = None
         results_html = (
@@ -407,7 +408,13 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             snapshot = native_case / "model.png"
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
-            shutil.copyfile(snapshot, case_dir / "model.png")
+
+            for image in sorted(native_case.glob("model*.png")):
+                if image.stat().st_size == 0:
+                    raise ValueError(f"Qualification snapshot empty: {image}")
+                shutil.copyfile(image, case_dir / image.name)
+                native_images.append(image.name)
+
             for pattern in (
                 "results*.json",
                 "measurements*.json",
@@ -422,10 +429,23 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
+            figures = []
+            for index, image_name in enumerate(native_images):
+                caption = (
+                    "Native SolidCraft 0.30.1 baseline snapshot from this exact CI source commit."
+                    if image_name == "model.png"
+                    else f"Additional native evidence: {image_name}."
+                )
+                figures.append(
+                    '<figure class="qualification-image">'
+                    f'<img src="{escape(image_name)}" '
+                    f'alt="{escape(case["title"])} native SolidCraft evidence {index + 1}" loading="lazy">'
+                    f'<figcaption>{escape(caption)}</figcaption></figure>'
+                )
             preview_html = (
-                '<figure class="example-image"><img src="model.png" '
-                f'alt="{escape(case["title"])} native SolidCraft snapshot" loading="lazy">'
-                '<figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>'
+                '<div class="qualification-gallery">'
+                + "".join(figures)
+                + "</div>"
             )
             status = case.get("verified_status", "Q1–Q6 native verified")
             results_html, body_count, parameter_count = _render_native_results(
@@ -452,8 +472,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f'<li><a href="{escape(name)}">{escape(name)}</a></li>'
             for name in native_files
         )
-        if native_case is not None and native_case.is_dir():
-            evidence_items.append('<li><a href="model.png">Native snapshot</a></li>')
+        if native_images:
+            evidence_items.extend(
+                f'<li><a href="{escape(name)}">Native snapshot: {escape(name)}</a></li>'
+                for name in native_images
+            )
 
         case_body = f"""<main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / {escape(case["title"])}</div>
@@ -495,14 +518,21 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "status": status,
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
+            "native_images": native_images,
             "solidcraft_version": (
                 metadata.get("solidcraft_version") if verified else None
             ),
             "body_count": body_count,
             "parameter_count": parameter_count,
         }
+        card_image = (
+            f'<a href="{escape(slug)}/" class="qualification-card-image">'
+            f'<img src="{escape(slug)}/model.png" alt="{escape(case["title"])} native preview" loading="lazy"></a>'
+            if native_images else ""
+        )
         qualification_cards[case["group"]].append(
-            f'<article class="reference"><p class="eyebrow">{escape(status)}</p>'
+            f'<article class="reference qualification-card">{card_image}'
+            f'<div class="qualification-card-content"><p class="eyebrow">{escape(status)}</p>'
             f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
             f'<p><code>{escape(case["forge_api"])}</code></p>'
@@ -511,7 +541,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 f' · {escape(body_count)} bodies · {escape(parameter_count)} parameters</p>'
                 if verified and body_count is not None else ""
             )
-            + f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></article>'
+            + f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></div></article>'
         )
 
     results_root = qualification_root / "results"
