@@ -1,4 +1,4 @@
-from scpf import assembly
+from scpf.runner import assembly
 
 
 class Parent:
