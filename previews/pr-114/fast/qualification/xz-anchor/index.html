@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Anchors on XZ-profile extrusion · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Anchors on XZ-profile extrusion</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Anchors on XZ-profile extrusion</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Anchors on XZ-profile extrusion expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify standard corner anchors on geometry authored as an XZ polygon and extruded in Y.</p>
+  <h3>Pass criteria</h3>
+  <p>Left and right markers attach to their respective front-top corners with mirrored spatial results.</p>
+  <h3>Mutation criterion</h3><p>Change board width/height from 40x20 to 80x40 mm; both markers follow their own corners.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>class Board:
+    width = 40.0
+    height = 20.0
+    depth = 12.0
+
+    def build(self):
+        half = self.width / 2
+        profile = Polygon2D(
+            [
+                (&quot;lower_left&quot;, (-half, 0)),
+                (&quot;lower_right&quot;, (half, 0)),
+                (&quot;upper_right&quot;, (half, self.height)),
+                (&quot;upper_left&quot;, (-half, self.height)),
+            ],
+            plane=&quot;XZ&quot;,
+            world=True,
+        )
+        return profile.extrude(
+            self.depth,
+            direction=Direction.POSITIVE,
+        ).with_material(
+            &quot;test board&quot;,
+            density_g_cm3=0.55,
+        )
+
+
+class Marker:
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class XzAnchor:
+    board_width = 40.0
+    board_height = 20.0
+
+    def build(self):
+        board = Board(
+            width=self.board_width,
+            height=self.board_height,
+        )
+        right_marker = Marker().attach(
+            board,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=Anchor.BACK_TOP_RIGHT,
+        )
+        left_marker = Marker().attach(
+            board,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=Anchor.BACK_TOP_LEFT,
+        )
+        return board + right_marker + left_marker
+
+
+XzAnchor()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Polygon2D(..., plane=&#x27;XZ&#x27;, world=True).extrude(...); standard corner Anchors</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>Forge recovers rectangular bounds/topology from the XZ profile while preserving symbolic width and height.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Corner attachments lower to native topology references on the extruded board; no special HUB75-specific placement logic is involved.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Marker:1 to Board:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;Board:1&quot;,
+        &quot;edge&quot;: [
+          20.0,
+          0.0,
+          10.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          0.0,
+          10.0
+        ],
+        &quot;corner&quot;: [
+          20.0,
+          0.0,
+          20.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:1&quot;,
+        &quot;edge&quot;: [
+          20.0,
+          0.0,
+          15.0
+        ],
+        &quot;on&quot;: [
+          15.0,
+          0.0,
+          15.0
+        ],
+        &quot;corner&quot;: [
+          20.0,
+          0.0,
+          20.0
+        ]
+      }
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Marker:2 to Board:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;Board:1&quot;,
+        &quot;edge&quot;: [
+          -20.0,
+          0.0,
+          10.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          0.0,
+          10.0
+        ],
+        &quot;corner&quot;: [
+          -20.0,
+          0.0,
+          20.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:2&quot;,
+        &quot;edge&quot;: [
+          -20.0,
+          0.0,
+          15.0
+        ],
+        &quot;on&quot;: [
+          -15.0,
+          0.0,
+          15.0
+        ],
+        &quot;corner&quot;: [
+          -20.0,
+          0.0,
+          20.0
+        ]
+      }
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> The profile/extrusion resembles polygon()+linear_extrude(), but Forge retains native SolidCraft parameters and attachment topology.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Mirrored corner anchors are a useful check that local anchor frames, not a single global direction assumption, control attachment.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
