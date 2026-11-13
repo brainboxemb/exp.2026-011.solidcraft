@@ -14,6 +14,18 @@ import scpf
 
 
 def check(site: Path, sha: str, require_native: bool = False):
+    template_dir = ROOT / "qualification" / "templates"
+    for template_name in (
+        "case.html",
+        "index.html",
+        "results.html",
+        "capabilities.html",
+        "coverage.html",
+        "report.md",
+    ):
+        template = template_dir / template_name
+        assert template.is_file() and template.stat().st_size > 0, template_name
+
     home = (site / "index.html").read_text(encoding="utf-8")
     cheatsheet = (site / "cheatsheet" / "index.html").read_text(encoding="utf-8")
     from build import GUIDES
@@ -106,6 +118,14 @@ def check(site: Path, sha: str, require_native: bool = False):
         ):
             assert heading in page_text, (slug, heading)
         assert case["title"] in page_text
+        for placeholder in (
+            "$title",
+            "$status",
+            "$gallery",
+            "$results",
+            "$source",
+        ):
+            assert placeholder not in page_text, (slug, placeholder)
         assert (site / "qualification" / slug / "model.py").is_file()
         assert (site / "qualification" / slug / "commands.json").is_file()
         if require_native:
