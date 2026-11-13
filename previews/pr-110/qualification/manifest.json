@@ -1,5 +1,5 @@
 {
-  "library_commit": "914bb07bf9fbcd7481dcaee46faf34972d601d4d",
+  "library_commit": "d04a523dcffd6553e43d44d634a6e2f594fd5d0d",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -9,6 +9,8 @@
       "command_count": 7,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -19,6 +21,8 @@
       "command_count": 13,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -29,6 +33,8 @@
       "command_count": 32,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -39,6 +45,8 @@
       "command_count": 13,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -49,6 +57,8 @@
       "command_count": 16,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -59,6 +69,8 @@
       "command_count": 16,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -69,6 +81,8 @@
       "command_count": 16,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -79,6 +93,8 @@
       "command_count": 17,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -89,6 +105,8 @@
       "command_count": 26,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -99,6 +117,8 @@
       "command_count": 17,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -109,6 +129,8 @@
       "command_count": 23,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -119,6 +141,8 @@
       "command_count": 4,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
@@ -129,6 +153,8 @@
       "command_count": 7,
       "native_evidence": [],
       "native_images": [],
+      "qualification_status": null,
+      "levels": {},
       "solidcraft_version": null,
       "body_count": null,
       "parameter_count": null
