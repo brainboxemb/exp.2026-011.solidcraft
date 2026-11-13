@@ -425,7 +425,7 @@ def _render_native_results(native_case, solidcraft_version):
         )
 
     return (
-        '<section class="panel"><h2>3. Results</h2>'
+        '<section class="panel"><h2>4. Machine verification</h2>'
         f'<p class="meta">Native runtime: <strong>SolidCraft '
         f'{escape(solidcraft_version)}</strong>. These values come from the '
         'saved native design, not from Python-side estimates.</p>'
