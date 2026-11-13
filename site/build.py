@@ -28,6 +28,7 @@ try:
         QUALIFICATION_GROUPS,
         REFERENCE_URLS,
     )
+    from qualification.expectations import EXPECTED_VISUAL_BOXES
 finally:
     sys.path.pop(0)
 
@@ -146,6 +147,60 @@ def schematic(slug):
     )
 
 
+def expected_setup_schematic(slug):
+    bodies = EXPECTED_VISUAL_BOXES.get(slug, [])
+    if not bodies:
+        return ""
+
+    x_min = min(float(body["min"][0]) for body in bodies)
+    x_max = max(float(body["max"][0]) for body in bodies)
+    z_min = min(float(body["min"][2]) for body in bodies)
+    z_max = max(float(body["max"][2]) for body in bodies)
+
+    x_span = max(x_max - x_min, 1.0)
+    z_span = max(z_max - z_min, 1.0)
+    pad = 42.0
+    width = 640.0
+    height = 360.0
+    scale = min((width - 2 * pad) / x_span, (height - 2 * pad) / z_span)
+
+    def sx(value):
+        return pad + (float(value) - x_min) * scale
+
+    def sy(value):
+        return height - pad - (float(value) - z_min) * scale
+
+    shapes = []
+    for index, body in enumerate(bodies):
+        x0 = sx(body["min"][0])
+        x1 = sx(body["max"][0])
+        y0 = sy(body["max"][2])
+        y1 = sy(body["min"][2])
+        fill = "#dce8f5" if index % 2 == 0 else "#e5f2ea"
+        stroke = "#46627f" if index % 2 == 0 else "#47715d"
+        shapes.append(
+            f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{x1-x0:.1f}" height="{y1-y0:.1f}" '
+            f'fill="{fill}" stroke="{stroke}" stroke-width="2"/>'
+        )
+        label = escape(body.get("label", f"body {index + 1}"))
+        shapes.append(
+            f'<text x="{x0 + 5:.1f}" y="{max(y0 + 17, 20):.1f}" '
+            f'font-family="system-ui,sans-serif" font-size="13" fill="#26394f">{label}</text>'
+        )
+
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" '
+        'role="img" aria-label="Expected setup schematic; not a SolidCraft render">'
+        '<rect width="640" height="360" fill="#f8fafc"/>'
+        '<text x="24" y="28" font-family="system-ui,sans-serif" font-size="16" '
+        'font-weight="700" fill="#20344d">Expected setup — front projection</text>'
+        '<text x="24" y="50" font-family="system-ui,sans-serif" font-size="12" '
+        'fill="#60738a">Conceptual geometry only; verification renders appear later.</text>'
+        + "".join(shapes)
+        + '</svg>'
+    )
+
+
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -220,7 +275,7 @@ def _visual_view_html(case, view, native_images):
             continue
         figures.append(
             '<figure class="qualification-visual-item">'
-            f'<a href="{escape(name)}" class="qualification-image-link" '
+            f'<a href="{escape(name)}" class="qualification-image-link" target="_blank" rel="noopener" '
             f'title="Open full-size {escape(label)} image">'
             f'<img src="{escape(name)}" '
             f'alt="{escape(case["title"])} {escape(view)} {escape(label)}" loading="lazy">'
@@ -555,13 +610,23 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             if not diagram_source.is_file():
                 raise ValueError(f"Qualification diagram missing: {diagram_source}")
             shutil.copyfile(diagram_source, case_dir / diagram_name)
+        else:
+            diagram_name = "setup.svg"
+            setup_svg = expected_setup_schematic(slug)
+            if setup_svg:
+                (case_dir / diagram_name).write_text(setup_svg, encoding="utf-8")
+            else:
+                diagram_name = None
+
+        if diagram_name:
             diagram_html = (
                 '<figure class="qualification-setup-diagram">'
                 f'<a href="{escape(diagram_name)}" class="qualification-image-link" '
-                'title="Open full-size setup diagram">'
-                f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} setup and anchor diagram">'
+                'target="_blank" rel="noopener" title="Open full-size setup diagram">'
+                f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} expected setup diagram">'
                 '</a>'
-                '<figcaption>Expected setup and anchor relationships. Click for the full-size diagram.</figcaption>'
+                '<figcaption>Expected setup — conceptual diagram, not verification output. '
+                'Click for the full-size image.</figcaption>'
                 '</figure>'
             )
         (case_dir / "commands.json").write_text(
