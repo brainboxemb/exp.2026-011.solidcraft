@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "simple-box",
   "title": "Parameterized Box",
-  "source_commit": "cd4c80527d25bda0b0996af3d9cb48734ed39a58",
+  "source_commit": "58b557327e9568f2b0abf6d11b96b4260057ac21",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {

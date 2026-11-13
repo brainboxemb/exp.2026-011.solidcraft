@@ -1,5 +1,5 @@
 {
-  "library_commit": "cd4c80527d25bda0b0996af3d9cb48734ed39a58",
+  "library_commit": "58b557327e9568f2b0abf6d11b96b4260057ac21",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -548,8 +548,8 @@
         "qualification-result.json"
       ],
       "native_images": [
-        "model-size-160x120.png",
-        "model.png"
+        "model.png",
+        "model-size-160x120.png"
       ],
       "qualification_status": "pass",
       "levels": {
@@ -597,8 +597,8 @@
         "q6": {
           "status": "pass",
           "images": [
-            "model-size-160x120.png",
-            "model.png"
+            "model.png",
+            "model-size-160x120.png"
           ]
         }
       },
