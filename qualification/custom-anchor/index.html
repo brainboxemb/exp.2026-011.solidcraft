@@ -9,23 +9,81 @@
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / Named oriented AnchorFrame</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · Q1–Q6 native verified</p>
-<h1>Named oriented AnchorFrame</h1><p>Verify that a reusable component can publish a named attachment datum with both position and orientation.</p></section>
-<figure class="example-image"><img src="model.png" alt="Named oriented AnchorFrame native SolidCraft snapshot" loading="lazy"><figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>anchors() -&gt; {&#x27;tip&#x27;: AnchorFrame(origin=..., z=..., x=...)}; attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
-<h3>Internal Forge model</h3><p>AnchorFrame is explicitly a local frame: origin plus Z axis and X axis. It is not merely a named point.</p>
-<h3>SolidCraft lowering</h3><p>For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.</p>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Named oriented AnchorFrame</h1>
 </section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.</p>
-<h3>Parametric mutation</h3><p>No parameter mutation; this fixture isolates occurrence rotation plus named-frame attachment.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
-</section></div>
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 2 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Arm</td><td><code>[-5, -20, 0]</code></td><td><code>[5, 20, 10]</code></td></tr><tr><td>Marker</td><td><code>[-5, 15, 0]</code></td><td><code>[5, 25, 10]</code></td></tr></tbody></table></details></section>
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>[
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Named oriented AnchorFrame native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Named oriented AnchorFrame expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify that a reusable component can publish a named attachment datum with both position and orientation.</p>
+  <h3>Pass criteria</h3>
+  <p>After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>class Arm:
+    def anchors(self):
+        return {
+            &quot;tip&quot;: AnchorFrame(
+                origin=(20, 0, 5),
+                z=RIGHT,
+                x=UP,
+            ),
+        }
+
+    def build(self):
+        return Box(40, 10, 10)
+
+
+class Marker:
+    def anchors(self):
+        return {
+            &quot;mount&quot;: AnchorFrame(
+                origin=(0, 0, 5),
+                z=LEFT,
+                x=UP,
+            ),
+        }
+
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class CustomAnchor:
+    def build(self):
+        arm = Arm().rotate(Axis.Z, 90)
+        marker = Marker().attach(
+            arm,
+            parent=&quot;tip&quot;,
+            child=&quot;mount&quot;,
+        )
+        return arm + marker
+
+
+CustomAnchor()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>AnchorFrame(origin=..., z=RIGHT, x=UP); attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>AnchorFrame is a local coordinate frame: origin says where the point is, Z says which way it faces, and X fixes the clocking around Z.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
   {
     &quot;command&quot;: &quot;joint.origin&quot;,
     &quot;params&quot;: {
@@ -76,52 +134,33 @@
       }
     }
   }
-]</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Closest conceptual match: an anchor defines position, local Z direction and spin/orientation information.</li></ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>class Arm:
-    def anchors(self):
-        return {
-            &quot;tip&quot;: AnchorFrame(
-                origin=(20, 0, 5),
-                z=(1, 0, 0),
-                x=(0, 0, 1),
-            ),
-        }
+]</code></pre>
+  </details>
+</section>
 
-    def build(self):
-        return Box(40, 10, 10)
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 2 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Arm</td><td><code>[-5, -20, 0]</code></td><td><code>[5, 20, 10]</code></td></tr><tr><td>Marker</td><td><code>[-5, 15, 0]</code></td><td><code>[5, 25, 10]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;Arm&quot;, &quot;min&quot;: [-5, -20, 0], &quot;max&quot;: [5, 20, 10]}, {&quot;label&quot;: &quot;Marker&quot;, &quot;min&quot;: [-5, 15, 0], &quot;max&quot;: [5, 25, 10]}]</code></td><td><code>[{&quot;min&quot;: [-5.000000000000001, -20.0, 0.0], &quot;max&quot;: [5.000000000000001, 20.0, 10.0]}, {&quot;min&quot;: [-4.999999999999999, 15.0, 0.0], &quot;max&quot;: [5.000000000000001, 25.0, 10.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>rotated arm bounds</td><td><code>null</code></td><td><code>null</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>marker follows rotated tip</td><td><code>{&quot;min&quot;: [-5, 15, 0], &quot;max&quot;: [5, 25, 10]}</code></td><td><code>{&quot;max&quot;: [5.000000000000001, 25.0, 10.0], &quot;min&quot;: [-4.999999999999999, 15.0, 0.0]}</code></td></tr></tbody></table></section>
 
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Named oriented AnchorFrame iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Named oriented AnchorFrame iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Named oriented AnchorFrame iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Named oriented AnchorFrame front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Named oriented AnchorFrame front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Named oriented AnchorFrame front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Named oriented AnchorFrame right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Named oriented AnchorFrame right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Named oriented AnchorFrame right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
 
-class Marker:
-    def anchors(self):
-        return {
-            &quot;mount&quot;: AnchorFrame(
-                origin=(0, 0, 5),
-                z=(-1, 0, 0),
-                x=(0, 0, 1),
-            ),
-        }
-
-    def build(self):
-        return Box(10, 10, 10)
-
-
-class CustomAnchor:
-    def build(self):
-        arm = Arm().rotate(Axis.Z, 90)
-        marker = Marker().attach(
-            arm,
-            parent=&quot;tip&quot;,
-            child=&quot;mount&quot;,
-        )
-        return arm + marker
-
-
-CustomAnchor()
-</code></pre></section>
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Closest conceptual match: an anchor defines position, local Z direction and spin/orientation information.</li></ul>
+    </div>
+  </div>
+</section>
 </main>
+
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
 </body></html>

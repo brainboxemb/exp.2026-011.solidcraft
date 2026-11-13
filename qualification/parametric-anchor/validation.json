@@ -1,0 +1,161 @@
+{
+  "case": "parametric-anchor",
+  "q4": "pass",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            10
+          ]
+        },
+        {
+          "label": "Block",
+          "min": [
+            20,
+            -10,
+            0
+          ],
+          "max": [
+            40,
+            10,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            20.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            10.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RIGHT-to-LEFT baseline",
+      "level": "q4",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -40,
+            -15,
+            0
+          ],
+          "max": [
+            40,
+            15,
+            10
+          ]
+        },
+        {
+          "label": "Block",
+          "min": [
+            40,
+            -10,
+            0
+          ],
+          "max": [
+            60,
+            10,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            15.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            40.0,
+            -10.0,
+            -2.1128252188474783e-15
+          ],
+          "max": [
+            60.0,
+            10.000000000000002,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RIGHT anchor follows width mutation",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "min": [
+          40,
+          -10,
+          0
+        ],
+        "max": [
+          60,
+          10,
+          10
+        ]
+      },
+      "actual": {
+        "max": [
+          60.0,
+          10.000000000000002,
+          10.0
+        ],
+        "min": [
+          40.0,
+          -10.0,
+          -2.1128252188474783e-15
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "case": "corner-anchor",
+  "q4": "fail",
+  "q5": "fail",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "fail",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            20
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            10,
+            -25,
+            10
+          ],
+          "max": [
+            20,
+            -15,
+            20
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            20.0
+          ]
+        },
+        {
+          "min": [
+            10.0,
+            -25.0,
+            20.0
+          ],
+          "max": [
+            20.0,
+            -15.0,
+            30.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BACK_TOP_RIGHT meets parent FRONT_TOP_RIGHT",
+      "level": "q4",
+      "status": "fail",
+      "expected": {
+        "min": [
+          10,
+          -25,
+          10
+        ],
+        "max": [
+          20,
+          -15,
+          20
+        ]
+      },
+      "actual": {
+        "max": [
+          20.0,
+          -15.0,
+          30.0
+        ],
+        "min": [
+          10.0,
+          -25.0,
+          20.0
+        ]
+      }
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "fail",
+      "expected": [
+        {
+          "label": "Board",
+          "min": [
+            -40,
+            0,
+            0
+          ],
+          "max": [
+            40,
+            12,
+            40
+          ]
+        },
+        {
+          "label": "right Marker",
+          "min": [
+            30,
+            -10,
+            30
+          ],
+          "max": [
+            40,
+            0,
+            40
+          ]
+        },
+        {
+          "label": "left Marker",
+          "min": [
+            -40,
+            -10,
+            30
+          ],
+          "max": [
+            -30,
+            0,
+            40
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            15.0,
+            40.0
+          ]
+        },
+        {
+          "min": [
+            30.0,
+            -25.0,
+            40.0
+          ],
+          "max": [
+            40.0,
+            -15.0,
+            50.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "fail",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -40,
+            -15,
+            0
+          ],
+          "max": [
+            40,
+            15,
+            40
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            30,
+            -25,
+            30
+          ],
+          "max": [
+            40,
+            -15,
+            40
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            15.0,
+            40.0
+          ]
+        },
+        {
+          "min": [
+            30.0,
+            -25.0,
+            40.0
+          ],
+          "max": [
+            40.0,
+            -15.0,
+            50.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "corner follows 80x40 mutation",
+      "level": "q5",
+      "status": "fail",
+      "expected": {
+        "min": [
+          30,
+          -25,
+          30
+        ],
+        "max": [
+          40,
+          -15,
+          40
+        ]
+      },
+      "actual": {
+        "max": [
+          40.0,
+          -15.0,
+          50.0
+        ],
+        "min": [
+          30.0,
+          -25.0,
+          40.0
+        ]
+      }
+    }
+  ]
+}

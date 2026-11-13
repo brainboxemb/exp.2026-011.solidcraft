@@ -1,23 +1,23 @@
 {
   "bodies": [
     {
-      "area_mm2": 31200.0,
+      "area_mm2": 43200.0,
       "bbox": {
         "max": [
           60.0,
-          15.0,
-          80.0
+          40.0,
+          60.0
         ],
         "min": [
           -60.0,
-          -15.0,
+          -40.0,
           0.0
         ]
       },
       "center_of_mass": [
         0.0,
         0.0,
-        40.0
+        30.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -32,106 +32,30 @@
         "shells": 1,
         "vertices": 8
       },
-      "mass_g": 371.52,
+      "mass_g": 743.04,
       "material": "Default",
       "name": "FrameBlock",
       "vertices": 8,
-      "volume_mm3": 288000.0
+      "volume_mm3": 576000.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 4128.0,
       "bbox": {
         "max": [
-          -20.0,
-          -3.0,
-          80.0
-        ],
-        "min": [
-          -60.0,
-          -27.0,
-          40.0
-        ]
-      },
-      "center_of_mass": [
-        -45.76470588235294,
-        -15.0,
-        65.76470588235294
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 18,
-      "face_types": {
-        "plane": 8
-      },
-      "faces": 8,
-      "kernel": {
-        "edges": 18,
-        "faces": 8,
-        "shells": 1,
-        "vertices": 12
-      },
-      "mass_g": 25.263360000000002,
-      "material": "Default",
-      "name": "LBracket",
-      "vertices": 12,
-      "volume_mm3": 19584.0
-    },
-    {
-      "area_mm2": 5472.0,
-      "bbox": {
-        "max": [
+          68.0,
           60.0,
-          -3.0,
-          80.0
-        ],
-        "min": [
-          20.0,
-          -27.0,
-          40.0
-        ]
-      },
-      "center_of_mass": [
-        45.76470588235294,
-        -15.0,
-        65.76470588235294
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 18,
-      "face_types": {
-        "plane": 8
-      },
-      "faces": 8,
-      "kernel": {
-        "edges": 18,
-        "faces": 8,
-        "shells": 1,
-        "vertices": 12
-      },
-      "mass_g": 25.263360000000002,
-      "material": "Default",
-      "name": "LBracket (LBracket:2)",
-      "vertices": 12,
-      "volume_mm3": 19584.0
-    },
-    {
-      "area_mm2": 5472.0,
-      "bbox": {
-        "max": [
-          60.0,
-          -3.0,
-          40.0
-        ],
-        "min": [
-          20.0,
-          -27.0,
           0.0
+        ],
+        "min": [
+          40.0,
+          32.0,
+          -30.0
         ]
       },
       "center_of_mass": [
-        45.76470588235294,
-        -15.0,
-        14.235294117647058
+        49.833333333333336,
+        50.166666666666664,
+        -15.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -146,30 +70,30 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 14.860800000000001,
       "material": "Default",
-      "name": "LBracket (LBracket:3)",
+      "name": "CornerFoot",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 11520.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 4128.0,
       "bbox": {
         "max": [
-          -20.0,
-          -3.0,
-          40.0
+          68.0,
+          -32.0,
+          0.0
         ],
         "min": [
+          39.99999999999999,
           -60.0,
-          -27.0,
-          0.0
+          -30.0
         ]
       },
       "center_of_mass": [
-        -45.76470588235294,
-        -15.0,
-        14.235294117647058
+        49.833333333333336,
+        -50.166666666666664,
+        -15.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -184,11 +108,87 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 14.860800000000001,
       "material": "Default",
-      "name": "LBracket (LBracket:4)",
+      "name": "CornerFoot (CornerFoot:2)",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 11520.0
+    },
+    {
+      "area_mm2": 4128.0,
+      "bbox": {
+        "max": [
+          -40.0,
+          -32.0,
+          0.0
+        ],
+        "min": [
+          -68.0,
+          -60.0,
+          -30.0
+        ]
+      },
+      "center_of_mass": [
+        -49.833333333333336,
+        -50.166666666666664,
+        -15.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 18,
+      "face_types": {
+        "plane": 8
+      },
+      "faces": 8,
+      "kernel": {
+        "edges": 18,
+        "faces": 8,
+        "shells": 1,
+        "vertices": 12
+      },
+      "mass_g": 14.860800000000001,
+      "material": "Default",
+      "name": "CornerFoot (CornerFoot:3)",
+      "vertices": 12,
+      "volume_mm3": 11520.0
+    },
+    {
+      "area_mm2": 4127.999999999999,
+      "bbox": {
+        "max": [
+          -12.0,
+          88.0,
+          0.0
+        ],
+        "min": [
+          -40.00000000000001,
+          60.0,
+          -30.0
+        ]
+      },
+      "center_of_mass": [
+        -30.16666666666667,
+        69.83333333333334,
+        -15.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 18,
+      "face_types": {
+        "plane": 8
+      },
+      "faces": 8,
+      "kernel": {
+        "edges": 18,
+        "faces": 8,
+        "shells": 1,
+        "vertices": 12
+      },
+      "mass_g": 14.860799999999994,
+      "material": "Default",
+      "name": "CornerFoot (CornerFoot:4)",
+      "vertices": 12,
+      "volume_mm3": 11519.999999999995
     }
   ],
   "body_count": 5,
@@ -198,7 +198,7 @@
       "error": null,
       "expression": "120",
       "model": false,
-      "name": "FrameBlock_width",
+      "name": "frame_width",
       "unit": "mm",
       "value": 120.0
     },
@@ -207,7 +207,7 @@
       "error": null,
       "expression": "80",
       "model": false,
-      "name": "FrameBlock_height",
+      "name": "frame_depth",
       "unit": "mm",
       "value": 80.0
     }
@@ -240,7 +240,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.17191299999999998,
+      "ms": 0.171833,
       "name": "FrameBlock footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -254,7 +254,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.750811,
+      "ms": 0.755669,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -268,7 +268,7 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.083597,
+      "ms": 0.082049,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -282,7 +282,7 @@
       },
       "error": null,
       "id": 8,
-      "ms": 0.360689,
+      "ms": 0.296811,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,
@@ -291,12 +291,12 @@
     }
   ],
   "total": {
-    "area_mm2": 53088.0,
+    "area_mm2": 59712.0,
     "edges": 84,
     "faces": 38,
-    "mass_g": 472.5734399999999,
+    "mass_g": 802.4832000000001,
     "open_bodies_skipped": 0,
     "vertices": 56,
-    "volume_mm3": 366336.0
+    "volume_mm3": 622080.0
   }
 }

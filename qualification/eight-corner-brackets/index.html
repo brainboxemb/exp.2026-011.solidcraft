@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Eight reusable outside L-brackets · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Eight reusable outside L-brackets</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status fail">FAIL</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 FAIL · Q5 · Q6 REVIEW</span></div>
+  <h1>Eight reusable outside L-brackets</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Eight reusable outside L-brackets native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="eight-corner-brackets.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-corner-brackets.svg" alt="Eight reusable outside L-brackets expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-corner-brackets.cadcraft.json">CadCraft source</a> · <a href="eight-corner-brackets.dxf">DXF</a></figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Mount one neutral flat L-bracket on every outside corner of a rectangular frame: four on the front face and four on the rear face. The assembly owns all eight placements; the bracket component owns only its local geometry.</p>
+  <h3>Pass criteria</h3>
+  <p>Four brackets sit fully outside the front face and four sit fully outside the rear face. At each corner the two equal L arms run inward over the adjacent frame edges.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved .sc design; all eight brackets must follow their corresponding moved corners without rerunning Python.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Eight reusable L-brackets mounted outside a rectangular frame.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    _width = 120.0
+    _depth = 80.0
+    _height = 60.0
+
+    def build(self):
+        return Box(self._width, self._depth, self._height)
+
+
+class LBracket:
+    ARM_LENGTH = 28.0
+    WALL = 8.0
+    THICKNESS = 4.0
+
+    def build(self):
+        # Neutral reusable component in its own local XZ plane.
+        # The profile starts at its local corner and the material is extruded
+        # in local +Y. It has no front/rear/top/bottom frame knowledge.
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
+            plane=&quot;XZ&quot;,
+        )
+        return profile.extrude(
+            self.THICKNESS,
+            direction=Direction.POSITIVE,
+        )
+
+
+class EightCornerBrackets:
+    frame_width = 120.0
+    frame_depth = 80.0
+    frame_height = 60.0
+
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+            _height=self.frame_height,
+        )
+        bracket = LBracket()
+
+        # Placement belongs to this assembly. The same local bracket corner is
+        # used for all eight occurrences; SolidCraft&#x27;s parent corner reference
+        # supplies the corner position/orientation on the front or rear face.
+        bracket_corner = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, -1, 0),
+            x=(1, 0, 0),
+        )
+
+        front_top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        front_bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+
+        rear_top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_TOP_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_TOP_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=bracket_corner,
+            angle=0,
+        )
+        rear_bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.BACK_BOTTOM_LEFT,
+            child=bracket_corner,
+            angle=0,
+        )
+
+        return (
+            frame
+            + front_top_left
+            + front_top_right
+            + front_bottom_right
+            + front_bottom_left
+            + rear_top_left
+            + rear_top_right
+            + rear_bottom_right
+            + rear_bottom_left
+        )
+
+
+EightCornerBrackets()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>attach(parent=Anchor.FRONT_/BACK_... corner, child=assembly-local AnchorFrame, angle=0)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One parametric frame plus eight occurrences of one neutral LBracket definition. The same assembly-local bracket-corner reference is reused for front/rear, top/bottom and left/right placements.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Eight rigid joint.create commands use topology-backed parent corner references. Forge may pre-position occurrences so SolidCraft can resolve the selected references, but the saved assembly relationship is the native joint rather than a frozen world-coordinate placement.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:5 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:5&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:6 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:6&quot;,
+        &quot;point&quot;: [
+          60.0,
+          40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:7 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:7&quot;,
+        &quot;point&quot;: [
+          60.0,
+          40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:8 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:8&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120x90</strong> · 9 bodies · <a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>160.0</td></tr><tr><td><code>frame_depth</code></td><td>120.0</td></tr><tr><td><code>frame_height</code></td><td>90.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -60, 0]</code></td><td><code>[80, 60, 90]</code></td></tr><tr><td>LBracket</td><td><code>[-80, -64, 62]</code></td><td><code>[-52, -60, 90]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[52, -64, 62]</code></td><td><code>[80, -60, 90]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[52, -64, 0]</code></td><td><code>[80, -60, 28]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-80, -64, 0]</code></td><td><code>[-52, -60, 28]</code></td></tr><tr><td>LBracket (LBracket:5)</td><td><code>[-80, 60, 62]</code></td><td><code>[-52, 64, 90]</code></td></tr><tr><td>LBracket (LBracket:6)</td><td><code>[52, 60, 62]</code></td><td><code>[80, 64, 90]</code></td></tr><tr><td>LBracket (LBracket:7)</td><td><code>[52, 60, 0]</code></td><td><code>[80, 64, 28]</code></td></tr><tr><td>LBracket (LBracket:8)</td><td><code>[-80, 60, 0]</code></td><td><code>[-52, 64, 28]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 9 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>120.0</td></tr><tr><td><code>frame_depth</code></td><td>80.0</td></tr><tr><td><code>frame_height</code></td><td>60.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -40, 0]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -44, 32]</code></td><td><code>[-32, -40, 60]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[32, -44, 32]</code></td><td><code>[60, -40, 60]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[32, -44, 0]</code></td><td><code>[60, -40, 28]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -44, 0]</code></td><td><code>[-32, -40, 28]</code></td></tr><tr><td>LBracket (LBracket:5)</td><td><code>[-60, 40, 32]</code></td><td><code>[-32, 44, 60]</code></td></tr><tr><td>LBracket (LBracket:6)</td><td><code>[32, 40, 32]</code></td><td><code>[60, 44, 60]</code></td></tr><tr><td>LBracket (LBracket:7)</td><td><code>[32, 40, 0]</code></td><td><code>[60, 44, 28]</code></td></tr><tr><td>LBracket (LBracket:8)</td><td><code>[-60, 40, 0]</code></td><td><code>[-32, 44, 28]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 90]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-80, -64, 62], &quot;max&quot;: [-52, -60, 90]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [52, -64, 62], &quot;max&quot;: [80, -60, 90]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [52, -64, 0], &quot;max&quot;: [80, -60, 28]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-80, -64, 0], &quot;max&quot;: [-52, -60, 28]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-80, 60, 62], &quot;max&quot;: [-52, 64, 90]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [52, 60, 62], &quot;max&quot;: [80, 64, 90]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [52, 60, 0], &quot;max&quot;: [80, 64, 28]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-80, 60, 0], &quot;max&quot;: [-52, 64, 28]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -40.0, 0.0], &quot;max&quot;: [60.0, 40.0, 60.0]}, {&quot;min&quot;: [-60.0, -44.0, 32.0], &quot;max&quot;: [-32.0, -40.0, 60.0]}, {&quot;min&quot;: [32.0, -44.0, 32.0], &quot;max&quot;: [60.0, -40.0, 60.0]}, {&quot;min&quot;: [32.0, -44.0, 0.0], &quot;max&quot;: [60.0, -40.0, 28.0]}, {&quot;min&quot;: [-60.0, -44.0, 0.0], &quot;max&quot;: [-32.0, -40.0, 28.0]}, {&quot;min&quot;: [-60.0, 40.0, 32.0], &quot;max&quot;: [-32.0, 44.0, 60.0]}, {&quot;min&quot;: [32.0, 40.0, 32.0], &quot;max&quot;: [60.0, 44.0, 60.0]}, {&quot;min&quot;: [32.0, 40.0, 0.0], &quot;max&quot;: [60.0, 44.0, 28.0]}, {&quot;min&quot;: [-60.0, 40.0, 0.0], &quot;max&quot;: [-32.0, 44.0, 28.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>nine bodies: frame plus eight brackets</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>nine bodies after saved-design mutation</td><td><code>9</code></td><td><code>9</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Eight reusable outside L-brackets iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Eight reusable outside L-brackets iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Eight reusable outside L-brackets iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Eight reusable outside L-brackets front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Eight reusable outside L-brackets front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Eight reusable outside L-brackets front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Eight reusable outside L-brackets right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Eight reusable outside L-brackets right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Eight reusable outside L-brackets right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120x90.sc">model-size-160x120x90.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Front/rear corner topology is a natural native reference for a flat bracket mounted on those faces.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable part stays local; the assembly chooses which parent corner each occurrence attaches to.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

@@ -1,0 +1,102 @@
+{
+  "case": "custom-anchor",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Arm",
+          "min": [
+            -5,
+            -20,
+            0
+          ],
+          "max": [
+            5,
+            20,
+            10
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            -5,
+            15,
+            0
+          ],
+          "max": [
+            5,
+            25,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -5.000000000000001,
+            -20.0,
+            0.0
+          ],
+          "max": [
+            5.000000000000001,
+            20.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            -4.999999999999999,
+            15.0,
+            0.0
+          ],
+          "max": [
+            5.000000000000001,
+            25.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rotated arm bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "marker follows rotated tip",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -5,
+          15,
+          0
+        ],
+        "max": [
+          5,
+          25,
+          10
+        ]
+      },
+      "actual": {
+        "max": [
+          5.000000000000001,
+          25.0,
+          10.0
+        ],
+        "min": [
+          -4.999999999999999,
+          15.0,
+          0.0
+        ]
+      }
+    }
+  ]
+}

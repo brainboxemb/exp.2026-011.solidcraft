@@ -1,0 +1,492 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Board",
+          "frame": {
+            "origin": [
+              20.0,
+              0.0,
+              20.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Board:1",
+          "path": "Board:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:lower_right",
+                  "role_in_feature": "side:lower_right",
+                  "sketch": {
+                    "curve": "lower_right",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Profile"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:lower_right|F4:start",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:start",
+              "role": "face",
+              "role_in_feature": "start"
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:upper_right",
+                  "role_in_feature": "side:upper_right",
+                  "sketch": {
+                    "curve": "upper_right",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Profile"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:upper_right|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:upper_right|F4:start",
+            "edge": "F4:side:lower_right|F4:start",
+            "face": "F4:start",
+            "pick": [
+              20.0,
+              0.0,
+              10.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Marker",
+          "frame": {
+            "origin": [
+              20.0,
+              0.0,
+              20.0
+            ],
+            "x": [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Marker:1",
+          "path": "Marker:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l2",
+                  "role_in_feature": "side:l2",
+                  "sketch": {
+                    "curve": "l2",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                }
+              ],
+              "name": "F8:side:l2|F8:side:l3",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 8,
+                "name": "Extrude2",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F8:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 7,
+                "name": "Marker footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F8:side:l3|F8:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F8:side:l3|F8:top",
+            "edge": "F8:side:l2|F8:side:l3",
+            "face": "F8:side:l3",
+            "pick": [
+              5.0,
+              5.0,
+              5.0
+            ],
+            "type": "edge"
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 10,
+        "links": [],
+        "name": "Attach Marker:1 to Board:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Board",
+          "frame": {
+            "origin": [
+              -20.0,
+              0.0,
+              20.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Board:1",
+          "path": "Board:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:upper_left",
+                  "role_in_feature": "side:upper_left",
+                  "sketch": {
+                    "curve": "upper_left",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Profile"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:upper_left|F4:start",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:start",
+              "role": "face",
+              "role_in_feature": "start"
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:upper_right",
+                  "role_in_feature": "side:upper_right",
+                  "sketch": {
+                    "curve": "upper_right",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Profile"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:start",
+                  "role_in_feature": "start"
+                }
+              ],
+              "name": "F4:side:upper_right|F4:start",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F4:side:upper_right|F4:start",
+            "edge": "F4:side:upper_left|F4:start",
+            "face": "F4:start",
+            "pick": [
+              -20.0,
+              0.0,
+              10.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Marker",
+          "frame": {
+            "origin": [
+              -20.0,
+              0.0,
+              20.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 9,
+          "occurrence_name": "Marker:2",
+          "path": "Marker:2",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                }
+              ],
+              "name": "F8:side:l3|F8:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 8,
+                "name": "Extrude2",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F8:side:l3",
+              "role": "face",
+              "role_in_feature": "side:l3",
+              "sketch": {
+                "curve": "l3",
+                "curve_type": "line",
+                "id": 7,
+                "name": "Marker footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:side:l3",
+                  "role_in_feature": "side:l3",
+                  "sketch": {
+                    "curve": "l3",
+                    "curve_type": "line",
+                    "id": 7,
+                    "name": "Marker footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 8,
+                    "name": "Extrude2",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F8:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F8:side:l3|F8:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "corner": "F8:side:l3|F8:top",
+            "edge": "F8:side:l3|F8:side:l4",
+            "face": "F8:side:l3",
+            "pick": [
+              -5.0,
+              5.0,
+              5.0
+            ],
+            "type": "edge"
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 11,
+        "links": [],
+        "name": "Attach Marker:2 to Board:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

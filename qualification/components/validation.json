@@ -1,0 +1,130 @@
+{
+  "case": "components",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "left",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            10
+          ]
+        },
+        {
+          "label": "right",
+          "min": [
+            20,
+            -15,
+            0
+          ],
+          "max": [
+            60,
+            15,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            60.0,
+            15.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two block occurrences",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "RIGHT-to-LEFT faces touch",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        [
+          [
+            -20,
+            -15,
+            0
+          ],
+          [
+            20,
+            15,
+            10
+          ]
+        ],
+        [
+          [
+            20,
+            -15,
+            0
+          ],
+          [
+            60,
+            15,
+            10
+          ]
+        ]
+      ],
+      "actual": [
+        [
+          [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          [
+            20.0,
+            15.0,
+            10.0
+          ]
+        ],
+        [
+          [
+            20.0,
+            -15.0,
+            0.0
+          ],
+          [
+            60.0,
+            15.0,
+            10.0
+          ]
+        ]
+      ]
+    }
+  ]
+}

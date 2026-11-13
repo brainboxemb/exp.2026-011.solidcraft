@@ -9,30 +9,29 @@
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / Primitive CSG</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · Q1–Q6 native verified</p>
-<h1>Primitive CSG</h1><p>Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one ordinary Cylinder cut and intersection.</p></section>
-<figure class="example-image"><img src="model.png" alt="Primitive CSG native SolidCraft snapshot" loading="lazy"><figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>Sphere(); Box(...).move(...); Cylinder(...).move(...); + / - / &amp;</code></p>
-<h3>Internal Forge model</h3><p>A Shape CSG tree rooted in Sphere so Forge deliberately selects the direct CSG compiler instead of the feature-history Box compiler.</p>
-<h3>SolidCraft lowering</h3><p>solid.sphere(new), solid.box(join), one Z-axis solid.cylinder(cut), then solid.box(intersect).</p>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Primitive CSG</h1>
 </section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>SolidCraft accepts the complete CSG command path, produces one valid clipped body and evaluates the native timeline without errors.</p>
-<h3>Parametric mutation</h3><p>No saved-design mutation in this case; it isolates primitive CSG lowering. Parametric edits are covered by dedicated Q5 cases.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
-</section></div>
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>PrimitiveCsg</td><td><code>[-20, -19.9997, 5.95194e-05]</code></td><td><code>[25.0001, 19.9997, 20]</code></td></tr></tbody></table></details></section>
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>solid.sphere
-solid.box
-solid.cylinder
-solid.box</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> Closest to ordinary union()/difference()/intersection() with translate()/rotate() around primitives.</li><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> Useful comparison for Python objects and operators while Forge still delegates all geometry to SolidCraft.</li></ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Core CSG qualification: primitives, transforms and Boolean operations.&quot;&quot;&quot;
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Primitive CSG native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Primitive CSG expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one ordinary Cylinder cut and intersection.</p>
+  <h3>Pass criteria</h3>
+  <p>SolidCraft accepts the complete CSG command path, produces one valid clipped body and evaluates the native timeline without errors.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Core CSG qualification: primitives, transforms and Boolean operations.&quot;&quot;&quot;
 
 
 class PrimitiveCsg:
@@ -49,8 +48,48 @@ class PrimitiveCsg:
 
 
 PrimitiveCsg()
-</code></pre></section>
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Sphere(); Box(...).move(...); Cylinder(...).move(...); + / - / &amp;</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>A Shape CSG tree rooted in Sphere so Forge deliberately selects the direct CSG compiler instead of the feature-history Box compiler.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>solid.sphere(new), solid.box(join), one Z-axis solid.cylinder(cut), then solid.box(intersect).</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>solid.sphere
+solid.box
+solid.cylinder
+solid.box</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>PrimitiveCsg</td><td><code>[-20, -19.9997, 5.95194e-05]</code></td><td><code>[25.0001, 19.9997, 20]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;PrimitiveCsg&quot;, &quot;min&quot;: [-20, -20, 0], &quot;max&quot;: [25, 20, 20]}]</code></td><td><code>[{&quot;min&quot;: [-19.999999999494193, -19.999665155175794, 5.9519390469256e-05], &quot;max&quot;: [25.000116688074947, 19.99966515508273, 20.00000000000001]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>single resulting CSG body</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>sphere survives CSG</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>cylindrical bore survives CSG</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>clipped bounds</td><td><code>{&quot;min&quot;: [-20, -20, 0], &quot;max&quot;: [25, 20, 20]}</code></td><td><code>{&quot;max&quot;: [25.000116688074947, 19.99966515508273, 20.00000000000001], &quot;min&quot;: [-19.999999999494193, -19.999665155175794, 5.9519390469256e-05]}</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Primitive CSG iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Primitive CSG iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Primitive CSG iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Primitive CSG front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Primitive CSG front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Primitive CSG front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Primitive CSG right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Primitive CSG right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Primitive CSG right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> Closest to ordinary union()/difference()/intersection() with translate()/rotate() around primitives.</li><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> Useful comparison for Python objects and operators while Forge still delegates all geometry to SolidCraft.</li></ul>
+    </div>
+  </div>
+</section>
 </main>
+
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
 </body></html>

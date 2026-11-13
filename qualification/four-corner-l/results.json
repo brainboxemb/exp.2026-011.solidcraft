@@ -1,13 +1,13 @@
 [
   {
     "display_value": 120.0,
-    "name": "FrameBlock_width",
+    "name": "frame_width",
     "unit": "mm",
     "value": 120.0
   },
   {
     "display_value": 80.0,
-    "name": "FrameBlock_height",
+    "name": "frame_depth",
     "unit": "mm",
     "value": 80.0
   },
@@ -94,7 +94,7 @@
       "FrameBlock"
     ],
     "feature": 4,
-    "ms": 0.9231760000000001,
+    "ms": 0.8825999999999999,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -105,7 +105,7 @@
   {
     "component": 5,
     "grounded": false,
-    "name": "LBracket",
+    "name": "CornerFoot",
     "occurrence": 6,
     "parent": 0
   },
@@ -167,14 +167,14 @@
   {
     "bodies": [
       "FrameBlock",
-      "LBracket"
+      "CornerFoot"
     ],
     "changed_bodies": [],
     "created_bodies": [
-      "LBracket"
+      "CornerFoot"
     ],
     "feature": 8,
-    "ms": 0.377851,
+    "ms": 0.305307,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
@@ -195,126 +195,6 @@
     "occurrence": 11
   },
   {
-    "occurrence": 6,
-    "pending": false,
-    "transform": [
-      [
-        1.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        1.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        1.0,
-        0.0
-      ],
-      [
-        -60.0,
-        -15.0,
-        80.0,
-        1.0
-      ]
-    ]
-  },
-  {
-    "occurrence": 9,
-    "pending": false,
-    "transform": [
-      [
-        1.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        1.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        1.0,
-        0.0
-      ],
-      [
-        60.0,
-        -15.0,
-        80.0,
-        1.0
-      ]
-    ]
-  },
-  {
-    "occurrence": 10,
-    "pending": false,
-    "transform": [
-      [
-        1.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        1.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        1.0,
-        0.0
-      ],
-      [
-        60.0,
-        -15.0,
-        0.0,
-        1.0
-      ]
-    ]
-  },
-  {
-    "occurrence": 11,
-    "pending": false,
-    "transform": [
-      [
-        1.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        1.0,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        1.0,
-        0.0
-      ],
-      [
-        -60.0,
-        -15.0,
-        0.0,
-        1.0
-      ]
-    ]
-  },
-  {
     "conflicts": [],
     "dof": [
       {
@@ -326,7 +206,7 @@
         "occurrence": 2
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 6
       },
       {
@@ -348,7 +228,7 @@
       2
     ],
     "joint": 12,
-    "name": "Attach LBracket:1 to FrameBlock:1"
+    "name": "Attach CornerFoot:1 to FrameBlock:1"
   },
   {
     "conflicts": [],
@@ -362,11 +242,11 @@
         "occurrence": 2
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 6
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 9
       },
       {
@@ -384,7 +264,7 @@
       2
     ],
     "joint": 13,
-    "name": "Attach LBracket:2 to FrameBlock:1"
+    "name": "Attach CornerFoot:2 to FrameBlock:1"
   },
   {
     "conflicts": [],
@@ -398,15 +278,15 @@
         "occurrence": 2
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 6
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 9
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 10
       },
       {
@@ -420,7 +300,7 @@
       2
     ],
     "joint": 14,
-    "name": "Attach LBracket:3 to FrameBlock:1"
+    "name": "Attach CornerFoot:3 to FrameBlock:1"
   },
   {
     "conflicts": [],
@@ -434,19 +314,19 @@
         "occurrence": 2
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 6
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 9
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 10
       },
       {
-        "dof": 0,
+        "dof": 3,
         "occurrence": 11
       }
     ],
@@ -456,7 +336,7 @@
       2
     ],
     "joint": 15,
-    "name": "Attach LBracket:4 to FrameBlock:1"
+    "name": "Attach CornerFoot:4 to FrameBlock:1"
   },
   {
     "changed": 4,

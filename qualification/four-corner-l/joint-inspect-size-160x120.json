@@ -7,19 +7,19 @@
           "component_name": "FrameBlock",
           "frame": {
             "origin": [
-              -80.0,
-              -15.0,
-              120.0
+              0.0,
+              0.0,
+              0.0
             ],
             "x": [
               0.0,
-              0.0,
-              -1.0
+              -1.0,
+              0.0
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              -1.0
             ]
           },
           "occurrence": 2,
@@ -27,125 +27,56 @@
           "path": "FrameBlock:1",
           "references": [
             {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l4",
-                  "role_in_feature": "side:l4",
-                  "sketch": {
-                    "curve": "l4",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                }
-              ],
-              "name": "F4:side:l1|F4:side:l4",
-              "role": "edge"
-            },
-            {
               "feature": {
                 "id": 4,
                 "name": "Extrude1",
                 "type": "ExtrudeFeature"
               },
-              "name": "F4:side:l1",
+              "name": "F4:start",
               "role": "face",
-              "role_in_feature": "side:l1",
-              "sketch": {
-                "curve": "l1",
-                "curve_type": "line",
-                "id": 3,
-                "name": "FrameBlock footprint"
-              }
-            },
-            {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:top",
-                  "role_in_feature": "top"
-                }
-              ],
-              "name": "F4:side:l1|F4:top",
-              "role": "corner"
+              "role_in_feature": "start"
             }
           ],
           "resolves": true,
           "snap": {
-            "corner": "F4:side:l1|F4:top",
-            "edge": "F4:side:l1|F4:side:l4",
-            "face": "F4:side:l1",
+            "face": "F4:start",
             "pick": [
-              -60.0,
-              -15.0,
-              40.0
+              0.0,
+              0.0,
+              0.0
             ],
-            "type": "edge"
+            "type": "face_center",
+            "x": [
+              0.0,
+              -1.0,
+              0.0
+            ]
           }
         },
         "angle": 0.0,
         "b": {
           "component": 5,
-          "component_name": "LBracket",
+          "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              -80.0,
-              -15.0,
-              120.0
+              60.0,
+              80.0,
+              0.0
             ],
             "x": [
               0.0,
-              0.0,
-              -1.0
+              -1.0,
+              0.0
             ],
             "z": [
               0.0,
-              1.0,
-              0.0
+              0.0,
+              1.0
             ]
           },
           "occurrence": 6,
-          "occurrence_name": "LBracket:1",
-          "path": "LBracket:1",
+          "occurrence_name": "CornerFoot:1",
+          "path": "CornerFoot:1",
           "references": [],
           "resolves": true,
           "snap": {
@@ -162,22 +93,51 @@
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              1.0
             ]
           }
         },
         "conflicts": [],
-        "dofs": [],
+        "dofs": [
+          "x",
+          "y",
+          "angle"
+        ],
         "errors": [],
+        "expressions": {
+          "values": [
+            "-(frame_width / 2)",
+            "-(frame_depth / 2)"
+          ]
+        },
         "flip": false,
         "id": 12,
         "links": [],
-        "name": "Attach LBracket:1 to FrameBlock:1",
+        "name": "Attach CornerFoot:1 to FrameBlock:1",
         "offset": 0.0,
         "suppressed": false,
-        "type": "rigid",
-        "values": [],
+        "type": "planar",
+        "values": [
+          {
+            "limits": null,
+            "name": "x",
+            "unit": "mm",
+            "value": -80.0
+          },
+          {
+            "limits": null,
+            "name": "y",
+            "unit": "mm",
+            "value": -60.0
+          },
+          {
+            "limits": null,
+            "name": "angle",
+            "unit": "deg",
+            "value": 0.0
+          }
+        ],
         "visible": false
       },
       {
@@ -186,19 +146,19 @@
           "component_name": "FrameBlock",
           "frame": {
             "origin": [
-              80.0,
-              -15.0,
-              120.0
+              0.0,
+              0.0,
+              0.0
             ],
             "x": [
-              -1.0,
               0.0,
+              -1.0,
               0.0
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              -1.0
             ]
           },
           "occurrence": 2,
@@ -206,125 +166,56 @@
           "path": "FrameBlock:1",
           "references": [
             {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l2",
-                  "role_in_feature": "side:l2",
-                  "sketch": {
-                    "curve": "l2",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                }
-              ],
-              "name": "F4:side:l1|F4:side:l2",
-              "role": "edge"
-            },
-            {
               "feature": {
                 "id": 4,
                 "name": "Extrude1",
                 "type": "ExtrudeFeature"
               },
-              "name": "F4:side:l1",
+              "name": "F4:start",
               "role": "face",
-              "role_in_feature": "side:l1",
-              "sketch": {
-                "curve": "l1",
-                "curve_type": "line",
-                "id": 3,
-                "name": "FrameBlock footprint"
-              }
-            },
-            {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:top",
-                  "role_in_feature": "top"
-                }
-              ],
-              "name": "F4:side:l1|F4:top",
-              "role": "corner"
+              "role_in_feature": "start"
             }
           ],
           "resolves": true,
           "snap": {
-            "corner": "F4:side:l1|F4:top",
-            "edge": "F4:side:l1|F4:side:l2",
-            "face": "F4:side:l1",
+            "face": "F4:start",
             "pick": [
-              60.0,
-              -15.0,
-              40.0
+              0.0,
+              0.0,
+              0.0
             ],
-            "type": "edge"
+            "type": "face_center",
+            "x": [
+              0.0,
+              -1.0,
+              0.0
+            ]
           }
         },
-        "angle": 0.0,
+        "angle": 180.0,
         "b": {
           "component": 5,
-          "component_name": "LBracket",
+          "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              80.0,
-              -15.0,
-              120.0
+              60.0,
+              -80.0,
+              0.0
             ],
             "x": [
-              -1.0,
-              0.0,
+              1.0,
+              1.8369701987210297e-16,
               0.0
             ],
             "z": [
               0.0,
-              1.0,
-              0.0
+              0.0,
+              1.0
             ]
           },
           "occurrence": 9,
-          "occurrence_name": "LBracket:2",
-          "path": "LBracket:2",
+          "occurrence_name": "CornerFoot:2",
+          "path": "CornerFoot:2",
           "references": [],
           "resolves": true,
           "snap": {
@@ -341,22 +232,51 @@
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              1.0
             ]
           }
         },
         "conflicts": [],
-        "dofs": [],
+        "dofs": [
+          "x",
+          "y",
+          "angle"
+        ],
         "errors": [],
+        "expressions": {
+          "values": [
+            "frame_width / 2",
+            "-(frame_depth / 2)"
+          ]
+        },
         "flip": false,
         "id": 13,
         "links": [],
-        "name": "Attach LBracket:2 to FrameBlock:1",
+        "name": "Attach CornerFoot:2 to FrameBlock:1",
         "offset": 0.0,
         "suppressed": false,
-        "type": "rigid",
-        "values": [],
+        "type": "planar",
+        "values": [
+          {
+            "limits": null,
+            "name": "x",
+            "unit": "mm",
+            "value": 80.0
+          },
+          {
+            "limits": null,
+            "name": "y",
+            "unit": "mm",
+            "value": -60.0
+          },
+          {
+            "limits": null,
+            "name": "angle",
+            "unit": "deg",
+            "value": 90.0
+          }
+        ],
         "visible": false
       },
       {
@@ -365,19 +285,19 @@
           "component_name": "FrameBlock",
           "frame": {
             "origin": [
-              80.0,
-              -15.0,
+              0.0,
+              0.0,
               0.0
             ],
             "x": [
               0.0,
-              0.0,
-              1.0
+              -1.0,
+              0.0
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              -1.0
             ]
           },
           "occurrence": 2,
@@ -385,125 +305,56 @@
           "path": "FrameBlock:1",
           "references": [
             {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l2",
-                  "role_in_feature": "side:l2",
-                  "sketch": {
-                    "curve": "l2",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                }
-              ],
-              "name": "F4:side:l1|F4:side:l2",
-              "role": "edge"
-            },
-            {
               "feature": {
                 "id": 4,
                 "name": "Extrude1",
                 "type": "ExtrudeFeature"
               },
-              "name": "F4:side:l1",
+              "name": "F4:start",
               "role": "face",
-              "role_in_feature": "side:l1",
-              "sketch": {
-                "curve": "l1",
-                "curve_type": "line",
-                "id": 3,
-                "name": "FrameBlock footprint"
-              }
-            },
-            {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:start",
-                  "role_in_feature": "start"
-                }
-              ],
-              "name": "F4:side:l1|F4:start",
-              "role": "corner"
+              "role_in_feature": "start"
             }
           ],
           "resolves": true,
           "snap": {
-            "corner": "F4:side:l1|F4:start",
-            "edge": "F4:side:l1|F4:side:l2",
-            "face": "F4:side:l1",
+            "face": "F4:start",
             "pick": [
-              60.0,
-              -15.0,
-              40.0
+              0.0,
+              0.0,
+              0.0
             ],
-            "type": "edge"
+            "type": "face_center",
+            "x": [
+              0.0,
+              -1.0,
+              0.0
+            ]
           }
         },
         "angle": 0.0,
         "b": {
           "component": 5,
-          "component_name": "LBracket",
+          "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              80.0,
-              -15.0,
+              -60.0,
+              -80.0,
               0.0
             ],
             "x": [
-              0.0,
-              0.0,
-              1.0
+              -1.2246467991473532e-16,
+              1.0,
+              0.0
             ],
             "z": [
               0.0,
-              1.0,
-              0.0
+              0.0,
+              1.0
             ]
           },
           "occurrence": 10,
-          "occurrence_name": "LBracket:3",
-          "path": "LBracket:3",
+          "occurrence_name": "CornerFoot:3",
+          "path": "CornerFoot:3",
           "references": [],
           "resolves": true,
           "snap": {
@@ -520,22 +371,51 @@
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              1.0
             ]
           }
         },
         "conflicts": [],
-        "dofs": [],
+        "dofs": [
+          "x",
+          "y",
+          "angle"
+        ],
         "errors": [],
+        "expressions": {
+          "values": [
+            "frame_width / 2",
+            "frame_depth / 2"
+          ]
+        },
         "flip": false,
         "id": 14,
         "links": [],
-        "name": "Attach LBracket:3 to FrameBlock:1",
+        "name": "Attach CornerFoot:3 to FrameBlock:1",
         "offset": 0.0,
         "suppressed": false,
-        "type": "rigid",
-        "values": [],
+        "type": "planar",
+        "values": [
+          {
+            "limits": null,
+            "name": "x",
+            "unit": "mm",
+            "value": 80.0
+          },
+          {
+            "limits": null,
+            "name": "y",
+            "unit": "mm",
+            "value": 60.0
+          },
+          {
+            "limits": null,
+            "name": "angle",
+            "unit": "deg",
+            "value": 180.0
+          }
+        ],
         "visible": false
       },
       {
@@ -544,19 +424,19 @@
           "component_name": "FrameBlock",
           "frame": {
             "origin": [
-              -80.0,
-              -15.0,
+              0.0,
+              0.0,
               0.0
             ],
             "x": [
-              1.0,
               0.0,
+              -1.0,
               0.0
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              -1.0
             ]
           },
           "occurrence": 2,
@@ -564,125 +444,56 @@
           "path": "FrameBlock:1",
           "references": [
             {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l4",
-                  "role_in_feature": "side:l4",
-                  "sketch": {
-                    "curve": "l4",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                }
-              ],
-              "name": "F4:side:l1|F4:side:l4",
-              "role": "edge"
-            },
-            {
               "feature": {
                 "id": 4,
                 "name": "Extrude1",
                 "type": "ExtrudeFeature"
               },
-              "name": "F4:side:l1",
+              "name": "F4:start",
               "role": "face",
-              "role_in_feature": "side:l1",
-              "sketch": {
-                "curve": "l1",
-                "curve_type": "line",
-                "id": 3,
-                "name": "FrameBlock footprint"
-              }
-            },
-            {
-              "faces": [
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
-                    "id": 3,
-                    "name": "FrameBlock footprint"
-                  }
-                },
-                {
-                  "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:start",
-                  "role_in_feature": "start"
-                }
-              ],
-              "name": "F4:side:l1|F4:start",
-              "role": "corner"
+              "role_in_feature": "start"
             }
           ],
           "resolves": true,
           "snap": {
-            "corner": "F4:side:l1|F4:start",
-            "edge": "F4:side:l1|F4:side:l4",
-            "face": "F4:side:l1",
+            "face": "F4:start",
             "pick": [
-              -60.0,
-              -15.0,
-              40.0
+              0.0,
+              0.0,
+              0.0
             ],
-            "type": "edge"
+            "type": "face_center",
+            "x": [
+              0.0,
+              -1.0,
+              0.0
+            ]
           }
         },
         "angle": 0.0,
         "b": {
           "component": 5,
-          "component_name": "LBracket",
+          "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              -80.0,
-              -15.0,
+              -60.0,
+              80.0,
               0.0
             ],
             "x": [
               1.0,
-              0.0,
+              1.8369701987210297e-16,
               0.0
             ],
             "z": [
               0.0,
-              1.0,
-              0.0
+              0.0,
+              1.0
             ]
           },
           "occurrence": 11,
-          "occurrence_name": "LBracket:4",
-          "path": "LBracket:4",
+          "occurrence_name": "CornerFoot:4",
+          "path": "CornerFoot:4",
           "references": [],
           "resolves": true,
           "snap": {
@@ -699,22 +510,51 @@
             ],
             "z": [
               0.0,
-              -1.0,
-              0.0
+              0.0,
+              1.0
             ]
           }
         },
         "conflicts": [],
-        "dofs": [],
+        "dofs": [
+          "x",
+          "y",
+          "angle"
+        ],
         "errors": [],
+        "expressions": {
+          "values": [
+            "-(frame_width / 2)",
+            "frame_depth / 2"
+          ]
+        },
         "flip": false,
         "id": 15,
         "links": [],
-        "name": "Attach LBracket:4 to FrameBlock:1",
+        "name": "Attach CornerFoot:4 to FrameBlock:1",
         "offset": 0.0,
         "suppressed": false,
-        "type": "rigid",
-        "values": [],
+        "type": "planar",
+        "values": [
+          {
+            "limits": null,
+            "name": "x",
+            "unit": "mm",
+            "value": -80.0
+          },
+          {
+            "limits": null,
+            "name": "y",
+            "unit": "mm",
+            "value": 60.0
+          },
+          {
+            "limits": null,
+            "name": "angle",
+            "unit": "deg",
+            "value": 270.0
+          }
+        ],
         "visible": false
       }
     ]

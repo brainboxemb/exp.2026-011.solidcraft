@@ -1,0 +1,92 @@
+{
+  "case": "simple-box",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "SimpleBox",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "40x30x10 bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -20,
+          -15,
+          0
+        ],
+        "max": [
+          20,
+          15,
+          10
+        ]
+      },
+      "actual": {
+        "max": [
+          20.0,
+          15.0,
+          10.0
+        ],
+        "min": [
+          -20.0,
+          -15.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "parameters",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "length": 40.0,
+        "width": 30.0,
+        "height": 10.0
+      },
+      "actual": {
+        "length": 40.0,
+        "width": 30.0,
+        "height": 10.0
+      }
+    }
+  ]
+}

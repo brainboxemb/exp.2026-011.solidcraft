@@ -1,0 +1,109 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Arm",
+          "frame": {
+            "origin": [
+              1.2246467991473533e-15,
+              20.0,
+              5.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              6.123233995736766e-17,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Arm:1",
+          "path": "Arm:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "origin": [
+              20.0,
+              0.0,
+              5.0
+            ],
+            "type": "frame",
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Marker",
+          "frame": {
+            "origin": [
+              1.2246467991473533e-15,
+              20.0,
+              5.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              -6.123233995736766e-17,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Marker:1",
+          "path": "Marker:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              5.0
+            ],
+            "type": "point",
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              -1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 9,
+        "links": [],
+        "name": "Attach Marker:1 to Arm:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

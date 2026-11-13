@@ -9,33 +9,29 @@
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / Parameterized Box</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · Q1–Q6 native verified</p>
-<h1>Parameterized Box</h1><p>Establish the smallest model/parameter contract: three public Python fields create one editable native box.</p></section>
-<figure class="example-image"><img src="model.png" alt="Parameterized Box native SolidCraft snapshot" loading="lazy"><figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>class fields -&gt; Parameter; Box(length, width, height); build()</code></p>
-<h3>Internal Forge model</h3><p>One root Shape with symbolic length, width and height; no occurrence or assembly layer.</p>
-<h3>SolidCraft lowering</h3><p>parameters.add for the public dimensions, followed by the native sketch/extrude commands used for Box.</p>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Parameterized Box</h1>
 </section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>One rectangular solid with the requested 40 x 30 x 10 mm dimensions and an error-free timeline.</p>
-<h3>Parametric mutation</h3><p>Not required in this fixture; parameter-expression preservation is covered by focused Q1 tests and more specific native mutation cases.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
-</section></div>
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>length</code></td><td>40.0</td></tr><tr><td><code>width</code></td><td>30.0</td></tr><tr><td><code>height</code></td><td>10.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>SimpleBox</td><td><code>[-20, -15, 0]</code></td><td><code>[20, 15, 10]</code></td></tr></tbody></table></details></section>
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>parameters.add
-parameters.add
-parameters.add
-sketch.create
-sketch.rectangle.two_point
-sketch.finish
-solid.extrude</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> cube([40,30,10]) is the constructive-geometry baseline; Forge differs by preserving editable SolidCraft history.</li></ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Smallest SCPF regression example: one parameterized, editable Box.&quot;&quot;&quot;
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Parameterized Box native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Parameterized Box expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Establish the smallest model/parameter contract: three public Python fields create one editable native box.</p>
+  <h3>Pass criteria</h3>
+  <p>One rectangular solid with the requested 40 x 30 x 10 mm dimensions and an error-free timeline.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Smallest SCPF regression example: one parameterized, editable Box.&quot;&quot;&quot;
 
 
 class SimpleBox:
@@ -48,8 +44,51 @@ class SimpleBox:
 
 
 SimpleBox()
-</code></pre></section>
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>class fields -&gt; Parameter; Box(length, width, height); build()</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One root Shape with symbolic length, width and height; no occurrence or assembly layer.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>parameters.add for the public dimensions, followed by the native sketch/extrude commands used for Box.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>parameters.add
+parameters.add
+parameters.add
+sketch.create
+sketch.rectangle.two_point
+sketch.finish
+solid.extrude</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>length</code></td><td>40.0</td></tr><tr><td><code>width</code></td><td>30.0</td></tr><tr><td><code>height</code></td><td>10.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>SimpleBox</td><td><code>[-20, -15, 0]</code></td><td><code>[20, 15, 10]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;SimpleBox&quot;, &quot;min&quot;: [-20, -15, 0], &quot;max&quot;: [20, 15, 10]}]</code></td><td><code>[{&quot;min&quot;: [-20.0, -15.0, 0.0], &quot;max&quot;: [20.0, 15.0, 10.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>one body</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>40x30x10 bounds</td><td><code>{&quot;min&quot;: [-20, -15, 0], &quot;max&quot;: [20, 15, 10]}</code></td><td><code>{&quot;max&quot;: [20.0, 15.0, 10.0], &quot;min&quot;: [-20.0, -15.0, 0.0]}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>parameters</td><td><code>{&quot;length&quot;: 40.0, &quot;width&quot;: 30.0, &quot;height&quot;: 10.0}</code></td><td><code>{&quot;length&quot;: 40.0, &quot;width&quot;: 30.0, &quot;height&quot;: 10.0}</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Parameterized Box iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Parameterized Box iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Parameterized Box iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Parameterized Box front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Parameterized Box front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Parameterized Box front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Parameterized Box right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Parameterized Box right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Parameterized Box right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> cube([40,30,10]) is the constructive-geometry baseline; Forge differs by preserving editable SolidCraft history.</li></ul>
+    </div>
+  </div>
+</section>
 </main>
+
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
 </body></html>

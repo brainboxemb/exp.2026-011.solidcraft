@@ -1,0 +1,91 @@
+{
+  "case": "primitive-csg",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "PrimitiveCsg",
+          "min": [
+            -20,
+            -20,
+            0
+          ],
+          "max": [
+            25,
+            20,
+            20
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -19.999999999494193,
+            -19.999665155175794,
+            5.9519390469256e-05
+          ],
+          "max": [
+            25.000116688074947,
+            19.99966515508273,
+            20.00000000000001
+          ]
+        }
+      ]
+    },
+    {
+      "name": "single resulting CSG body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "sphere survives CSG",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "cylindrical bore survives CSG",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "clipped bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -20,
+          -20,
+          0
+        ],
+        "max": [
+          25,
+          20,
+          20
+        ]
+      },
+      "actual": {
+        "max": [
+          25.000116688074947,
+          19.99966515508273,
+          20.00000000000001
+        ],
+        "min": [
+          -19.999999999494193,
+          -19.999665155175794,
+          5.9519390469256e-05
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "case": "parametric-offset",
+  "title": "Editable local offset at an attachment",
+  "source_commit": "d011b6bd7bcb6924e2fac05488ce22ccbe36d8d8",
+  "solidcraft_version": "0.30.1",
+  "status": "fail",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 16,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "fail",
+      "evidence": [
+        "joint-inspect.json",
+        "measurements-shift-10.json",
+        "measurements.json",
+        "validation.json"
+      ]
+    },
+    "q5": {
+      "status": "fail",
+      "required": true,
+      "mutation": "shift 5 -> 10 mm",
+      "evidence": [
+        "change-shift.json",
+        "measurements-shift-10.json",
+        "model-shift-10.sc"
+      ]
+    },
+    "q6": {
+      "status": "review",
+      "images": [
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png"
+      ],
+      "evidence": [
+        "visual-validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "change-shift.json",
+      "joint-inspect.json",
+      "measurements-shift-10.json",
+      "measurements.json",
+      "model-shift-10.sc",
+      "model.sc",
+      "model.step",
+      "results.json",
+      "validation.json",
+      "visual-validation.json"
+    ],
+    "images": [
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png"
+    ]
+  }
+}
