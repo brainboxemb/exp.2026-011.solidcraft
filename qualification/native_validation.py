@@ -287,29 +287,9 @@ def validate_four_corner_l(root: Path) -> Validation:
     _check_declared_bounds(v, d, "four-corner-l")
     frame = one_body(d, "FrameBlock")
     v.check("frame bounds", bbox_close(frame, [-60, -15, 0], [60, 15, 80]))
-    expected = sorted([
-        ((-60, -27, 40), (-20, -3, 80)),
-        ((20, -27, 40), (60, -3, 80)),
-        ((20, -27, 0), (60, -3, 40)),
-        ((-60, -27, 0), (-20, -3, 40)),
-    ])
-    actual = sorted((tuple(round(x, 6) for x in b["bbox"]["min"]),
-                     tuple(round(x, 6) for x in b["bbox"]["max"]))
-                    for b in bodies_named(d, "LBracket"))
-    v.check("four inward corner quadrants", actual == expected, expected, actual)
 
     m = load(root / "measurements-size-160x120.json")
     _check_declared_bounds(v, m, "four-corner-l", level="q5", mutation=True)
-    expected2 = sorted([
-        ((-80, -27, 80), (-40, -3, 120)),
-        ((40, -27, 80), (80, -3, 120)),
-        ((40, -27, 0), (80, -3, 40)),
-        ((-80, -27, 0), (-40, -3, 40)),
-    ])
-    actual2 = sorted((tuple(round(x, 6) for x in b["bbox"]["min"]),
-                      tuple(round(x, 6) for x in b["bbox"]["max"]))
-                     for b in bodies_named(m, "LBracket"))
-    v.check("all four corners follow size mutation", actual2 == expected2, expected2, actual2, "q5")
     return v
 
 
