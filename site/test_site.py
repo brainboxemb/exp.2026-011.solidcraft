@@ -118,6 +118,18 @@ def check(site: Path, sha: str, require_native: bool = False):
         ):
             assert heading in page_text, (slug, heading)
         assert case["title"] in page_text
+        setup_name = case.get("diagram", "setup.svg")
+        setup_image = site / "qualification" / slug / setup_name
+        assert setup_image.is_file() and setup_image.stat().st_size > 0, slug
+        assert 'class="qualification-setup-diagram"' in page_text, slug
+        assert f'href="{setup_name}"' in page_text, slug
+        assert 'target="_blank"' in page_text, slug
+
+        setup_pos = page_text.index("<h2>1. Test setup</h2>")
+        implementation_pos = page_text.index("<h2>2. Implementation under test</h2>")
+        command_pos = page_text.index("<h2>3. Generated SolidCraft relationship</h2>")
+        assert setup_pos < implementation_pos < command_pos, slug
+
         for placeholder in (
             "$title",
             "$status",
@@ -170,6 +182,10 @@ def check(site: Path, sha: str, require_native: bool = False):
             assert "<h2>2. Implementation under test</h2>" in page_text, slug
             assert "<h2>4. Machine verification</h2>" in page_text, slug
             assert "<h2>5. Visual verification</h2>" in page_text, slug
+            machine_pos = page_text.index("<h2>4. Machine verification</h2>")
+            visual_pos = page_text.index("<h2>5. Visual verification</h2>")
+            evidence_pos = page_text.index("<h2>6. Evidence and references</h2>")
+            assert command_pos < machine_pos < visual_pos < evidence_pos, slug
             assert 'class="panel qualification-visual-check"' in page_text, slug
             assert 'class="qualification-image-link"' in page_text, slug
             assert 'href="model-iso.png"' in page_text, slug
@@ -187,9 +203,7 @@ def check(site: Path, sha: str, require_native: bool = False):
                 assert structured_result["levels"]["q4"]["status"] == "fail", slug
 
             if slug == "four-corner-l":
-                diagram = site / "qualification" / slug / "four-corner-l.svg"
-                assert diagram.is_file() and diagram.stat().st_size > 0
-                assert 'href="four-corner-l.svg"' in page_text
+                diagram = setup_image
                 assert 'FRONT_TOP_LEFT' in diagram.read_text(encoding="utf-8")
                 assert 'child "mount"' in diagram.read_text(encoding="utf-8")
                 mutation_image = site / "qualification" / slug / "model-size-160x120.png"
