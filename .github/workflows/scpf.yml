@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor rigid-anchor-lab; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -86,6 +86,21 @@ jobs:
               --out "output/native/$model/model.png" --no-grid --no-axes
             test -s "output/native/$model/model.png"
           done
+          # Rigid anchor lab: inspect the native joint before adding any
+          # parametric datum logic. The child mount frame is already on the
+          # bracket's physical broad face, so this baseline must remain rigid
+          # with zero normal offset and zero remaining DOF.
+          cat > output/native/rigid-anchor-lab/inspect-joint.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/rigid-anchor-lab/inspect-joint.json \
+            --in output/native/rigid-anchor-lab/model.sc \
+            --param-check strict \
+            --json-out output/native/rigid-anchor-lab/joint-inspect.json
+          cat output/native/rigid-anchor-lab/joint-inspect.json
+
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
           jq -e '
