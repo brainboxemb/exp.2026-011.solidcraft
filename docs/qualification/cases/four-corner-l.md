@@ -2,17 +2,18 @@
 
 ## Use scenario
 
-Before testing a changing frame size, we need to prove the simpler statement:
-one directional L-shaped child can be placed at all four corners of a fixed
-rectangular parent and each corner gives the child the correct in-plane
-orientation.
+The case is deliberately verified in two phases. First, one directional
+L-shaped child must be correct at all four corners of the baseline parent.
+Only after that baseline is proven do we edit the saved native parent width
+and height and verify that the same four topology-backed relationships follow.
 
-This isolates corner-frame semantics from parameter mutation, gap/normal
-offsets and the larger HUB75 assembly.
+This isolates corner-frame semantics from gap/normal offsets and the larger
+HUB75 assembly while still proving saved-design associativity.
 
 ## Geometry
 
-The parent is a fixed 120 × 30 × 80 mm block.
+The parent starts as a 120 × 30 × 80 mm block. Width and height are public
+editable component parameters; depth remains a fixed constant.
 
 The child uses the same deliberately simple L-profile as the minimal L
 qualification baseline:
@@ -103,14 +104,28 @@ The generated command JSON must contain:
 SolidCraft must build five bodies with no timeline errors. Native measurements
 must match the parent and four expected bracket bounding boxes above.
 
-## Q5 — intentionally not yet
+## Q5 — saved-design parent scaling
 
-No dimensions change in this case. Only after these four fixed placements are
-correct do we add a second qualification step that edits parent width/height in
-the saved SolidCraft design and verifies that all four brackets follow.
+After the baseline passes, the native saved design is edited without rerunning
+the Python model:
 
-This separation tells us whether a failure comes from initial corner
-orientation or from later associativity.
+```text
+FrameBlock_width:  120 -> 160 mm
+FrameBlock_height:  80 -> 120 mm
+```
+
+Expected parent bounds become X=-80..80 and Z=0..120. The four L bounds become:
+
+```text
+top-left:     X -80 .. -40   Z 80 .. 120
+top-right:    X  40 ..  80   Z 80 .. 120
+bottom-right: X  40 ..  80   Z  0 ..  40
+bottom-left:  X -80 .. -40   Z  0 ..  40
+```
+
+A second `joint.inspect` must show the origins moved to those new corners
+while the same four parent-X directions and mating normals remain intact.
+This proves the native topology relationship, not a Python-side recalculation.
 
 ## Q6 — visual evidence
 
