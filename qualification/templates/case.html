@@ -8,50 +8,47 @@
 </section>
 
 <section class="panel qualification-test-purpose">
-  <h2>Test goal</h2>
+  <h2>1. Test setup</h2>
+  $setup_diagram
+  <h3>Test goal</h3>
   <p>$intent</p>
   <h3>Pass criteria</h3>
   <p>$native_expectation</p>
   $mutation_criterion
 </section>
 
-$gallery
-
-<div class="twocol">
-  <section class="panel">
-    <h2>1. Forge contract</h2>
-    <h3>Public API</h3>
-    <p><code>$forge_api</code></p>
-    <h3>Internal Forge model</h3>
-    <p>$forge_model</p>
-    <h3>SolidCraft lowering</h3>
-    <p>$lowering</p>
-  </section>
-
-  <section class="panel">
-    <h2>2. Native verification</h2>
-    <h3>Parametric mutation</h3>
-    <p>$mutation</p>
-    <h3>Evidence</h3>
-    <ul>$evidence_items</ul>
-  </section>
-</div>
-
-$results
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>$source</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>$forge_api</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>$forge_model</p>
+</section>
 
 <section class="panel">
-  <h2>4. Generated native relationship/command path</h2>
+  <h2>3. Generated SolidCraft relationship / command path</h2>
+  <p>$lowering</p>
   <pre><code>$lowering_detail</code></pre>
 </section>
 
-<section class="panel">
-  <h2>5. Reference models</h2>
-  <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-  <ul>$reference_items</ul>
-</section>
+$results
+
+$gallery
 
 <section class="panel">
-  <h2>6. Fixture source</h2>
-  <pre><code>$source</code></pre>
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <ul>$evidence_items</ul>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul>$reference_items</ul>
+    </div>
+  </div>
 </section>
 </main>
