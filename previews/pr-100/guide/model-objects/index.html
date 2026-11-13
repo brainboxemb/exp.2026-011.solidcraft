@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Model objects and parameters · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../anchors-attachments/">Anchors and attachments</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Model objects and parameters</p><h1>Model objects and parameters</h1><p class="guide-lead">What a class, Shape, component and occurrence mean.</p>
+<h2 id="class">A model is a normal Python class</h2>
+<p>Numeric class attributes become editable SolidCraft parameters when SCPF
+compiles a plain model class. <code>build()</code> returns geometry. If a file
+contains exactly one public class with <code>build()</code>, that class is the
+root automatically; no trailing constructor call or launcher file is needed.</p>
+<pre><code>from scpf import Box
+
+class Plate:
+    length = 100.0
+    width = 60.0
+    thickness = 10.0
+
+    def build(self):
+        return Box(self.length, self.width, self.thickness)</code></pre>
+<p>Run that source file directly with
+<code>python -m scpf plate.py --connect</code>. The same rule lets a reusable
+component file serve as its standalone model while assemblies import the exact
+same class. If a file contains several public model classes, SCPF deliberately
+does not guess: finish the script with an explicit call such as
+<code>Assembly()</code> to choose the root.</p>
+<p>An explicit final call is also how you override root parameters for a
+particular run, for example <code>Plate(width=80)</code>. Arithmetic such as
+<code>self.length / 2</code> is preserved symbolically for supported
+expressions; general Python computations are not automatically made
+parametric.</p>
+<h2 id="parameter-intent">Parameter intent is visible in the name</h2>
+<p>SCPF distinguishes three kinds of numeric class attributes. This keeps a
+Python build setting from looking like a native editable CAD parameter.</p>
+<pre><code>class Display:
+    PANEL_COUNT = 5          # fixed constant
+    _panel_pitch = 160.0     # Forge/build-time input
+    opening_width = 844.0    # native model parameter</code></pre>
+<table><thead><tr><th>Name</th><th>Meaning</th><th>SolidCraft parameter</th></tr></thead><tbody>
+<tr><td><code>UPPER_CASE</code></td><td>Fixed constant</td><td>No</td></tr>
+<tr><td><code>_lower_case</code></td><td>Forge/build-time input</td><td>No</td></tr>
+<tr><td><code>lower_case</code></td><td>Editable model parameter</td><td>Yes</td></tr>
+</tbody></table>
+<p>If a public lower-case parameter is consumed only as a concrete Python
+value—for example through <code>pv()</code>—Forge emits a
+<code>ModelParameterWarning</code>. The same warning is emitted when a
+parameter remains native in some geometry but is also flattened into a
+concrete component <code>move()</code> or rotation. Such a parameter is only
+partly associative: editing it in SolidCraft would update only part of the
+model. Either preserve the symbolic placement or rename an intentionally
+build-time input with a leading underscore.</p>
+<h2 id="shared-parameters">Share one model parameter across child components</h2>
+<p>Passing a parent parameter into several component inputs keeps one native
+SolidCraft parameter instead of creating component-specific duplicates.</p>
+<pre><code>bottom = BottomBoard(corner_radius=self.corner_radius)
+roof = RoofBoard(corner_radius=self.corner_radius)
+bracket = Bracket(
+    bracket_width=self.bracket_width,
+    inside_corner_radius=self.corner_radius,
+)</code></pre>
+<p>Here the wooden fillets and bracket inside fillet all depend on the same
+<code>corner_radius</code>. A reusable component default can also be published
+under an explicit shared name:</p>
+<pre><code>Bracket = component(
+    CornerBracket,
+    include={&quot;inside_corner_radius&quot;: &quot;corner_radius&quot;},
+)</code></pre>
+<p>Use a tuple such as <code>include=("outer_corner_chamfer",)</code> when the
+component should expose its own namespaced editable parameter instead.</p>
+<h2 id="shape">Shape versus component occurrence</h2>
+<p><strong>Shape</strong> describes geometry or a feature expression
+(<code>Box</code>, <code>Hole</code>, an extrusion). A <strong>component
+occurrence</strong> is one placed instance of a shared, editable model definition.
+Do not confuse a new occurrence with a new feature history.</p>
+<pre><code>from scpf import Box, component
+
+class Block:
+    def build(self):
+        return Box(40, 20, 10)
+
+BlockComponent = component(Block)
+first = BlockComponent()
+second = first.copy().move(x=50)
+assembly = first + second</code></pre>
+<p>The two occurrences share the same <code>Block</code> definition.
+<code>copy()</code> does not duplicate its features. The compiler creates
+all native occurrences in place first, then sends their individual
+placement commands to SolidCraft. This keeps rotations and offsets
+independent.</p>
+<h2 id="groups">Groups are actual native parent components</h2>
+<pre><code>blocks = (first + second).group(&quot;Blocks&quot;)</code></pre>
+<p>Grouping changes the browser hierarchy, not the geometry's orientation.
+At present one shared definition cannot be split among different groups.</p>
+<h2 id="limits">Important boundaries</h2>
+<p>Associative attachment is supported for a limited set of rectangular
+component faces. General mates, arbitrary face queries and rotational
+constraints are not implemented as a complete assembly solver.</p></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
