@@ -37,16 +37,22 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
+          mkdir -p "$GITHUB_WORKSPACE/output/qualification"
           cd "$RUNNER_TEMP"
-          python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v
+          python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v 2>&1 \
+            | tee "$GITHUB_WORKSPACE/output/qualification/q1-python-tests.txt"
       - name: Compile self-contained API fixtures
         shell: bash
         run: |
           set -euo pipefail
           unset PYTHONPATH
+          mkdir -p output/qualification
+          printf "case\tcommands\tstatus\n" > output/qualification/q2-command-contract.tsv
           for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
+            count="$(jq '.commands | length' "output/$model.json")"
+            printf "%s\t%s\tPASS\n" "$model" "$count" >> output/qualification/q2-command-contract.tsv
           done
       - name: Install official SolidCraft 0.30.1 (checksum-verified)
         shell: bash
