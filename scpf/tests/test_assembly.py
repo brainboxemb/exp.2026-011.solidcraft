@@ -935,13 +935,13 @@ class AssemblyTests(unittest.TestCase):
                     "occurrence": "Marker:1",
                     "point": [5.0, 5.0, 10.0],
                     "z": [0.0, 1.0, 0.0],
-                    "x": [0.0, 0.0, -1.0],
+                    "x": [-1.0, 0.0, 0.0],
                 },
                 {
                     "occurrence": "Marker:2",
                     "point": [-5.0, 5.0, 10.0],
                     "z": [0.0, 1.0, 0.0],
-                    "x": [1.0, 0.0, 0.0],
+                    "x": [0.0, 0.0, -1.0],
                 },
             ],
         )
@@ -1429,7 +1429,7 @@ class AssemblyTests(unittest.TestCase):
                 "occurrence": "Marker:1",
                 "point": [5.0, 5.0, 10.0],
                 "z": [0.0, 1.0, 0.0],
-                "x": [0.0, 0.0, -1.0],
+                "x": [-1.0, 0.0, 0.0],
             },
         )
         self.assertFalse(

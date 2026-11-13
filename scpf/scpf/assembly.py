@@ -444,11 +444,26 @@ def compile_assembly(value, name):
                     child_occurrence,
                 )
             else:
+                child_x = child_frame.x
+                if isinstance(attachment.parent, Anchor):
+                    try:
+                        parent_frame = _corner_anchor_frame(
+                            attachment.target,
+                            attachment.parent,
+                        )
+                    except ValueError:
+                        pass
+                    else:
+                        # A standard corner-to-corner attachment should not
+                        # invent an extra clocking rotation. Use the parent's
+                        # local corner X as the child frame's clocking axis;
+                        # the opposing Z normals still mate the two faces.
+                        child_x = parent_frame.x
                 child_origin = {
                     "occurrence": child_occurrence,
                     "point": list(child_frame.origin),
                     "z": list(child_frame.z),
-                    "x": list(child_frame.x),
+                    "x": list(child_x),
                 }
         else:
             child_origin = custom_anchor_reference(

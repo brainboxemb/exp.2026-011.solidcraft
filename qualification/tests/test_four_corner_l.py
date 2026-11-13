@@ -69,13 +69,18 @@ class FourCornerLCommandTests(unittest.TestCase):
                     "face": [0.0, 0.0, 0.0],
                 },
             )
+            expected_child_x = (
+                [-1.0, 0.0, 0.0]
+                if index == 3
+                else [1.0, 0.0, 0.0]
+            )
             self.assertEqual(
                 joint["b"],
                 {
                     "occurrence": f"CornerFoot:{index}",
                     "point": [0.0, 0.0, 0.0],
                     "z": [0.0, 0.0, 1.0],
-                    "x": [1.0, 0.0, 0.0],
+                    "x": expected_child_x,
                 },
             )
 
