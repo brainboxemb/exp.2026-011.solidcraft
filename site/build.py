@@ -461,7 +461,7 @@ def render_template(name, **values):
     return Template(text(template_path)).substitute(values)
 
 
-def build(out, sha, native_root=None):
+def build(out, sha, native_root=None, diagram_root=None):
     """Compile the public examples and attach verified native screenshots if available.
 
     A .png is accepted only when the native verification file identifies the
@@ -605,11 +605,25 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
         diagram_html = ""
         diagram_name = case.get("diagram")
+        plan_name = None
+        dxf_name = None
         if diagram_name:
-            diagram_source = ROOT / "qualification" / "diagrams" / diagram_name
+            diagram_source = (
+                diagram_root / diagram_name
+                if diagram_root is not None
+                else ROOT / "qualification" / "diagrams" / diagram_name
+            )
             if not diagram_source.is_file():
                 raise ValueError(f"Qualification diagram missing: {diagram_source}")
             shutil.copyfile(diagram_source, case_dir / diagram_name)
+            dxf_source = diagram_source.with_suffix(".dxf")
+            if dxf_source.is_file():
+                dxf_name = dxf_source.name
+                shutil.copyfile(dxf_source, case_dir / dxf_name)
+            plan_source = ROOT / "qualification" / "diagrams" / f"{slug}.cadcraft.json"
+            if plan_source.is_file():
+                plan_name = plan_source.name
+                shutil.copyfile(plan_source, case_dir / plan_name)
         else:
             diagram_name = "setup.svg"
             setup_svg = expected_setup_schematic(slug)
@@ -619,14 +633,28 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 diagram_name = None
 
         if diagram_name:
+            if plan_name:
+                source_links = (
+                    f' <a href="{escape(plan_name)}">CadCraft source</a>'
+                    + (f' · <a href="{escape(dxf_name)}">DXF</a>' if dxf_name else "")
+                )
+                caption = (
+                    "Expected setup — technical drawing generated from the committed "
+                    "CadCraft command source; not verification output."
+                    + source_links
+                )
+            else:
+                caption = (
+                    "Expected setup — conceptual diagram, not verification output. "
+                    "Click for the full-size image."
+                )
             diagram_html = (
                 '<figure class="qualification-setup-diagram">'
                 f'<a href="{escape(diagram_name)}" class="qualification-image-link" '
                 'target="_blank" rel="noopener" title="Open full-size setup diagram">'
                 f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} expected setup diagram">'
                 '</a>'
-                '<figcaption>Expected setup — conceptual diagram, not verification output. '
-                'Click for the full-size image.</figcaption>'
+                f'<figcaption>{caption}</figcaption>'
                 '</figure>'
             )
         (case_dir / "commands.json").write_text(
@@ -1030,6 +1058,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, default=ROOT / "output" / "site")
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--native", type=Path, help="Source-matched native screenshot directory")
+    parser.add_argument("--diagram-root", type=Path, help="Generated qualification setup diagrams")
     options = parser.parse_args()
-    build(options.out, options.source_sha, native_root=options.native)
+    build(options.out, options.source_sha, native_root=options.native, diagram_root=options.diagram_root)
     print(f"Built independent SCPF library site: {options.out}")

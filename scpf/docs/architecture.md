@@ -154,6 +154,13 @@ Reusable components use the same implicit parameter intent as root models.
 Public lower-case numeric defaults become editable component-local parameters.
 Forge namespaces those local names when component definitions share a design.
 
+A reusable component should also stay neutral about **assembly-specific mounting
+datums**. Define an `AnchorFrame` in the assembly when the datum only exists
+because of how that component is used there. Put an anchor on the component
+itself only when that datum is an intrinsic, reusable feature of the physical
+part. A generic bracket should therefore not acquire a `mount` anchor merely
+because one qualification assembly needs to attach it by a particular corner.
+
 A parent model can couple a child input directly to one of its parameters:
 
 ```python

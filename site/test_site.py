@@ -205,9 +205,17 @@ def check(site: Path, sha: str, require_native: bool = False):
                 assert structured_result["levels"]["q4"]["status"] == "fail", slug
 
             if slug == "four-corner-l":
-                diagram = setup_image
-                assert 'FRONT_TOP_LEFT' in diagram.read_text(encoding="utf-8")
-                assert 'child "mount"' in diagram.read_text(encoding="utf-8")
+                cadcraft_source = (
+                    site / "qualification" / slug / "four-corner-l.cadcraft.json"
+                )
+                assert cadcraft_source.is_file()
+                plan = json.loads(cadcraft_source.read_text(encoding="utf-8"))
+                plan_text = json.dumps(plan)
+                assert "BOTTOM offset" in plan_text
+                assert "CornerFoot contains geometry only" in plan_text
+                assert (site / "qualification" / slug / "four-corner-l.dxf").is_file()
+                assert "CadCraft source" in page_text
+                assert ">DXF</a>" in page_text
                 mutation_image = site / "qualification" / slug / "model-size-160x120.png"
                 assert mutation_image.is_file() and mutation_image.stat().st_size > 0
                 assert "model-size-160x120.png" in native_images
