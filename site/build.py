@@ -256,7 +256,7 @@ def _render_visual_evidence(case, native_images):
     )
     return (
         '<section class="panel qualification-visual-check">'
-        '<h2>Visual check</h2>'
+        '<h2>5. Visual verification</h2>'
         '<p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. '
         'Overlay shows both together. Click any image for the full-size PNG.</p>'
         + iso + extra +
@@ -313,7 +313,7 @@ def _render_native_results(native_case, solidcraft_version):
     measurement_files = sorted(native_case.glob("measurements*.json"))
     if not measurement_files:
         return (
-            '<section class="panel"><h2>3. Results</h2>'
+            '<section class="panel"><h2>4. Machine verification</h2>'
             '<p>No measurement JSON was produced.</p></section>',
             None,
             None,
