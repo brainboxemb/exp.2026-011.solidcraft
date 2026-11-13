@@ -270,6 +270,26 @@ their parsing/helper functions so reviewers encounter the contract first.
 The native workflow reruns the same suite with `SCPF_NATIVE_ROOT` and the
 pinned SolidCraft version set.
 
+Qualification publishing is deliberately **data + template driven**:
+
+1. Python tests and native SolidCraft commands produce raw evidence.
+2. `qualification/results.py` normalizes that evidence into one
+   `qualification-result.json` per case plus an aggregate
+   `output/qualification/results.json`.
+3. `qualification/templates/report.md` is the source document for the CI
+   Markdown report; `qualification/report.py` only fills its placeholders.
+4. Pages uses the external templates in `qualification/templates/`
+   (`case.html`, `index.html`, `results.html`, `capabilities.html` and
+   `coverage.html`). `site/build.py` supplies escaped values and repeated
+   rows/cards but does not contain complete qualification page documents.
+5. Native PNG evidence is copied from the case directory. `model.png` is the
+   baseline image; additional PNG files are published as extra views or
+   mutation evidence in stable order.
+
+Case definitions live in `qualification/cases.py`. The site consumes those
+definitions; the qualification pipeline must never depend on site-owned
+metadata.
+
 Source-matched native results are published on the library Pages site at
 `qualification/results/`; each case page also renders parameters and body
 bounding boxes from the retained measurement JSON alongside raw evidence
