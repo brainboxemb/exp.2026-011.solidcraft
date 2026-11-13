@@ -411,11 +411,19 @@ jobs:
           printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
 
+          python qualification/native_validation.py \
+            --native-root output/native \
+            --qualification-dir output/qualification
+
+          python qualification/visual_validation.py \
+            --native-root output/native \
+            --qualification-dir output/qualification
+
           jq -n --arg source "$GITHUB_SHA" --arg version "$SOLIDCRAFT_VERSION" \
             '{source_commit:$source,solidcraft_version:$version,verified:true,
               levels:{q1:"python-api",q2:"command-contract",q3:"native-build",
-                      q4:"native-measurement",q5:"parametric-mutation",
-                      q6:"native-snapshot"}}' \
+                      q4:"native-semantic-validation",q5:"parametric-mutation",
+                      q6:"visual-regression"}}' \
             > output/native/verification.json
       - name: Collect structured qualification results
         shell: bash
