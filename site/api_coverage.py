@@ -7,8 +7,8 @@ the highest dedicated coverage currently available.
 
 EXPORT_COVERAGE = {
     "Box": ("Q6", "Q6", ["simple-box"], "Native primitive and parameter baseline."),
-    "Cylinder": ("Q6", "Q2", ["primitive-csg"], "Dedicated command-contract case covers creation/orientation; native qualification pending."),
-    "Sphere": ("Q6", "Q2", ["primitive-csg"], "Dedicated command-contract case covers primitive CSG; native qualification pending."),
+    "Cylinder": ("Q6", "Q6", ["primitive-csg"], "Primitive creation/orientation is native-qualified in SolidCraft 0.30.1."),
+    "Sphere": ("Q6", "Q6", ["primitive-csg"], "Primitive CSG creation is native-qualified in SolidCraft 0.30.1."),
     "Hole": ("Q6", "Q6", ["anchored-holes"], "Through-hole feature is native-qualified; directional/countersink variants need separate capability rows."),
     "Lip": ("Q6", "GAP", [], "Plastic feature needs a dedicated native fixture."),
     "SnapFit": ("Q6", "GAP", [], "Plastic feature needs a dedicated native fixture."),
@@ -45,10 +45,10 @@ EXPORT_COVERAGE = {
 
 
 CAPABILITY_COVERAGE = [
-    ("Primitive CSG", "Sphere + Cylinder creation", "Q6", "Q2", ["primitive-csg"], "Command contract added; native qualification pending."),
-    ("Primitive CSG", "union / difference / intersection", "Q6", "Q2", ["primitive-csg"], "One case now exercises all three operators; native qualification pending."),
-    ("Shape transforms", "Shape.move(x,y,z)", "Q6", "Q2", ["primitive-csg"], "Translated primitive is covered at command-contract level; native qualification pending."),
-    ("Shape transforms", "Cylinder.orient(X/Y/Z)", "Q6", "Q2", ["primitive-csg"], "Three-axis orientation has an explicit command contract; native qualification pending."),
+    ("Primitive CSG", "Sphere + Cylinder creation", "Q6", "Q6", ["primitive-csg"], "Native SolidCraft build/evaluation and snapshot passed."),
+    ("Primitive CSG", "union / difference / intersection", "Q6", "Q6", ["primitive-csg"], "All three Boolean operators passed native SolidCraft qualification."),
+    ("Shape transforms", "Shape.move(x,y,z)", "Q6", "Q6", ["primitive-csg"], "Translated primitive passed native SolidCraft qualification."),
+    ("Shape transforms", "Cylinder.orient(X/Y/Z)", "Q6", "Q6", ["primitive-csg"], "Three-axis Cylinder orientation passed native SolidCraft qualification."),
     ("Profiles", "Circle2D.extrude()", "Q6", "GAP", [], "Add native circle profile extrusion."),
     ("Profiles", "Extrude Direction.NEGATIVE", "Q6", "GAP", [], "Positive/symmetric exist; add negative measurement."),
     ("Features", "fillet()", "Q6", "GAP", [], "Add named and explicit edge selection cases."),
