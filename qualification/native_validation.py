@@ -12,6 +12,12 @@ import argparse
 import json
 from pathlib import Path
 from typing import Any
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from qualification.expectations import EXPECTED_BOUNDS, EXPECTED_MUTATION_BOUNDS
 
 
 TOL = 1e-3
@@ -40,6 +46,57 @@ def bbox_close(body: dict, expected_min, expected_max, tol: float = TOL) -> bool
 
 def widths(data: dict) -> list[float]:
     return sorted(round(body["bbox"]["max"][0] - body["bbox"]["min"][0], 6) for body in data["bodies"])
+
+
+def _bounds_match(data: dict, expected: list[dict], tol: float = TOL) -> bool:
+    actual = [
+        (body["bbox"]["min"], body["bbox"]["max"])
+        for body in data.get("bodies", [])
+        if body.get("bbox")
+    ]
+    if len(actual) != len(expected):
+        return False
+
+    unmatched = list(actual)
+    for target in expected:
+        hit = next(
+            (
+                index for index, (lo, hi) in enumerate(unmatched)
+                if vector_close(lo, target["min"], tol)
+                and vector_close(hi, target["max"], tol)
+            ),
+            None,
+        )
+        if hit is None:
+            return False
+        unmatched.pop(hit)
+    return not unmatched
+
+
+def _check_declared_bounds(
+    validation,
+    data: dict,
+    case: str,
+    *,
+    level: str = "q4",
+    mutation: bool = False,
+    tol: float = TOL,
+):
+    source = EXPECTED_MUTATION_BOUNDS if mutation else EXPECTED_BOUNDS
+    expected = source.get(case)
+    if expected is None:
+        return
+    validation.check(
+        "declared target geometry" if not mutation else "declared mutation target geometry",
+        _bounds_match(data, expected, tol),
+        expected,
+        [
+            {"min": body["bbox"]["min"], "max": body["bbox"]["max"]}
+            for body in data.get("bodies", [])
+            if body.get("bbox")
+        ],
+        level,
+    )
 
 
 def params(data: dict) -> dict[str, float]:
@@ -89,6 +146,7 @@ class Validation:
 def validate_simple_box(root: Path) -> Validation:
     v = Validation("simple-box")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "simple-box")
     v.check("one body", d["body_count"] == 1, 1, d["body_count"])
     b = d["bodies"][0]
     v.check("40x30x10 bounds", bbox_close(b, [-20, -15, 0], [20, 15, 10]),
@@ -101,6 +159,7 @@ def validate_simple_box(root: Path) -> Validation:
 def validate_anchored_holes(root: Path) -> Validation:
     v = Validation("anchored-holes")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "anchored-holes")
     v.check("one plate body", d["body_count"] == 1, 1, d["body_count"])
     b = d["bodies"][0]
     v.check("plate outer bounds", bbox_close(b, [0, 0, 0], [100, 60, 10]),
@@ -116,6 +175,7 @@ def validate_anchored_holes(root: Path) -> Validation:
 def validate_parameter_scope(root: Path) -> Validation:
     v = Validation("parameter-scope")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "parameter-scope")
     v.check("baseline widths", widths(d) == [40.0, 40.0, 60.0, 80.0, 80.0],
             [40, 40, 60, 80, 80], widths(d))
     v.check("baseline parameters", params(d) == {
@@ -123,6 +183,7 @@ def validate_parameter_scope(root: Path) -> Validation:
     }, {"Panel_width": 40.0, "Panel_2_width": 60.0, "shared_width": 80.0}, params(d))
 
     m = load(root / "measurements-shared-width-100.json")
+    _check_declared_bounds(v, m, "parameter-scope", level="q5", mutation=True)
     v.check("mutated shared width", params(m).get("shared_width") == 100.0, 100.0,
             params(m).get("shared_width"), "q5")
     v.check("dependent widths rebuild", widths(m) == [40.0, 50.0, 60.0, 100.0, 100.0],
@@ -133,6 +194,7 @@ def validate_parameter_scope(root: Path) -> Validation:
 def validate_components(root: Path) -> Validation:
     v = Validation("components")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "components")
     rows = bodies_named(d, "Block")
     v.check("two block occurrences", len(rows) == 2, 2, len(rows))
     actual = sorted((body["bbox"]["min"], body["bbox"]["max"]) for body in rows)
@@ -147,6 +209,7 @@ def validate_components(root: Path) -> Validation:
 def validate_parametric_attach(root: Path) -> Validation:
     v = Validation("parametric-attach")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "parametric-attach")
     base = one_body(d, "Base")
     block = one_body(d, "Block")
     v.check("base bounds", bbox_close(base, [-20, -15, 0], [20, 15, 10]))
@@ -154,6 +217,7 @@ def validate_parametric_attach(root: Path) -> Validation:
             {"min": [30, -10, 0], "max": [50, 10, 10]}, block["bbox"])
 
     m = load(root / "measurements-gap-30.json")
+    _check_declared_bounds(v, m, "parametric-attach", level="q5", mutation=True)
     block2 = one_body(m, "Block")
     v.check("30 mm gap mutation", bbox_close(block2, [50, -10, 0], [70, 10, 10]),
             {"min": [50, -10, 0], "max": [70, 10, 10]}, block2["bbox"], "q5")
@@ -163,6 +227,7 @@ def validate_parametric_attach(root: Path) -> Validation:
 def validate_parametric_offset(root: Path) -> Validation:
     v = Validation("parametric-offset")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "parametric-offset")
     marker = one_body(d, "Marker")
     # FRONT_TOP_RIGHT of the parent meets BACK_TOP_RIGHT of the child.
     # The child top therefore ends at parent z=20. The planar v=-5 offset
@@ -172,6 +237,7 @@ def validate_parametric_offset(root: Path) -> Validation:
             {"min": [10, -25, 15], "max": [20, -15, 25]}, marker["bbox"])
 
     m = load(root / "measurements-shift-10.json")
+    _check_declared_bounds(v, m, "parametric-offset", level="q5", mutation=True)
     marker2 = one_body(m, "Marker")
     v.check("10 mm local offset mutation",
             bbox_close(marker2, [10, -25, 20], [20, -15, 30]),
@@ -182,9 +248,11 @@ def validate_parametric_offset(root: Path) -> Validation:
 def validate_parametric_anchor(root: Path) -> Validation:
     v = Validation("parametric-anchor")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "parametric-anchor")
     v.check("RIGHT-to-LEFT baseline",
             bbox_close(one_body(d, "Block"), [20, -10, 0], [40, 10, 10]))
     m = load(root / "measurements-width-80.json")
+    _check_declared_bounds(v, m, "parametric-anchor", level="q5", mutation=True)
     v.check("RIGHT anchor follows width mutation",
             bbox_close(one_body(m, "Block"), [40, -10, 0], [60, 10, 10]),
             {"min": [40, -10, 0], "max": [60, 10, 10]},
@@ -195,6 +263,7 @@ def validate_parametric_anchor(root: Path) -> Validation:
 def validate_corner_anchor(root: Path) -> Validation:
     v = Validation("corner-anchor")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "corner-anchor")
     marker = one_body(d, "Marker")
     # BACK_TOP_RIGHT is the child's top/back/right corner. Aligning it with
     # parent FRONT_TOP_RIGHT means the child's top ends at z=20.
@@ -203,6 +272,8 @@ def validate_corner_anchor(root: Path) -> Validation:
             {"min": [10, -25, 10], "max": [20, -15, 20]}, marker["bbox"])
 
     m = load(root / "measurements-size-80x40.json")
+    _check_declared_bounds(v, m, "xz-anchor", level="q5", mutation=True)
+    _check_declared_bounds(v, m, "corner-anchor", level="q5", mutation=True)
     marker2 = one_body(m, "Marker")
     v.check("corner follows 80x40 mutation",
             bbox_close(marker2, [30, -25, 30], [40, -15, 40]),
@@ -213,6 +284,7 @@ def validate_corner_anchor(root: Path) -> Validation:
 def validate_four_corner_l(root: Path) -> Validation:
     v = Validation("four-corner-l")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "four-corner-l")
     frame = one_body(d, "FrameBlock")
     v.check("frame bounds", bbox_close(frame, [-60, -15, 0], [60, 15, 80]))
     expected = sorted([
@@ -227,6 +299,7 @@ def validate_four_corner_l(root: Path) -> Validation:
     v.check("four inward corner quadrants", actual == expected, expected, actual)
 
     m = load(root / "measurements-size-160x120.json")
+    _check_declared_bounds(v, m, "four-corner-l", level="q5", mutation=True)
     expected2 = sorted([
         ((-80, -27, 80), (-40, -3, 120)),
         ((40, -27, 80), (80, -3, 120)),
@@ -243,6 +316,7 @@ def validate_four_corner_l(root: Path) -> Validation:
 def validate_custom_anchor(root: Path) -> Validation:
     v = Validation("custom-anchor")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "custom-anchor")
     arm = one_body(d, "Arm")
     marker = one_body(d, "Marker")
     v.check("rotated arm bounds", bbox_close(arm, [-5, -20, 0], [5, 20, 10]))
@@ -261,6 +335,7 @@ def _xz_expected(width: float, height: float):
 def validate_xz_anchor(root: Path) -> Validation:
     v = Validation("xz-anchor")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "xz-anchor")
     markers = bodies_named(d, "Marker")
     expected = _xz_expected(40, 20)
     actual_boxes = [(b["bbox"]["min"], b["bbox"]["max"]) for b in markers]
@@ -284,6 +359,7 @@ def validate_xz_anchor(root: Path) -> Validation:
 def validate_primitive_csg(root: Path) -> Validation:
     v = Validation("primitive-csg")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "primitive-csg", tol=0.01)
     v.check("single resulting CSG body", d["body_count"] == 1, 1, d["body_count"])
     b = d["bodies"][0]
     faces = b.get("face_types", {})
@@ -297,6 +373,7 @@ def validate_primitive_csg(root: Path) -> Validation:
 def validate_bracket(root: Path) -> Validation:
     v = Validation("bracket")
     d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "bracket")
     b = d["bodies"][0]
     v.check("single L body", d["body_count"] == 1, 1, d["body_count"])
     v.check("L-profile bounds", bbox_close(b, [0, -12, -40], [40, 12, 0]),
