@@ -42,12 +42,11 @@ class Anchor(str, Enum):
 
 @dataclass(frozen=True)
 class AnchorFrame:
-    """One named local attachment frame owned by a reusable component.
+    """One local attachment frame for a reusable component occurrence.
 
-    origin is a point in component-local millimetres. z and x are local
-    direction vectors that define the attachment orientation. SolidCraft
-    stores the frame on the occurrence, so it follows occurrence translation
-    and rotation without Forge composing transforms.
+    A frame may be returned from a component's anchors() mapping or supplied
+    directly to attach() by an assembly. origin is a point in component-local
+    millimetres; z and x define the attachment orientation.
     """
 
     origin: tuple[float, float, float] = (0.0, 0.0, 0.0)
