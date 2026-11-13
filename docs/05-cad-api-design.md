@@ -84,15 +84,15 @@ there is no separate component parameter publication or alias API.
   edits can move the referenced corner and the attached component together.
 - `AnchorFrame` uses a local origin plus a local Z and X direction, matching the
   usual CAD joint-origin idea. For the six principal directions, use
-  `AxisDirection.RIGHT`, `LEFT`, `BACK`, `FRONT`, `UP` or `DOWN` instead
+  `RIGHT`, `LEFT`, `BACK`, `FRONT`, `UP` or `DOWN` instead
   of writing the XYZ vector by hand. Arbitrary XYZ vectors remain valid for
   non-axis-aligned frames. For example:
 
   ```python
   AnchorFrame(
       origin=(10, 25, 0),
-      z=AxisDirection.RIGHT,
-      x=AxisDirection.UP,
+      z=RIGHT,
+      x=UP,
   )
   ```
 
