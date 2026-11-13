@@ -38,7 +38,7 @@ def _suite_passed(path: Path) -> bool:
     if not path.is_file():
         return False
     text = path.read_text(encoding="utf-8", errors="replace")
-    return "\nOK\n" in f"\n{text}\n" or text.rstrip().endswith("OK")
+    return any(line.strip().startswith("OK") for line in text.splitlines())
 
 
 def _existing_names(case_dir: Path, patterns: tuple[str, ...]) -> list[str]:
