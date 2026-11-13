@@ -137,6 +137,82 @@ def escape(value):
     return html.escape(str(value), quote=True)
 
 
+def _format_vector(values):
+    return "[" + ", ".join(f"{float(value):g}" for value in values) + "]"
+
+
+def _render_native_results(native_case, solidcraft_version):
+    measurement_files = sorted(native_case.glob("measurements*.json"))
+    if not measurement_files:
+        return (
+            '<section class="panel"><h2>3. Results</h2>'
+            '<p>No measurement JSON was produced.</p></section>',
+            None,
+            None,
+        )
+
+    sections = []
+    baseline_body_count = None
+    baseline_parameter_count = None
+
+    for measurement in measurement_files:
+        data = json.loads(measurement.read_text(encoding="utf-8"))
+        label = (
+            "Baseline"
+            if measurement.name == "measurements.json"
+            else measurement.stem.replace("measurements-", "").replace("-", " ")
+        )
+
+        bodies = data.get("bodies", [])
+        params = data.get("params", [])
+        if measurement.name == "measurements.json":
+            baseline_body_count = data.get("body_count", len(bodies))
+            baseline_parameter_count = len(params)
+
+        parameter_rows = "".join(
+            f"<tr><td><code>{escape(row.get('name'))}</code></td>"
+            f"<td>{escape(row.get('value'))}</td></tr>"
+            for row in params
+        )
+        parameter_table = (
+            '<h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th>'
+            f'</tr></thead><tbody>{parameter_rows}</tbody></table>'
+            if parameter_rows else "<p>No editable parameters in this result.</p>"
+        )
+
+        body_rows = "".join(
+            f"<tr><td>{escape(body.get('name'))}</td>"
+            f"<td><code>{escape(_format_vector(body['bbox']['min']))}</code></td>"
+            f"<td><code>{escape(_format_vector(body['bbox']['max']))}</code></td></tr>"
+            for body in bodies
+            if body.get("bbox")
+        )
+        body_table = (
+            '<h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th>'
+            f'<th>BBox max</th></tr></thead><tbody>{body_rows}</tbody></table>'
+            if body_rows else "<p>No body measurements in this result.</p>"
+        )
+
+        sections.append(
+            f'<details{" open" if measurement.name == "measurements.json" else ""}>'
+            f'<summary><strong>{escape(label)}</strong> · '
+            f'{escape(data.get("body_count", len(bodies)))} bodies · '
+            f'<a href="{escape(measurement.name)}">{escape(measurement.name)}</a>'
+            f'</summary>{parameter_table}{body_table}</details>'
+        )
+
+    return (
+        '<section class="panel"><h2>3. Results</h2>'
+        f'<p class="meta">Native runtime: <strong>SolidCraft '
+        f'{escape(solidcraft_version)}</strong>. These values come from the '
+        'saved native design, not from Python-side estimates.</p>'
+        + "".join(sections)
+        + "</section>",
+        baseline_body_count,
+        baseline_parameter_count,
+    )
+
+
 def page(title, body, *, stylesheet, home, cheatsheet):
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -164,6 +240,7 @@ def build(out, sha, native_root=None):
     emit plainly labelled SVG schematics rather than pretending a render.
     """
     verified = False
+    metadata = {}
     if native_root is not None:
         meta_file = native_root / "verification.json"
         if not meta_file.is_file():
@@ -313,6 +390,14 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
         native_case = native_root / slug if verified else None
         native_files = []
+        body_count = None
+        parameter_count = None
+        results_html = (
+            '<section class="panel"><h2>3. Results</h2>'
+            '<div class="notice">Native result data was not supplied to this '
+            'site build. Run the native qualification for measured results.</div>'
+            '</section>'
+        )
         preview_html = (
             '<div class="notice">No source-matched native verification was supplied '
             'to this site build. The case sheet and command contract are still shown.</div>'
@@ -328,7 +413,10 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 "measurements*.json",
                 "change-*.json",
                 "parameters*.json",
+                "joint-*.json",
                 "model.json",
+                "model*.sc",
+                "model*.step",
                 "export-*.json",
             ):
                 for evidence in sorted(native_case.glob(pattern)):
@@ -339,7 +427,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 f'alt="{escape(case["title"])} native SolidCraft snapshot" loading="lazy">'
                 '<figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>'
             )
-            status = "Q1–Q6 native verified"
+            status = case.get("verified_status", "Q1–Q6 native verified")
+            results_html, body_count, parameter_count = _render_native_results(
+                native_case,
+                metadata["solidcraft_version"],
+            )
 
         reference_items = []
         for label, description in case["references"]:
@@ -379,12 +471,13 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 <h3>Parametric mutation</h3><p>{escape(case["mutation"])}</p>
 <h3>Evidence</h3><ul>{"".join(evidence_items)}</ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+{results_html}
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>{escape(lowering_detail)}</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul>{"".join(reference_items)}</ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>{escape(source)}</code></pre></section>
+<section class="panel"><h2>6. Fixture source</h2><pre><code>{escape(source)}</code></pre></section>
 </main>"""
         (case_dir / "index.html").write_text(
             page(
@@ -402,14 +495,62 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "status": status,
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
+            "solidcraft_version": (
+                metadata.get("solidcraft_version") if verified else None
+            ),
+            "body_count": body_count,
+            "parameter_count": parameter_count,
         }
         qualification_cards[case["group"]].append(
             f'<article class="reference"><p class="eyebrow">{escape(status)}</p>'
             f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
             f'<p><code>{escape(case["forge_api"])}</code></p>'
-            f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></article>'
+            + (
+                f'<p class="meta">SolidCraft {escape(metadata.get("solidcraft_version"))}'
+                f' · {escape(body_count)} bodies · {escape(parameter_count)} parameters</p>'
+                if verified and body_count is not None else ""
+            )
+            + f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></article>'
         )
+
+    results_root = qualification_root / "results"
+    results_root.mkdir(exist_ok=True)
+    result_rows = []
+    for case in QUALIFICATION_CASES:
+        row = qualification_manifest[case["slug"]]
+        result_rows.append(
+            f"<tr><td><a href=\"../{escape(case['slug'])}/\">"
+            f"{escape(case['title'])}</a></td>"
+            f"<td><strong>{escape(row['status'])}</strong></td>"
+            f"<td>{escape(row.get('solidcraft_version') or '—')}</td>"
+            f"<td>{escape(row.get('body_count') if row.get('body_count') is not None else '—')}</td>"
+            f"<td>{escape(row.get('parameter_count') if row.get('parameter_count') is not None else '—')}</td>"
+            f"<td>{escape(len(row.get('native_evidence', [])))}</td></tr>"
+        )
+    results_body = f"""<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Results</div>
+<section class="hero small"><p class="eyebrow">Published qualification evidence</p>
+<h1>Qualification results</h1>
+<p>Measured native results for the exact source commit and SolidCraft runtime.
+Open a case for body bounds, parameters, mutation measurements and raw evidence.</p>
+<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft
+{escape(metadata.get("solidcraft_version") if verified else TESTED_SOLIDCRAFT_VERSION)}</p>
+</section>
+<section class="panel"><table><thead><tr><th>Case</th><th>Status</th>
+<th>SolidCraft</th><th>Bodies</th><th>Parameters</th><th>Evidence files</th>
+</tr></thead><tbody>{"".join(result_rows)}</tbody></table></section>
+</main>"""
+    (results_root / "index.html").write_text(
+        page(
+            "Qualification results",
+            results_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
 
     level_rows = "".join(
         f"<tr><td><strong>{escape(level)}</strong></td><td>{escape(title)}</td>"
@@ -424,6 +565,7 @@ representation and native SolidCraft behaviour. A green unit test alone is not
 treated as proof that the CAD result is correct.</p>
 <p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft {TESTED_SOLIDCRAFT_VERSION}</p>
 </section>
+<p><a class="button" href="results/">Open published results →</a></p>
 <section class="panel"><h2>Qualification levels</h2>
 <table><thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
 <tbody>{level_rows}</tbody></table></section>

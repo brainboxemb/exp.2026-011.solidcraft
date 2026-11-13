@@ -27,6 +27,46 @@ Every non-trivial case uses the same order:
 The fixture is therefore evidence for the API contract, not the definition of
 the contract itself.
 
+## Test implementation
+
+Qualification tests use Python's standard `unittest` framework.
+
+The source order is deliberately optimized for review:
+
+```text
+imports
+constants
+TestCase classes
+helper/parsing functions
+if __name__ == "__main__":
+    unittest.main()
+```
+
+The testcase therefore shows the expected behaviour before the reader reaches
+the implementation helpers. Native TestCase classes are skipped when
+`SCPF_NATIVE_ROOT` is absent; the heavy SolidCraft workflow supplies that
+evidence path and reruns the same unittest suite.
+
+The workflow itself only orchestrates SolidCraft commands and evidence files.
+Functional assertions belong in `qualification/tests/`, not in shell/JQ when
+they can reasonably be expressed in Python.
+
+## Published results
+
+Native evidence is first written under `output/native/<case>/`. After a
+source-matched qualification run, `site/build.py` publishes that evidence to
+GitHub Pages.
+
+Two views are available:
+
+- `/qualification/results/` — compact overview of every case, status,
+  SolidCraft version, body count, parameter count and evidence count;
+- `/qualification/<case>/` — measured parameters, body bounding boxes,
+  mutation measurements, snapshot and direct links to the retained JSON/SC/STEP
+  evidence.
+
+The CI artifact remains the complete archive; Pages is the review surface.
+
 ## Qualification levels
 
 - Q1 — Python API contract
