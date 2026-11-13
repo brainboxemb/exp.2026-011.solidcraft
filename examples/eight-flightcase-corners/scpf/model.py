@@ -37,17 +37,17 @@ class FlightcaseCorner:
             z_arm + overlap,
         ).move(
             x=x_arm / 2,
-            y=(overlap - t) / 2,
-            z=(overlap - z_arm) / 2,
+            y=(-t / 2) + (overlap / 2),
+            z=(-z_arm / 2) + (overlap / 2),
         )
         side = Box(
             t + overlap,
             y_arm,
             z_arm + overlap,
         ).move(
-            x=(overlap - t) / 2,
+            x=(-t / 2) + (overlap / 2),
             y=y_arm / 2,
-            z=(overlap - z_arm) / 2,
+            z=(-z_arm / 2) + (overlap / 2),
         )
         return top + front + side
 
