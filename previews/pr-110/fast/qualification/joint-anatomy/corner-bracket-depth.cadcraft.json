@@ -1,6 +1,6 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "Corner brackets - front row versus rear row",
+  "title": "Front and rear bracket rows - side view",
   "commands": [
     {
       "command": "layer.new",
@@ -9,6 +9,29 @@
         "color": 8,
         "lineweight": 1,
         "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            120,
+            0
+          ],
+          [
+            0,
+            102
+          ],
+          [
+            120,
+            102
+          ]
+        ]
       }
     },
     {
@@ -22,158 +45,119 @@
           120,
           102
         ],
-        "width": 0.7
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            0,
-            12
-          ],
-          [
-            120,
-            12
-          ]
-        ]
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            0,
-            90
-          ],
-          [
-            120,
-            90
-          ]
-        ]
+        "width": 0.8
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "BRACKET_FILL",
-        "color": 5,
-        "lineweight": 0.8,
-        "current": true
-      }
-    },
-    {
-      "command": "solid",
-      "params": {
-        "points": [
-          [
-            -12,
-            54
-          ],
-          [
-            12,
-            54
-          ],
-          [
-            -12,
-            102
-          ],
-          [
-            12,
-            102
-          ]
-        ]
-      }
-    },
-    {
-      "command": "solid",
-      "params": {
-        "points": [
-          [
-            -12,
-            0
-          ],
-          [
-            12,
-            0
-          ],
-          [
-            -12,
-            48
-          ],
-          [
-            12,
-            48
-          ]
-        ]
-      }
-    },
-    {
-      "command": "solid",
-      "params": {
-        "points": [
-          [
-            108,
-            54
-          ],
-          [
-            132,
-            54
-          ],
-          [
-            108,
-            102
-          ],
-          [
-            132,
-            102
-          ]
-        ]
-      }
-    },
-    {
-      "command": "solid",
-      "params": {
-        "points": [
-          [
-            108,
-            0
-          ],
-          [
-            132,
-            0
-          ],
-          [
-            108,
-            48
-          ],
-          [
-            132,
-            48
-          ]
-        ]
-      }
-    },
-    {
-      "command": "layer.new",
-      "params": {
-        "name": "BRACKET_OUTLINE",
+        "name": "BRACKETS",
         "color": 5,
         "lineweight": 1.2,
         "current": true
       }
     },
     {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            65
+          ],
+          [
+            0,
+            65
+          ],
+          [
+            -7,
+            102
+          ],
+          [
+            0,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -7,
+            37
+          ],
+          [
+            0,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            120,
+            65
+          ],
+          [
+            127,
+            65
+          ],
+          [
+            120,
+            102
+          ],
+          [
+            127,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            120,
+            0
+          ],
+          [
+            127,
+            0
+          ],
+          [
+            120,
+            37
+          ],
+          [
+            127,
+            37
+          ]
+        ]
+      }
+    },
+    {
       "command": "rectang",
       "params": {
         "p1": [
-          -12,
-          54
+          -7,
+          65
         ],
         "p2": [
-          12,
+          0,
           102
         ],
         "width": 0.8
@@ -183,12 +167,12 @@
       "command": "rectang",
       "params": {
         "p1": [
-          -12,
+          -7,
           0
         ],
         "p2": [
-          12,
-          48
+          0,
+          37
         ],
         "width": 0.8
       }
@@ -197,11 +181,11 @@
       "command": "rectang",
       "params": {
         "p1": [
-          108,
-          54
+          120,
+          65
         ],
         "p2": [
-          132,
+          127,
           102
         ],
         "width": 0.8
@@ -211,12 +195,12 @@
       "command": "rectang",
       "params": {
         "p1": [
-          108,
+          120,
           0
         ],
         "p2": [
-          132,
-          48
+          127,
+          37
         ],
         "width": 0.8
       }
@@ -224,80 +208,7 @@
     {
       "command": "layer.new",
       "params": {
-        "name": "CALLOUT",
-        "color": 7,
-        "lineweight": 0.65,
-        "current": true
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            0,
-            78
-          ],
-          [
-            -52,
-            86
-          ]
-        ],
-        "text": "FRONT ROW"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            120,
-            78
-          ],
-          [
-            162,
-            86
-          ]
-        ],
-        "text": "REAR ROW"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            0,
-            24
-          ],
-          [
-            -52,
-            16
-          ]
-        ],
-        "text": "same front row"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            120,
-            24
-          ],
-          [
-            162,
-            16
-          ]
-        ],
-        "text": "same rear row"
-      }
-    },
-    {
-      "command": "layer.new",
-      "params": {
-        "name": "TEXT",
+        "name": "LABELS",
         "color": 7,
         "current": true
       }
@@ -306,44 +217,11 @@
       "command": "text",
       "params": {
         "at": [
-          -52,
-          132
+          -3,
+          112
         ],
-        "text": "FROM 4 BRACKETS TO 8",
-        "height": 7
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          -52,
-          120
-        ],
-        "text": "SIDE / DEPTH VIEW of one side of the open frame",
-        "height": 4
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          24,
-          46
-        ],
-        "text": "CABINET DEPTH",
-        "height": 6
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          60,
-          36
-        ],
-        "text": "one side board",
-        "height": 3.5,
+        "text": "FRONT",
+        "height": 5,
         "justify": "C"
       }
     },
@@ -351,22 +229,24 @@
       "command": "text",
       "params": {
         "at": [
-          -52,
-          -28
+          123,
+          112
         ],
-        "text": "4-bracket case: front row only - four wood connections around the front edge.",
-        "height": 4
+        "text": "REAR",
+        "height": 5,
+        "justify": "C"
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          -52,
-          -40
+          60,
+          -14
         ],
-        "text": "8-bracket case: repeat those same four connections at the rear edge.",
-        "height": 4
+        "text": "DEPTH",
+        "height": 5,
+        "justify": "C"
       }
     }
   ]

@@ -1,14 +1,37 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "SolidCraft joint.create - two joint origins",
+  "title": "SolidCraft joint origins A and B",
   "commands": [
     {
       "command": "layer.new",
       "params": {
-        "name": "PARTS",
+        "name": "PARENT",
         "color": 8,
-        "lineweight": 0.8,
+        "lineweight": 1.2,
         "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            95,
+            0
+          ],
+          [
+            0,
+            60
+          ],
+          [
+            95,
+            60
+          ]
+        ]
       }
     },
     {
@@ -19,8 +42,41 @@
           0
         ],
         "p2": [
-          90,
+          95,
           60
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "CHILD",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            185,
+            0
+          ],
+          [
+            280,
+            0
+          ],
+          [
+            185,
+            60
+          ],
+          [
+            280,
+            60
+          ]
         ]
       }
     },
@@ -28,21 +84,22 @@
       "command": "rectang",
       "params": {
         "p1": [
-          190,
+          185,
           0
         ],
         "p2": [
           280,
           60
-        ]
+        ],
+        "width": 0.8
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "FRAMES",
+        "name": "A",
         "color": 1,
-        "lineweight": 0.8,
+        "lineweight": 1.4,
         "current": true
       }
     },
@@ -50,20 +107,59 @@
       "command": "circle",
       "params": {
         "center": [
-          90,
+          95,
           30
         ],
-        "radius": 2
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            95,
+            30
+          ],
+          [
+            133,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            95,
+            30
+          ],
+          [
+            95,
+            70
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "B",
+        "color": 3,
+        "lineweight": 1.4,
+        "current": true
       }
     },
     {
       "command": "circle",
       "params": {
         "center": [
-          190,
+          185,
           30
         ],
-        "radius": 2
+        "radius": 3.5
       }
     },
     {
@@ -71,11 +167,11 @@
       "params": {
         "points": [
           [
-            90,
+            185,
             30
           ],
           [
-            130,
+            147,
             30
           ]
         ]
@@ -86,82 +182,44 @@
       "params": {
         "points": [
           [
-            90,
+            185,
             30
           ],
           [
-            90,
-            68
+            185,
+            70
           ]
         ]
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            190,
-            30
-          ],
-          [
-            150,
-            30
-          ]
-        ]
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            190,
-            30
-          ],
-          [
-            190,
-            68
-          ]
-        ]
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            90,
-            30
-          ],
-          [
-            105,
-            84
-          ]
-        ],
-        "text": "A: occurrence + joint origin"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            190,
-            30
-          ],
-          [
-            205,
-            84
-          ]
-        ],
-        "text": "B: occurrence + joint origin"
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "TEXT",
+        "name": "JOIN",
+        "color": 7,
+        "lineweight": 1,
+        "current": true
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            135,
+            30
+          ],
+          [
+            145,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
         "color": 7,
         "current": true
       }
@@ -170,22 +228,24 @@
       "command": "text",
       "params": {
         "at": [
-          22,
-          25
+          48,
+          26
         ],
-        "text": "PARENT",
-        "height": 5
+        "text": "A",
+        "height": 8,
+        "justify": "C"
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          213,
-          25
+          233,
+          26
         ],
-        "text": "CHILD",
-        "height": 5
+        "text": "B",
+        "height": 8,
+        "justify": "C"
       }
     },
     {
@@ -193,98 +253,43 @@
       "params": {
         "at": [
           119,
-          33
+          35
         ],
-        "text": "+zA",
-        "height": 3.8
+        "text": "z",
+        "height": 4.5
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          92,
-          65
+          99,
+          67
         ],
-        "text": "+xA",
-        "height": 3.8
+        "text": "x",
+        "height": 4.5
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          147,
-          33
+          154,
+          35
         ],
-        "text": "+zB",
-        "height": 3.8
+        "text": "z",
+        "height": 4.5
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          192,
-          65
+          189,
+          67
         ],
-        "text": "+xB",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          112
-        ],
-        "text": "SOLIDCRAFT JOINT = ORIGIN A + ORIGIN B + RELATION",
-        "height": 5
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          101
-        ],
-        "text": "joint.create(type=..., a=A, b=B, flip?, offset?, angle?/values?)",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          -26
-        ],
-        "text": "Default mate: B +z is turned against A +z, like two faces meeting.",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          -36
-        ],
-        "text": "flip=true aligns the two +z directions instead.",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          -46
-        ],
-        "text": "x controls the spin around z. Without an explicit x, SolidCraft may choose it from z.",
-        "height": 3.8
+        "text": "x",
+        "height": 4.5
       }
     }
   ]

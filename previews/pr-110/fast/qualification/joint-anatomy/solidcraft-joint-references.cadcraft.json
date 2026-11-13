@@ -1,14 +1,37 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "SolidCraft joint origins - topology reference versus point frame",
+  "title": "Topology-backed parent and explicit child joint origin",
   "commands": [
     {
       "command": "layer.new",
       "params": {
-        "name": "PARTS",
+        "name": "BOARD",
         "color": 8,
-        "lineweight": 0.8,
+        "lineweight": 1.2,
         "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            110,
+            0
+          ],
+          [
+            0,
+            82
+          ],
+          [
+            110,
+            82
+          ]
+        ]
       }
     },
     {
@@ -20,29 +43,17 @@
         ],
         "p2": [
           110,
-          85
-        ]
-      }
-    },
-    {
-      "command": "rectang",
-      "params": {
-        "p1": [
-          190,
-          0
+          82
         ],
-        "p2": [
-          300,
-          85
-        ]
+        "width": 0.8
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "TOPOLOGY",
+        "name": "TOPO",
         "color": 3,
-        "lineweight": 0.8,
+        "lineweight": 1.4,
         "current": true
       }
     },
@@ -56,7 +67,7 @@
           ],
           [
             110,
-            85
+            82
           ]
         ]
       }
@@ -66,9 +77,9 @@
       "params": {
         "center": [
           110,
-          72
+          68
         ],
-        "radius": 2.4
+        "radius": 3.2
       }
     },
     {
@@ -76,75 +87,115 @@
       "params": {
         "center": [
           110,
-          42
+          41
         ],
-        "radius": 2.4
+        "radius": 3.2
       }
     },
     {
       "command": "circle",
       "params": {
         "center": [
-          95,
-          42
+          92,
+          41
         ],
-        "radius": 2.4
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            110,
-            72
-          ],
-          [
-            135,
-            76
-          ]
-        ],
-        "text": "corner"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            110,
-            42
-          ],
-          [
-            135,
-            48
-          ]
-        ],
-        "text": "edge pick"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            95,
-            42
-          ],
-          [
-            132,
-            30
-          ]
-        ],
-        "text": "on face"
+        "radius": 3.2
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "POINT",
+        "name": "BRACKET",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            200,
+            0
+          ],
+          [
+            212,
+            0
+          ],
+          [
+            200,
+            72
+          ],
+          [
+            212,
+            72
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            212,
+            60
+          ],
+          [
+            280,
+            60
+          ],
+          [
+            212,
+            72
+          ],
+          [
+            280,
+            72
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            200,
+            0
+          ],
+          [
+            212,
+            0
+          ],
+          [
+            212,
+            60
+          ],
+          [
+            280,
+            60
+          ],
+          [
+            280,
+            72
+          ],
+          [
+            200,
+            72
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "FRAME",
         "color": 1,
-        "lineweight": 0.8,
+        "lineweight": 1.4,
         "current": true
       }
     },
@@ -152,10 +203,10 @@
       "command": "circle",
       "params": {
         "center": [
-          245,
-          42
+          212,
+          60
         ],
-        "radius": 2.6
+        "radius": 3.2
       }
     },
     {
@@ -163,12 +214,12 @@
       "params": {
         "points": [
           [
-            245,
-            42
+            212,
+            60
           ],
           [
-            285,
-            42
+            255,
+            60
           ]
         ]
       }
@@ -178,58 +229,20 @@
       "params": {
         "points": [
           [
-            245,
-            42
-          ],
-          [
-            245,
-            78
-          ]
-        ]
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            245,
-            42
+            212,
+            60
           ],
           [
             212,
-            25
+            100
           ]
-        ],
-        "text": "point"
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          275,
-          46
-        ],
-        "text": "+z",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          248,
-          75
-        ],
-        "text": "+x",
-        "height": 3.8
+        ]
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "TEXT",
+        "name": "LABELS",
         "color": 7,
         "current": true
       }
@@ -238,21 +251,34 @@
       "command": "text",
       "params": {
         "at": [
-          0,
-          112
+          55,
+          94
         ],
-        "text": "WHERE DOES A JOINT FRAME COME FROM?",
-        "height": 5
+        "text": "A",
+        "height": 8,
+        "justify": "C"
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          5,
-          96
+          242,
+          94
         ],
-        "text": "TOPOLOGY-BACKED",
+        "text": "B",
+        "height": 8,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          114,
+          69
+        ],
+        "text": "corner",
         "height": 4
       }
     },
@@ -260,10 +286,10 @@
       "command": "text",
       "params": {
         "at": [
-          194,
-          96
+          114,
+          42
         ],
-        "text": "EXPLICIT POINT FRAME",
+        "text": "edge",
         "height": 4
       }
     },
@@ -271,55 +297,33 @@
       "command": "text",
       "params": {
         "at": [
-          0,
-          -20
+          64,
+          42
         ],
-        "text": "edge + on + corner: SolidCraft can re-find the selected topology after dimensions change.",
-        "height": 3.8
+        "text": "face",
+        "height": 4
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          0,
-          -30
+          258,
+          64
         ],
-        "text": "The selected face/edge supplies orientation; z/x may override it.",
-        "height": 3.8
+        "text": "z",
+        "height": 4.5
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          190,
-          -20
+          216,
+          96
         ],
-        "text": "point gives the position.",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          190,
-          -30
-        ],
-        "text": "z and x are optional native inputs, but x fixes the spin around z.",
-        "height": 3.8
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          190,
-          -40
-        ],
-        "text": "If x is omitted, SolidCraft chooses x from z.",
-        "height": 3.8
+        "text": "x",
+        "height": 4.5
       }
     }
   ]
