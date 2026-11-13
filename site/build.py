@@ -193,6 +193,66 @@ def _qualification_status_html(overall, detail):
     )
 
 
+def _image_sort_key(name):
+    if name == "model.png":
+        return (0, "", 0)
+    for view_index, view in enumerate(("front", "right", "iso"), 1):
+        order = {
+            f"model-{view}.png": 0,
+            f"goal-{view}.png": 1,
+            f"overlay-{view}.png": 2,
+            f"visual-diff-{view}.png": 3,
+        }
+        if name in order:
+            return (view_index, view, order[name])
+    return (10, name, 0)
+
+
+def _image_caption(name):
+    if name == "model.png":
+        return "Native baseline render."
+    for view in ("front", "right", "iso"):
+        if name == f"model-{view}.png":
+            return f"Actual SolidCraft {view} view."
+        if name == f"goal-{view}.png":
+            return f"Expected/goal geometry in the same {view} camera."
+        if name == f"overlay-{view}.png":
+            return f"Actual {view} render with expected geometry overlaid."
+        if name == f"visual-diff-{view}.png":
+            return f"Visual regression diff for the {view} view."
+    return f"Additional native evidence: {name}."
+
+
+def _render_validation_checks(native_case):
+    path = native_case / "validation.json"
+    if not path.is_file():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = []
+    for check in data.get("checks", []):
+        status = check.get("status", "missing").upper()
+        cls = "pass" if status == "PASS" else "fail"
+        expected = json.dumps(check.get("expected"), ensure_ascii=False)
+        actual = json.dumps(check.get("actual"), ensure_ascii=False)
+        rows.append(
+            "<tr>"
+            f"<td><span class=\"qualification-status {cls}\">{escape(status)}</span></td>"
+            f"<td>{escape(check.get('level', '').upper())}</td>"
+            f"<td>{escape(check.get('name'))}</td>"
+            f"<td><code>{escape(expected)}</code></td>"
+            f"<td><code>{escape(actual)}</code></td>"
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<h3>Semantic validation</h3>'
+        '<table class="qualification-checks"><thead><tr>'
+        '<th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th>'
+        '</tr></thead><tbody>' + "".join(rows) + "</tbody></table>"
+    )
+
+
 def _render_native_results(native_case, solidcraft_version):
     measurement_files = sorted(native_case.glob("measurements*.json"))
     if not measurement_files:
@@ -259,6 +319,7 @@ def _render_native_results(native_case, solidcraft_version):
         f'{escape(solidcraft_version)}</strong>. These values come from the '
         'saved native design, not from Python-side estimates.</p>'
         + "".join(sections)
+        + _render_validation_checks(native_case)
         + "</section>",
         baseline_body_count,
         baseline_parameter_count,
@@ -479,7 +540,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
             image_paths = sorted(
                 native_case.glob("*.png"),
-                key=lambda path: (path.name != "model.png", path.name),
+                key=lambda path: _image_sort_key(path.name),
             )
             for image in image_paths:
                 if image.stat().st_size == 0:
@@ -500,17 +561,14 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 "qualification-result.json",
                 "validation.json",
                 "visual-validation.json",
+                "camera-*.json",
             ):
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
             figures = []
             for index, image_name in enumerate(native_images):
-                caption = (
-                    "Native SolidCraft 0.30.1 baseline snapshot from this exact CI source commit."
-                    if image_name == "model.png"
-                    else f"Additional native evidence: {image_name}."
-                )
+                caption = _image_caption(image_name)
                 figures.append(
                     '<figure class="qualification-image">'
                     f'<img src="{escape(image_name)}" '
