@@ -119,9 +119,18 @@ def check(site: Path, sha: str, require_native: bool = False):
             image = site / "qualification" / slug / "model.png"
             assert image.is_file() and image.stat().st_size > 0, slug
             assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+            native_images = qualification_manifest["cases"][slug]["native_images"]
+            assert "model.png" in native_images, slug
+            assert 'class="qualification-gallery"' in page_text, slug
+            assert f'src="{slug}/model.png"' in qualification_index, slug
             native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
             assert "measurements.json" in native_evidence, slug
             assert "results.json" in native_evidence, slug
+            if slug == "four-corner-l":
+                mutation_image = site / "qualification" / slug / "model-size-160x120.png"
+                assert mutation_image.is_file() and mutation_image.stat().st_size > 0
+                assert "model-size-160x120.png" in native_images
+                assert mutation_image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
 
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
