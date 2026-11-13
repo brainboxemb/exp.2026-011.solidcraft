@@ -3,7 +3,15 @@ import re
 
 from .compiler import ModelError
 from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in, pv
-from .model_objects import Assembly, ModelInstance, _anchor_origin
+from .model_objects import (
+    Assembly,
+    ModelInstance,
+    _CORNER_ANCHORS,
+    _anchor_local_point,
+    _anchor_origin,
+    _corner_native_x,
+    _corner_normal,
+)
 from .compiler import compile_model
 
 
@@ -363,7 +371,24 @@ def compile_assembly(value, name):
                 attachment.parent,
                 parent_occurrence,
             )
-        if isinstance(attachment.child, Anchor):
+        explicit_corner_pair = (
+            isinstance(attachment.parent, Anchor)
+            and isinstance(attachment.child, Anchor)
+            and attachment.parent in _CORNER_ANCHORS
+            and attachment.child in _CORNER_ANCHORS
+        )
+        if explicit_corner_pair:
+            child_point = _anchor_local_point(instance, attachment.child)
+            child_origin = {
+                "occurrence": child_occurrence,
+                "point": [
+                    child_point[i] + instance.translation[i]
+                    for i in range(3)
+                ],
+                "z": list(_corner_normal(attachment.child)),
+                "x": list(_corner_native_x(attachment.parent)),
+            }
+        elif isinstance(attachment.child, Anchor):
             child_origin = _anchor_origin(
                 instance,
                 attachment.child,

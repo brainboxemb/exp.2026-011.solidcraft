@@ -946,6 +946,24 @@ class AssemblyTests(unittest.TestCase):
             [joint["b"]["occurrence"] for joint in joints],
             ["Marker:1", "Marker:2"],
         )
+        self.assertEqual(
+            joints[0]["b"],
+            {
+                "occurrence": "Marker:1",
+                "point": [20.0, 0.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [-1.0, 0.0, 0.0],
+            },
+        )
+        self.assertEqual(
+            joints[1]["b"],
+            {
+                "occurrence": "Marker:2",
+                "point": [-20.0, 0.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [0.0, 0.0, -1.0],
+            },
+        )
 
     def test_anchor_frame_accepts_named_axis_directions(self):
         from scpf import AnchorFrame, RIGHT, UP
@@ -1395,9 +1413,9 @@ class AssemblyTests(unittest.TestCase):
             joint["b"],
             {
                 "occurrence": "Marker:1",
-                "edge": [20.0, -15.0, 15.0],
-                "on": [15.0, -15.0, 15.0],
-                "corner": [20.0, -15.0, 20.0],
+                "point": [20.0, -15.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [-1.0, 0.0, 0.0],
             },
         )
 

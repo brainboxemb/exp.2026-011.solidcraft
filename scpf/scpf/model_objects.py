@@ -244,6 +244,35 @@ def _corner_origin_points(instance, anchor):
     return edge, on, corner
 
 
+def _corner_native_x(anchor):
+    """Native SolidCraft clocking axis for one standard corner anchor."""
+    mapping = {
+        Anchor.FRONT_TOP_LEFT: (0.0, 0.0, -1.0),
+        Anchor.FRONT_TOP_RIGHT: (-1.0, 0.0, 0.0),
+        Anchor.FRONT_BOTTOM_RIGHT: (0.0, 0.0, 1.0),
+        Anchor.FRONT_BOTTOM_LEFT: (1.0, 0.0, 0.0),
+        Anchor.BACK_TOP_LEFT: (1.0, 0.0, 0.0),
+        Anchor.BACK_TOP_RIGHT: (0.0, 0.0, -1.0),
+        Anchor.BACK_BOTTOM_RIGHT: (-1.0, 0.0, 0.0),
+        Anchor.BACK_BOTTOM_LEFT: (0.0, 0.0, 1.0),
+    }
+    try:
+        return mapping[anchor]
+    except KeyError as exc:
+        raise ValueError("corner clocking requires a corner Anchor") from exc
+
+
+def _corner_normal(anchor):
+    """Outward normal of the front/back face owning a corner anchor."""
+    if anchor not in _CORNER_ANCHORS:
+        raise ValueError("corner normal requires a corner Anchor")
+    return (
+        (0.0, -1.0, 0.0)
+        if anchor.value.startswith("front_")
+        else (0.0, 1.0, 0.0)
+    )
+
+
 def _anchor_origin(instance, anchor, occurrence):
     """Native SolidCraft joint-origin spec for one component anchor."""
     if instance.rotation is not None and anchor in _CORNER_ANCHORS:
