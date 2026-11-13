@@ -32,19 +32,31 @@ reusable components, and GUI/CLI execution.
 
 ## Reusable component parameters
 
-Reusable component defaults are fixed by default, so importing a component
-does not automatically add all of its internal dimensions to the global
-SolidCraft parameter list. Use `include=(...)` to expose selected defaults,
-or `include="*"` to expose them all:
+Component parameters are implicit. Public lower-case numeric fields become
+editable native parameters when the component owns that value:
 
 ```python
-Bracket = component(CornerBracket, include=("inside_corner_radius",))
+@component
+class Bracket:
+    width = 24.0
+    inside_corner_radius = 4.0
 ```
 
-Passing a parent `Parameter` or expression always preserves that dependency.
-For example `Bracket(inside_corner_radius=self.corner_radius)` uses the
-parent's `corner_radius` directly instead of creating a duplicate child
-parameter.
+When a parent `Parameter` or expression is passed into a child input, Forge
+reuses that existing symbolic dependency instead of creating a duplicate
+component parameter:
+
+```python
+bracket = Bracket(
+    width=self.bracket_width,
+    inside_corner_radius=self.corner_radius,
+)
+```
+
+The naming contract is the same everywhere: public `lower_case` values are
+editable, `_private_lower_case` values are Forge/build-time inputs, and
+`UPPER_CASE` values are fixed constants. There is no separate component
+parameter publication switch.
 
 ## CAD projects live in another repository
 

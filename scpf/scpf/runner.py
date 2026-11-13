@@ -147,17 +147,14 @@ def _plain_reference_fields(cls):
     return list(fields.items())
 
 
-def _parameter_input(
-    value, name, *, expose_local=True, alias=None, build_only=False
-):
-    """Bind one input while preserving its declared parameter intent.
+def _parameter_input(value, name, *, build_only=False):
+    """Bind one input while preserving implicit parameter intent.
 
-    Parent Parameter/Expression inputs stay symbolic, including when they
-    are explicitly bound to an underscore-prefixed Forge/build input. A
-    private build input's own numeric default remains concrete/hidden; an
-    explicit parent binding may still carry a native dependency into it.
-    A component alias publishes a numeric child default directly under the
-    requested shared model name.
+    Public numeric inputs become editable native parameters. Private
+    underscore-prefixed numeric inputs stay concrete Forge/build inputs.
+    Passing an existing Parameter/Expression into either kind preserves the
+    inherited symbolic dependency instead of creating a duplicate child
+    parameter.
     """
     if isinstance(value, bool):
         raise TypeError(f"{name} must be a numeric model parameter")
@@ -177,23 +174,11 @@ def _parameter_input(
 
     if isinstance(value, (int, float)):
         concrete = float(value)
-        if alias is not None:
-            parameter = Parameter(alias, concrete)
-            return (
-                concrete,
-                parameter,
-                ((alias, concrete),),
-                (name, alias),
-                False,
-            )
-        if expose_local:
-            return concrete, Parameter(name, concrete), (), None, False
-        return concrete, concrete, (), None, True
+        return concrete, Parameter(name, concrete), (), None, False
 
     raise TypeError(f"{name} must be a numeric model parameter")
 
-
-def _plain_model_data(cls, *args, _include=None, _aliases=None, **kwargs):
+def _plain_model_data(cls, *args, **kwargs):
     """Instantiate a plain model and classify public vs fixed inputs."""
     fields = _plain_model_fields(cls)
     references = _plain_reference_fields(cls)
@@ -235,24 +220,15 @@ def _plain_model_data(cls, *args, _include=None, _aliases=None, **kwargs):
     for name in reference_names:
         object.__setattr__(instance, name, reference_values[name])
 
-    aliases = {} if _aliases is None else dict(_aliases)
     concrete = []
     fixed = []
     external = {}
     bindings = []
     for name in names:
         build_only = name.startswith("_")
-        alias = aliases.get(name)
-        expose_local = (
-            not build_only
-            and alias is None
-            and (_include is None or name in _include)
-        )
         value, symbolic, inherited, binding, is_fixed = _parameter_input(
             values[name],
             name,
-            expose_local=expose_local,
-            alias=alias,
             build_only=build_only,
         )
         if binding is None:
@@ -283,17 +259,12 @@ def _plain_model_instance(cls, *args, **kwargs):
     return _plain_model_data(cls, *args, **kwargs)[0]
 
 
-def _parameterized_instance(
-    cls, *args, _include=None, _aliases=None, **kwargs
-):
+def _parameterized_instance(cls, *args, **kwargs):
     """Construct one model object and classify its reusable inputs."""
     if not is_dataclass(cls):
-        return _plain_model_data(
-            cls, *args, _include=_include, _aliases=_aliases, **kwargs
-        )
+        return _plain_model_data(cls, *args, **kwargs)
 
     instance = cls(*args, **kwargs)
-    aliases = {} if _aliases is None else dict(_aliases)
     signature = inspect.signature(cls)
     bound = signature.bind(*args, **kwargs)
     bound.apply_defaults()
@@ -306,17 +277,9 @@ def _parameterized_instance(
             continue
         if isinstance(value, (int, float, Parameter, Expression)) and not isinstance(value, bool):
             build_only = name.startswith("_")
-            alias = aliases.get(name)
-            expose_local = (
-                not build_only
-                and alias is None
-                and (_include is None or name in _include)
-            )
             number, symbolic, inherited, binding, is_fixed = _parameter_input(
                 value,
                 name,
-                expose_local=expose_local,
-                alias=alias,
                 build_only=build_only,
             )
             if binding is None:
@@ -371,10 +334,10 @@ def _component_anchor_frames(instance):
     return tuple(anchors)
 
 
-def _build_object(cls, *args, _include=None, _aliases=None, **kwargs):
+def _build_object(cls, *args, **kwargs):
     """Build one user model and return its classified reusable inputs."""
     instance, concrete, fixed, external, bindings = _parameterized_instance(
-        cls, *args, _include=_include, _aliases=_aliases, **kwargs
+        cls, *args, **kwargs
     )
     build = getattr(instance, "build", None)
     if not callable(build):
@@ -394,9 +357,7 @@ def _design_object(cls, *args, **kwargs):
     return _BuiltDesign(result=result, parameters=concrete)
 
 
-def _reusable_model_object(
-    cls, *args, _include=(), _aliases=None, **kwargs
-):
+def _reusable_model_object(cls, *args, **kwargs):
     """Build a nested user model as a reusable component definition."""
     object_name = kwargs.pop("name", None)
     if object_name is not None:
@@ -410,7 +371,7 @@ def _reusable_model_object(
             )
 
     result, concrete, fixed, external, bindings, anchors = _build_object(
-        cls, *args, _include=_include, _aliases=_aliases, **kwargs
+        cls, *args, **kwargs
     )
     if not isinstance(result, Shape):
         raise TypeError(
@@ -430,92 +391,28 @@ def _reusable_model_object(
     )
 
 
-def _component_include(cls, include):
-    """Return local includes plus optional shared model-parameter aliases."""
-    fields = {name for name, _ in _plain_model_fields(cls)}
-    public_fields = {name for name in fields if not name.startswith("_")}
-
-    if include == "*":
-        return frozenset(public_fields), {}
-
-    if isinstance(include, dict):
-        aliases = dict(include)
-        unknown = set(aliases) - public_fields
-        if unknown:
-            raise ValueError(
-                f"{cls.__name__}: unknown component parameter(s): "
-                + ", ".join(sorted(unknown))
-            )
-        for local_name, model_name in aliases.items():
-            if (not isinstance(model_name, str)
-                    or not model_name.isidentifier()
-                    or model_name.startswith("_")
-                    or model_name.isupper()):
-                raise ValueError(
-                    f"{cls.__name__}.{local_name}: shared model parameter "
-                    "name must be a public lower_case Python identifier"
-                )
-        return frozenset(), aliases
-
-    if isinstance(include, str):
-        include = (include,)
-    try:
-        names = tuple(include)
-    except TypeError as exc:
-        raise TypeError(
-            "component include must be '*', parameter names, or a mapping"
-        ) from exc
-    if any(not isinstance(name, str) or not name for name in names):
-        raise TypeError("component include names must be non-empty text")
-    unknown = set(names) - public_fields
-    if unknown:
-        raise ValueError(
-            f"{cls.__name__}: unknown component parameter(s): "
-            + ", ".join(sorted(unknown))
-        )
-    return frozenset(names), {}
-
-
-def _model_factory(cls, include=()):
+def _model_factory(cls):
     """Replace a nested class name with a transparent reusable-model factory."""
-    included, aliases = _component_include(cls, include)
-
     @functools.wraps(cls)
     def factory(*args, **kwargs):
-        return _reusable_model_object(
-            cls,
-            *args,
-            _include=included,
-            _aliases=aliases,
-            **kwargs,
-        )
+        return _reusable_model_object(cls, *args, **kwargs)
 
     factory._scpf_component_class = cls
-    factory._scpf_component_include = include
     return factory
 
 
-def component(cls=None, *, include=()):
-    """Declare a reusable component; local defaults are fixed unless included.
+def component(cls):
+    """Declare a reusable component with implicit editable public parameters.
 
-    Parent Parameter/Expression inputs always remain symbolic. Use include=()
-    (the default) to keep component defaults out of the design parameter list,
-    include=("radius",) for selected component-local editable defaults,
-    include="*" for all public defaults, or
-    include={"inside_radius": "corner_radius"} to publish a selected child
-    default directly under a chosen shared model-parameter name.
+    Public lower-case numeric fields become component-local editable native
+    parameters automatically. Passing a parent Parameter/Expression into a
+    component input preserves that existing dependency and does not create a
+    duplicate child parameter. Private underscore-prefixed defaults remain
+    Forge/build-time inputs.
     """
-    def decorate(model_cls):
-        if not isinstance(model_cls, type) or not callable(
-            getattr(model_cls, "build", None)
-        ):
-            raise TypeError("component() expects a model class with build()")
-        return _model_factory(model_cls, include=include)
-
-    if cls is None:
-        return decorate
-    return decorate(cls)
-
+    if not isinstance(cls, type) or not callable(getattr(cls, "build", None)):
+        raise TypeError("component() expects a model class with build()")
+    return _model_factory(cls)
 
 def _reusable_assembly_object(cls, *args, **kwargs):
     """Build an imported assembly class without exposing build_* helpers."""

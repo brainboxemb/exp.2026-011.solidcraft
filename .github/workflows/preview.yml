@@ -5,6 +5,7 @@ on:
     paths:
       - "scpf/**"
       - "examples/**"
+      - "qualification/**"
       - "site/**"
       - "docs/**"
       - "README.md"

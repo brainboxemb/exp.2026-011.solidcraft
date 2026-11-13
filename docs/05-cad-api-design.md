@@ -46,8 +46,10 @@ is still associative. Use `pv()` only where Python genuinely needs a concrete
 number; if that is the *only* use of a public parameter, either preserve the
 symbolic dependency or rename the input with a leading underscore.
 
-Nested components do not publish all their defaults automatically. Explicit
-parent binding is preferred when several parts must share one model parameter:
+Reusable component parameters follow the same naming rule implicitly.
+A public lower-case numeric default is editable when the component owns it.
+When several parts must share one model parameter, pass the parent parameter
+or expression directly:
 
 ```python
 bottom = BottomBoard(corner_radius=self.corner_radius)
@@ -56,9 +58,8 @@ bracket = Bracket(inside_corner_radius=self.corner_radius)
 ```
 
 All three native fillets then depend on the same `corner_radius` parameter.
-A component default that should be independently public can be selected with
-`include=("name",)`; it can be given an explicit shared model name with
-`include={"local_name": "model_name"}`.
+Forge reuses that dependency rather than creating child-specific duplicates;
+there is no separate component parameter publication or alias API.
 
 ## Semantics
 

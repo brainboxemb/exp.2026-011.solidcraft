@@ -301,19 +301,12 @@ SCPF refuses to guess; finish the script with an explicit model call instead.
 An imported class can still be selected explicitly when a composition script
 needs one particular model.
 
-Reusable components keep their defaults private unless requested with
-`component(..., include=...)`. A selected component default can also be
-published directly under a chosen shared model-parameter name:
+Reusable component parameters are implicit. A public lower-case numeric
+default becomes an editable component-local parameter automatically. Forge
+namespaces local component parameters when needed to avoid collisions.
 
-```python
-Bracket = component(
-    CornerBracket,
-    include={"inside_corner_radius": "corner_radius"},
-)
-```
-
-Passing an existing parent `Parameter` or expression remains the strongest
-and most direct form of coupling:
+Passing an existing parent `Parameter` or expression into a component input
+reuses that dependency directly:
 
 ```python
 Bracket(
@@ -323,7 +316,8 @@ Bracket(
 ```
 
 Both child inputs then depend on the parent's native model parameters rather
-than creating `CornerBracket_*` duplicates.
+than creating duplicate child parameters. No separate publication or alias
+declaration is required.
 
 Dataclass models continue to use their normal constructor signature.
 
@@ -422,7 +416,7 @@ function is selected by the model's name.
   SolidCraft's native `plastic.*` features.
 - `+`, `-` and `&` describe Boolean operations where supported;
   `+` on a Hole means adding the *feature* (which removes material).
-- CSG translation supports intersection, union, difference and oriented cylinders.
+- CSG translation supports intersection, union and difference; general primitive rotation/orientation remains a separate API gap.
 - Anchor references are currently reliable on the supported rectangular bases;
   a joined cylindrical boss uses a numeric top-face pick for its bore.
 - Basic reusable component definitions, occurrences and copy placement are

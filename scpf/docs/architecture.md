@@ -150,8 +150,11 @@ There is no launcher file and no trailing `CornerBracket()` required. If a
 file contains multiple public model classes, automatic root selection is
 deliberately disabled; an explicit final model call must choose the root.
 
-Reusable components keep their own numeric defaults private by default. A
-parent model can couple a child input directly to one of its parameters:
+Reusable components use the same implicit parameter intent as root models.
+Public lower-case numeric defaults become editable component-local parameters.
+Forge namespaces those local names when component definitions share a design.
+
+A parent model can couple a child input directly to one of its parameters:
 
 ```python
 Bracket(
@@ -161,19 +164,10 @@ Bracket(
 ```
 
 Both child dimensions then use the existing native parent parameter names.
-For a standalone/reusable component whose selected default should itself become
-a public model parameter, `component(include=...)` can publish it explicitly,
-including under a chosen shared name:
-
-```python
-Bracket = component(
-    CornerBracket,
-    include={"inside_corner_radius": "corner_radius"},
-)
-```
-
-This avoids accidental `CornerBracket_inside_corner_radius` duplicates while
-still allowing component-specific dimensions to be exposed deliberately.
+Passing a parent `Parameter` or `Expression` is a binding to that dependency,
+not a request to create a second component parameter. Private underscore
+defaults remain concrete build-time inputs and upper-case values remain fixed
+constants.
 
 ## What is supported now?
 
@@ -253,15 +247,22 @@ treated as proof that SolidCraft produced the intended CAD result.
 | --- | --- | --- |
 | Q1 — Python API | Public API behavior, validation, symbolic-expression handling and compiler invariants | `unittest` results |
 | Q2 — command contract | Complete example scripts compile to valid, inspectable SolidCraft command JSON | generated `*.json`, command counts |
-| Q3 — native build | Official SolidCraft `0.30.1` accepts the command plan and creates a saved editable design | `results.json`, `model.sc`, STEP |
+| Q3 — native build | The pinned tested SolidCraft runtime accepts the command plan and creates a saved editable design | `results.json`, `model.sc`, version-specific plain `model.json`, STEP |
 | Q4 — native measurement | Actual bodies/timeline are evaluated after construction | `measurements.json`, bounding-box assertions |
-| Q5 — parametric mutation | A saved design is edited with `parameters.change`; dependent geometry/joints must re-solve without recompiling Python | changed `*.sc` plus second measurement set |
+| Q5 — parametric mutation | A saved design is edited with `parameters.change`; dependent geometry/joints must re-solve without recompiling Python | parameter export, changed `*.sc`, second measurement set |
 | Q6 — visual artifact | Native snapshots make orientation and placement regressions reviewable by a human | PNG snapshot |
 
 The CI qualification artifact must retain the generated commands and native
 results, not only a pass/fail flag. For assembly/anchor work in particular,
 the report should show both the generated `joint.create` parameters and the
 measured native result after at least one parameter mutation.
+
+Native design JSON is retained as evidence for the exact tested SolidCraft
+runtime. Qualification should prefer public commands such as
+`parameters.export`, `parameters.change` and `eval` for assertions rather
+than depending on undocumented internal design-file keys. A new SolidCraft
+version must rerun the native qualification before Forge carries Q3-Q5 claims
+forward to that version.
 
 ### Qualification fixture rules
 
