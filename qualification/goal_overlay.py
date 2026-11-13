@@ -91,7 +91,7 @@ def _corners(bounds):
     ]
 
 
-def _draw_expected(image, camera, expected, *, labels=True):
+def _draw_expected(image, camera, expected, *, labels=True, fill_boxes=False):
     draw = ImageDraw.Draw(image, "RGBA")
     width, height = image.size
     font = ImageFont.load_default()
@@ -101,6 +101,13 @@ def _draw_expected(image, camera, expected, *, labels=True):
         # Alternate two strong line styles so neighbouring expected boxes remain
         # distinguishable without relying on the current SolidCraft body colours.
         line = (20, 110, 235, 230) if index % 2 == 0 else (0, 155, 110, 230)
+
+        if fill_boxes:
+            xs = [point[0] for point in points]
+            ys = [point[1] for point in points]
+            fill = (228, 238, 252, 255) if index % 2 == 0 else (226, 246, 239, 255)
+            draw.rectangle((min(xs), min(ys), max(xs), max(ys)), fill=fill)
+
         for a, b in BOX_EDGES:
             draw.line((points[a], points[b]), fill=line, width=3)
 
@@ -130,11 +137,11 @@ def render(case, camera_path, actual_path, goal_path, overlay_path):
 
     goal = Image.new("RGBA", actual.size, (248, 250, 253, 255))
     expected = EXPECTED_VISUAL_BOXES.get(case, EXPECTED_BOUNDS[case])
-    _draw_expected(goal, camera, expected)
+    _draw_expected(goal, camera, expected, labels=True, fill_boxes=True)
     goal.convert("RGB").save(goal_path)
 
     overlay = actual.copy()
-    _draw_expected(overlay, camera, expected)
+    _draw_expected(overlay, camera, expected, labels=False, fill_boxes=False)
     overlay.convert("RGB").save(overlay_path)
 
 
