@@ -50,58 +50,59 @@ class FourCornerL:
         )
         foot = CornerFoot()
 
-        # The assembly chooses the attachment point and orientation.
-        # CornerFoot itself stays completely placement-agnostic.
-        foot_origin = AnchorFrame(
+        # Placement belongs to this assembly. All four frames use the same
+        # local origin and Z direction; only local X changes to express the
+        # required clocking. The reusable CornerFoot itself remains neutral.
+        front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 0, 1),
-            x=(1, 0, 0),
+            z=UP,
+            x=FRONT,
+        )
+        front_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+        back_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=BACK,
+        )
+        back_left_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
-        # SolidCraft's BOTTOM joint frame is local to the selected face:
-        # local X runs along world -Y and local Y along world -X.  Express
-        # the four corner positions in that local (u, v) frame.
-        #
-        # The back-right position needs the same reusable foot turned 180
-        # degrees. SolidCraft 0.30.1 does not give the intended result for a
-        # 270/-90 planar turn here, so use the same origin with reversed local
-        # X clocking. The reusable foot geometry itself stays unchanged.
-        foot_origin_reversed = AnchorFrame(
-            origin=(0, 0, 0),
-            z=UP,
-            x=LEFT,
-        )
-
+        # SolidCraft's BOTTOM frame uses local X along world -Y and local Y
+        # along world -X. Express the four positions in that local (u, v)
+        # frame; no extra joint angle is required.
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=front_left_origin,
             offset=(half_depth, half_width),
-            angle=90,
         )
         front_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=front_right_origin,
             offset=(half_depth, -half_width),
-            angle=180,
         )
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin_reversed,
+            child=back_right_origin,
             offset=(-half_depth, -half_width),
-            angle=-90,
         )
         back_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=back_left_origin,
             offset=(-half_depth, half_width),
-            angle=0,
         )
 
         return frame + front_left + front_right + back_right + back_left

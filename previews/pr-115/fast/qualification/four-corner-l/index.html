@@ -83,58 +83,59 @@ class FourCornerL:
         )
         foot = CornerFoot()
 
-        # The assembly chooses the attachment point and orientation.
-        # CornerFoot itself stays completely placement-agnostic.
-        foot_origin = AnchorFrame(
+        # Placement belongs to this assembly. All four frames use the same
+        # local origin and Z direction; only local X changes to express the
+        # required clocking. The reusable CornerFoot itself remains neutral.
+        front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 0, 1),
-            x=(1, 0, 0),
+            z=UP,
+            x=FRONT,
+        )
+        front_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+        back_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=BACK,
+        )
+        back_left_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
-        # SolidCraft&#x27;s BOTTOM joint frame is local to the selected face:
-        # local X runs along world -Y and local Y along world -X.  Express
-        # the four corner positions in that local (u, v) frame.
-        #
-        # The back-right position needs the same reusable foot turned 180
-        # degrees. SolidCraft 0.30.1 does not give the intended result for a
-        # 270/-90 planar turn here, so use the same origin with reversed local
-        # X clocking. The reusable foot geometry itself stays unchanged.
-        foot_origin_reversed = AnchorFrame(
-            origin=(0, 0, 0),
-            z=UP,
-            x=LEFT,
-        )
-
+        # SolidCraft&#x27;s BOTTOM frame uses local X along world -Y and local Y
+        # along world -X. Express the four positions in that local (u, v)
+        # frame; no extra joint angle is required.
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=front_left_origin,
             offset=(half_depth, half_width),
-            angle=90,
         )
         front_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=front_right_origin,
             offset=(half_depth, -half_width),
-            angle=180,
         )
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin_reversed,
+            child=back_right_origin,
             offset=(-half_depth, -half_width),
-            angle=-90,
         )
         back_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
-            child=foot_origin,
+            child=back_left_origin,
             offset=(-half_depth, half_width),
-            angle=0,
         )
 
         return frame + front_left + front_right + back_right + back_left
@@ -143,14 +144,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/-90/0)</code></p>
+  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v)); child X uses FRONT/LEFT/BACK/RIGHT for the four clockings</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and clocking. The back-right occurrence reverses only the attachment frame&#x27;s local X direction.</p>
+  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns position and clocking through four explicit AnchorFrames with the same origin/Z and different X directions.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-face basis, with the reusable child frame supplying the remaining clocking.</p>
+  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-face basis; child AnchorFrame X directions provide the four orientations without extra joint angles.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -180,15 +181,15 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
           0.0,
+          -1.0,
           0.0
         ]
       },
       &quot;values&quot;: [
         &quot;frame_depth / 2&quot;,
         &quot;frame_width / 2&quot;,
-        90.0
+        0.0
       ]
     }
   },
@@ -218,7 +219,7 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
+          -1.0,
           0.0,
           0.0
         ]
@@ -226,7 +227,7 @@ FourCornerL()
       &quot;values&quot;: [
         &quot;frame_depth / 2&quot;,
         &quot;-(frame_width / 2)&quot;,
-        180.0
+        0.0
       ]
     }
   },
@@ -256,15 +257,15 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          -1.0,
           0.0,
+          1.0,
           0.0
         ]
       },
       &quot;values&quot;: [
         &quot;-(frame_depth / 2)&quot;,
         &quot;-(frame_width / 2)&quot;,
-        -90.0
+        0.0
       ]
     }
   },
