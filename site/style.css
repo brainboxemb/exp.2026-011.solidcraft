@@ -86,3 +86,20 @@ background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
   .qualification-grid{grid-template-columns:1fr}
   .qualification-card{width:100%}
 }
+
+.qualification-test-purpose{margin-bottom:18px}
+.qualification-test-purpose h2{margin-bottom:8px}
+.qualification-test-purpose h3{margin-top:18px;margin-bottom:6px}
+.qualification-visual-check{margin-bottom:22px}
+.qualification-view{margin-top:16px}
+.qualification-view h3{margin:0 0 9px}
+.qualification-view-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.qualification-visual-item{margin:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+.qualification-image-link{display:block;background:linear-gradient(135deg,#f1f5fb,#e5eff8);cursor:zoom-in}
+.qualification-image-link img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;padding:8px}
+.qualification-visual-item figcaption{padding:8px 10px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--line)}
+.qualification-extra-views{margin-top:16px}
+.qualification-extra-views summary{cursor:pointer;font-weight:700;color:var(--blue);padding:6px 0}
+@media(max-width:800px){
+  .qualification-view-grid{grid-template-columns:1fr}
+}
