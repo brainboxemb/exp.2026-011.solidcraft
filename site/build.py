@@ -14,6 +14,7 @@ from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
 from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, REFERENCE_URLS
+from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
@@ -426,6 +427,73 @@ lowering, native measurements, parameter mutation and relevant CAD references.</
 saved .sc files and STEP exports in the qualification artifact. Pages publishes
 the command plans, measurement JSON and snapshots needed for normal review.</section>
 </main>"""
+    coverage_root = qualification_root / "coverage"
+    coverage_root.mkdir(exist_ok=True)
+    case_slugs = {case["slug"] for case in QUALIFICATION_CASES}
+
+    def coverage_case_links(cases):
+        links = []
+        for name in cases:
+            if name in case_slugs:
+                links.append(f'<a href="../{escape(name)}/">{escape(name)}</a>')
+            else:
+                links.append(escape(name))
+        return ", ".join(links) if links else "—"
+
+    export_rows = []
+    for api_name, (target, current, cases, note) in EXPORT_COVERAGE.items():
+        export_rows.append(
+            f"<tr><td><code>{escape(api_name)}</code></td>"
+            f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
+            f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
+        )
+
+    capability_rows = []
+    for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
+        capability_rows.append(
+            f"<tr><td>{escape(group)}</td><td><code>{escape(capability)}</code></td>"
+            f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
+            f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
+        )
+
+    gap_exports = sum(1 for row in EXPORT_COVERAGE.values() if row[1] == "GAP")
+    gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
+    coverage_body = f"""<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / API coverage</div>
+<section class="hero small"><p class="eyebrow">Declared coverage, including gaps</p>
+<h1>API & SolidCraft coverage matrix</h1>
+<p>This matrix is deliberately stricter than code coverage. It states the
+qualification level appropriate for each public API/capability and the highest
+dedicated level currently demonstrated.</p>
+<p class="meta">Public export gaps: {gap_exports} · capability gaps: {gap_capabilities}</p>
+</section>
+<section class="notice"><strong>Meaning of GAP:</strong> the API may already have
+unit tests or incidental use, but it does not yet have the dedicated
+qualification case required by its target level. The gap remains visible until
+that case exists.</section>
+<section class="panel"><h2>Public exports</h2>
+<table><thead><tr><th>API</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
+<tbody>{"".join(export_rows)}</tbody></table></section>
+<section class="panel"><h2>Behavioural capabilities</h2>
+<table><thead><tr><th>Area</th><th>Capability</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
+<tbody>{"".join(capability_rows)}</tbody></table></section>
+</main>"""
+    (coverage_root / "index.html").write_text(
+        page(
+            "Qualification coverage",
+            coverage_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+
+    qualification_index = qualification_index.replace(
+        '<section class="section-heading"><h2>Case sheets</h2>',
+        '<p><a class="button" href="coverage/">Open API coverage matrix →</a></p>'
+        '<section class="section-heading"><h2>Case sheets</h2>',
+    )
     (qualification_root / "index.html").write_text(
         page(
             "Qualification",
