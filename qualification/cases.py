@@ -188,6 +188,23 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "eight-flightcase-corners",
+        "q5_required": True,
+        "diagram": "eight-flightcase-corners.svg",
+        "group": "anchors",
+        "title": "Eight flightcase corner protectors",
+        "intent": "Qualify a genuinely three-dimensional corner component: one neutral trihedral protector reused on all eight outside corners of a rectangular case.",
+        "forge_api": "FlightcaseCorner + AnchorFrame(z=Anchor.FRONT, x=Anchor.RIGHT) attached to all eight FRONT/BACK corner anchors.",
+        "forge_model": "One CaseBlock plus eight occurrences of one trihedral protector made from three square plates. The reusable component owns only its local outside-corner geometry; the assembly owns which case corner each occurrence wraps.",
+        "lowering": "Eight rigid topology-backed corner joints place one shared 3D component at the eight case corners. No occurrence-specific geometry or frozen world-coordinate placement is authored.",
+        "native_expectation": "Each protector physically wraps its case corner on three adjacent faces. All eight occurrences remain instances of one component definition and point inward along the case edges.",
+        "mutation": "Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every protector must follow its moved topology corner without rerunning Python.",
+        "references": [
+            ("SolidCraft", "The case demonstrates topology-backed 3D corner attachment with one reusable component definition."),
+            ("BOSL2", "The same local trihedral component is reoriented by the assembly at all eight semantic corners."),
+        ],
+    },
+    {
         "slug": "custom-anchor",
         "group": "anchors",
         "title": "Named oriented AnchorFrame",
