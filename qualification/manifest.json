@@ -1,5 +1,5 @@
 {
-  "library_commit": "8551e51e05c33ca34d97b43cf555252d506a0487",
+  "library_commit": "93a6875ebca139f0540ff12fb10de351acdb054b",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -92,6 +92,15 @@
         "measurements-size-80x40.json",
         "measurements.json",
         "change-size.json"
+      ]
+    },
+    "primitive-csg": {
+      "title": "Primitive CSG and orientation",
+      "status": "Q1\u2013Q6 native verified",
+      "command_count": 6,
+      "native_evidence": [
+        "results.json",
+        "measurements.json"
       ]
     },
     "bracket": {

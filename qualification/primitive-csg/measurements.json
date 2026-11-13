@@ -1,0 +1,165 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 5665.7043416590695,
+      "bbox": {
+        "max": [
+          25.000116688074947,
+          19.595918704223944,
+          20.00000000000001
+        ],
+        "min": [
+          -19.59591794396563,
+          -19.595918101416647,
+          0.000059519390468665285
+        ]
+      },
+      "center_of_mass": [
+        5.897873200353148,
+        7.827016875635931e-7,
+        9.445666336916677
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 45,
+      "face_types": {
+        "cylinder": 5,
+        "plane": 10,
+        "sphere": 1
+      },
+      "faces": 16,
+      "kernel": {
+        "edges": 71,
+        "faces": 24,
+        "shells": 1,
+        "vertices": 47
+      },
+      "mass_g": 27.279682892781743,
+      "material": "Default",
+      "name": "PrimitiveCsg",
+      "vertices": 30,
+      "volume_mm3": 21147.04100215639
+    }
+  ],
+  "body_count": 1,
+  "params": [],
+  "sketches": [],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 8.911831,
+      "name": "Sphere1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "SphereFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 575.8182280000001,
+      "name": "Box1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 662.515844,
+      "name": "Cylinder1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 0.0,
+            "rotation_rad": 0.0,
+            "strategy": "refined_tolerance",
+            "tolerance_mm": 0.03413775085178632,
+            "translation_mm": 0.0
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 2489.939665,
+      "name": "Cylinder2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 5,
+      "ms": 3212.25952,
+      "name": "Cylinder3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 0.0,
+            "rotation_rad": 0.0,
+            "strategy": "refined_tolerance",
+            "tolerance_mm": 0.0384058035269151,
+            "translation_mm": 0.0
+          },
+          {
+            "face_shift_mm": 0.0,
+            "rotation_rad": 2e-6,
+            "strategy": "tool_nudge",
+            "tolerance_mm": 0.0,
+            "translation_mm": 0.00015462587105656022
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 6,
+      "ms": 9574.529992,
+      "name": "Box2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": "Boolean retry: tool displacement 1.546259e-4 mm, rotation 2.000000e-6 rad"
+    }
+  ],
+  "total": {
+    "area_mm2": 5665.7043416590695,
+    "edges": 45,
+    "faces": 16,
+    "mass_g": 27.279682892781743,
+    "open_bodies_skipped": 0,
+    "vertices": 30,
+    "volume_mm3": 21147.04100215639
+  }
+}
