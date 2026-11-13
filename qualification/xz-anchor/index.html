@@ -21,9 +21,10 @@
 <section class="panel"><h2>2. Native verification</h2>
 <h3>Expected result</h3><p>Left and right markers attach to their respective front-top corners with mirrored spatial results.</p>
 <h3>Parametric mutation</h3><p>Change board width/height from 40x20 to 80x40 mm; both markers follow their own corners.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-80x40.json">measurements-size-80x40.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="change-size.json">change-size.json</a></li><li><a href="model.png">Native snapshot</a></li></ul>
+<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-80x40.json">measurements-size-80x40.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="change-size.json">change-size.json</a></li><li><a href="model-size-80x40.sc">model-size-80x40.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
 </section></div>
-<section class="panel"><h2>Generated native relationship/command path</h2>
+<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 80x40</strong> · 3 bodies · <a href="measurements-size-80x40.json">measurements-size-80x40.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>Board_depth</code></td><td>12.0</td></tr><tr><td><code>board_width</code></td><td>80.0</td></tr><tr><td><code>board_height</code></td><td>40.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Board</td><td><code>[-40, 0, 0]</code></td><td><code>[40, 12, 40]</code></td></tr><tr><td>Marker</td><td><code>[30, -10, 40]</code></td><td><code>[40, 0, 50]</code></td></tr><tr><td>Marker (Marker:2)</td><td><code>[-50, -10, 30]</code></td><td><code>[-40, 0, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 3 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>Board_depth</code></td><td>12.0</td></tr><tr><td><code>board_width</code></td><td>40.0</td></tr><tr><td><code>board_height</code></td><td>20.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Board</td><td><code>[-20, 0, 0]</code></td><td><code>[20, 12, 20]</code></td></tr><tr><td>Marker</td><td><code>[10, -10, 20]</code></td><td><code>[20, 0, 30]</code></td></tr><tr><td>Marker (Marker:2)</td><td><code>[-30, -10, 10]</code></td><td><code>[-20, 0, 20]</code></td></tr></tbody></table></details></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
@@ -112,10 +113,10 @@
     }
   }
 ]</code></pre></section>
-<section class="panel"><h2>Reference models</h2>
+<section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://openscad.org/documentation.html">OpenSCAD</a>:</strong> The profile/extrusion resembles polygon()+linear_extrude(), but Forge retains native SolidCraft parameters and attachment topology.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Mirrored corner anchors are a useful check that local anchor frames, not a single global direction assumption, control attachment.</li></ul></section>
-<section class="panel"><h2>Fixture source</h2><pre><code>class Board:
+<section class="panel"><h2>6. Fixture source</h2><pre><code>class Board:
     width = 40.0
     height = 20.0
     depth = 12.0
