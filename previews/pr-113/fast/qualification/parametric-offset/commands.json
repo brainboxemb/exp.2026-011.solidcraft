@@ -45,6 +45,28 @@
       }
     },
     {
+      "command": "joint.origin",
+      "params": {
+        "name": "Base:1.front_top_right",
+        "occurrence": "Base:1",
+        "edge": [
+          20.0,
+          -15.0,
+          10.0
+        ],
+        "on": [
+          0.0,
+          -15.0,
+          10.0
+        ],
+        "corner": [
+          20.0,
+          -15.0,
+          20.0
+        ]
+      }
+    },
+    {
       "command": "component.create",
       "params": {
         "name": "Marker",
@@ -89,6 +111,28 @@
       }
     },
     {
+      "command": "joint.origin",
+      "params": {
+        "name": "Marker:1.back_top_right",
+        "occurrence": "Marker:1",
+        "edge": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "on": [
+          0.0,
+          5.0,
+          5.0
+        ],
+        "corner": [
+          5.0,
+          5.0,
+          10.0
+        ]
+      }
+    },
+    {
       "command": "occurrence.move",
       "params": {
         "occurrence": "Marker:1",
@@ -111,42 +155,8 @@
       "params": {
         "type": "planar",
         "name": "Attach Marker:1 to Base:1",
-        "a": {
-          "occurrence": "Base:1",
-          "edge": [
-            20.0,
-            -15.0,
-            10.0
-          ],
-          "on": [
-            0.0,
-            -15.0,
-            10.0
-          ],
-          "corner": [
-            20.0,
-            -15.0,
-            20.0
-          ]
-        },
-        "b": {
-          "occurrence": "Marker:1",
-          "edge": [
-            20.0,
-            -15.0,
-            15.0
-          ],
-          "on": [
-            15.0,
-            -15.0,
-            15.0
-          ],
-          "corner": [
-            20.0,
-            -15.0,
-            20.0
-          ]
-        },
+        "a": "Base:1.front_top_right",
+        "b": "Marker:1.back_top_right",
         "values": [
           0,
           "-(shift)",

@@ -69,6 +69,182 @@
       }
     },
     {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.front_top_left",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        "corner": [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.front_top_right",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        "corner": [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.front_bottom_right",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        "corner": [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.front_bottom_left",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        "corner": [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.back_top_left",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          40.0,
+          30.0
+        ],
+        "corner": [
+          -60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.back_top_right",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          60.0,
+          40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          40.0,
+          30.0
+        ],
+        "corner": [
+          60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.back_bottom_right",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          60.0,
+          40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          40.0,
+          30.0
+        ],
+        "corner": [
+          60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.origin",
+      "params": {
+        "name": "FrameBlock:1.back_bottom_left",
+        "occurrence": "FrameBlock:1",
+        "edge": [
+          -60.0,
+          40.0,
+          30.0
+        ],
+        "on": [
+          0.0,
+          40.0,
+          30.0
+        ],
+        "corner": [
+          -60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
       "command": "component.create",
       "params": {
         "name": "LBracket",
@@ -275,24 +451,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:1 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            -40.0,
-            30.0
-          ],
-          "corner": [
-            -60.0,
-            -40.0,
-            60.0
-          ]
-        },
+        "a": "FrameBlock:1.front_top_left",
         "b": {
           "occurrence": "LBracket:1",
           "point": [
@@ -319,24 +478,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:2 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            -40.0,
-            30.0
-          ],
-          "corner": [
-            60.0,
-            -40.0,
-            60.0
-          ]
-        },
+        "a": "FrameBlock:1.front_top_right",
         "b": {
           "occurrence": "LBracket:2",
           "point": [
@@ -363,24 +505,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:3 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            -40.0,
-            30.0
-          ],
-          "corner": [
-            60.0,
-            -40.0,
-            0.0
-          ]
-        },
+        "a": "FrameBlock:1.front_bottom_right",
         "b": {
           "occurrence": "LBracket:3",
           "point": [
@@ -407,24 +532,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:4 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            -40.0,
-            30.0
-          ],
-          "corner": [
-            -60.0,
-            -40.0,
-            0.0
-          ]
-        },
+        "a": "FrameBlock:1.front_bottom_left",
         "b": {
           "occurrence": "LBracket:4",
           "point": [
@@ -451,24 +559,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:5 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            40.0,
-            30.0
-          ],
-          "corner": [
-            -60.0,
-            40.0,
-            60.0
-          ]
-        },
+        "a": "FrameBlock:1.back_top_left",
         "b": {
           "occurrence": "LBracket:5",
           "point": [
@@ -495,24 +586,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:6 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            40.0,
-            30.0
-          ],
-          "corner": [
-            60.0,
-            40.0,
-            60.0
-          ]
-        },
+        "a": "FrameBlock:1.back_top_right",
         "b": {
           "occurrence": "LBracket:6",
           "point": [
@@ -539,24 +613,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:7 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            40.0,
-            30.0
-          ],
-          "corner": [
-            60.0,
-            40.0,
-            0.0
-          ]
-        },
+        "a": "FrameBlock:1.back_bottom_right",
         "b": {
           "occurrence": "LBracket:7",
           "point": [
@@ -583,24 +640,7 @@
       "params": {
         "type": "rigid",
         "name": "Attach LBracket:8 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            40.0,
-            30.0
-          ],
-          "corner": [
-            -60.0,
-            40.0,
-            0.0
-          ]
-        },
+        "a": "FrameBlock:1.back_bottom_left",
         "b": {
           "occurrence": "LBracket:8",
           "point": [

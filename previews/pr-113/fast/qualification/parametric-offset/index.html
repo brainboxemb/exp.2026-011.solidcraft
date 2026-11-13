@@ -70,46 +70,56 @@ ParametricOffset()
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
   {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Base:1.front_top_right&quot;,
+      &quot;occurrence&quot;: &quot;Base:1&quot;,
+      &quot;edge&quot;: [
+        20.0,
+        -15.0,
+        10.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        -15.0,
+        10.0
+      ],
+      &quot;corner&quot;: [
+        20.0,
+        -15.0,
+        20.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Marker:1.back_top_right&quot;,
+      &quot;occurrence&quot;: &quot;Marker:1&quot;,
+      &quot;edge&quot;: [
+        5.0,
+        5.0,
+        5.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        5.0,
+        5.0
+      ],
+      &quot;corner&quot;: [
+        5.0,
+        5.0,
+        10.0
+      ]
+    }
+  },
+  {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach Marker:1 to Base:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;Base:1&quot;,
-        &quot;edge&quot;: [
-          20.0,
-          -15.0,
-          10.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -15.0,
-          10.0
-        ],
-        &quot;corner&quot;: [
-          20.0,
-          -15.0,
-          20.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;Marker:1&quot;,
-        &quot;edge&quot;: [
-          20.0,
-          -15.0,
-          15.0
-        ],
-        &quot;on&quot;: [
-          15.0,
-          -15.0,
-          15.0
-        ],
-        &quot;corner&quot;: [
-          20.0,
-          -15.0,
-          20.0
-        ]
-      },
+      &quot;a&quot;: &quot;Base:1.front_top_right&quot;,
+      &quot;b&quot;: &quot;Marker:1.back_top_right&quot;,
       &quot;values&quot;: [
         0,
         &quot;-(shift)&quot;,

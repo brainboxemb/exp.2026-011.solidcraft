@@ -99,46 +99,100 @@ XzAnchor()
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
   {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Board:1.front_top_right&quot;,
+      &quot;occurrence&quot;: &quot;Board:1&quot;,
+      &quot;edge&quot;: [
+        20.0,
+        0.0,
+        10.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        0.0,
+        10.0
+      ],
+      &quot;corner&quot;: [
+        20.0,
+        0.0,
+        20.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Board:1.front_top_left&quot;,
+      &quot;occurrence&quot;: &quot;Board:1&quot;,
+      &quot;edge&quot;: [
+        -20.0,
+        0.0,
+        10.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        0.0,
+        10.0
+      ],
+      &quot;corner&quot;: [
+        -20.0,
+        0.0,
+        20.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Marker:1.back_top_right&quot;,
+      &quot;occurrence&quot;: &quot;Marker:1&quot;,
+      &quot;edge&quot;: [
+        5.0,
+        5.0,
+        5.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        5.0,
+        5.0
+      ],
+      &quot;corner&quot;: [
+        5.0,
+        5.0,
+        10.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Marker:2.back_top_left&quot;,
+      &quot;occurrence&quot;: &quot;Marker:2&quot;,
+      &quot;edge&quot;: [
+        -5.0,
+        5.0,
+        5.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        5.0,
+        5.0
+      ],
+      &quot;corner&quot;: [
+        -5.0,
+        5.0,
+        10.0
+      ]
+    }
+  },
+  {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach Marker:1 to Board:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;Board:1&quot;,
-        &quot;edge&quot;: [
-          20.0,
-          0.0,
-          10.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          0.0,
-          10.0
-        ],
-        &quot;corner&quot;: [
-          20.0,
-          0.0,
-          20.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;Marker:1&quot;,
-        &quot;edge&quot;: [
-          20.0,
-          0.0,
-          15.0
-        ],
-        &quot;on&quot;: [
-          15.0,
-          0.0,
-          15.0
-        ],
-        &quot;corner&quot;: [
-          20.0,
-          0.0,
-          20.0
-        ]
-      }
+      &quot;a&quot;: &quot;Board:1.front_top_right&quot;,
+      &quot;b&quot;: &quot;Marker:1.back_top_right&quot;
     }
   },
   {
@@ -146,42 +200,8 @@ XzAnchor()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach Marker:2 to Board:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;Board:1&quot;,
-        &quot;edge&quot;: [
-          -20.0,
-          0.0,
-          10.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          0.0,
-          10.0
-        ],
-        &quot;corner&quot;: [
-          -20.0,
-          0.0,
-          20.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;Marker:2&quot;,
-        &quot;edge&quot;: [
-          -20.0,
-          0.0,
-          15.0
-        ],
-        &quot;on&quot;: [
-          -15.0,
-          0.0,
-          15.0
-        ],
-        &quot;corner&quot;: [
-          -20.0,
-          0.0,
-          20.0
-        ]
-      }
+      &quot;a&quot;: &quot;Board:1.front_top_left&quot;,
+      &quot;b&quot;: &quot;Marker:2.back_top_left&quot;
     }
   }
 ]</code></pre>

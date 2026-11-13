@@ -169,28 +169,187 @@ EightCornerBrackets()
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
   {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.front_top_left&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        -60.0,
+        -40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        -40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        -60.0,
+        -40.0,
+        60.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.front_top_right&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        60.0,
+        -40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        -40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        60.0,
+        -40.0,
+        60.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.front_bottom_right&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        60.0,
+        -40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        -40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        60.0,
+        -40.0,
+        0.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.front_bottom_left&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        -60.0,
+        -40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        -40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        -60.0,
+        -40.0,
+        0.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.back_top_left&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        -60.0,
+        40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        -60.0,
+        40.0,
+        60.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.back_top_right&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        60.0,
+        40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        60.0,
+        40.0,
+        60.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.back_bottom_right&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        60.0,
+        40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        60.0,
+        40.0,
+        0.0
+      ]
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;FrameBlock:1.back_bottom_left&quot;,
+      &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+      &quot;edge&quot;: [
+        -60.0,
+        40.0,
+        30.0
+      ],
+      &quot;on&quot;: [
+        0.0,
+        40.0,
+        30.0
+      ],
+      &quot;corner&quot;: [
+        -60.0,
+        40.0,
+        0.0
+      ]
+    }
+  },
+  {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
-          60.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.front_top_left&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:1&quot;,
         &quot;point&quot;: [
@@ -217,24 +376,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.front_top_right&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:2&quot;,
         &quot;point&quot;: [
@@ -261,24 +403,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          0.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.front_bottom_right&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:3&quot;,
         &quot;point&quot;: [
@@ -305,24 +430,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
-          0.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.front_bottom_left&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:4&quot;,
         &quot;point&quot;: [
@@ -349,24 +457,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:5 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          -60.0,
-          40.0,
-          60.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.back_top_left&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:5&quot;,
         &quot;point&quot;: [
@@ -393,24 +484,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:6 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          60.0,
-          40.0,
-          60.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.back_top_right&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:6&quot;,
         &quot;point&quot;: [
@@ -437,24 +511,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:7 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          60.0,
-          40.0,
-          0.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.back_bottom_right&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:7&quot;,
         &quot;point&quot;: [
@@ -481,24 +538,7 @@ EightCornerBrackets()
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach LBracket:8 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          -60.0,
-          40.0,
-          0.0
-        ]
-      },
+      &quot;a&quot;: &quot;FrameBlock:1.back_bottom_left&quot;,
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:8&quot;,
         &quot;point&quot;: [
