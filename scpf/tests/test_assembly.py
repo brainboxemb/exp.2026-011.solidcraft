@@ -1124,6 +1124,48 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
         self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
 
+    def test_assembly_corner_anchor_rotation_uses_quarter_turns(self):
+        from scpf.core import Anchor, AnchorTopology, Box
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        left = Block(name="left")
+        right = Block(name="right")
+
+        frame = (left + right).with_anchor(
+            "front_top_left",
+            left,
+            Anchor.FRONT_TOP_LEFT,
+            rotation=180,
+        ).with_anchor(
+            "back_bottom_right",
+            right,
+            Anchor.BACK_BOTTOM_RIGHT,
+            rotation=90,
+        )
+
+        front = frame.anchor("front_top_left").reference
+        self.assertIsInstance(front, AnchorTopology)
+        self.assertEqual(front.z, (0.0, -1.0, 0.0))
+        self.assertEqual(front.x, (0.0, 0.0, 1.0))
+
+        rear = frame.anchor("back_bottom_right").reference
+        self.assertIsInstance(rear, AnchorTopology)
+        self.assertEqual(rear.z, (0.0, 1.0, 0.0))
+        self.assertEqual(rear.x, (0.0, 0.0, 1.0))
+
+        with self.assertRaisesRegex(ValueError, "multiple of 90"):
+            (left + right).with_anchor(
+                "invalid",
+                left,
+                Anchor.FRONT_TOP_LEFT,
+                rotation=45,
+            )
+
     def test_group_preserves_assembly_anchor_target(self):
         from scpf.core import AnchorTopology, Box
         from scpf.runner import component
