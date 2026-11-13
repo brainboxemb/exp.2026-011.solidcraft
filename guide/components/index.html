@@ -146,7 +146,7 @@ class Board:
 
     def build(self):
         return Box(40, 100, 20)</code></pre>
-<p>This is useful for references such as the straight tangent edge beside a fillet: if dimensions move that edge, the joint can follow it without freezing the original XYZ point. The current implementation supports named <code>AnchorTopology</code> values on non-rotated occurrences; SCPF deliberately does not transform topology picks itself.</p>
+<p>This is useful for references such as the straight tangent edge beside a fillet: if dimensions move that edge, the joint can follow it without freezing the original XYZ point. The current implementation supports named or direct <code>AnchorTopology</code> values on non-rotated occurrences. A direct topology anchor is useful when the datum belongs only to one assembly rather than to the reusable component. SCPF deliberately does not transform topology picks itself.</p>
 <p>SolidCraft joints remain an internal implementation detail; Forge does not
 expose a separate public Joint object.</p>
 <h2 id="verify">What to test in an assembly</h2>
