@@ -1,12 +1,12 @@
 {
-  "library_commit": "8acad149cdaaef729c2cd6f6929b9c73bf785ec8",
+  "library_commit": "f5d6e2a40873f7af2251217a89b3aff2aab62890",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
     "simple-box": {
       "title": "Parameterized Box",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 7,
       "native_evidence": [
         "results.json",
@@ -26,14 +26,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -72,7 +75,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -83,9 +86,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -96,8 +105,8 @@
     },
     "anchored-holes": {
       "title": "Face-relative hole pattern",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 13,
       "native_evidence": [
         "results.json",
@@ -117,14 +126,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -163,7 +175,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -174,9 +186,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -187,8 +205,8 @@
     },
     "parameter-scope": {
       "title": "Implicit component parameters and shared dependencies",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 32,
       "native_evidence": [
         "results.json",
@@ -213,14 +231,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -263,7 +284,7 @@
           ]
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -274,9 +295,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -287,8 +314,8 @@
     },
     "components": {
       "title": "Place one component relative to another",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 13,
       "native_evidence": [
         "results.json",
@@ -308,14 +335,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -354,7 +384,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -365,9 +395,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -378,8 +414,8 @@
     },
     "parametric-attach": {
       "title": "Editable distance between attached components",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 16,
       "native_evidence": [
         "results.json",
@@ -402,14 +438,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -453,7 +492,7 @@
           ]
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -464,9 +503,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -576,8 +621,8 @@
     },
     "parametric-anchor": {
       "title": "Face anchor follows parent geometry",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 16,
       "native_evidence": [
         "results.json",
@@ -600,14 +645,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -651,7 +699,7 @@
           ]
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -662,9 +710,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -774,8 +828,8 @@
     },
     "four-corner-l": {
       "title": "One L-profile on all four front corners",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 26,
       "native_evidence": [
         "results.json",
@@ -801,18 +855,21 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
         "overlay-iso.png",
+        "visual-diff-iso.png",
         "model-size-160x120-front.png",
         "model-size-160x120-iso.png",
         "model-size-160x120-right.png",
         "model-size-160x120.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -857,7 +914,7 @@
           ]
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -872,9 +929,15 @@
             "model-size-160x120.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -885,8 +948,8 @@
     },
     "custom-anchor": {
       "title": "Named oriented AnchorFrame",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 17,
       "native_evidence": [
         "results.json",
@@ -906,14 +969,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -952,7 +1018,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -963,9 +1029,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -1075,8 +1147,8 @@
     },
     "primitive-csg": {
       "title": "Primitive CSG",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 4,
       "native_evidence": [
         "results.json",
@@ -1096,14 +1168,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -1142,7 +1217,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -1153,9 +1228,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -1166,8 +1247,8 @@
     },
     "bracket": {
       "title": "Minimal L-profile",
-      "status": "REVIEW",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6 REVIEW",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 7,
       "native_evidence": [
         "results.json",
@@ -1187,14 +1268,17 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
+        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
+        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
-        "overlay-iso.png"
+        "overlay-iso.png",
+        "visual-diff-iso.png"
       ],
-      "qualification_status": "review",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -1233,7 +1317,7 @@
           "evidence": []
         },
         "q6": {
-          "status": "review",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -1244,9 +1328,15 @@
             "model-right.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png"
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
           ],
           "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
