@@ -50,10 +50,39 @@
 </section>
 
 <section class="panel">
-  <h2>2. What SolidCraft actually needs</h2>
-  <p>A SolidCraft joint connects two <strong>joint origins</strong>: origin A on the parent and
-  origin B on the child. A joint origin is more than a point. It identifies a position and a local
-  frame at that position.</p>
+  <h2>2. Wat is een joint origin? / What is a joint origin?</h2>
+
+  <h3>Nederlands — eenvoudige uitleg</h3>
+  <p><strong>Een joint origin op een bracket (beugel) is het digitale ankerpunt waarmee je het onderdeel vastzet.</strong>
+  Je kunt dit het beste zien als een klein lokaal assenstelsel met een eigen X-, Y- en Z-as.</p>
+
+  <ul>
+    <li><strong>Origin (het nulpunt):</strong> het precieze punt op de beugel waar het lokale assenstelsel begint, bijvoorbeeld het midden van een schroefgat.</li>
+    <li><strong>Z-as (de normaal):</strong> bepaalt welke kant het bevestigingspunt op wijst.</li>
+    <li><strong>X-as (de draaiing):</strong> zodra Z vastligt kan de beugel nog om Z draaien. X legt die klokstand vast.</li>
+    <li><strong>Y-as (automatisch):</strong> zodra Z en X bekend zijn volgt de derde loodrechte as automatisch.</li>
+  </ul>
+
+  <pre><code>origin = waar zit het punt?
+Z      = welke kant kijkt het punt op?
+X      = hoe is het rond die richting gedraaid?
+Y      = volgt automatisch</code></pre>
+
+  <h3>English — simple explanation</h3>
+  <p><strong>A joint origin on a bracket is the digital attachment point used to connect the part.</strong>
+  The easiest way to understand it is as a small local coordinate system with its own X, Y and Z axes.</p>
+
+  <ul>
+    <li><strong>Origin:</strong> the exact point where the local coordinate system starts, for example the centre of a screw hole.</li>
+    <li><strong>Z axis (normal):</strong> defines which way the attachment point faces.</li>
+    <li><strong>X axis (clocking):</strong> once Z is fixed, X fixes the remaining rotation around Z.</li>
+    <li><strong>Y axis (automatic):</strong> once Z and X are known, the third perpendicular axis follows automatically.</li>
+  </ul>
+
+  <pre><code>origin = where is the point?
+Z      = which way does it face?
+X      = how is it rotated around that direction?
+Y      = calculated automatically</code></pre>
 
   <figure class="qualification-setup-diagram qualification-concept-diagram">
     <a href="solidcraft-joint-anatomy.svg" class="qualification-image-link" target="_blank" rel="noopener">
@@ -64,66 +93,60 @@
     <a href="solidcraft-joint-anatomy.dxf">DXF</a></figcaption>
   </figure>
 
-  <table>
-    <thead><tr><th>Information</th><th>Meaning</th></tr></thead>
-    <tbody>
-      <tr><td><code>occurrence</code></td><td>Which placed component this joint origin belongs to.</td></tr>
-      <tr><td>reference</td><td>Where on it: face, circle, edge/corner, plane, axis or explicit point.</td></tr>
-      <tr><td><code>z</code></td><td>The local z direction: which way the joint origin faces.</td></tr>
-      <tr><td><code>x</code></td><td>The local x direction: fixes the remaining spin around z.</td></tr>
-      <tr><td>joint relation</td><td>Rigid, planar, revolute, etc., plus native offset/angle/values.</td></tr>
-    </tbody>
-  </table>
-
   <h3>Conceptual API object</h3>
-  <p>This is <strong>not</strong> the SolidCraft command format. It is only a readable way to explain
-  the information in one explicit point-based joint origin:</p>
+  <p>In a generic API the same local frame can be described explicitly with a point and two directions:</p>
 
   <pre><code>{
   "joint_origin": {
-    "name": "bracket_mount",
-    "point": [0, 0, 0],
-    "z_direction": [0, -1, 0],
-    "x_direction": [1, 0, 0],
-    "y_direction": "derived from x and z"
+    "name": "beugel_bevestigingspunt_1",
+    "description": "Midden van het bovenste schroefgat",
+    "origin": {
+      "x": 10.0,
+      "y": 25.0,
+      "z": 0.0
+    },
+    "axes": {
+      "z_direction": [0, 0, 1],
+      "x_direction": [1, 0, 0],
+      "y_direction": "auto_calculated"
+    }
   }
 }</code></pre>
 
-  <p>Only two directions need to be supplied. Together, <code>x</code> and <code>z</code> fix the
-  local frame; the remaining perpendicular direction follows from them.</p>
+  <p><code>origin</code> is the position. <code>z_direction</code> tells which way the local frame faces.
+  <code>x_direction</code> fixes the remaining clocking around Z. Y does not need to be authored separately.</p>
 
-  <h3>The real SolidCraft JSON generated today</h3>
-  <p>For the current bracket fixture Forge emits a real <code>joint.create</code> command like this:</p>
+  <h3>The same idea in Forge</h3>
+  <p>For the six main axis directions, Forge uses readable names instead of requiring the vector every time:</p>
 
-  <pre><code>{
-  "command": "joint.create",
-  "params": {
-    "type": "rigid",
-    "name": "Attach LBracket:1 to FrameBlock:1",
-    "a": {
-      "occurrence": "FrameBlock:1",
-      "edge": [-60, -40, 30],
-      "on": [0, -40, 30],
-      "corner": [-60, -40, 60]
-    },
-    "b": {
-      "occurrence": "LBracket:1",
-      "point": [-60, -40, 60],
-      "z": [0, -1, 0],
-      "x": [1, 0, 0]
-    },
-    "angle": 0
-  }
-}</code></pre>
+  <table>
+    <thead><tr><th>Forge</th><th>Vector</th><th>Direction</th></tr></thead>
+    <tbody>
+      <tr><td><code>RIGHT</code></td><td><code>(1, 0, 0)</code></td><td>+X</td></tr>
+      <tr><td><code>LEFT</code></td><td><code>(-1, 0, 0)</code></td><td>-X</td></tr>
+      <tr><td><code>BACK</code></td><td><code>(0, 1, 0)</code></td><td>+Y</td></tr>
+      <tr><td><code>FRONT</code></td><td><code>(0, -1, 0)</code></td><td>-Y</td></tr>
+      <tr><td><code>UP</code></td><td><code>(0, 0, 1)</code></td><td>+Z</td></tr>
+      <tr><td><code>DOWN</code></td><td><code>(0, 0, -1)</code></td><td>-Z</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>AnchorFrame(
+    origin=(10, 25, 0),
+    z=RIGHT,
+    x=UP,
+)</code></pre>
+
+  <p>These names are only readable unit vectors. They do not add a second orientation system.
+  Arbitrary XYZ vectors remain valid for genuinely angled frames.</p>
+
+  <h3>The real SolidCraft relationship remains explicit</h3>
+  <p>Forge still lowers the frame to SolidCraft's own joint information. The readable names do not change the native data model.</p>
 
   <div class="json-explainer">
-    <div><strong>A — frame side</strong><br><code>edge + on + corner</code> selects real topology. SolidCraft can keep that selection associated with changing geometry.</div>
+    <div><strong>A — frame side</strong><br><code>edge + on + corner</code> can select real topology. SolidCraft keeps that selection associated with changing geometry.</div>
     <div><strong>B — bracket side</strong><br><code>point + z + x</code> explicitly supplies the child joint origin and its orientation.</div>
   </div>
-
-  <div class="notice"><strong>This is the key design problem.</strong> The SolidCraft JSON is already
-  explicit enough. What we need from Forge is a better way for model code to describe B without
-  forcing ordinary users to type <code>[0,-1,0]</code> and <code>[1,0,0]</code>.</div>
 </section>
 
 <section class="panel">
@@ -241,8 +264,8 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
 
   <pre><code>bracket_corner = AnchorFrame(
     origin=(0, 0, 0),
-    z=(0, -1, 0),
-    x=(1, 0, 0),
+    z=FRONT,
+    x=RIGHT,
 )</code></pre>
 
   <p>and then uses it in the assembly:</p>
@@ -254,9 +277,9 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
     angle=0,
 )</code></pre>
 
-  <p>The problem is not that these values are wrong as low-level data. The problem is that ordinary
-  model code has to understand and spell SolidCraft's basis vectors directly. The numbers do not
-  explain their intent.</p>
+  <p>The low-level vectors are still the real data, but ordinary model code no longer has to spell
+  the six principal directions numerically. The readable constants make the intent visible while
+  keeping the mapping to SolidCraft direct.</p>
 </section>
 
 <section class="panel">
@@ -270,9 +293,10 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
     <li>The solution is qualified first with four brackets, then eight, then a true 3D corner component.</li>
   </ol>
 
-  <div class="notice"><strong>Still open:</strong> what is the smallest readable Forge expression
-  for the child joint origin that passes the same position/z/x information through to SolidCraft
-  without inventing extra orientation intelligence?</div>
+  <div class="notice"><strong>Chosen API:</strong> keep <code>AnchorFrame(origin, z, x)</code>,
+  expose <code>RIGHT</code>, <code>LEFT</code>, <code>FRONT</code>, <code>BACK</code>,
+  <code>UP</code> and <code>DOWN</code> as readable unit vectors, and keep arbitrary vectors
+  available for non-axis-aligned frames. Forge does not guess any additional orientation.</div>
 </section>
 
 <section class="panel">
