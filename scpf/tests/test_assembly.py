@@ -1530,7 +1530,7 @@ class AssemblyTests(unittest.TestCase):
             left,
             parent=Anchor.RIGHT,
             child=Anchor.LEFT,
-            offset=(-wood + 12, 0),
+            offset=(0, -wood + 12),
         )
 
         commands = compile_assembly(left + right, "ParametricOffset")["commands"]
@@ -1550,7 +1550,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["type"], "planar")
         self.assertEqual(
             joint["values"],
-            ["-(wood_thickness) + 12 mm", 0, 0.0],
+            [0, "-(wood_thickness) + 12 mm", 0.0],
         )
 
 
