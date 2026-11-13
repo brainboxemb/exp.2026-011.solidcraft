@@ -56,11 +56,12 @@ def collect(
 ) -> dict:
     q1_pass = _suite_passed(qualification_dir / "q1-python-tests.txt")
     q2_tests_pass = _suite_passed(qualification_dir / "q2-python-qualification-tests.txt")
-    native_tests_pass = _suite_passed(qualification_dir / "q3-q5-python-qualification-tests.txt")
 
     q2_rows = _read_tsv(qualification_dir / "q2-command-contract.tsv")
     native_rows = _read_tsv(qualification_dir / "q3-q4-q6-native.tsv")
     mutation_rows = _read_tsv(qualification_dir / "q5-parametric-mutation.tsv")
+    validation_rows = _read_tsv(qualification_dir / "native-validation.tsv")
+    visual_rows = _read_tsv(qualification_dir / "visual-validation.tsv")
 
     aggregate = {
         "schema_version": SCHEMA_VERSION,
@@ -75,6 +76,8 @@ def collect(
         q2 = q2_rows.get(slug, {})
         native = native_rows.get(slug, {})
         mutation = mutation_rows.get(slug)
+        validation = validation_rows.get(slug, {})
+        visual = visual_rows.get(slug, {})
         mutation_required = bool(case.get("q5_required", False))
 
         images = _existing_names(case_dir, ("*.png",))
@@ -91,17 +94,29 @@ def collect(
                 "model*.sc",
                 "model*.step",
                 "export-*.json",
+                "validation.json",
+                "visual-validation.json",
+                "visual-diff-*.png",
             ),
         )
 
         q2_pass = q2_tests_pass and q2.get("status") == "PASS"
-        q3_pass = native.get("build") == "PASS"
-        q4_pass = native.get("eval") == "PASS" and native_tests_pass
-        q6_pass = native.get("snapshot") == "PASS" and bool(images)
+        q3_pass = native.get("build") == "PASS" and native.get("eval") == "PASS"
+
+        q4_status = validation.get("q4", "MISSING").lower()
+        if q4_status not in {"pass", "fail", "review"}:
+            q4_status = "missing"
+
         if mutation_required:
-            q5_status = "pass" if mutation and mutation.get("status") == "PASS" and native_tests_pass else "missing"
+            q5_status = validation.get("q5", "MISSING").lower()
+            if q5_status not in {"pass", "fail", "review"}:
+                q5_status = "missing"
         else:
             q5_status = "not-required"
+
+        q6_status = visual.get("status", "MISSING").lower()
+        if q6_status not in {"pass", "fail", "review"}:
+            q6_status = "missing"
 
         levels = {
             "q1": {
@@ -118,8 +133,13 @@ def collect(
                 "evidence": [name for name in native_files if name in {"results.json", "model.sc", "model.step"}],
             },
             "q4": {
-                "status": "pass" if q4_pass else "missing",
-                "evidence": [name for name in native_files if name.startswith("measurements") or name.startswith("joint-")],
+                "status": q4_status,
+                "evidence": [
+                    name for name in native_files
+                    if name.startswith("measurements")
+                    or name.startswith("joint-")
+                    or name == "validation.json"
+                ],
             },
             "q5": {
                 "status": q5_status,
@@ -132,8 +152,13 @@ def collect(
                 ],
             },
             "q6": {
-                "status": "pass" if q6_pass else "missing",
+                "status": q6_status,
                 "images": images,
+                "evidence": [
+                    name for name in native_files
+                    if name == "visual-validation.json"
+                    or name.startswith("visual-diff-")
+                ],
             },
         }
 
@@ -142,7 +167,14 @@ def collect(
             for key, level in levels.items()
             if key != "q5" or mutation_required
         ]
-        overall = "pass" if all(status == "pass" for status in required_statuses) else "incomplete"
+        if "fail" in required_statuses:
+            overall = "fail"
+        elif "missing" in required_statuses:
+            overall = "incomplete"
+        elif "review" in required_statuses:
+            overall = "review"
+        else:
+            overall = "pass"
 
         result = {
             "schema_version": SCHEMA_VERSION,
@@ -187,14 +219,15 @@ def main() -> int:
         args.source_sha,
         args.solidcraft_version,
     )
-    incomplete = [
-        slug for slug, result in aggregate["cases"].items()
-        if result["status"] != "pass"
-    ]
-    if incomplete:
-        print("Incomplete qualification cases: " + ", ".join(incomplete), file=sys.stderr)
-        return 1
-    print(f"Collected {len(aggregate['cases'])} qualification case results")
+    counts = {}
+    for result in aggregate["cases"].values():
+        counts[result["status"]] = counts.get(result["status"], 0) + 1
+    print(
+        f"Collected {len(aggregate['cases'])} qualification case results: "
+        + ", ".join(f"{key}={value}" for key, value in sorted(counts.items()))
+    )
+    # FAIL/REVIEW are report data. The workflow gates after artifacts and Pages
+    # have been generated so failed qualification remains inspectable.
     return 0
 
 
