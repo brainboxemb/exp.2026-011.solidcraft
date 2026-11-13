@@ -336,9 +336,9 @@ class AssemblyTests(unittest.TestCase):
             if command["command"] == "joint.create"
         )
         self.assertEqual(joint["type"], "planar")
-        self.assertEqual(joint["values"], [5, 7, 15])
+        self.assertEqual(joint["values"], [5, 7, 0.0])
         self.assertEqual(joint["offset"], 3)
-        self.assertNotIn("angle", joint)
+        self.assertEqual(joint["angle"], 15)
 
     def test_different_model_parameters_create_independent_component_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
