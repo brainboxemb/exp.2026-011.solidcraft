@@ -192,11 +192,30 @@
     }
   ],
   "body_count": 5,
-  "params": [],
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "120",
+      "model": false,
+      "name": "FrameBlock_width",
+      "unit": "mm",
+      "value": 120.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "80",
+      "model": false,
+      "name": "FrameBlock_height",
+      "unit": "mm",
+      "value": 80.0
+    }
+  ],
   "sketches": [
     {
       "curves": 4,
-      "dof": 4,
+      "dof": 0,
       "id": 3,
       "name": "FrameBlock footprint",
       "profiles": 1,
@@ -221,7 +240,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.203235,
+      "ms": 0.17191299999999998,
       "name": "FrameBlock footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -235,7 +254,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.872341,
+      "ms": 0.750811,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -249,7 +268,7 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.09938999999999999,
+      "ms": 0.083597,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -263,7 +282,7 @@
       },
       "error": null,
       "id": 8,
-      "ms": 0.473882,
+      "ms": 0.360689,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,

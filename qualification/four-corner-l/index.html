@@ -9,21 +9,21 @@
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
 <div class="crumb"><a href="../">← Qualification</a> / One L-profile on all four front corners</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · Q1–Q4/Q6 native verified</p>
-<h1>One L-profile on all four front corners</h1><p>Verify that one directional L-profile and one child AnchorFrame are oriented correctly by each of the four semantic front-corner anchors before any parameter scaling is introduced.</p></section>
+<section class="hero small"><p class="eyebrow">Forge qualification case · Q1–Q6 native verified</p>
+<h1>One L-profile on all four front corners</h1><p>Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.</p></section>
 <figure class="example-image"><img src="model.png" alt="One L-profile on all four front corners native SolidCraft snapshot" loading="lazy"><figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>
 <div class="twocol">
 <section class="panel"><h2>1. Forge contract</h2>
 <h3>Public API</h3><p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0</code></p>
-<h3>Internal Forge model</h3><p>One fixed rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
+<h3>Internal Forge model</h3><p>One parametric rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
 <h3>SolidCraft lowering</h3><p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
 </section>
 <section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>The four 40x40 L bounding boxes occupy the four quadrants immediately inside the parent front-face corners, with the bracket width centred on that face.</p>
-<h3>Parametric mutation</h3><p>None in this case. Width/height mutation is deliberately deferred until the four initial corner orientations are proven.</p>
-<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
+<h3>Expected result</h3><p>The four 40x40 L bounding boxes occupy the four inward front-corner quadrants and keep the same local clock cycle after the parent grows from 120x80 to 160x120 mm.</p>
+<h3>Parametric mutation</h3><p>After the fixed baseline is proven, change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four brackets and solved joint origins must follow their corners without rerunning Python.</p>
+<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="model.png">Native snapshot</a></li></ul>
 </section></div>
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -15, 0]</code></td><td><code>[60, 15, 80]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -27, 40]</code></td><td><code>[-20, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[20, -27, 40]</code></td><td><code>[60, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[20, -27, 0]</code></td><td><code>[60, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -27, 0]</code></td><td><code>[-20, -3, 40]</code></td></tr></tbody></table></details></section>
+<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>160.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -15, 0]</code></td><td><code>[80, 15, 120]</code></td></tr><tr><td>LBracket</td><td><code>[-80, -27, 80]</code></td><td><code>[-40, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[40, -27, 80]</code></td><td><code>[80, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[40, -27, 0]</code></td><td><code>[80, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-80, -27, 0]</code></td><td><code>[-40, -3, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>120.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -15, 0]</code></td><td><code>[60, 15, 80]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -27, 40]</code></td><td><code>[-20, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[20, -27, 40]</code></td><td><code>[60, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[20, -27, 0]</code></td><td><code>[60, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -27, 0]</code></td><td><code>[-20, -3, 40]</code></td></tr></tbody></table></details></section>
 <section class="panel"><h2>4. Generated native relationship/command path</h2>
 <pre><code>[
   {
@@ -206,16 +206,16 @@
 <section class="panel"><h2>5. Reference models</h2>
 <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
 <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner.</li></ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Four fixed front-corner placements using the minimal L-profile.&quot;&quot;&quot;
+<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Four associative front-corner placements using the minimal L-profile.&quot;&quot;&quot;
 
 
 class FrameBlock:
-    WIDTH = 120.0
+    width = 120.0
     DEPTH = 30.0
-    HEIGHT = 80.0
+    height = 80.0
 
     def build(self):
-        return Box(self.WIDTH, self.DEPTH, self.HEIGHT)
+        return Box(self.width, self.DEPTH, self.height)
 
 
 class LBracket:

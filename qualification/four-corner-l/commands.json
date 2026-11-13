@@ -1,6 +1,22 @@
 {
   "commands": [
     {
+      "command": "parameters.add",
+      "params": {
+        "name": "FrameBlock_width",
+        "expression": "120",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "FrameBlock_height",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
       "command": "component.create",
       "params": {
         "name": "FrameBlock",
@@ -18,11 +34,11 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          -60.0,
+          "-FrameBlock_width / 2",
           -15.0
         ],
         "p1": [
-          60.0,
+          "FrameBlock_width / 2",
           15.0
         ]
       }
@@ -34,7 +50,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 80.0,
+        "distance": "FrameBlock_height",
         "body_name": "FrameBlock"
       }
     },

@@ -1,5 +1,5 @@
 {
-  "library_commit": "57ebabf15696c11a336d6824a168f63fb94b156e",
+  "library_commit": "382a81593e0aa51af11911b2174709942d1f9f44",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -134,18 +134,21 @@
     },
     "four-corner-l": {
       "title": "One L-profile on all four front corners",
-      "status": "Q1\u2013Q4/Q6 native verified",
-      "command_count": 24,
+      "status": "Q1\u2013Q6 native verified",
+      "command_count": 26,
       "native_evidence": [
         "results.json",
+        "measurements-size-160x120.json",
         "measurements.json",
+        "joint-inspect-size-160x120.json",
         "joint-inspect.json",
+        "model-size-160x120.sc",
         "model.sc",
         "model.step"
       ],
       "solidcraft_version": "0.30.1",
       "body_count": 5,
-      "parameter_count": 0
+      "parameter_count": 2
     },
     "custom-anchor": {
       "title": "Named oriented AnchorFrame",

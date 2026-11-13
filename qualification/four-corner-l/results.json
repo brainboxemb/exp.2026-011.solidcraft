@@ -1,5 +1,17 @@
 [
   {
+    "display_value": 120.0,
+    "name": "FrameBlock_width",
+    "unit": "mm",
+    "value": 120.0
+  },
+  {
+    "display_value": 80.0,
+    "name": "FrameBlock_height",
+    "unit": "mm",
+    "value": 80.0
+  },
+  {
     "component": 1,
     "grounded": true,
     "name": "FrameBlock",
@@ -65,7 +77,7 @@
       "top": "l3"
     },
     "sketch": {
-      "dof": 4,
+      "dof": 0,
       "solved": true
     }
   },
@@ -82,7 +94,7 @@
       "FrameBlock"
     ],
     "feature": 4,
-    "ms": 0.9525910000000001,
+    "ms": 0.9231760000000001,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -162,7 +174,7 @@
       "LBracket"
     ],
     "feature": 8,
-    "ms": 0.40998599999999996,
+    "ms": 0.377851,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
