@@ -5,10 +5,8 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
 sys.path.insert(0, str(ROOT / "site"))
-from build import EXAMPLES
-from qualification.cases import QUALIFICATION_CASES, QUALIFICATION_GROUPS
+from build import EXAMPLES, QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 from capability_map import SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
 import scpf
