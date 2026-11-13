@@ -461,7 +461,7 @@ def render_template(name, **values):
     return Template(text(template_path)).substitute(values)
 
 
-def build(out, sha, native_root=None):
+def build(out, sha, native_root=None, diagram_root=None):
     """Compile the public examples and attach verified native screenshots if available.
 
     A .png is accepted only when the native verification file identifies the
@@ -605,11 +605,25 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
         diagram_html = ""
         diagram_name = case.get("diagram")
+        plan_name = None
+        dxf_name = None
         if diagram_name:
-            diagram_source = ROOT / "qualification" / "diagrams" / diagram_name
+            diagram_source = (
+                diagram_root / diagram_name
+                if diagram_root is not None
+                else ROOT / "qualification" / "diagrams" / diagram_name
+            )
             if not diagram_source.is_file():
                 raise ValueError(f"Qualification diagram missing: {diagram_source}")
             shutil.copyfile(diagram_source, case_dir / diagram_name)
+            dxf_source = diagram_source.with_suffix(".dxf")
+            if dxf_source.is_file():
+                dxf_name = dxf_source.name
+                shutil.copyfile(dxf_source, case_dir / dxf_name)
+            plan_source = ROOT / "qualification" / "diagrams" / f"{slug}.cadcraft.json"
+            if plan_source.is_file():
+                plan_name = plan_source.name
+                shutil.copyfile(plan_source, case_dir / plan_name)
         else:
             diagram_name = "setup.svg"
             setup_svg = expected_setup_schematic(slug)
@@ -619,14 +633,28 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 diagram_name = None
 
         if diagram_name:
+            if plan_name:
+                source_links = (
+                    f' <a href="{escape(plan_name)}">CadCraft source</a>'
+                    + (f' · <a href="{escape(dxf_name)}">DXF</a>' if dxf_name else "")
+                )
+                caption = (
+                    "Expected setup — technical drawing generated from the committed "
+                    "CadCraft command source; not verification output."
+                    + source_links
+                )
+            else:
+                caption = (
+                    "Expected setup — conceptual diagram, not verification output. "
+                    "Click for the full-size image."
+                )
             diagram_html = (
                 '<figure class="qualification-setup-diagram">'
                 f'<a href="{escape(diagram_name)}" class="qualification-image-link" '
                 'target="_blank" rel="noopener" title="Open full-size setup diagram">'
                 f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} expected setup diagram">'
                 '</a>'
-                '<figcaption>Expected setup — conceptual diagram, not verification output. '
-                'Click for the full-size image.</figcaption>'
+                f'<figcaption>{caption}</figcaption>'
                 '</figure>'
             )
         (case_dir / "commands.json").write_text(
@@ -660,6 +688,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             '<div class="notice">No source-matched native verification was supplied '
             'to this site build. The case sheet and command contract are still shown.</div>'
         )
+        case_preview_html = ""
         status = "NOT RUN"
         status_detail = "Q1 Q2 documented"
         if native_case is not None and native_case.is_dir():
@@ -705,6 +734,23 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
             preview_html = _render_visual_evidence(case, native_images)
+            case_preview = (
+                "model-iso.png" if "model-iso.png" in native_images
+                else "model.png" if "model.png" in native_images
+                else None
+            )
+            if case_preview:
+                case_preview_html = (
+                    '<figure class="qualification-case-preview">'
+                    f'<a href="{escape(case_preview)}" class="qualification-image-link" '
+                    'target="_blank" rel="noopener" title="Open full-size native preview">'
+                    f'<img src="{escape(case_preview)}" '
+                    f'alt="{escape(case["title"])} native SolidCraft preview">'
+                    '</a>'
+                    '<figcaption>Native SolidCraft preview — the same render used on the '
+                    'qualification overview page.</figcaption>'
+                    '</figure>'
+                )
             status, status_detail = _qualification_status(qualification_result)
             results_html, body_count, parameter_count = _render_native_results(
                 native_case,
@@ -740,6 +786,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "case.html",
             title=escape(case["title"]),
             status_badge=_qualification_status_html(status, status_detail),
+            case_preview=case_preview_html,
             setup_diagram=diagram_html,
             intent=escape(case["intent"]),
             gallery=preview_html,
@@ -959,6 +1006,48 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         encoding="utf-8",
     )
 
+    joint_anatomy_root = qualification_root / "joint-anatomy"
+    joint_anatomy_root.mkdir(exist_ok=True)
+    joint_diagrams = (
+        "solidcraft-joint-anatomy",
+        "solidcraft-joint-references",
+        "corner-bracket-goal",
+        "corner-bracket-depth",
+        "corner-bracket-local-axes",
+        "corner-bracket-front-corners",
+    )
+    for diagram in joint_diagrams:
+        for suffix in (".svg", ".dxf"):
+            source = (
+                diagram_root / f"{diagram}{suffix}"
+                if diagram_root is not None else None
+            )
+            if source is None or not source.is_file():
+                raise ValueError(
+                    f"Generated SolidCraft joint concept drawing missing: {diagram}{suffix}"
+                )
+            shutil.copyfile(source, joint_anatomy_root / source.name)
+        plan = ROOT / "qualification" / "diagrams" / f"{diagram}.cadcraft.json"
+        if not plan.is_file():
+            raise ValueError(f"CadCraft concept source missing: {plan}")
+        shutil.copyfile(plan, joint_anatomy_root / plan.name)
+
+    joint_anatomy_body = render_template(
+        "joint-anatomy.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(TESTED_SOLIDCRAFT_VERSION),
+    )
+    (joint_anatomy_root / "index.html").write_text(
+        page(
+            "SolidCraft joint anatomy",
+            joint_anatomy_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+
     (qualification_root / "index.html").write_text(
         page(
             "Qualification",
@@ -1030,6 +1119,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, default=ROOT / "output" / "site")
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--native", type=Path, help="Source-matched native screenshot directory")
+    parser.add_argument("--diagram-root", type=Path, help="Generated qualification setup diagrams")
     options = parser.parse_args()
-    build(options.out, options.source_sha, native_root=options.native)
+    build(options.out, options.source_sha, native_root=options.native, diagram_root=options.diagram_root)
     print(f"Built independent SCPF library site: {options.out}")

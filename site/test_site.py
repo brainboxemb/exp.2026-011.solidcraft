@@ -20,6 +20,7 @@ def check(site: Path, sha: str, require_native: bool = False):
         "results.html",
         "capabilities.html",
         "coverage.html",
+        "joint-anatomy.html",
         "report.md",
     ):
         template = template_dir / template_name
@@ -83,6 +84,38 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert current == "GAP" or current.startswith("Q")
 
     assert "Qualification" in home and "Qualification" in qualification_index
+    assert 'href="joint-anatomy/"' in qualification_index
+    joint_anatomy_page = (
+        site / "qualification" / "joint-anatomy" / "index.html"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Placing a corner bracket with Forge",
+        "The real SolidCraft JSON generated today",
+        "\"command\": \"joint.create\"",
+        "\"edge\": [-60, -40, 30]",
+        "\"z\": [0, -1, 0]",
+        "child joint origin",
+        "4 brackets",
+        "8 brackets",
+        "No second orientation solver",
+        "FRONT_TOP_LEFT",
+        "z=+Y, x=-Z",
+        "BACK_TOP_RIGHT",
+    ):
+        assert term in joint_anatomy_page, term
+    for diagram in (
+        "solidcraft-joint-anatomy",
+        "solidcraft-joint-references",
+        "corner-bracket-goal",
+        "corner-bracket-depth",
+        "corner-bracket-local-axes",
+        "corner-bracket-front-corners",
+    ):
+        for suffix in (".svg", ".dxf", ".cadcraft.json"):
+            artifact = site / "qualification" / "joint-anatomy" / f"{diagram}{suffix}"
+            assert artifact.is_file() and artifact.stat().st_size > 0, artifact
+        assert f'src="{diagram}.svg"' in joint_anatomy_page
+        assert f'href="{diagram}.cadcraft.json"' in joint_anatomy_page
     assert "Q1" in qualification_index and "Q6" in qualification_index
     assert 'class="reference-grid qualification-grid"' in qualification_index
     assert qualification_manifest["library_commit"] == sha
@@ -194,6 +227,12 @@ def check(site: Path, sha: str, require_native: bool = False):
             assert 'href="goal-iso.png"' in page_text, slug
             assert 'href="overlay-iso.png"' in page_text, slug
             assert f'src="{slug}/model-iso.png"' in qualification_index, slug
+            assert 'class="qualification-case-preview"' in page_text, slug
+            assert 'href="model-iso.png"' in page_text, slug
+            assert 'src="model-iso.png"' in page_text, slug
+            preview_pos = page_text.index('class="qualification-case-preview"')
+            setup_pos = page_text.index("<h2>1. Test setup</h2>")
+            assert preview_pos < setup_pos, slug
             native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
             assert "measurements.json" in native_evidence, slug
             assert "results.json" in native_evidence, slug
@@ -205,9 +244,17 @@ def check(site: Path, sha: str, require_native: bool = False):
                 assert structured_result["levels"]["q4"]["status"] == "fail", slug
 
             if slug == "four-corner-l":
-                diagram = setup_image
-                assert 'FRONT_TOP_LEFT' in diagram.read_text(encoding="utf-8")
-                assert 'child "mount"' in diagram.read_text(encoding="utf-8")
+                cadcraft_source = (
+                    site / "qualification" / slug / "four-corner-l.cadcraft.json"
+                )
+                assert cadcraft_source.is_file()
+                plan = json.loads(cadcraft_source.read_text(encoding="utf-8"))
+                plan_text = json.dumps(plan)
+                assert "BOTTOM offset" in plan_text
+                assert "CornerFoot contains geometry only" in plan_text
+                assert (site / "qualification" / slug / "four-corner-l.dxf").is_file()
+                assert "CadCraft source" in page_text
+                assert ">DXF</a>" in page_text
                 mutation_image = site / "qualification" / slug / "model-size-160x120.png"
                 assert mutation_image.is_file() and mutation_image.stat().st_size > 0
                 assert "model-size-160x120.png" in native_images

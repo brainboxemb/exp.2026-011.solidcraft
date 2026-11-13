@@ -87,6 +87,11 @@ background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
   .qualification-card{width:100%}
 }
 
+.qualification-case-preview{margin:0 0 18px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+.qualification-case-preview .qualification-image-link{background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
+.qualification-case-preview img{display:block;width:100%;max-height:390px;aspect-ratio:16/7;object-fit:contain;padding:14px}
+.qualification-case-preview figcaption{padding:9px 14px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line)}
+
 .qualification-test-purpose{margin-bottom:18px}
 .qualification-test-purpose h2{margin-bottom:8px}
 .qualification-test-purpose h3{margin-top:18px;margin-bottom:6px}
@@ -108,3 +113,12 @@ background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
 .qualification-setup-diagram .qualification-image-link{background:#f7f9fc}
 .qualification-setup-diagram img{display:block;width:100%;max-height:520px;object-fit:contain;padding:14px}
 .qualification-setup-diagram figcaption{padding:9px 14px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line)}
+.qualification-technical-large img{max-height:680px;padding:6px}
+
+
+.concept-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.concept-steps>div,.json-explainer>div{border:1px solid var(--line);border-radius:11px;padding:14px;background:var(--soft);line-height:1.55}
+.json-explainer{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.concept-requirements li{margin:8px 0;line-height:1.6}
+.qualification-concept-diagram img{max-height:480px;padding:4px}
+@media(max-width:800px){.concept-steps,.json-explainer{grid-template-columns:1fr}}

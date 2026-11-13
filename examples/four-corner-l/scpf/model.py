@@ -1,91 +1,96 @@
-"""Four associative front-corner placements using the minimal L-profile."""
+"""Four reusable L-profile feet mounted under one rectangular frame."""
 
 
 class FrameBlock:
-    width = 120.0
-    DEPTH = 30.0
-    height = 80.0
+    _width = 120.0
+    _depth = 80.0
+    HEIGHT = 60.0
 
     def build(self):
-        return Box(self.width, self.DEPTH, self.height)
+        return Box(self._width, self._depth, self.HEIGHT)
 
 
-class LBracket:
-    THICKNESS = 4.0
-    ARM_LENGTH = 40.0
-    ARM_HEIGHT = 12.0
-
-    def anchors(self):
-        return {
-            # Physical mating datum of the bracket:
-            #
-            # origin: the outer corner of the L; this point must coincide with
-            #         the selected parent corner.
-            # z:      the mating normal of the child datum. It points toward
-            #         the outside/front side in the bracket's local frame.
-            # x:      the local direction of the horizontal L arm.
-            #
-            # Important: z describes the attachment frame, not the direction
-            # in which the bracket material is extruded.
-            "mount": AnchorFrame(
-                origin=(0, 0, 0),
-                z=(0, -1, 0),
-                x=(1, 0, 0),
-            ),
-        }
+class CornerFoot:
+    ARM_LENGTH = 28.0
+    WALL = 8.0
+    HEIGHT = 30.0
 
     def build(self):
-        profile = Polygon2D(
+        # Neutral reusable component.
+        #
+        # The local origin is the outside top corner of the foot.
+        # The L-shaped footprint extends in local +X/+Y and the foot extends
+        # downwards in local -Z. It has no knowledge of the frame or of which
+        # of the four frame corners it will occupy.
+        footprint = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_LENGTH),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane="XZ",
+            plane="XY",
         )
-        # Material lies on the opposite side of the mating normal. With the
-        # mount datum above, +Y in the bracket definition becomes the outside
-        # of the parent's front face after the rigid joint is solved.
-        return profile.extrude(
-            self.THICKNESS,
-            direction=Direction.POSITIVE,
+        return footprint.extrude(
+            self.HEIGHT,
+            direction=Direction.NEGATIVE,
         )
 
 
 class FourCornerL:
+    frame_width = 120.0
+    frame_depth = 80.0
+
     def build(self):
-        frame = FrameBlock()
-        bracket = LBracket()
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+        )
+        foot = CornerFoot()
 
-        top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child="mount",
-            angle=0,
-        )
-        top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child="mount",
-            angle=0,
-        )
-        bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child="mount",
-            angle=0,
-        )
-        bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child="mount",
-            angle=0,
+        # The assembly chooses the attachment point and orientation.
+        # CornerFoot itself stays completely placement-agnostic.
+        foot_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, 0, 1),
+            x=(1, 0, 0),
         )
 
-        return frame + top_left + top_right + bottom_right + bottom_left
+        half_width = self.frame_width / 2
+        half_depth = self.frame_depth / 2
+
+        front_left = foot.copy().attach(
+            frame,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(-half_width, -half_depth),
+            angle=0,
+        )
+        front_right = foot.copy().attach(
+            frame,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(half_width, -half_depth),
+            angle=90,
+        )
+        back_right = foot.copy().attach(
+            frame,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(half_width, half_depth),
+            angle=180,
+        )
+        back_left = foot.copy().attach(
+            frame,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(-half_width, half_depth),
+            angle=270,
+        )
+
+        return frame + front_left + front_right + back_right + back_left
 
 
 FourCornerL()

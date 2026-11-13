@@ -1,0 +1,253 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Front and rear bracket rows - side view",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "WOOD",
+        "color": 8,
+        "lineweight": 1,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            120,
+            0
+          ],
+          [
+            0,
+            102
+          ],
+          [
+            120,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          120,
+          102
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKETS",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            65
+          ],
+          [
+            0,
+            65
+          ],
+          [
+            -7,
+            102
+          ],
+          [
+            0,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            -7,
+            37
+          ],
+          [
+            0,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            120,
+            65
+          ],
+          [
+            127,
+            65
+          ],
+          [
+            120,
+            102
+          ],
+          [
+            127,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            120,
+            0
+          ],
+          [
+            127,
+            0
+          ],
+          [
+            120,
+            37
+          ],
+          [
+            127,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          -7,
+          65
+        ],
+        "p2": [
+          0,
+          102
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          -7,
+          0
+        ],
+        "p2": [
+          0,
+          37
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          120,
+          65
+        ],
+        "p2": [
+          127,
+          102
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          120,
+          0
+        ],
+        "p2": [
+          127,
+          37
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -3,
+          112
+        ],
+        "text": "FRONT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          123,
+          112
+        ],
+        "text": "REAR",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          60,
+          -14
+        ],
+        "text": "DEPTH",
+        "height": 5,
+        "justify": "C"
+      }
+    }
+  ]
+}
