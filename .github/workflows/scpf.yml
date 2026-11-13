@@ -6,8 +6,8 @@ on:
     paths:
       - "scpf/**"
       - "examples/**"
-      - "site/**"
-      - "README.md"
+      - "site/qualification_cases.py"
+      - "site/api_coverage.py"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
 
