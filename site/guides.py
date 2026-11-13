@@ -460,12 +460,14 @@ bracket = Bracket().attach(
     side,
     parent=Anchor.FRONT_TOP_LEFT,
     child=mount,
-    offset=(-wood + 12, 0),
+    offset=(0, -wood + 12),
     gap=-12,
 )""") + """
 <p><code>offset</code> is independent of <code>gap</code>: the two offset
 values move in the attachment plane, while <code>gap</code> remains the normal
-distance between the two references.</p>
+distance between the two references. On a rectangular corner origin, the
+second planar value follows the selected vertical corner edge; its sign is
+defined by that corner frame rather than by world Z.</p>
 <h2 id="assembly-anchor">Assembly-owned named anchors</h2>
 <p>When a datum belongs to the meaning of an assembly rather than to a generic
 component, keep it on the assembly with <code>with_anchor()</code>. The anchor
