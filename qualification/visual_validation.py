@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import zlib
 from io import BytesIO
 from pathlib import Path
 
@@ -31,6 +32,16 @@ def encode_reference(image: Image.Image) -> str:
 
 
 def decode_reference(data: dict) -> Image.Image:
+    if data.get("pixels_zlib_base64"):
+        raw = zlib.decompress(base64.b64decode(data["pixels_zlib_base64"]))
+        expected = REFERENCE_SIZE[0] * REFERENCE_SIZE[1]
+        if len(raw) != expected:
+            raise ValueError(
+                f"invalid compressed visual baseline byte count: "
+                f"{len(raw)} != {expected}"
+            )
+        return Image.frombytes("L", REFERENCE_SIZE, raw)
+
     if data.get("png_base64"):
         raw = base64.b64decode(data["png_base64"])
         image = Image.open(BytesIO(raw)).convert("RGB")

@@ -946,6 +946,24 @@ class AssemblyTests(unittest.TestCase):
             [joint["b"]["occurrence"] for joint in joints],
             ["Marker:1", "Marker:2"],
         )
+        self.assertEqual(
+            joints[0]["b"],
+            {
+                "occurrence": "Marker:1",
+                "point": [20.0, 0.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [-1.0, 0.0, 0.0],
+            },
+        )
+        self.assertEqual(
+            joints[1]["b"],
+            {
+                "occurrence": "Marker:2",
+                "point": [-20.0, 0.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [0.0, 0.0, -1.0],
+            },
+        )
 
     def test_anchor_frame_accepts_named_axis_directions(self):
         from scpf import AnchorFrame, RIGHT, UP
@@ -1213,6 +1231,85 @@ class AssemblyTests(unittest.TestCase):
             compile_assembly(board + child, "RotatedTopologyAnchor")
 
 
+    def test_direct_anchor_frame_rigid_attach_fixes_mating_angle(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, AnchorFrame, Box, FRONT, RIGHT
+        from scpf.runner import component
+
+        @component
+        class Base:
+            def build(self):
+                return Box(40, 30, 20)
+
+        @component
+        class Bracket:
+            def build(self):
+                return Box(10, 4, 10)
+
+        base = Base()
+        child_frame = AnchorFrame(
+            origin=(0, 0, 0),
+            z=FRONT,
+            x=RIGHT,
+        )
+        bracket = Bracket().attach(
+            base,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=child_frame,
+        )
+
+        commands = compile_assembly(base + bracket, "RigidFrame")["commands"]
+        joint = next(
+            row["params"]
+            for row in commands
+            if row["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "rigid")
+        self.assertEqual(joint["angle"], 0.0)
+
+    def test_direct_anchor_frame_planar_attach_fixes_mating_angle(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import AnchorFrame, Box
+        from scpf.runner import component
+
+        @component
+        class Base:
+            def build(self):
+                return Box(40, 30, 20)
+
+        @component
+        class Marker:
+            def build(self):
+                return Box(10, 10, 10)
+
+        parent = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, 0, -1),
+            x=(0, -1, 0),
+        )
+        child = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, 0, 1),
+            x=(0, 1, 0),
+        )
+        base = Base()
+        marker = Marker().attach(
+            base,
+            parent=parent,
+            child=child,
+            offset=(10, 20),
+        )
+
+        commands = compile_assembly(base + marker, "PlanarFrames")["commands"]
+        joint = next(
+            row["params"]
+            for row in commands
+            if row["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "planar")
+        self.assertEqual(joint["values"], [10.0, 20.0, 0.0])
+        self.assertEqual(joint["angle"], 0.0)
+
     def test_direct_anchor_frame_attachment_is_inlined(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, AnchorFrame, Box
@@ -1395,9 +1492,9 @@ class AssemblyTests(unittest.TestCase):
             joint["b"],
             {
                 "occurrence": "Marker:1",
-                "edge": [20.0, -15.0, 15.0],
-                "on": [15.0, -15.0, 15.0],
-                "corner": [20.0, -15.0, 20.0],
+                "point": [20.0, -15.0, 20.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [-1.0, 0.0, 0.0],
             },
         )
 
