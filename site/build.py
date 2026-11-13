@@ -13,8 +13,9 @@ import shutil
 from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
-from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, REFERENCE_URLS
+from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, QUALIFICATION_GROUPS, REFERENCE_URLS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
+from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
@@ -34,7 +35,7 @@ EXAMPLES = {
     },
     "components": {
         "title": "3 · Reuse a component",
-        "description": "Two instances of one Block definition, joined by a rigid attachment.",
+        "description": "Two instances of one Block definition, placed relative to meaningful component references.",
         "concepts": ["component", "occurrence", "Anchor", "attach"],
     },
     "corner-anchor": {
@@ -284,7 +285,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     # public API -> Forge model -> SolidCraft commands -> native evidence.
     qualification_root = out / "qualification"
     qualification_root.mkdir(exist_ok=True)
-    qualification_cards = []
+    qualification_cards = {key: [] for key, _, _ in QUALIFICATION_GROUPS}
     qualification_manifest = {}
 
     for case in QUALIFICATION_CASES:
@@ -395,7 +396,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
         }
-        qualification_cards.append(
+        qualification_cards[case["group"]].append(
             f'<article class="reference"><p class="eyebrow">{escape(status)}</p>'
             f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
@@ -419,14 +420,75 @@ treated as proof that the CAD result is correct.</p>
 <section class="panel"><h2>Qualification levels</h2>
 <table><thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
 <tbody>{level_rows}</tbody></table></section>
-<section class="section-heading"><h2>Case sheets</h2>
-<p>Each case documents intent, Forge API, internal representation, SolidCraft
-lowering, native measurements, parameter mutation and relevant CAD references.</p></section>
-<div class="reference-grid">{"".join(qualification_cards)}</div>
+<section class="section-heading"><h2>Functional qualification groups</h2>
+<p>Cases are grouped by the user concept they prove. Native SolidCraft command
+details stay inside each case's lowering section rather than becoming the
+learning structure.</p></section>
+{"".join(
+    f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
+    f'<div class="reference-grid">{"".join(qualification_cards[key])}</div>'
+    for key, title, description in QUALIFICATION_GROUPS
+    if qualification_cards[key]
+)}
 <section class="notice"><strong>Raw evidence:</strong> CI also retains the full
 saved .sc files and STEP exports in the qualification artifact. Pages publishes
 the command plans, measurement JSON and snapshots needed for normal review.</section>
 </main>"""
+    capability_root = qualification_root / "capabilities"
+    capability_root.mkdir(exist_ok=True)
+    capability_sections = []
+    for group_key, group_title in CAPABILITY_GROUPS:
+        rows = []
+        for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
+            if group != group_key:
+                continue
+            rows.append(
+                f"<tr><td><strong>{escape(capability)}</strong></td>"
+                f"<td>{escape(solidcraft)}</td><td>{escape(forge)}</td>"
+                f"<td>{escape(need)}</td><td>{escape(references)}</td>"
+                f"<td>{escape(note)}</td></tr>"
+            )
+        if rows:
+            capability_sections.append(
+                f'<section class="panel"><h2>{escape(group_title)}</h2>'
+                '<table><thead><tr><th>Capability</th><th>SolidCraft</th>'
+                '<th>Forge today</th><th>Need</th><th>API reference</th>'
+                '<th>Design note</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table></section>'
+            )
+
+    reference_cards = "".join(
+        f'<article class="reference"><h2><a href="{escape(item["url"])}">'
+        f'{escape(item["name"])}</a></h2><p><strong>{escape(item["role"])}</strong></p>'
+        f'<p>{escape(item["use"])}</p><p>{escape(item["strength"])}</p></article>'
+        for item in REFERENCE_MODELS
+    )
+    capability_body = f"""<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / CAD capability map</div>
+<section class="hero small"><p class="eyebrow">Completeness, not just test count</p>
+<h1>SolidCraft capability & Forge API map</h1>
+<p>This is a curated map of user-level CAD capabilities. It deliberately does
+not mirror SolidCraft's hundreds of individual commands. The goal is to see
+what the native engine can do, what Forge exposes today, and which gaps matter.</p>
+</section>
+<section class="section-heading"><h2>Reference APIs</h2>
+<p>PythonSCAD is the primary Python ergonomics reference; BOSL2 the main
+attachment/local-frame reference; OpenSCAD the minimal CSG baseline; and
+SolidCraft remains the native capability truth.</p></section>
+<div class="reference-grid">{reference_cards}</div>
+{"".join(capability_sections)}
+</main>"""
+    (capability_root / "index.html").write_text(
+        page(
+            "CAD capability map",
+            capability_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+
     coverage_root = qualification_root / "coverage"
     coverage_root.mkdir(exist_ok=True)
     case_slugs = {case["slug"] for case in QUALIFICATION_CASES}
@@ -491,7 +553,7 @@ that case exists.</section>
 
     qualification_index = qualification_index.replace(
         '<section class="section-heading"><h2>Case sheets</h2>',
-        '<p><a class="button" href="coverage/">Open API coverage matrix →</a></p>'
+        '<p><a class="button" href="capabilities/">Open CAD capability map →</a> <a class="button" href="coverage/">Open Forge API coverage matrix →</a></p>'
         '<section class="section-heading"><h2>Case sheets</h2>',
     )
     (qualification_root / "index.html").write_text(

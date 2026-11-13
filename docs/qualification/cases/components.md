@@ -1,4 +1,4 @@
-# Rigid component attachment
+# Place one component relative to another
 
 ## Use scenario
 

@@ -16,35 +16,24 @@ class QualificationCaseTests(unittest.TestCase):
 
         self.assertEqual(
             [command["command"] for command in commands],
-            [
-                "solid.sphere",
-                "solid.box",
-                "solid.cylinder",
-                "solid.cylinder",
-                "solid.cylinder",
-                "solid.box",
-            ],
+            ["solid.sphere", "solid.box", "solid.cylinder", "solid.box"],
         )
 
         sphere = commands[0]["params"]
         joined_box = commands[1]["params"]
-        cylinders = [command["params"] for command in commands[2:5]]
-        clipped_box = commands[5]["params"]
+        cylinder = commands[2]["params"]
+        clipped_box = commands[3]["params"]
 
         self.assertEqual(sphere["operation"], "new")
         self.assertEqual(sphere["radius"], 20)
-
         self.assertEqual(joined_box["operation"], "join")
         self.assertEqual(joined_box["center"], [18.0, 0.0, 10.0])
 
-        self.assertEqual([row["axis"] for row in cylinders], ["X", "Y", "Z"])
-        self.assertTrue(all(row["operation"] == "cut" for row in cylinders))
-        self.assertTrue(all(row["diameter"] == 8 for row in cylinders))
-        self.assertTrue(all(row["height"] == 60 for row in cylinders))
-        self.assertEqual(
-            [row["base"] for row in cylinders],
-            [[-30.0, 0, 0], [0, -30.0, 0], [0, 0, -30.0]],
-        )
+        self.assertEqual(cylinder["operation"], "cut")
+        self.assertEqual(cylinder["axis"], "Z")
+        self.assertEqual(cylinder["diameter"], 8)
+        self.assertEqual(cylinder["height"], 60)
+        self.assertEqual(cylinder["base"], [0.0, 0.0, -30.0])
 
         self.assertEqual(clipped_box["operation"], "intersect")
         self.assertEqual(clipped_box["center"], [0.0, 0.0, 15.0])
