@@ -1122,6 +1122,37 @@ class AssemblyTests(unittest.TestCase):
             },
         )
 
+    def test_direct_topology_anchor_is_inlined(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import AnchorFrame, AnchorTopology, Box
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(20, 20, 10)
+
+        base = Block()
+        child = Block().attach(
+            base,
+            parent=AnchorTopology(
+                edge=(10, 0, 5),
+                on=(0, 0, 5),
+                corner=(10, 0, 0),
+                z=(0, 0, -1),
+                x=(-1, 0, 0),
+            ),
+            child=AnchorFrame(),
+        )
+        joint = next(
+            command["params"]
+            for command in compile_assembly(base + child, "DirectTopology")["commands"]
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["a"]["edge"], [10.0, 0.0, 5.0])
+        self.assertEqual(joint["a"]["corner"], [10.0, 0.0, 0.0])
+        self.assertEqual(joint["a"]["z"], [0.0, 0.0, -1.0])
+
     def test_named_topology_anchor_rejects_rotated_occurrence(self):
         from scpf.assembly import compile_assembly
         from scpf.compiler import ModelError
