@@ -1,5 +1,5 @@
 {
-  "library_commit": "fd250b959135388ff6034cd7f772bd69d6d80c49",
+  "library_commit": "f27379b4fc1fe1cd22aefffd875e1d91dec12a46",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -22,7 +22,7 @@
       ]
     },
     "components": {
-      "title": "Rigid component attachment",
+      "title": "Place one component relative to another",
       "status": "Q1\u2013Q6 native verified",
       "command_count": 10,
       "native_evidence": [
@@ -31,7 +31,7 @@
       ]
     },
     "parametric-attach": {
-      "title": "Parametric normal gap",
+      "title": "Editable distance between attached components",
       "status": "Q1\u2013Q6 native verified",
       "command_count": 16,
       "native_evidence": [
@@ -42,7 +42,7 @@
       ]
     },
     "parametric-offset": {
-      "title": "Parametric in-plane joint offset",
+      "title": "Editable local offset at an attachment",
       "status": "Q1\u2013Q6 native verified",
       "command_count": 16,
       "native_evidence": [
@@ -95,9 +95,9 @@
       ]
     },
     "primitive-csg": {
-      "title": "Primitive CSG and orientation",
+      "title": "Primitive CSG",
       "status": "Q1\u2013Q6 native verified",
-      "command_count": 6,
+      "command_count": 4,
       "native_evidence": [
         "results.json",
         "measurements.json"

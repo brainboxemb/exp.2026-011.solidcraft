@@ -70,15 +70,6 @@ be passed directly to occurrence rotation. Prefer
 <code>rotate(Y, 90)</code> when a principal-axis turn is all that is needed.
 The explicit <code>axis=(x,y,z), degrees=…</code> form remains available for
 arbitrary axis-angle placement.</p>
-<h2 id="orient">Cylinder orient is a different operation</h2>
-<pre><code>from scpf import Cylinder, X, Y, Z
-
-tool = Cylinder(d=10, h=30).orient(X, Y, Z)</code></pre>
-<p><code>orient()</code> is currently restricted to
-<strong>Cylinder</strong> shapes and their supported CSG compilation.
-It does not mean arbitrary model rotation. Do not substitute
-<code>orient(Z)</code> for a component occurrence's
-<code>rotate(axis=(0,0,1), degrees=…)</code>.</p>
 <h2 id="copies">Copies are independent placements</h2>
 <p>One <strong>component definition</strong> describes the shape and its
 editable features. Every <strong>occurrence</strong> says where one copy
@@ -129,7 +120,6 @@ the actual panel geometry.</p>
 <table><thead><tr><th>Operation</th><th>Scope</th><th>Limit</th></tr></thead><tbody>
 <tr><td><code>move(x,y,z)</code></td><td>Occurrences, supported CSG shapes</td><td>Not arbitrary feature bodies</td></tr>
 <tr><td><code>rotate(X,90)</code> / explicit axis tuple</td><td>Component occurrences</td><td>Absolute single axis-angle</td></tr>
-<tr><td><code>orient(X,Y,Z)</code></td><td>Cylinder shapes</td><td>Not general components</td></tr>
 <tr><td>Chained rotations</td><td>Not implemented</td><td>Second rotate replaces first</td></tr>
 </tbody></table></article></main>
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
