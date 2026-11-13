@@ -133,6 +133,37 @@ def schematic(slug):
     )
 
 
+def expected_cad_visual(slug):
+    """Small explanatory CAD diagram for cases where orientation matters."""
+    if slug != "four-corner-l":
+        return ""
+
+    # Front view: four L profiles sit in the four inward corner quadrants.
+    # Depth view: the 24 mm symmetric bracket spans Y=-27..-3 while the
+    # frame spans Y=-15..15, so the bracket intersects the front side by
+    # 12 mm. The important point for this teaching diagram is that the
+    # bracket is attached to the front plane, not floating beside it.
+    return """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300"
+role="img" aria-label="Expected CAD placement: front and depth views">
+<text x="190" y="27" text-anchor="middle" font-size="17" font-weight="700">Front view</text>
+<rect x="80" y="55" width="220" height="150" rx="3" fill="#e8eef6" stroke="#31577c" stroke-width="3"/>
+<path d="M80 55 h72 v22 h-50 v50 h-22 z" fill="#aac9e6" stroke="#31577c" stroke-width="3"/>
+<path d="M300 55 h-72 v22 h50 v50 h22 z" fill="#aac9e6" stroke="#31577c" stroke-width="3"/>
+<path d="M300 205 h-72 v-22 h50 v-50 h22 z" fill="#aac9e6" stroke="#31577c" stroke-width="3"/>
+<path d="M80 205 h72 v-22 h-50 v-50 h-22 z" fill="#aac9e6" stroke="#31577c" stroke-width="3"/>
+<text x="190" y="235" text-anchor="middle" font-size="13">four inward corner positions</text>
+
+<text x="570" y="27" text-anchor="middle" font-size="17" font-weight="700">Depth view</text>
+<rect x="525" y="70" width="90" height="135" rx="3" fill="#e8eef6" stroke="#31577c" stroke-width="3"/>
+<line x1="525" y1="55" x2="525" y2="222" stroke="#5b7898" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="525" y="242" text-anchor="middle" font-size="12">front face</text>
+<rect x="489" y="105" width="72" height="58" rx="2" fill="#aac9e6" fill-opacity=".88" stroke="#31577c" stroke-width="3"/>
+<text x="525" y="184" text-anchor="middle" font-size="12">bracket crosses front plane</text>
+<path d="M489 94 h72" stroke="#31577c" stroke-width="2"/>
+<text x="525" y="88" text-anchor="middle" font-size="12">24 mm symmetric depth</text>
+</svg>"""
+
+
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -398,9 +429,9 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             'site build. Run the native qualification for measured results.</div>'
             '</section>'
         )
-        preview_html = (
-            '<div class="notice">No source-matched native verification was supplied '
-            'to this site build. The case sheet and command contract are still shown.</div>'
+        native_preview_html = (
+            '<div class="visual-placeholder">No source-matched native render was supplied '
+            'to this site build.</div>'
         )
         status = "Q1/Q2 documented"
         if native_case is not None and native_case.is_dir():
@@ -422,10 +453,9 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
-            preview_html = (
-                '<figure class="example-image"><img src="model.png" '
+            native_preview_html = (
+                '<img src="model.png" '
                 f'alt="{escape(case["title"])} native SolidCraft snapshot" loading="lazy">'
-                '<figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>'
             )
             status = case.get("verified_status", "Q1–Q6 native verified")
             results_html, body_count, parameter_count = _render_native_results(
@@ -459,7 +489,14 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 <div class="crumb"><a href="../">← Qualification</a> / {escape(case["title"])}</div>
 <section class="hero small"><p class="eyebrow">Forge qualification case · {escape(status)}</p>
 <h1>{escape(case["title"])}</h1><p>{escape(case["intent"])}</p></section>
-{preview_html}
+<div class="qualification-visuals">
+<section class="visual-card"><h2>Expected CAD result</h2>
+<div class="expected-cad">{expected_cad_visual(slug) or f'<p>{escape(case["native_expectation"])}</p>'}</div>
+<p class="visual-caption">{escape(case["native_expectation"])}</p></section>
+<section class="visual-card"><h2>Native render</h2>
+<div class="native-render">{native_preview_html}</div>
+<p class="visual-caption">Source-matched SolidCraft render when native qualification evidence is available.</p></section>
+</div>
 <div class="twocol">
 <section class="panel"><h2>1. Forge contract</h2>
 <h3>Public API</h3><p><code>{escape(case["forge_api"])}</code></p>
