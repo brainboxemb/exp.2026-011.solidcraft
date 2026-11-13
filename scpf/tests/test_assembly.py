@@ -930,7 +930,20 @@ class AssemblyTests(unittest.TestCase):
         )
         self.assertEqual(
             [joint["b"] for joint in joints],
-            ["Marker:1.back_top_right", "Marker:2.back_top_left"],
+            [
+                {
+                    "occurrence": "Marker:1",
+                    "point": [5.0, 5.0, 10.0],
+                    "z": [0.0, 1.0, 0.0],
+                    "x": [0.0, 0.0, -1.0],
+                },
+                {
+                    "occurrence": "Marker:2",
+                    "point": [-5.0, 5.0, 10.0],
+                    "z": [0.0, 1.0, 0.0],
+                    "x": [1.0, 0.0, 0.0],
+                },
+            ],
         )
         origins = {
             command["params"]["name"]: command["params"]
@@ -1397,7 +1410,7 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual(
             [origin["name"] for origin in origins],
-            ["Base:1.front_top_right", "Marker:1.back_top_right"],
+            ["Base:1.front_top_right"],
         )
         self.assertEqual(
             origins[0],
@@ -1409,18 +1422,16 @@ class AssemblyTests(unittest.TestCase):
                 "corner": [20.0, -15.0, 20.0],
             },
         )
+        self.assertEqual(joint["a"], "Base:1.front_top_right")
         self.assertEqual(
-            origins[1],
+            joint["b"],
             {
-                "name": "Marker:1.back_top_right",
                 "occurrence": "Marker:1",
-                "edge": [5.0, 5.0, 5.0],
-                "on": [0.0, 5.0, 5.0],
-                "corner": [5.0, 5.0, 10.0],
+                "point": [5.0, 5.0, 10.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [0.0, 0.0, -1.0],
             },
         )
-        self.assertEqual(joint["a"], "Base:1.front_top_right")
-        self.assertEqual(joint["b"], "Marker:1.back_top_right")
         self.assertFalse(
             any(
                 command["command"] == "occurrence.move"

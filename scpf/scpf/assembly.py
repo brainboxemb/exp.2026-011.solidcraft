@@ -5,6 +5,7 @@ from .compiler import ModelError
 from .core import Anchor, AnchorFrame, AnchorTopology, command_value, parameters_in, pv
 from .model_objects import (
     Assembly, ModelInstance, _anchor_origin, _corner_origin_points,
+    _corner_anchor_frame,
 )
 from .compiler import compile_model
 
@@ -122,8 +123,10 @@ def compile_assembly(value, name):
         attachment = instance.attachment
         if attachment is None or attachment.as_built:
             continue
+        # Parent corners must remain topology-backed so they follow parent
+        # parameter changes. Child corners are lowered later as an explicit
+        # point/z/x frame while the child occurrence is still at identity.
         register_standard_corner(attachment.target, attachment.parent)
-        register_standard_corner(instance, attachment.child)
         if (
             isinstance(attachment.parent, str)
             and attachment.target.rotation is not None
@@ -309,13 +312,17 @@ def compile_assembly(value, name):
         # The model's move() values are absolute from the component origin.
         for instance, native_name in occurrences:
             attachment = instance.attachment
-            child_corner_is_native = (
+            child_corner_is_native = False
+            if (
                 attachment is not None
                 and not attachment.as_built
                 and isinstance(attachment.child, Anchor)
-                and (id(instance), attachment.child)
-                in standard_corner_origin_names
-            )
+            ):
+                try:
+                    _corner_anchor_frame(instance, attachment.child)
+                    child_corner_is_native = True
+                except ValueError:
+                    pass
             if child_corner_is_native:
                 # The child joint origin was authored at identity above.
                 # Do not pre-position this occurrence as well: SolidCraft
@@ -424,20 +431,25 @@ def compile_assembly(value, name):
                 attachment.parent,
                 parent_occurrence,
             )
-        if (
-            isinstance(attachment.child, Anchor)
-            and (id(instance), attachment.child)
-            in standard_corner_origin_names
-        ):
-            child_origin = standard_corner_origin_names[
-                (id(instance), attachment.child)
-            ]
-        elif isinstance(attachment.child, Anchor):
-            child_origin = _anchor_origin(
-                instance,
-                attachment.child,
-                child_occurrence,
-            )
+        if isinstance(attachment.child, Anchor):
+            try:
+                child_frame = _corner_anchor_frame(
+                    instance,
+                    attachment.child,
+                )
+            except ValueError:
+                child_origin = _anchor_origin(
+                    instance,
+                    attachment.child,
+                    child_occurrence,
+                )
+            else:
+                child_origin = {
+                    "occurrence": child_occurrence,
+                    "point": list(child_frame.origin),
+                    "z": list(child_frame.z),
+                    "x": list(child_frame.x),
+                }
         else:
             child_origin = custom_anchor_reference(
                 instance,

@@ -218,6 +218,33 @@ def _anchor_point(instance, anchor):
     return points[anchor]
 
 
+def _corner_anchor_frame(instance, anchor):
+    """Return Forge's explicit local frame for a standard face corner.
+
+    The frame matches SolidCraft's edge/corner orientation convention while
+    remaining independent of a world-space pre-placement.
+    """
+    if anchor not in _CORNER_ANCHORS:
+        raise ValueError("corner frame requires a corner Anchor")
+
+    x_by_corner = {
+        Anchor.FRONT_TOP_LEFT: (0.0, 0.0, -1.0),
+        Anchor.FRONT_TOP_RIGHT: (-1.0, 0.0, 0.0),
+        Anchor.FRONT_BOTTOM_RIGHT: (0.0, 0.0, 1.0),
+        Anchor.FRONT_BOTTOM_LEFT: (1.0, 0.0, 0.0),
+        Anchor.BACK_TOP_LEFT: (1.0, 0.0, 0.0),
+        Anchor.BACK_TOP_RIGHT: (0.0, 0.0, -1.0),
+        Anchor.BACK_BOTTOM_RIGHT: (-1.0, 0.0, 0.0),
+        Anchor.BACK_BOTTOM_LEFT: (0.0, 0.0, 1.0),
+    }
+    z = (0.0, -1.0, 0.0) if anchor.value.startswith("front_") else (0.0, 1.0, 0.0)
+    return AnchorFrame(
+        origin=_anchor_point(instance, anchor),
+        z=z,
+        x=x_by_corner[anchor],
+    )
+
+
 def _corner_origin_points(instance, anchor):
     """Return edge, face and corner picks for a native SolidCraft corner origin.
 

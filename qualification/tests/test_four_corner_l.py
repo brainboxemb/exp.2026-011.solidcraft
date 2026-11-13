@@ -55,7 +55,7 @@ class FourCornerLCommandTests(unittest.TestCase):
         self.assertEqual(len(joints), 4)
         self.assertEqual(
             [joint["values"][2] for joint in joints],
-            [90, 180, 270, 0],
+            [90, 180, -90, 0],
         )
 
         for index, joint in enumerate(joints, 1):
@@ -86,7 +86,7 @@ class FourCornerLCommandTests(unittest.TestCase):
             [
                 ["frame_depth / 2", "frame_width / 2", 90],
                 ["frame_depth / 2", "-(frame_width / 2)", 180],
-                ["-(frame_depth / 2)", "-(frame_width / 2)", 270],
+                ["-(frame_depth / 2)", "-(frame_width / 2)", -90],
                 ["-(frame_depth / 2)", "frame_width / 2", 0],
             ],
         )
