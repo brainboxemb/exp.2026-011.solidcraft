@@ -188,6 +188,46 @@ _CORNER_ANCHORS = {
     Anchor.BACK_BOTTOM_RIGHT,
 }
 
+# Native SolidCraft rectangular-corner frames measured with joint.inspect.
+# z is the face normal; x is the default in-plane axis at that corner.
+_CORNER_NATIVE_FRAMES = {
+    Anchor.FRONT_TOP_LEFT:     ((0.0, -1.0, 0.0), (0.0, 0.0, -1.0)),
+    Anchor.FRONT_TOP_RIGHT:    ((0.0, -1.0, 0.0), (-1.0, 0.0, 0.0)),
+    Anchor.FRONT_BOTTOM_RIGHT: ((0.0, -1.0, 0.0), (0.0, 0.0, 1.0)),
+    Anchor.FRONT_BOTTOM_LEFT:  ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0)),
+    Anchor.BACK_TOP_LEFT:      ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0)),
+    Anchor.BACK_TOP_RIGHT:     ((0.0, 1.0, 0.0), (0.0, 0.0, -1.0)),
+    Anchor.BACK_BOTTOM_RIGHT:  ((0.0, 1.0, 0.0), (-1.0, 0.0, 0.0)),
+    Anchor.BACK_BOTTOM_LEFT:   ((0.0, 1.0, 0.0), (0.0, 0.0, 1.0)),
+}
+
+
+def _rotate_corner_x(anchor, rotation):
+    """Rotate the native corner X axis around its local Z normal.
+
+    Corner-anchor orientation is intentionally limited to quarter turns. This
+    keeps the mapping exact and matches the rectangular corner topology.
+    """
+    if isinstance(rotation, bool) or not isinstance(rotation, (int, float)):
+        raise TypeError("assembly anchor rotation must be numeric degrees")
+    if not isfinite(rotation):
+        raise ValueError("assembly anchor rotation must be finite")
+    quarter_turns = round(rotation / 90.0)
+    if abs(rotation - quarter_turns * 90.0) > 1e-9:
+        raise ValueError(
+            "assembly anchor rotation must be a multiple of 90 degrees"
+        )
+
+    z, x = _CORNER_NATIVE_FRAMES[anchor]
+    result = x
+    for _ in range(quarter_turns % 4):
+        result = (
+            z[1] * result[2] - z[2] * result[1],
+            z[2] * result[0] - z[0] * result[2],
+            z[0] * result[1] - z[1] * result[0],
+        )
+    return z, result
+
 
 def _anchor_point(instance, anchor):
     """Local point represented by one reusable-component anchor."""
@@ -510,13 +550,24 @@ class Assembly:
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
+    def with_anchor(
+        self,
+        name,
+        target,
+        reference,
+        *,
+        offset=(0, 0),
+        rotation=None,
+    ):
         """Expose one named datum owned by this assembly.
 
         ``offset`` is an optional symbolic in-plane (u, v) correction that a
-        consumer can pass through to ``attach(offset=...)``. Keeping it on the
-        assembly lets a semantic datum depend on assembly parameters without
-        putting that knowledge on the reusable component.
+        consumer can pass through to ``attach(offset=...)``.
+
+        ``rotation`` optionally rotates a rectangular corner anchor around
+        its own normal in 90-degree steps. The owning assembly states the
+        expected orientation; Forge only converts that intent to the native
+        SolidCraft corner frame.
         """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
@@ -531,6 +582,20 @@ class Assembly:
         if not all(isfinite(pv(value)) for value in offset):
             raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
+        if rotation is not None:
+            if not isinstance(resolved, Anchor) or resolved not in _CORNER_ANCHORS:
+                raise ValueError(
+                    "assembly anchor rotation requires a rectangular corner Anchor"
+                )
+            edge, on, corner = _corner_origin_points(target, resolved)
+            z, x = _rotate_corner_x(resolved, rotation)
+            resolved = AnchorTopology(
+                edge=edge,
+                on=on,
+                corner=corner,
+                z=z,
+                x=x,
+            )
         return replace(
             self,
             anchors=self.anchors + (
