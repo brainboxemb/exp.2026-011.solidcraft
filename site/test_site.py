@@ -94,14 +94,14 @@ def check(site: Path, sha: str, require_native: bool = False):
         "English — simple explanation",
         "The real SolidCraft relationship remains explicit",
         "AnchorFrame(",
-        "<code>RIGHT</code>",
+        "<code>Anchor.RIGHT</code>",
         "child joint origin",
         "4 brackets",
         "8 brackets",
         "No second orientation solver",
-        "FRONT_TOP_LEFT",
+        "Anchor.FRONT_TOP_LEFT",
         "z=+Y, x=-Z",
-        "BACK_TOP_RIGHT",
+        "Anchor.BACK_TOP_RIGHT",
     ):
         assert term in joint_anatomy_page, term
     for diagram in (
