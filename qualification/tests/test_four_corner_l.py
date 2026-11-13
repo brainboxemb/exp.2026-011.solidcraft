@@ -55,18 +55,29 @@ class FourCornerLCommandTests(unittest.TestCase):
         self.assertEqual(len(joints), 4)
         self.assertEqual(
             [joint["values"][2] for joint in joints],
-            [0, 90, 180, 270],
+            [0, 0, 0, 0],
         )
 
-        for index, joint in enumerate(joints, 1):
+        expected_x = [
+            [0.0, -1.0, 0.0],
+            [-1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 0.0, 0.0],
+        ]
+        for index, (joint, x_direction) in enumerate(
+            zip(joints, expected_x),
+            1,
+        ):
             self.assertEqual(joint["type"], "planar")
             self.assertNotIn("offset", joint)
-            self.assertNotIn("angle", joint)
+            self.assertEqual(joint["angle"], 0.0)
             self.assertEqual(
                 joint["a"],
                 {
                     "occurrence": "FrameBlock:1",
-                    "face": [0.0, 0.0, 0.0],
+                    "point": [0.0, 0.0, 0.0],
+                    "z": [0.0, 0.0, -1.0],
+                    "x": [0.0, -1.0, 0.0],
                 },
             )
             self.assertEqual(
@@ -75,15 +86,21 @@ class FourCornerLCommandTests(unittest.TestCase):
                     "occurrence": f"CornerFoot:{index}",
                     "point": [0.0, 0.0, 0.0],
                     "z": [0.0, 0.0, 1.0],
-                    "x": [1.0, 0.0, 0.0],
+                    "x": x_direction,
                 },
             )
 
-        # Position is expressed in the parent BOTTOM face, not as four
-        # occurrence.move() world coordinates.
-        values = [joint["values"][:2] for joint in joints]
-        self.assertTrue(all("frame_width" in str(pair[0]) for pair in values))
-        self.assertTrue(all("frame_depth" in str(pair[1]) for pair in values))
+        # Position is expressed in the parent BOTTOM face's local (u, v)
+        # basis, not as world X/Y coordinates.
+        self.assertEqual(
+            [joint["values"] for joint in joints],
+            [
+                ["frame_depth / 2", "frame_width / 2", 0.0],
+                ["frame_depth / 2", "-(frame_width / 2)", 0.0],
+                ["-(frame_depth / 2)", "-(frame_width / 2)", 0.0],
+                ["-(frame_depth / 2)", "frame_width / 2", 0.0],
+            ],
+        )
         self.assertFalse(
             any(
                 row["command"] == "occurrence.move"

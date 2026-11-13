@@ -1231,6 +1231,49 @@ class AssemblyTests(unittest.TestCase):
             compile_assembly(board + child, "RotatedTopologyAnchor")
 
 
+    def test_direct_anchor_frame_planar_attach_fixes_mating_angle(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import AnchorFrame, Box
+        from scpf.runner import component
+
+        @component
+        class Base:
+            def build(self):
+                return Box(40, 30, 20)
+
+        @component
+        class Marker:
+            def build(self):
+                return Box(10, 10, 10)
+
+        parent = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, 0, -1),
+            x=(0, -1, 0),
+        )
+        child = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, 0, 1),
+            x=(0, 1, 0),
+        )
+        base = Base()
+        marker = Marker().attach(
+            base,
+            parent=parent,
+            child=child,
+            offset=(10, 20),
+        )
+
+        commands = compile_assembly(base + marker, "PlanarFrames")["commands"]
+        joint = next(
+            row["params"]
+            for row in commands
+            if row["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "planar")
+        self.assertEqual(joint["values"], [10.0, 20.0, 0.0])
+        self.assertEqual(joint["angle"], 0.0)
+
     def test_direct_anchor_frame_attachment_is_inlined(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, AnchorFrame, Box

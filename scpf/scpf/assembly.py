@@ -434,6 +434,14 @@ def compile_assembly(value, name):
                 command_value(v),
                 attachment.angle if attachment.angle is not None else 0.0,
             ]
+            if (
+                isinstance(attachment.parent, AnchorFrame)
+                and isinstance(attachment.child, AnchorFrame)
+            ):
+                # Both sides already define complete local frames. Prevent
+                # SolidCraft from choosing its automatic optional half-turn;
+                # the authored X directions are the intended clocking.
+                params["angle"] = 0.0
         elif attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
