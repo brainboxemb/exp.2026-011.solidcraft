@@ -11,12 +11,12 @@
 <div class="crumb"><a href="../">← Qualification</a> / Primitive CSG</div>
 
 <section class="hero small">
-  <p class="eyebrow">Forge qualification case · Q1/Q2 documented</p>
+  <p class="eyebrow">Forge qualification case · PASS · Q1 Q2 Q3 Q4 Q6 · Q5 N/R</p>
   <h1>Primitive CSG</h1>
   <p>Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one ordinary Cylinder cut and intersection.</p>
 </section>
 
-<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+<div class="qualification-gallery"><figure class="qualification-image"><img src="model.png" alt="Primitive CSG native SolidCraft evidence 1" loading="lazy"><figcaption>Native SolidCraft 0.30.1 baseline snapshot from this exact CI source commit.</figcaption></figure></div>
 
 <div class="twocol">
   <section class="panel">
@@ -36,11 +36,11 @@
     <h3>Parametric mutation</h3>
     <p>No saved-design mutation in this case; it isolates primitive CSG lowering. Parametric edits are covered by dedicated Q5 cases.</p>
     <h3>Evidence</h3>
-    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li></ul>
   </section>
 </div>
 
-<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>PrimitiveCsg</td><td><code>[-20, -19.9997, 5.95194e-05]</code></td><td><code>[25.0001, 19.9997, 20]</code></td></tr></tbody></table></details></section>
 
 <section class="panel">
   <h2>4. Generated native relationship/command path</h2>

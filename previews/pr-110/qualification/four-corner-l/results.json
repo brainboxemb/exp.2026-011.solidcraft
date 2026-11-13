@@ -94,7 +94,7 @@
       "FrameBlock"
     ],
     "feature": 4,
-    "ms": 0.913714,
+    "ms": 0.7731119999999999,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -174,7 +174,7 @@
       "LBracket"
     ],
     "feature": 8,
-    "ms": 0.593308,
+    "ms": 0.317894,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
