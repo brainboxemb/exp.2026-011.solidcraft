@@ -40,10 +40,9 @@ class Attachment:
     target: "ModelInstance"
     parent: Anchor | str | AnchorFrame | AnchorTopology | None
     child: Anchor | str | AnchorFrame | AnchorTopology | None
-    offset: tuple[object, object]
+    offset: tuple[object, object, object]
     gap: object = 0
     angle: float | None = None
-    assembled_rotation: float | None = None
     as_built: bool = False
 
 
@@ -189,35 +188,6 @@ _CORNER_ANCHORS = {
     Anchor.BACK_BOTTOM_RIGHT,
 }
 
-# Native SolidCraft rectangular-corner face normals.  The in-plane axis is
-# supplied by attach(..., assembled_rotation=...) when an assembly wants an
-# absolute final orientation for the child.
-_CORNER_NORMALS = {
-    Anchor.FRONT_TOP_LEFT:     (0.0, -1.0, 0.0),
-    Anchor.FRONT_TOP_RIGHT:    (0.0, -1.0, 0.0),
-    Anchor.FRONT_BOTTOM_RIGHT: (0.0, -1.0, 0.0),
-    Anchor.FRONT_BOTTOM_LEFT:  (0.0, -1.0, 0.0),
-    Anchor.BACK_TOP_LEFT:      (0.0, 1.0, 0.0),
-    Anchor.BACK_TOP_RIGHT:     (0.0, 1.0, 0.0),
-    Anchor.BACK_BOTTOM_RIGHT:  (0.0, 1.0, 0.0),
-    Anchor.BACK_BOTTOM_LEFT:   (0.0, 1.0, 0.0),
-}
-
-
-def _quarter_turn_y(vector, rotation):
-    """Rotate a direction by an absolute quarter-turn around world Y."""
-    if isinstance(rotation, bool) or not isinstance(rotation, (int, float)):
-        raise TypeError("assembled_rotation must be numeric degrees")
-    if not isfinite(rotation):
-        raise ValueError("assembled_rotation must be finite")
-    quarter_turns = round(rotation / 90.0)
-    if abs(rotation - quarter_turns * 90.0) > 1e-9:
-        raise ValueError("assembled_rotation must be a multiple of 90 degrees")
-
-    x, y, z = map(float, vector)
-    for _ in range(quarter_turns % 4):
-        x, z = z, -x
-    return (x, y, z)
 
 def _anchor_point(instance, anchor):
     """Local point represented by one reusable-component anchor."""
@@ -415,18 +385,16 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0), gap=0, angle=None, assembled_rotation=None,
-               as_built=False):
+               offset=(0, 0, 0), gap=0, angle=None, as_built=False):
         """Attach this component rigidly to another component.
+
+        ``offset`` is an XYZ translation of the parent datum in assembly
+        coordinates. It may contain parameters/expressions and does not
+        change the native SolidCraft joint type: the attachment remains rigid.
 
         ``gap`` is the normal distance between the references.
         ``angle`` is their relative turn in degrees around the attachment
         normal. Both stay native SolidCraft joint values.
-
-        ``assembled_rotation`` states the child's expected final quarter-turn
-        orientation around world Y. It does not rotate the occurrence or alter
-        either joint frame; Forge uses it only to express the planar ``offset``
-        in the native local axes of that assembled orientation.
 
         ``as_built=True`` keeps both occurrences exactly where they already
         are and records only a fixed assembly relationship.
@@ -437,14 +405,12 @@ class ModelInstance:
             if (
                 parent != Anchor.RIGHT
                 or child != Anchor.LEFT
-                or tuple(offset) != (0, 0)
+                or tuple(offset) != (0, 0, 0)
                 or gap != 0
                 or angle is not None
-                or assembled_rotation is not None
             ):
                 raise ValueError(
-                    "as-built attach does not take anchors, offset, gap, angle "
-                    "or assembled_rotation"
+                    "as-built attach does not take anchors, offset, gap or angle"
                 )
             return replace(
                 self,
@@ -452,34 +418,25 @@ class ModelInstance:
                     target=target,
                     parent=None,
                     child=None,
-                    offset=(0.0, 0.0),
+                    offset=(0.0, 0.0, 0.0),
                     as_built=True,
                 ),
             )
         parent = _resolve_anchor_reference(target, parent)
         child = _resolve_anchor_reference(self, child)
-        if assembled_rotation is not None:
-            rotation_value = pv(assembled_rotation)
-            if not isfinite(rotation_value):
-                raise ValueError("assembled_rotation must be finite")
-            quarter_turn = rotation_value / 90.0
-            if abs(quarter_turn - round(quarter_turn)) > 1e-9:
-                raise ValueError("assembled_rotation must be a multiple of 90 degrees")
-            assembled_rotation = rotation_value % 360.0
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
-        if not isinstance(offset, (tuple, list)) or len(offset) != 2:
-            raise ValueError("component attach offset must be an (u, v) pair")
-        face_offset = tuple(offset)
-        face_offset_values = tuple(pv(value) for value in face_offset)
-        if not all(isfinite(value) for value in face_offset_values):
+        if not isinstance(offset, (tuple, list)) or len(offset) != 3:
+            raise ValueError("component attach offset must be an (x, y, z) triple")
+        spatial_offset = tuple(offset)
+        spatial_offset_values = tuple(pv(value) for value in spatial_offset)
+        if not all(isfinite(value) for value in spatial_offset_values):
             raise ValueError("component attach offset must be finite")
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
-        tangent = (0.0, 0.0, 0.0)
         target_world = tuple(
-            target_local[i] + target.translation[i] + tangent[i]
+            target_local[i] + target.translation[i] + spatial_offset_values[i]
             for i in range(3)
         )
         translation = tuple(
@@ -502,10 +459,9 @@ class ModelInstance:
                 target=target,
                 parent=parent,
                 child=child,
-                offset=face_offset,
+                offset=spatial_offset,
                 gap=gap,
                 angle=angle_value,
-                assembled_rotation=assembled_rotation,
             ),
         )
 
@@ -527,7 +483,7 @@ class AssemblyAnchor:
 
     target: ModelInstance
     reference: Anchor | str | AnchorFrame | AnchorTopology
-    offset: tuple[object, object] = (0, 0)
+    offset: tuple[object, object, object] = (0, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -557,11 +513,13 @@ class Assembly:
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
+    def with_anchor(self, name, target, reference, *, offset=(0, 0, 0)):
         """Expose one named datum owned by this assembly.
 
         ``offset`` is an optional symbolic in-plane (u, v) correction that a
-        consumer can pass through to ``attach(offset=...)``.
+        consumer can pass through to ``attach(offset=...)``. Keeping it on the
+        assembly lets a semantic datum depend on assembly parameters without
+        putting that knowledge on the reusable component.
         """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
@@ -571,8 +529,8 @@ class Assembly:
             raise TypeError("assembly anchor target must be a model object")
         if not any(instance is target for instance in self.instances):
             raise ValueError("assembly anchor target must belong to this assembly")
-        if not isinstance(offset, (tuple, list)) or len(offset) != 2:
-            raise ValueError("assembly anchor offset must be an (u, v) pair")
+        if not isinstance(offset, (tuple, list)) or len(offset) != 3:
+            raise ValueError("assembly anchor offset must be an (x, y, z) triple")
         if not all(isfinite(pv(value)) for value in offset):
             raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
