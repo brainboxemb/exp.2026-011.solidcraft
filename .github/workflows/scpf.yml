@@ -102,6 +102,16 @@ jobs:
             solidcraft-cli snapshot "output/native/$model/model.sc" \
               --out "output/native/$model/model.png" --no-grid --no-axes
             test -s "output/native/$model/model.png"
+
+            for view in front right iso; do
+              camera="$(python qualification/camera.py \
+                "output/native/$model/measurements.json" "$view")"
+              solidcraft-cli snapshot "output/native/$model/model.sc" \
+                --out "output/native/$model/model-$view.png" \
+                --width 720 --height 540 --camera "$camera" --no-grid --no-axes
+              test -s "output/native/$model/model-$view.png"
+            done
+
             printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
           # Four-corner diagnostic evidence. The functional assertions are
@@ -123,6 +133,14 @@ jobs:
           solidcraft-cli snapshot output/native/four-corner-l/model-size-160x120.sc \
             --out output/native/four-corner-l/model-size-160x120.png --no-grid --no-axes
           test -s output/native/four-corner-l/model-size-160x120.png
+          for view in front right iso; do
+            camera="$(python qualification/camera.py \
+              output/native/four-corner-l/measurements-size-160x120.json "$view")"
+            solidcraft-cli snapshot output/native/four-corner-l/model-size-160x120.sc \
+              --out "output/native/four-corner-l/model-size-160x120-$view.png" \
+              --width 720 --height 540 --camera "$camera" --no-grid --no-axes
+            test -s "output/native/four-corner-l/model-size-160x120-$view.png"
+          done
 
           solidcraft-cli run qualification/commands/four-corner-l/inspect-joints.json \
             --in output/native/four-corner-l/model-size-160x120.sc \
