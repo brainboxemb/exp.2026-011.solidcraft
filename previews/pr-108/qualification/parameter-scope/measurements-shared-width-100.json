@@ -1,0 +1,385 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 2800.0,
+      "bbox": {
+        "max": [
+          20.0,
+          10.0,
+          10.0
+        ],
+        "min": [
+          -20.0,
+          -10.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        0.0,
+        0.0,
+        5.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 10.32,
+      "material": "Default",
+      "name": "Panel",
+      "vertices": 8,
+      "volume_mm3": 8000.0
+    },
+    {
+      "area_mm2": 4000.0,
+      "bbox": {
+        "max": [
+          130.0,
+          10.0,
+          10.0
+        ],
+        "min": [
+          70.0,
+          -10.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        100.0,
+        0.0,
+        5.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 15.48,
+      "material": "Default",
+      "name": "Panel_2",
+      "vertices": 8,
+      "volume_mm3": 12000.0
+    },
+    {
+      "area_mm2": 6400.0,
+      "bbox": {
+        "max": [
+          270.0,
+          10.0,
+          10.0
+        ],
+        "min": [
+          170.0,
+          -10.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        220.0,
+        0.0,
+        5.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 25.8,
+      "material": "Default",
+      "name": "Panel_3",
+      "vertices": 8,
+      "volume_mm3": 20000.0
+    },
+    {
+      "area_mm2": 6400.0,
+      "bbox": {
+        "max": [
+          390.0,
+          10.0,
+          10.0
+        ],
+        "min": [
+          290.0,
+          -10.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        340.0,
+        0.0,
+        5.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 25.8,
+      "material": "Default",
+      "name": "Panel_3 (Panel 3:2)",
+      "vertices": 8,
+      "volume_mm3": 20000.0
+    },
+    {
+      "area_mm2": 3400.0,
+      "bbox": {
+        "max": [
+          485.0,
+          10.0,
+          10.0
+        ],
+        "min": [
+          435.0,
+          -10.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        460.0,
+        0.0,
+        5.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 12,
+      "face_types": {
+        "plane": 6
+      },
+      "faces": 6,
+      "kernel": {
+        "edges": 12,
+        "faces": 6,
+        "shells": 1,
+        "vertices": 8
+      },
+      "mass_g": 12.9,
+      "material": "Default",
+      "name": "Panel_4",
+      "vertices": 8,
+      "volume_mm3": 10000.0
+    }
+  ],
+  "body_count": 5,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "40",
+      "model": false,
+      "name": "Panel_width",
+      "unit": "mm",
+      "value": 40.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "60",
+      "model": false,
+      "name": "Panel_2_width",
+      "unit": "mm",
+      "value": 60.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "100 mm",
+      "model": false,
+      "name": "shared_width",
+      "unit": "mm",
+      "value": 100.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 3,
+      "name": "Panel footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 7,
+      "name": "Panel_2 footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 11,
+      "name": "Panel_3 footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 16,
+      "name": "Panel_4 footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 0.201315,
+      "name": "Panel footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 0.7320300000000001,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 0.064287,
+      "name": "Panel_2 footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 0.180103,
+      "name": "Extrude2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 11,
+      "ms": 0.062243999999999994,
+      "name": "Panel_3 footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 12,
+      "ms": 0.213424,
+      "name": "Extrude3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 16,
+      "ms": 0.061243,
+      "name": "Panel_4 footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 17,
+      "ms": 0.195667,
+      "name": "Extrude4",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 23000.0,
+    "edges": 60,
+    "faces": 30,
+    "mass_g": 90.30000000000001,
+    "open_bodies_skipped": 0,
+    "vertices": 40,
+    "volume_mm3": 70000.0
+  }
+}

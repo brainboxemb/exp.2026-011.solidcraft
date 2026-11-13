@@ -1,0 +1,26 @@
+[
+  {
+    "comment": "",
+    "expression": "40",
+    "favorite": false,
+    "name": "Panel_width",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "comment": "",
+    "expression": "60",
+    "favorite": false,
+    "name": "Panel_2_width",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "comment": "",
+    "expression": "80",
+    "favorite": false,
+    "name": "shared_width",
+    "unit": "mm",
+    "value": 80.0
+  }
+]

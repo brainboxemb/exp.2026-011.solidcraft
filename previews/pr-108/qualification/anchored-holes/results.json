@@ -1,0 +1,179 @@
+[
+  {
+    "display_value": 100.0,
+    "name": "width",
+    "unit": "mm",
+    "value": 100.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "depth",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 10.0,
+    "name": "thickness",
+    "unit": "mm",
+    "value": 10.0
+  },
+  {
+    "display_value": 40.0,
+    "name": "spacing",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Base",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4",
+      "k5"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "AnchoredHoles"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "AnchoredHoles"
+    ],
+    "feature": 2,
+    "ms": 0.818098,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Holes",
+    "projected": null,
+    "sketch": 3
+  },
+  {
+    "constraints": [],
+    "created": {
+      "constraints": [],
+      "curves": [
+        "c1"
+      ],
+      "dimensions": [],
+      "points": [
+        "c1.center"
+      ]
+    },
+    "curves": [
+      "c1"
+    ],
+    "sketch": {
+      "dof": 3,
+      "solved": true
+    }
+  },
+  {
+    "constraints": [],
+    "created": {
+      "constraints": [],
+      "curves": [
+        "c2"
+      ],
+      "dimensions": [],
+      "points": [
+        "c2.center"
+      ]
+    },
+    "curves": [
+      "c2"
+    ],
+    "sketch": {
+      "dof": 6,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 2,
+    "sketch": 3
+  },
+  {
+    "bodies": [
+      "AnchoredHoles"
+    ],
+    "changed_bodies": [
+      "AnchoredHoles"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 15.431805,
+    "name": "Holes",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

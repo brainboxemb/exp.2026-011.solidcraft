@@ -1,0 +1,58 @@
+[
+  {
+    "bodies": [
+      "PrimitiveCsg"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "PrimitiveCsg"
+    ],
+    "feature": 1,
+    "ms": 8.945685,
+    "name": "Sphere1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PrimitiveCsg"
+    ],
+    "changed_bodies": [
+      "PrimitiveCsg"
+    ],
+    "created_bodies": [],
+    "feature": 2,
+    "ms": 581.162912,
+    "name": "Box1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PrimitiveCsg"
+    ],
+    "changed_bodies": [
+      "PrimitiveCsg"
+    ],
+    "created_bodies": [],
+    "feature": 3,
+    "ms": 717.2528500000001,
+    "name": "Cylinder1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "PrimitiveCsg"
+    ],
+    "changed_bodies": [
+      "PrimitiveCsg"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 2551.158746,
+    "name": "Box2",
+    "removed_bodies": [],
+    "warning": "Boolean retry: tool displacement 1.546259e-4 mm, rotation 2.000000e-6 rad"
+  }
+]
