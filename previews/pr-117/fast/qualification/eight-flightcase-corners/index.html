@@ -24,8 +24,8 @@
   <h3>Test goal</h3>
   <p>Replace the flat L-bracket with a genuinely wrapping three-face protector. One neutral protector is reused at all eight box corners.</p>
   <h3>Pass criteria</h3>
-  <p>Each protector truly wraps three adjacent case faces: 80 mm along X, 30 mm along Y and 40 mm along Z, with 6 mm material extending outside the case surfaces.</p>
-  <h3>Mutation criterion</h3><p>Resize the saved case to 400x160x200 mm; the protectors keep their physical size but all eight attachment points follow the moved corners.</p>
+  <p>Each protector truly wraps three adjacent case faces: 80 mm along X, 30 mm along Y and 80 mm along Z, with 6 mm material extending outside the case surfaces.</p>
+  <h3>Mutation criterion</h3><p>Resize the saved case to 400x160x400 mm; protector reach updates natively to 100x40x100 mm and all eight attachment points follow the moved corners.</p>
 </section>
 
 <section class="panel">
@@ -37,25 +37,23 @@
 class CaseBlock:
     _width = 320.0
     _depth = 120.0
-    _height = 160.0
+    _height = 320.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
 class FlightcaseCorner:
-    # 25% of the default case size per axis:
-    # 320 x 120 x 160 -&gt; 80 x 30 x 40 mm.
-    X_ARM = 80.0
-    Y_ARM = 30.0
-    Z_ARM = 40.0
+    x_arm = 80.0
+    y_arm = 30.0
+    z_arm = 80.0
     THICKNESS = 6.0
     OVERLAP = 0.5
 
     def build(self):
-        x_arm = self.X_ARM
-        y_arm = self.Y_ARM
-        z_arm = self.Z_ARM
+        x_arm = self.x_arm
+        y_arm = self.y_arm
+        z_arm = self.z_arm
         t = self.THICKNESS
         overlap = self.OVERLAP
 
@@ -72,17 +70,17 @@ class FlightcaseCorner:
             z_arm + overlap,
         ).move(
             x=x_arm / 2,
-            y=(overlap - t) / 2,
-            z=(overlap - z_arm) / 2,
+            y=(-t / 2) + (overlap / 2),
+            z=(-z_arm / 2) + (overlap / 2),
         )
         side = Box(
             t + overlap,
             y_arm,
             z_arm + overlap,
         ).move(
-            x=(overlap - t) / 2,
+            x=(-t / 2) + (overlap / 2),
             y=y_arm / 2,
-            z=(overlap - z_arm) / 2,
+            z=(-z_arm / 2) + (overlap / 2),
         )
         return top + front + side
 
@@ -90,7 +88,7 @@ class FlightcaseCorner:
 class EightFlightcaseCorners:
     case_width = 320.0
     case_depth = 120.0
-    case_height = 160.0
+    case_height = 320.0
 
     def build(self):
         case = CaseBlock(
@@ -98,7 +96,11 @@ class EightFlightcaseCorners:
             _depth=self.case_depth,
             _height=self.case_height,
         )
-        protector = FlightcaseCorner()
+        protector = FlightcaseCorner(
+            x_arm=self.case_width / 4,
+            y_arm=self.case_depth / 4,
+            z_arm=self.case_height / 4,
+        )
 
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
@@ -145,7 +147,7 @@ EightFlightcaseCorners()
   <h3>Public Forge API used</h3>
   <p><code>FlightcaseCorner three-plate geometry + attach(parent=all 8 corner Anchors, child=AnchorFrame(z=BACK, x=DOWN))</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One 320x120x160 case plus eight occurrences of one trihedral protector. Its default reach is 25% of the case size per axis: X=80, Y=30 and Z=40 mm.</p>
+  <p>One 320x120x320 case plus eight occurrences of one trihedral protector. Its reach is bound to 25% of the case size per axis: X=80, Y=30 and Z=80 mm.</p>
 </section>
 
 <section class="panel">
@@ -164,17 +166,17 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           -160.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           -160.0,
           -60.0,
-          160.0
+          320.0
         ]
       },
       &quot;b&quot;: {
@@ -182,7 +184,7 @@ EightFlightcaseCorners()
         &quot;point&quot;: [
           -160.0,
           -60.0,
-          160.0
+          320.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -208,17 +210,17 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           160.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           160.0,
           -60.0,
-          160.0
+          320.0
         ]
       },
       &quot;b&quot;: {
@@ -226,7 +228,7 @@ EightFlightcaseCorners()
         &quot;point&quot;: [
           160.0,
           -60.0,
-          160.0
+          320.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -252,12 +254,12 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           160.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           160.0,
@@ -296,12 +298,12 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           -160.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           -60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           -160.0,
@@ -340,17 +342,17 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           -160.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           -160.0,
           60.0,
-          160.0
+          320.0
         ]
       },
       &quot;b&quot;: {
@@ -358,7 +360,7 @@ EightFlightcaseCorners()
         &quot;point&quot;: [
           -160.0,
           60.0,
-          160.0
+          320.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -384,17 +386,17 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           160.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           160.0,
           60.0,
-          160.0
+          320.0
         ]
       },
       &quot;b&quot;: {
@@ -402,7 +404,7 @@ EightFlightcaseCorners()
         &quot;point&quot;: [
           160.0,
           60.0,
-          160.0
+          320.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -428,12 +430,12 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           160.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           160.0,
@@ -472,12 +474,12 @@ EightFlightcaseCorners()
         &quot;edge&quot;: [
           -160.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;on&quot;: [
           0.0,
           60.0,
-          80.0
+          160.0
         ],
         &quot;corner&quot;: [
           -160.0,

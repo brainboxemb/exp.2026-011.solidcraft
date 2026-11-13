@@ -18,14 +18,17 @@ class CornerBracket:
     def build(self):
         # Qualification geometry only: one plain L polygon in local XZ.
         # The local inside corner at (0, 0, 0) is the attachment datum.
+        # The inside corner is (0, 0). Material sits outside the
+        # parent corner: +X runs inward over one face, -Z runs inward over
+        # the adjacent face, while -X/+Z are the external wall thickness.
         profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
                 (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
-                (0, self.ARM_LENGTH),
+                (-self.WALL, self.WALL),
+                (-self.WALL, -self.ARM_LENGTH),
+                (0, -self.ARM_LENGTH),
             ],
             plane="XZ",
         )
