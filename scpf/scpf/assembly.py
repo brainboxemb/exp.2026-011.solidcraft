@@ -301,10 +301,11 @@ def compile_assembly(value, name):
             continue
 
         def custom_anchor_reference(model, anchor, occurrence):
-            if isinstance(anchor, AnchorFrame):
+            if isinstance(anchor, (AnchorFrame, AnchorTopology)):
                 if model.rotation is not None:
+                    kind = type(anchor).__name__
                     raise ModelError(
-                        "direct AnchorFrame attachments on explicitly rotated "
+                        f"direct {kind} attachments on explicitly rotated "
                         "occurrences are not supported yet"
                     )
                 custom = anchor
