@@ -660,21 +660,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         f'<p>{escape(item["use"])}</p><p>{escape(item["strength"])}</p></article>'
         for item in REFERENCE_MODELS
     )
-    capability_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / CAD capability map</div>
-<section class="hero small"><p class="eyebrow">Completeness, not just test count</p>
-<h1>SolidCraft capability & Forge API map</h1>
-<p>This is a curated map of user-level CAD capabilities. It deliberately does
-not mirror SolidCraft's hundreds of individual commands. The goal is to see
-what the native engine can do, what Forge exposes today, and which gaps matter.</p>
-</section>
-<section class="section-heading"><h2>Reference APIs</h2>
-<p>PythonSCAD is the primary Python ergonomics reference; BOSL2 the main
-attachment/local-frame reference; OpenSCAD the minimal CSG baseline; and
-SolidCraft remains the native capability truth.</p></section>
-<div class="reference-grid">{reference_cards}</div>
-{"".join(capability_sections)}
-</main>"""
+    capability_body = render_template(
+        "capabilities.html",
+        reference_cards=reference_cards,
+        capability_sections="".join(capability_sections),
+    )
     (capability_root / "index.html").write_text(
         page(
             "CAD capability map",
@@ -717,26 +707,13 @@ SolidCraft remains the native capability truth.</p></section>
 
     gap_exports = sum(1 for row in EXPORT_COVERAGE.values() if row[1] == "GAP")
     gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
-    coverage_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / API coverage</div>
-<section class="hero small"><p class="eyebrow">Declared coverage, including gaps</p>
-<h1>API & SolidCraft coverage matrix</h1>
-<p>This matrix is deliberately stricter than code coverage. It states the
-qualification level appropriate for each public API/capability and the highest
-dedicated level currently demonstrated.</p>
-<p class="meta">Public export gaps: {gap_exports} · capability gaps: {gap_capabilities}</p>
-</section>
-<section class="notice"><strong>Meaning of GAP:</strong> the API may already have
-unit tests or incidental use, but it does not yet have the dedicated
-qualification case required by its target level. The gap remains visible until
-that case exists.</section>
-<section class="panel"><h2>Public exports</h2>
-<table><thead><tr><th>API</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
-<tbody>{"".join(export_rows)}</tbody></table></section>
-<section class="panel"><h2>Behavioural capabilities</h2>
-<table><thead><tr><th>Area</th><th>Capability</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
-<tbody>{"".join(capability_rows)}</tbody></table></section>
-</main>"""
+    coverage_body = render_template(
+        "coverage.html",
+        gap_exports=escape(gap_exports),
+        gap_capabilities=escape(gap_capabilities),
+        export_rows="".join(export_rows),
+        capability_rows="".join(capability_rows),
+    )
     (coverage_root / "index.html").write_text(
         page(
             "Qualification coverage",
