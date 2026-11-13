@@ -76,8 +76,9 @@ jobs:
           set -euo pipefail
           unset PYTHONPATH
           solidcraft-cli --version
-          mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor; do
+          mkdir -p output/native output/qualification
+          printf "case\tbuild\teval\tsnapshot\tstatus\n" > output/qualification/q3-q4-q6-native.tsv
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor bracket; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -91,6 +92,7 @@ jobs:
             solidcraft-cli snapshot "output/native/$model/model.sc" \
               --out "output/native/$model/model.png" --no-grid --no-axes
             test -s "output/native/$model/model.png"
+            printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -316,8 +318,18 @@ jobs:
               and ((.bbox.max[2] - 40) | fabs) < 0.001)] | length) == 1
           ' output/native/xz-anchor/measurements-size-80x40.json
 
+          printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+
           jq -n --arg source "$GITHUB_SHA" \
-            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \
+            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true,
+              levels:{q1:"python-api",q2:"command-contract",q3:"native-build",
+                      q4:"native-measurement",q5:"parametric-mutation",
+                      q6:"native-snapshot"}}' \
             > output/native/verification.json
       - name: Build the lightweight library Pages site
         shell: bash
