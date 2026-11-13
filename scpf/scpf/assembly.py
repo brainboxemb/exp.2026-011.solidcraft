@@ -407,9 +407,9 @@ def compile_assembly(value, name):
             params["values"] = [
                 command_value(u),
                 command_value(v),
-                attachment.angle if attachment.angle is not None else 0.0,
+                0.0,
             ]
-        elif attachment.angle is not None:
+        if attachment.angle is not None:
             params["angle"] = attachment.angle
         commands.append(_command("joint.create", **params))
 
