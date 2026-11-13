@@ -1,0 +1,91 @@
+{
+  "case": "anchored-holes",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "AnchoredHoles",
+          "min": [
+            0,
+            0,
+            0
+          ],
+          "max": [
+            100,
+            60,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max": [
+            100.0,
+            60.0,
+            10.000000000000005
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one plate body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "plate outer bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          0,
+          0,
+          0
+        ],
+        "max": [
+          100,
+          60,
+          10
+        ]
+      },
+      "actual": {
+        "max": [
+          100.0,
+          60.0,
+          10.000000000000005
+        ],
+        "min": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "two cylindrical hole walls",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "two through holes remove expected volume",
+      "level": "q4",
+      "status": "pass",
+      "expected": 58994.69035085127,
+      "actual": 58994.857336489986
+    }
+  ]
+}

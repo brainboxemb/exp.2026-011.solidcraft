@@ -1,0 +1,22 @@
+{
+  "case": "custom-anchor",
+  "status": "review",
+  "views": {
+    "front": {
+      "status": "review",
+      "image": "model-front.png",
+      "reason": "no approved visual baseline"
+    },
+    "right": {
+      "status": "review",
+      "image": "model-right.png",
+      "reason": "no approved visual baseline"
+    },
+    "iso": {
+      "status": "review",
+      "image": "model-iso.png",
+      "reason": "no approved visual baseline"
+    }
+  },
+  "missing": []
+}

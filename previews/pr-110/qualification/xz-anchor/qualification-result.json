@@ -2,9 +2,9 @@
   "schema_version": 1,
   "case": "xz-anchor",
   "title": "Anchors on XZ-profile extrusion",
-  "source_commit": "58b557327e9568f2b0abf6d11b96b4260057ac21",
+  "source_commit": "2b2ca3266e80784efc18d22959c06fe7cc0a9656",
   "solidcraft_version": "0.30.1",
-  "status": "pass",
+  "status": "fail",
   "levels": {
     "q1": {
       "status": "pass",
@@ -29,14 +29,16 @@
       ]
     },
     "q4": {
-      "status": "pass",
+      "status": "fail",
       "evidence": [
+        "joint-inspect.json",
         "measurements-size-80x40.json",
-        "measurements.json"
+        "measurements.json",
+        "validation.json"
       ]
     },
     "q5": {
-      "status": "pass",
+      "status": "fail",
       "required": true,
       "mutation": "board 40x20 -> 80x40 mm",
       "evidence": [
@@ -46,24 +48,48 @@
       ]
     },
     "q6": {
-      "status": "pass",
+      "status": "review",
       "images": [
-        "model.png"
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png"
+      ],
+      "evidence": [
+        "visual-validation.json"
       ]
     }
   },
   "evidence": {
     "native_files": [
       "change-size.json",
+      "joint-inspect.json",
       "measurements-size-80x40.json",
       "measurements.json",
       "model-size-80x40.sc",
       "model.sc",
       "model.step",
-      "results.json"
+      "results.json",
+      "validation.json",
+      "visual-validation.json"
     ],
     "images": [
-      "model.png"
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png"
     ]
   }
 }

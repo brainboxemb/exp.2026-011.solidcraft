@@ -1,0 +1,84 @@
+{
+  "case": "bracket",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Bracket",
+          "min": [
+            0,
+            -12,
+            -40
+          ],
+          "max": [
+            40,
+            12,
+            0
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            0.0,
+            -12.0,
+            -40.0
+          ],
+          "max": [
+            40.0,
+            12.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "single L body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "L-profile bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          0,
+          -12,
+          -40
+        ],
+        "max": [
+          40,
+          12,
+          0
+        ]
+      },
+      "actual": {
+        "max": [
+          40.0,
+          12.0,
+          0.0
+        ],
+        "min": [
+          0.0,
+          -12.0,
+          -40.0
+        ]
+      }
+    },
+    {
+      "name": "L-profile volume",
+      "level": "q4",
+      "status": "pass",
+      "expected": 19584.0,
+      "actual": 19584.0
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Base",
+          "frame": {
+            "origin": [
+              20.0,
+              0.0,
+              5.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Base:1",
+          "path": "Base:1",
+          "references": [
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l2",
+              "role": "face",
+              "role_in_feature": "side:l2",
+              "sketch": {
+                "curve": "l2",
+                "curve_type": "line",
+                "id": 3,
+                "name": "Base footprint"
+              }
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "face": "F4:side:l2",
+            "pick": [
+              20.0,
+              0.0,
+              5.0
+            ],
+            "type": "face_center",
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "angle": 180.0,
+        "b": {
+          "component": 5,
+          "component_name": "Block",
+          "frame": {
+            "origin": [
+              20.0,
+              0.0,
+              5.000000000000001
+            ],
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ],
+            "z": [
+              -1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Block:1",
+          "path": "Block:1",
+          "references": [
+            {
+              "feature": {
+                "id": 8,
+                "name": "Extrude2",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F8:side:l4",
+              "role": "face",
+              "role_in_feature": "side:l4",
+              "sketch": {
+                "curve": "l4",
+                "curve_type": "line",
+                "id": 7,
+                "name": "Block footprint"
+              }
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "face": "F8:side:l4",
+            "pick": [
+              -10.0,
+              0.0,
+              5.0
+            ],
+            "type": "face_center",
+            "x": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 9,
+        "links": [],
+        "name": "Attach Block:1 to Base:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

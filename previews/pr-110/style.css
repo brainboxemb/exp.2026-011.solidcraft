@@ -61,7 +61,17 @@ color:var(--muted);border-top:1px solid var(--line)}
 
 
 /* Qualification evidence: visual proof belongs on both the case card and sheet. */
-.qualification-card{padding:0;overflow:hidden}
+.qualification-grid{grid-template-columns:repeat(auto-fill,340px);justify-content:start}
+.qualification-status-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 14px}
+.qualification-status{display:inline-block;padding:4px 9px;border-radius:999px;font-size:.75rem;
+font-weight:800;letter-spacing:.06em;line-height:1}
+.qualification-status.pass{background:#e5f6eb;color:#176b35;border:1px solid #a9ddb9}
+.qualification-status.fail{background:#fdeaea;color:#a12b2b;border:1px solid #efb3b3}
+.qualification-status.review{background:#fff4d8;color:#7a5b00;border:1px solid #ead18b}
+.qualification-status.incomplete{background:#fff0e5;color:#9a4b00;border:1px solid #edc09a}
+.qualification-status.not-run{background:#eef2f7;color:#596b82;border:1px solid #ccd6e2}
+.qualification-levels{font-size:.76rem;font-weight:700;letter-spacing:.05em;color:#70819a}
+.qualification-card{padding:0;overflow:hidden;width:340px}
 .qualification-card-content{padding:20px}
 .qualification-card-image{height:170px;display:grid;place-items:center;overflow:hidden;
 background:linear-gradient(135deg,#f1f5fb,#e5eff8);border-bottom:1px solid var(--line)}
@@ -71,3 +81,8 @@ background:linear-gradient(135deg,#f1f5fb,#e5eff8);border-bottom:1px solid var(-
 .qualification-image img{display:block;width:100%;height:min(340px,55vw);object-fit:contain;padding:16px;
 background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
 .qualification-image figcaption{padding:10px 16px;font-size:.82rem;color:var(--muted);border-top:1px solid var(--line)}
+
+@media(max-width:700px){
+  .qualification-grid{grid-template-columns:1fr}
+  .qualification-card{width:100%}
+}

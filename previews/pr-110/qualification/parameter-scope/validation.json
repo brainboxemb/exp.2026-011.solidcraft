@@ -1,0 +1,335 @@
+{
+  "case": "parameter-scope",
+  "q4": "pass",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "local",
+          "min": [
+            -20,
+            -10,
+            0
+          ],
+          "max": [
+            20,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "override",
+          "min": [
+            70,
+            -10,
+            0
+          ],
+          "max": [
+            130,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "shared_a",
+          "min": [
+            180,
+            -10,
+            0
+          ],
+          "max": [
+            260,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "shared_b",
+          "min": [
+            300,
+            -10,
+            0
+          ],
+          "max": [
+            380,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "derived",
+          "min": [
+            440,
+            -10,
+            0
+          ],
+          "max": [
+            480,
+            10,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            70.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            130.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            180.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            260.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            300.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            380.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            440.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            480.0,
+            10.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "baseline widths",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        40,
+        40,
+        60,
+        80,
+        80
+      ],
+      "actual": [
+        40.0,
+        40.0,
+        60.0,
+        80.0,
+        80.0
+      ]
+    },
+    {
+      "name": "baseline parameters",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "Panel_width": 40.0,
+        "Panel_2_width": 60.0,
+        "shared_width": 80.0
+      },
+      "actual": {
+        "Panel_width": 40.0,
+        "Panel_2_width": 60.0,
+        "shared_width": 80.0
+      }
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "local",
+          "min": [
+            -20,
+            -10,
+            0
+          ],
+          "max": [
+            20,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "override",
+          "min": [
+            70,
+            -10,
+            0
+          ],
+          "max": [
+            130,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "shared_a",
+          "min": [
+            170,
+            -10,
+            0
+          ],
+          "max": [
+            270,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "shared_b",
+          "min": [
+            290,
+            -10,
+            0
+          ],
+          "max": [
+            390,
+            10,
+            10
+          ]
+        },
+        {
+          "label": "derived",
+          "min": [
+            435,
+            -10,
+            0
+          ],
+          "max": [
+            485,
+            10,
+            10
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            70.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            130.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            170.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            270.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            290.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            390.0,
+            10.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            435.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            485.0,
+            10.0,
+            10.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mutated shared width",
+      "level": "q5",
+      "status": "pass",
+      "expected": 100.0,
+      "actual": 100.0
+    },
+    {
+      "name": "dependent widths rebuild",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        40,
+        50,
+        60,
+        100,
+        100
+      ],
+      "actual": [
+        40.0,
+        50.0,
+        60.0,
+        100.0,
+        100.0
+      ]
+    }
+  ]
+}
