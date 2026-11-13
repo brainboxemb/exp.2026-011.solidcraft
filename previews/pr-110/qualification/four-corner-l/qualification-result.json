@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "four-corner-l",
   "title": "One L-profile on all four front corners",
-  "source_commit": "f5d6e2a40873f7af2251217a89b3aff2aab62890",
+  "source_commit": "1bb75920ab8ff60bd3e8a5278cd687748a0997d2",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
