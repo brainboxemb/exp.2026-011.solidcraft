@@ -82,6 +82,21 @@ there is no separate component parameter publication or alias API.
   the eight rectangular corners such as `FRONT_TOP_RIGHT`. Corner anchors
   lower to native SolidCraft edge/corner origins, so saved-model parameter
   edits can move the referenced corner and the attached component together.
+- `AnchorFrame` is a local coordinate frame: `origin` says where the
+  attachment point is, `z` says which way it faces, and `x` fixes the
+  remaining clocking around Z. For the six principal directions use
+  `RIGHT`, `LEFT`, `BACK`, `FRONT`, `UP` or `DOWN` instead of
+  spelling the XYZ vector manually. These names are only readable unit
+  vectors; arbitrary XYZ vectors remain valid.
+
+  ```python
+  AnchorFrame(
+      origin=(10, 25, 0),
+      z=RIGHT,
+      x=UP,
+  )
+  ```
+
 - A non-rectangular reusable component may expose `anchors()` containing
   named `AnchorFrame` values. These are local component datums. Forge authors
   them as native SolidCraft joint origins before occurrence placement, so
