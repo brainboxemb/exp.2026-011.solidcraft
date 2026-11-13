@@ -1,5 +1,5 @@
 {
-  "library_commit": "30dbfa70c245b9f1edb47ea8d3b70867bddb3b55",
+  "library_commit": "4ea251142acbaaad79d2394ebf740ee9310a56cd",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -108,7 +108,7 @@
       "parameter_count": null
     },
     "four-corner-l": {
-      "title": "One L-profile on all four front corners",
+      "title": "External L-bracket on all four front corners",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 26,
