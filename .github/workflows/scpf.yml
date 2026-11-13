@@ -98,8 +98,9 @@ jobs:
           solidcraft-cli run output/native/rigid-anchor-lab/inspect-joint.json \
             --in output/native/rigid-anchor-lab/model.sc \
             --param-check strict \
+            --results \
             --json-out output/native/rigid-anchor-lab/joint-inspect.json
-          cat output/native/rigid-anchor-lab/joint-inspect.json
+          jq . output/native/rigid-anchor-lab/joint-inspect.json
 
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -328,6 +329,12 @@ jobs:
           jq -n --arg source "$GITHUB_SHA" \
             '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \
             > output/native/verification.json
+      - name: Upload rigid anchor lab evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: rigid-anchor-lab
+          path: output/native/rigid-anchor-lab
+          if-no-files-found: error
       - name: Build the lightweight library Pages site
         shell: bash
         run: |
