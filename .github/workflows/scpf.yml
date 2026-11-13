@@ -139,7 +139,7 @@ jobs:
           ]}
           JSON
           solidcraft-cli run output/native/planar-limit-lab/inspect-limited.json \
-            --in output/native/planar-limit-lab/model-limited.sc \
+            --in output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
             --param-check strict \
             --results \
             --json-out output/native/planar-limit-lab/joint-inspect-limited.json
@@ -147,6 +147,39 @@ jobs:
             --json-out output/native/planar-limit-lab/measurements-limited.json
           solidcraft-cli snapshot output/native/planar-limit-lab/model-limited.sc \
             --out output/native/planar-limit-lab/limited.png --no-grid --no-axes
+
+          # Explicitly choose the other valid planar orientation branch.
+          # This is separate from setting limits: limits constrain a value,
+          # while drive actually changes the planar angle DOF.
+          cat > output/native/planar-limit-lab/drive-angle-minus-180.json <<'JSON'
+          {"commands":[
+            {"command":"joint.drive","params":{
+              "joint":"Attach LBracket:1 to Parent:1",
+              "index":2,
+              "value":-180
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/drive-angle-minus-180.json \
+            --in output/native/planar-limit-lab/model-limited.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/drive-angle-minus-180-results.json \
+            --save output/native/planar-limit-lab/model-limited-angle-minus-180.sc
+          solidcraft-cli eval output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
+            --json-out output/native/planar-limit-lab/measurements-limited-angle-minus-180.json
+          cat > output/native/planar-limit-lab/inspect-angle-minus-180.json <<'JSON'
+          {"commands":[
+            {"command":"joint.inspect","params":{}}
+          ]}
+          JSON
+          solidcraft-cli run output/native/planar-limit-lab/inspect-angle-minus-180.json \
+            --in output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
+            --param-check strict \
+            --results \
+            --json-out output/native/planar-limit-lab/joint-inspect-angle-minus-180.json
+          solidcraft-cli snapshot output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
+            --out output/native/planar-limit-lab/angle-minus-180.png --no-grid --no-axes
 
           # Change the saved design parameter after the limit has been applied.
           cat > output/native/planar-limit-lab/change-shift.json <<'JSON'
