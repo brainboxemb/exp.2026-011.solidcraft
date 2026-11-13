@@ -1,6 +1,6 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "Front and rear bracket rows - side view",
+  "title": "Front and rear outside L-bracket rows - depth view",
   "commands": [
     {
       "command": "layer.new",
@@ -85,6 +85,62 @@
       "params": {
         "points": [
           [
+            0,
+            102
+          ],
+          [
+            37,
+            102
+          ],
+          [
+            0,
+            109
+          ],
+          [
+            37,
+            109
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -7,
+            65
+          ],
+          [
+            0,
+            65
+          ],
+          [
+            0,
+            102
+          ],
+          [
+            37,
+            102
+          ],
+          [
+            37,
+            109
+          ],
+          [
+            -7,
+            109
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
             -7,
             0
           ],
@@ -101,6 +157,62 @@
             37
           ]
         ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            -7
+          ],
+          [
+            37,
+            -7
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            37,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -7,
+            37
+          ],
+          [
+            0,
+            37
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            37,
+            0
+          ],
+          [
+            37,
+            -7
+          ],
+          [
+            -7,
+            -7
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
       }
     },
     {
@@ -131,6 +243,62 @@
       "params": {
         "points": [
           [
+            83,
+            102
+          ],
+          [
+            120,
+            102
+          ],
+          [
+            83,
+            109
+          ],
+          [
+            120,
+            109
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            127,
+            65
+          ],
+          [
+            120,
+            65
+          ],
+          [
+            120,
+            102
+          ],
+          [
+            83,
+            102
+          ],
+          [
+            83,
+            109
+          ],
+          [
+            127,
+            109
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
             120,
             0
           ],
@@ -150,58 +318,58 @@
       }
     },
     {
-      "command": "rectang",
+      "command": "solid",
       "params": {
-        "p1": [
-          -7,
-          65
-        ],
-        "p2": [
-          0,
-          102
-        ],
-        "width": 0.8
+        "points": [
+          [
+            83,
+            -7
+          ],
+          [
+            120,
+            -7
+          ],
+          [
+            83,
+            0
+          ],
+          [
+            120,
+            0
+          ]
+        ]
       }
     },
     {
-      "command": "rectang",
+      "command": "pline",
       "params": {
-        "p1": [
-          -7,
-          0
+        "vertices": [
+          [
+            127,
+            37
+          ],
+          [
+            120,
+            37
+          ],
+          [
+            120,
+            0
+          ],
+          [
+            83,
+            0
+          ],
+          [
+            83,
+            -7
+          ],
+          [
+            127,
+            -7
+          ]
         ],
-        "p2": [
-          0,
-          37
-        ],
-        "width": 0.8
-      }
-    },
-    {
-      "command": "rectang",
-      "params": {
-        "p1": [
-          120,
-          65
-        ],
-        "p2": [
-          127,
-          102
-        ],
-        "width": 0.8
-      }
-    },
-    {
-      "command": "rectang",
-      "params": {
-        "p1": [
-          120,
-          0
-        ],
-        "p2": [
-          127,
-          37
-        ],
+        "closed": true,
         "width": 0.8
       }
     },
