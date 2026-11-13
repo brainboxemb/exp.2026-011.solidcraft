@@ -51,7 +51,6 @@ def camera(data: dict, view: str) -> dict:
         "roll": 0.0,
         "distance": distance,
         "fov": 0.0,
-        "up": "z",
     }
 
 
