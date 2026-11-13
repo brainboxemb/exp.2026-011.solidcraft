@@ -41,10 +41,10 @@ EXPECTED_BOUNDS = {
     ],
     "four-corner-l": [
         {"label": "FrameBlock", "min": [-60, -15, 0], "max": [60, 15, 80]},
-        {"label": "top-left", "min": [-60, -27, 40], "max": [-20, -3, 80]},
-        {"label": "top-right", "min": [20, -27, 40], "max": [60, -3, 80]},
-        {"label": "bottom-right", "min": [20, -27, 0], "max": [60, -3, 40]},
-        {"label": "bottom-left", "min": [-60, -27, 0], "max": [-20, -3, 40]},
+        {"label": "top-left", "min": [-60, -19, 40], "max": [-20, -15, 80]},
+        {"label": "top-right", "min": [20, -19, 40], "max": [60, -15, 80]},
+        {"label": "bottom-right", "min": [20, -19, 0], "max": [60, -15, 40]},
+        {"label": "bottom-left", "min": [-60, -19, 0], "max": [-20, -15, 40]},
     ],
     "custom-anchor": [
         {"label": "Arm", "min": [-5, -20, 0], "max": [5, 20, 10]},
@@ -90,10 +90,10 @@ EXPECTED_MUTATION_BOUNDS = {
     ],
     "four-corner-l": [
         {"label": "FrameBlock", "min": [-80, -15, 0], "max": [80, 15, 120]},
-        {"label": "top-left", "min": [-80, -27, 80], "max": [-40, -3, 120]},
-        {"label": "top-right", "min": [40, -27, 80], "max": [80, -3, 120]},
-        {"label": "bottom-right", "min": [40, -27, 0], "max": [80, -3, 40]},
-        {"label": "bottom-left", "min": [-80, -27, 0], "max": [-40, -3, 40]},
+        {"label": "top-left", "min": [-80, -19, 80], "max": [-40, -15, 120]},
+        {"label": "top-right", "min": [40, -19, 80], "max": [80, -15, 120]},
+        {"label": "bottom-right", "min": [40, -19, 0], "max": [80, -15, 40]},
+        {"label": "bottom-left", "min": [-80, -19, 0], "max": [-40, -15, 40]},
     ],
     "xz-anchor": [
         {"label": "Board", "min": [-40, 0, 0], "max": [40, 12, 40]},
@@ -117,18 +117,18 @@ EXPECTED_VISUAL_BOXES["four-corner-l"] = [
     {"label": "FrameBlock", "min": [-60, -15, 0], "max": [60, 15, 80]},
 
     # top-left: inward +X, downward -Z
-    {"label": "TL arm X", "min": [-60, -27, 68], "max": [-20, -3, 80]},
-    {"label": "TL arm Z", "min": [-60, -27, 40], "max": [-48, -3, 80]},
+    {"label": "TL arm X", "min": [-60, -19, 68], "max": [-20, -15, 80]},
+    {"label": "TL arm Z", "min": [-60, -19, 40], "max": [-48, -15, 80]},
 
     # top-right: inward -X, downward -Z
-    {"label": "TR arm X", "min": [20, -27, 68], "max": [60, -3, 80]},
-    {"label": "TR arm Z", "min": [48, -27, 40], "max": [60, -3, 80]},
+    {"label": "TR arm X", "min": [20, -19, 68], "max": [60, -15, 80]},
+    {"label": "TR arm Z", "min": [48, -19, 40], "max": [60, -15, 80]},
 
     # bottom-right: inward -X, upward +Z
-    {"label": "BR arm X", "min": [20, -27, 0], "max": [60, -3, 12]},
-    {"label": "BR arm Z", "min": [48, -27, 0], "max": [60, -3, 40]},
+    {"label": "BR arm X", "min": [20, -19, 0], "max": [60, -15, 12]},
+    {"label": "BR arm Z", "min": [48, -19, 0], "max": [60, -15, 40]},
 
     # bottom-left: inward +X, upward +Z
-    {"label": "BL arm X", "min": [-60, -27, 0], "max": [-20, -3, 12]},
-    {"label": "BL arm Z", "min": [-60, -27, 0], "max": [-48, -3, 40]},
+    {"label": "BL arm X", "min": [-60, -19, 0], "max": [-20, -15, 12]},
+    {"label": "BL arm Z", "min": [-60, -19, 0], "max": [-48, -15, 40]},
 ]
