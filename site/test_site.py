@@ -36,12 +36,15 @@ def check(site: Path, sha: str, require_native: bool = False):
         "follow an edge or corner",
         "Assembly-owned named anchors",
         "with_anchor()",
+        "Associative in-plane attachment offset",
+        "attach(offset=(u, v))",
         "front_top_left",
     ):
         assert term in components, term
     assert "AnchorFrame" in cheatsheet and "child=mount" in cheatsheet
     assert "AnchorTopology" in cheatsheet
     assert "assembly.with_anchor" in cheatsheet
+    assert "attach(offset=(u, v))" in cheatsheet
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
     assert (site / "style.css").is_file()
