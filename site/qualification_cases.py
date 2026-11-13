@@ -157,7 +157,6 @@ QUALIFICATION_CASES = [
         "slug": "four-corner-l",
         "q5_required": True,
         "group": "anchors",
-        "verified_status": "Q1–Q6 native verified",
         "title": "One L-profile on all four front corners",
         "intent": "Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.",
         "forge_api": "Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0",
