@@ -323,7 +323,14 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
             shutil.copyfile(snapshot, case_dir / "model.png")
-            for pattern in ("results*.json", "measurements*.json", "change-*.json"):
+            for pattern in (
+                "results*.json",
+                "measurements*.json",
+                "change-*.json",
+                "parameters*.json",
+                "model.json",
+                "export-*.json",
+            ):
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
