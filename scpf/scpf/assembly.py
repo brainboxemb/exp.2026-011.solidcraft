@@ -107,6 +107,8 @@ def compile_assembly(value, name):
         return ("direct", id(anchor))
 
     def register_topology(model, anchor):
+        if isinstance(anchor, Anchor):
+            return
         custom = (
             dict(model.definition.anchors)[anchor]
             if isinstance(anchor, str)
