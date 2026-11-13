@@ -1,0 +1,42 @@
+<main class="wrap">
+<section class="hero small">
+  <p class="eyebrow">SCPF Forge verification</p>
+  <h1>Qualification</h1>
+  <p>Every non-trivial Forge feature is traced from Python API through compiler
+  representation and native SolidCraft behaviour. A green unit test alone is not
+  treated as proof that the CAD result is correct.</p>
+  <p class="meta">Source commit: <code>$source_sha</code> · SolidCraft $solidcraft_version</p>
+</section>
+
+<section class="notice">
+  <strong>Status:</strong> PASS means every required qualification level passed;
+  FAIL means a semantic or visual check found an actual mismatch; REVIEW means
+  machine checks may be valid but the fixed-camera visual result still needs an
+  explicitly approved reference; INCOMPLETE means required evidence is missing.
+</section>
+
+<p><a class="button" href="joint-anatomy/">Understand SolidCraft joint frames →</a> <a class="button" href="results/">Open published results →</a> <a class="button" href="capabilities/">Open CAD capability map →</a> <a class="button" href="coverage/">Open Forge API coverage matrix →</a></p>
+
+<section class="panel">
+  <h2>Qualification levels</h2>
+  <table>
+    <thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
+    <tbody>$level_rows</tbody>
+  </table>
+</section>
+
+<section class="section-heading">
+  <h2>Functional qualification groups</h2>
+  <p>Cases are grouped by the user concept they prove. Native SolidCraft command
+  details stay inside each case's lowering section rather than becoming the
+  learning structure.</p>
+</section>
+
+$group_sections
+
+<section class="notice">
+  <strong>Raw evidence:</strong> CI also retains the full saved .sc files and STEP exports
+  in the qualification artifact. Pages publishes the command plans, measurement JSON,
+  structured qualification results and snapshots needed for normal review.
+</section>
+</main>

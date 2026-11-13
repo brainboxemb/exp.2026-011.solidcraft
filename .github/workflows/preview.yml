@@ -30,7 +30,36 @@ jobs:
           python-version: "3.12"
 
       - name: Install SCPF
-        run: python -m pip install -e ./scpf
+        run: python -m pip install -e ./scpf pillow
+
+      - name: Restore rendered CADCraft diagrams
+        id: cadcraft_diagrams
+        uses: actions/cache@v4
+        with:
+          path: output/diagrams
+          key: cadcraft-diagrams-v0.20.1-${{ hashFiles('qualification/diagrams/*.cadcraft.json', 'qualification/render_cadcraft_diagram.sh') }}
+
+      - name: Cache CADCraft CLI
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/cadcraft/0.20.1-linux-x86_64
+          key: cadcraft-0.20.1-linux-x86_64
+
+      - name: Set up CADCraft CLI
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        shell: bash
+        run: bash qualification/setup_cadcraft.sh
+
+      - name: Render technical qualification diagrams
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/diagrams
+          for plan in qualification/diagrams/*.cadcraft.json; do
+            bash qualification/render_cadcraft_diagram.sh "$plan" output/diagrams
+          done
 
       - name: Run fast Python API tests
         shell: bash
@@ -49,13 +78,25 @@ jobs:
           python -m unittest discover \
             -s "$GITHUB_WORKSPACE/qualification/tests" -v
 
+      - name: Compile qualification tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            qualification/camera.py \
+            qualification/goal_overlay.py \
+            qualification/native_validation.py \
+            qualification/results.py \
+            qualification/report.py \
+            qualification/visual_validation.py
+
       - name: Compile documented qualification fixtures
         shell: bash
         run: |
           set -euo pipefail
           unset PYTHONPATH
           mkdir -p output
-          models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $models history-policy plate; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
@@ -66,7 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          python site/build.py --out output/site --source-sha "$GITHUB_SHA"
+          python site/build.py --out output/site --source-sha "$GITHUB_SHA" --diagram-root output/diagrams
           python site/test_site.py output/site "$GITHUB_SHA"
 
       - name: Upload preview artifact
@@ -84,6 +125,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./output/site
-          destination_dir: previews/pr-${{ github.event.pull_request.number }}
+          destination_dir: previews/pr-${{ github.event.pull_request.number }}/fast
           keep_files: true
-          commit_message: "Preview PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
+          commit_message: "Fast preview PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"

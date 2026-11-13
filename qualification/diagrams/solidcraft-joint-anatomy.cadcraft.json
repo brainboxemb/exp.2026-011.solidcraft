@@ -1,0 +1,296 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "SolidCraft joint origins A and B",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "PARENT",
+        "color": 8,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            95,
+            0
+          ],
+          [
+            0,
+            60
+          ],
+          [
+            95,
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          95,
+          60
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "CHILD",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            185,
+            0
+          ],
+          [
+            280,
+            0
+          ],
+          [
+            185,
+            60
+          ],
+          [
+            280,
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          185,
+          0
+        ],
+        "p2": [
+          280,
+          60
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "A",
+        "color": 1,
+        "lineweight": 1.4,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          95,
+          30
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            95,
+            30
+          ],
+          [
+            133,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            95,
+            30
+          ],
+          [
+            95,
+            70
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "B",
+        "color": 3,
+        "lineweight": 1.4,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          185,
+          30
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            185,
+            30
+          ],
+          [
+            147,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            185,
+            30
+          ],
+          [
+            185,
+            70
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "JOIN",
+        "color": 7,
+        "lineweight": 1,
+        "current": true
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            135,
+            30
+          ],
+          [
+            145,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          48,
+          26
+        ],
+        "text": "A",
+        "height": 8,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          233,
+          26
+        ],
+        "text": "B",
+        "height": 8,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          119,
+          35
+        ],
+        "text": "z",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          99,
+          67
+        ],
+        "text": "x",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          154,
+          35
+        ],
+        "text": "z",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          189,
+          67
+        ],
+        "text": "x",
+        "height": 4.5
+      }
+    }
+  ]
+}

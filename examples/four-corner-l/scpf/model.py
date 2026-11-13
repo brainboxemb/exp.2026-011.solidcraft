@@ -1,78 +1,96 @@
-"""Four associative front-corner placements using the minimal L-profile."""
+"""Four reusable L-profile feet mounted under one rectangular frame."""
 
 
 class FrameBlock:
-    width = 120.0
-    DEPTH = 30.0
-    height = 80.0
+    _width = 120.0
+    _depth = 80.0
+    HEIGHT = 60.0
 
     def build(self):
-        return Box(self.width, self.DEPTH, self.height)
+        return Box(self._width, self._depth, self.HEIGHT)
 
 
-class LBracket:
-    WIDTH = 24.0
-    ARM_LENGTH = 40.0
-    ARM_HEIGHT = 12.0
+class CornerFoot:
+    ARM_LENGTH = 28.0
+    WALL = 8.0
+    HEIGHT = 30.0
 
     def build(self):
-        profile = Polygon2D(
+        # Neutral reusable component.
+        #
+        # The local origin is the outside top corner of the foot.
+        # The L-shaped footprint extends in local +X/+Y and the foot extends
+        # downwards in local -Z. It has no knowledge of the frame or of which
+        # of the four frame corners it will occupy.
+        footprint = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_LENGTH),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane="XZ",
+            plane="XY",
         )
-        return profile.extrude(
-            self.WIDTH,
-            direction=Direction.SYMMETRIC,
+        return footprint.extrude(
+            self.HEIGHT,
+            direction=Direction.NEGATIVE,
         )
 
 
 class FourCornerL:
-    def build(self):
-        frame = FrameBlock()
-        bracket = LBracket()
+    frame_width = 120.0
+    frame_depth = 80.0
 
-        # The neutral L occupies +X and -Z from this local corner. Its
-        # attachment normal is +Y. The parent corner frame must rotate those
-        # two in-plane directions to the two inward edges at each corner.
-        mount = AnchorFrame(
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+        )
+        foot = CornerFoot()
+
+        # The assembly chooses the attachment point and orientation.
+        # CornerFoot itself stays completely placement-agnostic.
+        foot_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, -1, 0),
+            z=(0, 0, 1),
             x=(1, 0, 0),
         )
 
-        top_left = bracket.copy().attach(
+        half_width = self.frame_width / 2
+        half_depth = self.frame_depth / 2
+
+        front_left = foot.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=mount,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(-half_width, -half_depth),
             angle=0,
         )
-        top_right = bracket.copy().attach(
+        front_right = foot.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=mount,
-            angle=0,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(half_width, -half_depth),
+            angle=90,
         )
-        bottom_right = bracket.copy().attach(
+        back_right = foot.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=mount,
-            angle=0,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(half_width, half_depth),
+            angle=180,
         )
-        bottom_left = bracket.copy().attach(
+        back_left = foot.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=mount,
-            angle=0,
+            parent=Anchor.BOTTOM,
+            child=foot_origin,
+            offset=(-half_width, half_depth),
+            angle=270,
         )
 
-        return frame + top_left + top_right + bottom_right + bottom_left
+        return frame + front_left + front_right + back_right + back_left
 
 
 FourCornerL()

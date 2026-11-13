@@ -1,0 +1,62 @@
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / $title</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  $status_badge
+  <h1>$title</h1>
+</section>
+
+$case_preview
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  $setup_diagram
+  <h3>Test goal</h3>
+  <p>$intent</p>
+  <h3>Pass criteria</h3>
+  <p>$native_expectation</p>
+  $mutation_criterion
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>$source</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>$forge_api</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>$forge_model</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>$lowering</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>$lowering_detail</code></pre>
+  </details>
+</section>
+
+$results
+
+$gallery
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul>$evidence_items</ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul>$reference_items</ul>
+    </div>
+  </div>
+</section>
+</main>

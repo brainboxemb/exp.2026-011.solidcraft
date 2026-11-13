@@ -6,14 +6,26 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
-from build import EXAMPLES
-from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_GROUPS
+from build import EXAMPLES, QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 from capability_map import SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
 import scpf
 
 
 def check(site: Path, sha: str, require_native: bool = False):
+    template_dir = ROOT / "qualification" / "templates"
+    for template_name in (
+        "case.html",
+        "index.html",
+        "results.html",
+        "capabilities.html",
+        "coverage.html",
+        "joint-anatomy.html",
+        "report.md",
+    ):
+        template = template_dir / template_name
+        assert template.is_file() and template.stat().st_size > 0, template_name
+
     home = (site / "index.html").read_text(encoding="utf-8")
     cheatsheet = (site / "cheatsheet" / "index.html").read_text(encoding="utf-8")
     from build import GUIDES
@@ -72,7 +84,40 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert current == "GAP" or current.startswith("Q")
 
     assert "Qualification" in home and "Qualification" in qualification_index
+    assert 'href="joint-anatomy/"' in qualification_index
+    joint_anatomy_page = (
+        site / "qualification" / "joint-anatomy" / "index.html"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Placing a corner bracket with Forge",
+        "The real SolidCraft JSON generated today",
+        "\"command\": \"joint.create\"",
+        "\"edge\": [-60, -40, 30]",
+        "\"z\": [0, -1, 0]",
+        "child joint origin",
+        "4 brackets",
+        "8 brackets",
+        "No second orientation solver",
+        "FRONT_TOP_LEFT",
+        "z=+Y, x=-Z",
+        "BACK_TOP_RIGHT",
+    ):
+        assert term in joint_anatomy_page, term
+    for diagram in (
+        "solidcraft-joint-anatomy",
+        "solidcraft-joint-references",
+        "corner-bracket-goal",
+        "corner-bracket-depth",
+        "corner-bracket-local-axes",
+        "corner-bracket-front-corners",
+    ):
+        for suffix in (".svg", ".dxf", ".cadcraft.json"):
+            artifact = site / "qualification" / "joint-anatomy" / f"{diagram}{suffix}"
+            assert artifact.is_file() and artifact.stat().st_size > 0, artifact
+        assert f'src="{diagram}.svg"' in joint_anatomy_page
+        assert f'href="{diagram}.cadcraft.json"' in joint_anatomy_page
     assert "Q1" in qualification_index and "Q6" in qualification_index
+    assert 'class="reference-grid qualification-grid"' in qualification_index
     assert qualification_manifest["library_commit"] == sha
     assert qualification_manifest["solidcraft_version"] == "0.30.1"
     assert set(qualification_manifest["cases"]) == {
@@ -96,32 +141,124 @@ def check(site: Path, sha: str, require_native: bool = False):
             site / "qualification" / slug / "index.html"
         ).read_text(encoding="utf-8")
         for heading in (
-            "Forge contract",
-            "Internal Forge model",
-            "SolidCraft lowering",
-            "Native verification",
-            "Parametric mutation",
-            "Results",
+            "1. Test setup",
+            "Test goal",
+            "Pass criteria",
+            "2. Implementation under test",
+            "Public Forge API used",
+            "Forge model represented by this fixture",
+            "3. Generated SolidCraft relationship",
+            "6. Evidence and references",
             "Reference models",
         ):
             assert heading in page_text, (slug, heading)
         assert case["title"] in page_text
+        setup_name = case.get("diagram", "setup.svg")
+        setup_image = site / "qualification" / slug / setup_name
+        assert setup_image.is_file() and setup_image.stat().st_size > 0, slug
+        assert 'class="qualification-setup-diagram"' in page_text, slug
+        assert f'href="{setup_name}"' in page_text, slug
+        assert 'target="_blank"' in page_text, slug
+
+        setup_pos = page_text.index("<h2>1. Test setup</h2>")
+        implementation_pos = page_text.index("<h2>2. Implementation under test</h2>")
+        command_pos = page_text.index("<h2>3. Generated SolidCraft relationship</h2>")
+        assert setup_pos < implementation_pos < command_pos, slug
+
+        for placeholder in (
+            "$title",
+            "$status",
+            "$gallery",
+            "$results",
+            "$source",
+        ):
+            assert placeholder not in page_text, (slug, placeholder)
         assert (site / "qualification" / slug / "model.py").is_file()
         assert (site / "qualification" / slug / "commands.json").is_file()
         if require_native:
-            expected_status = case.get(
-                "verified_status",
-                "Q1–Q6 native verified",
-            )
-            assert expected_status in page_text, slug
+            manifest_case = qualification_manifest["cases"][slug]
+            result_path = site / "qualification" / slug / "qualification-result.json"
+            assert result_path.is_file(), slug
+            structured_result = json.loads(result_path.read_text(encoding="utf-8"))
+            assert structured_result["status"] in {
+                "pass", "fail", "review", "incomplete"
+            }, slug
+            assert manifest_case["qualification_status"] == structured_result["status"], slug
+
+            badge = {
+                "pass": "PASS",
+                "fail": "FAIL",
+                "review": "REVIEW",
+                "incomplete": "INCOMPLETE",
+            }[structured_result["status"]]
+            assert f">{badge}</span>" in page_text, slug
+
+            assert structured_result["source_commit"] == sha, slug
+            assert structured_result["solidcraft_version"] == "0.30.1", slug
+            assert manifest_case["levels"] == structured_result["levels"], slug
             assert "Native runtime:" in page_text, slug
             assert "SolidCraft 0.30.1" in page_text, slug
+
             image = site / "qualification" / slug / "model.png"
             assert image.is_file() and image.stat().st_size > 0, slug
             assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+            native_images = qualification_manifest["cases"][slug]["native_images"]
+            for required_image in (
+                "model.png",
+                "model-front.png",
+                "model-right.png",
+                "model-iso.png",
+            ):
+                assert required_image in native_images, (slug, required_image)
+
+            assert "<h2>1. Test setup</h2>" in page_text, slug
+            assert "<h3>Test goal</h3>" in page_text, slug
+            assert "<h3>Pass criteria</h3>" in page_text, slug
+            assert "<h2>2. Implementation under test</h2>" in page_text, slug
+            assert "<h2>4. Machine verification</h2>" in page_text, slug
+            assert "<h2>5. Visual verification</h2>" in page_text, slug
+            machine_pos = page_text.index("<h2>4. Machine verification</h2>")
+            visual_pos = page_text.index("<h2>5. Visual verification</h2>")
+            evidence_pos = page_text.index("<h2>6. Evidence and references</h2>")
+            assert command_pos < machine_pos < visual_pos < evidence_pos, slug
+            assert 'class="panel qualification-visual-check"' in page_text, slug
+            assert 'class="qualification-image-link"' in page_text, slug
+            assert 'href="model-iso.png"' in page_text, slug
+            assert 'href="goal-iso.png"' in page_text, slug
+            assert 'href="overlay-iso.png"' in page_text, slug
+            assert f'src="{slug}/model-iso.png"' in qualification_index, slug
+            assert 'class="qualification-case-preview"' in page_text, slug
+            assert 'href="model-iso.png"' in page_text, slug
+            assert 'src="model-iso.png"' in page_text, slug
+            preview_pos = page_text.index('class="qualification-case-preview"')
+            setup_pos = page_text.index("<h2>1. Test setup</h2>")
+            assert preview_pos < setup_pos, slug
             native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
             assert "measurements.json" in native_evidence, slug
             assert "results.json" in native_evidence, slug
+            assert "validation.json" in native_evidence, slug
+            assert "visual-validation.json" in native_evidence, slug
+
+            if slug in {"parametric-offset", "corner-anchor", "xz-anchor"}:
+                assert structured_result["status"] == "fail", slug
+                assert structured_result["levels"]["q4"]["status"] == "fail", slug
+
+            if slug == "four-corner-l":
+                cadcraft_source = (
+                    site / "qualification" / slug / "four-corner-l.cadcraft.json"
+                )
+                assert cadcraft_source.is_file()
+                plan = json.loads(cadcraft_source.read_text(encoding="utf-8"))
+                plan_text = json.dumps(plan)
+                assert "BOTTOM offset" in plan_text
+                assert "CornerFoot contains geometry only" in plan_text
+                assert (site / "qualification" / slug / "four-corner-l.dxf").is_file()
+                assert "CadCraft source" in page_text
+                assert ">DXF</a>" in page_text
+                mutation_image = site / "qualification" / slug / "model-size-160x120.png"
+                assert mutation_image.is_file() and mutation_image.stat().st_size > 0
+                assert "model-size-160x120.png" in native_images
+                assert mutation_image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
 
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()

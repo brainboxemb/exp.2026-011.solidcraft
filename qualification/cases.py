@@ -19,7 +19,7 @@ QUALIFICATION_LEVELS = [
     ("Q3", "Native build", "SolidCraft 0.30.1 accepts the command plan and saves an editable design."),
     ("Q4", "Native measurement", "Timeline and actual body measurements match the expected result."),
     ("Q5", "Parametric mutation", "A saved design re-solves correctly after parameters.change."),
-    ("Q6", "Visual artifact", "A native snapshot makes orientation and placement reviewable."),
+    ("Q6", "Visual regression", "Fixed-camera native renders are checked from multiple views and published with reference/diff evidence."),
 ]
 
 
@@ -64,6 +64,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parameter-scope",
+        "q5_required": True,
         "group": "parameters",
         "title": "Implicit component parameters and shared dependencies",
         "intent": "Verify that public component defaults become editable native parameters automatically, while parent Parameters/Expressions are reused rather than duplicated in the child.",
@@ -93,6 +94,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-attach",
+        "q5_required": True,
         "group": "associativity",
         "title": "Editable distance between attached components",
         "intent": "Verify that distance along the attachment normal remains a native editable joint parameter.",
@@ -107,6 +109,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-offset",
+        "q5_required": True,
         "group": "associativity",
         "title": "Editable local offset at an attachment",
         "intent": "Verify the existing local (u,v) attachment-plane offset and make its coordinate semantics explicit.",
@@ -122,6 +125,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Face anchor follows parent geometry",
         "intent": "Verify that a standard face anchor remains tied to changing parent topology.",
@@ -136,6 +140,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "corner-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Topology-backed corner anchor",
         "intent": "Verify a corner reference that follows both parent width and height changes.",
@@ -150,18 +155,36 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "four-corner-l",
+        "q5_required": True,
+        "diagram": "four-corner-l.svg",
         "group": "anchors",
-        "verified_status": "Q1–Q6 native verified",
-        "title": "One L-profile on all four front corners",
-        "intent": "Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.",
-        "forge_api": "Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0",
-        "forge_model": "One parametric rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.",
-        "lowering": "Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.",
-        "native_expectation": "The four 40x40 L bounding boxes occupy the four inward front-corner quadrants and keep the same local clock cycle after the parent grows from 120x80 to 160x120 mm.",
-        "mutation": "After the fixed baseline is proven, change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four brackets and solved joint origins must follow their corners without rerunning Python.",
+        "title": "Four reusable L-profile corner feet",
+        "intent": "Mount one neutral L-profile foot below each corner of a rectangular frame. The feet belong to the bottom face, so the assembly places four occurrences by local bottom-face offsets and rotates the same component through the four corner orientations.",
+        "forge_api": "attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=0/90/180/270)",
+        "forge_model": "One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and rotations.",
+        "lowering": "Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their native in-plane values contain the parametric width/depth offsets and the four quarter-turn angles.",
+        "native_expectation": "The four feet sit below the frame, one at each bottom corner. Their equal L arms point inward along the two adjacent frame edges and their 30 mm height extends only below the frame.",
+        "mutation": "Change frame_width from 120 to 160 mm and frame_depth from 80 to 120 mm in the saved .sc design; all four feet must follow the moved bottom corners without rerunning Python.",
         "references": [
-            ("BOSL2", "A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations."),
-            ("SolidCraft", "A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner."),
+            ("BOSL2", "The useful comparison is attachment in the local plane of the selected parent face: position and spin belong to the assembly, not to the reusable foot."),
+            ("SolidCraft", "A bottom-face planar joint is the natural native relationship for a foot whose placement moves in the frame's XY plane."),
+        ],
+    },
+    {
+        "slug": "eight-corner-brackets",
+        "q5_required": True,
+        "diagram": "eight-corner-brackets.svg",
+        "group": "anchors",
+        "title": "Eight reusable outside L-brackets",
+        "intent": "Mount one neutral flat L-bracket on every outside corner of a rectangular frame: four on the front face and four on the rear face. The assembly owns all eight placements; the bracket component owns only its local geometry.",
+        "forge_api": "attach(parent=Anchor.FRONT_/BACK_... corner, child=assembly-local AnchorFrame, angle=0)",
+        "forge_model": "One parametric frame plus eight occurrences of one neutral LBracket definition. The same assembly-local bracket-corner reference is reused for front/rear, top/bottom and left/right placements.",
+        "lowering": "Eight rigid joint.create commands use topology-backed parent corner references. Forge may pre-position occurrences so SolidCraft can resolve the selected references, but the saved assembly relationship is the native joint rather than a frozen world-coordinate placement.",
+        "native_expectation": "Four brackets sit fully outside the front face and four sit fully outside the rear face. At each corner the two equal L arms run inward over the adjacent frame edges.",
+        "mutation": "Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved .sc design; all eight brackets must follow their corresponding moved corners without rerunning Python.",
+        "references": [
+            ("SolidCraft", "Front/rear corner topology is a natural native reference for a flat bracket mounted on those faces."),
+            ("BOSL2", "The reusable part stays local; the assembly chooses which parent corner each occurrence attaches to."),
         ],
     },
     {
@@ -169,8 +192,8 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Named oriented AnchorFrame",
         "intent": "Verify that a reusable component can publish a named attachment datum with both position and orientation.",
-        "forge_api": "anchors() -> {'tip': AnchorFrame(origin=..., z=..., x=...)}; attach(parent='tip', child='mount')",
-        "forge_model": "AnchorFrame is explicitly a local frame: origin plus Z axis and X axis. It is not merely a named point.",
+        "forge_api": "AnchorFrame(origin=..., z=RIGHT, x=UP); attach(parent='tip', child='mount')",
+        "forge_model": "AnchorFrame is a local coordinate frame: origin says where the point is, Z says which way it faces, and X fixes the clocking around Z.",
         "lowering": "For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.",
         "native_expectation": "After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.",
         "mutation": "No parameter mutation; this fixture isolates occurrence rotation plus named-frame attachment.",
@@ -180,6 +203,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "xz-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Anchors on XZ-profile extrusion",
         "intent": "Verify standard corner anchors on geometry authored as an XZ polygon and extruded in Y.",

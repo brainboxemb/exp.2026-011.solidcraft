@@ -154,6 +154,13 @@ Reusable components use the same implicit parameter intent as root models.
 Public lower-case numeric defaults become editable component-local parameters.
 Forge namespaces those local names when component definitions share a design.
 
+A reusable component should also stay neutral about **assembly-specific mounting
+datums**. Define an `AnchorFrame` in the assembly when the datum only exists
+because of how that component is used there. Put an anchor on the component
+itself only when that datum is an intrinsic, reusable feature of the physical
+part. A generic bracket should therefore not acquire a `mount` anchor merely
+because one qualification assembly needs to attach it by a particular corner.
+
 A parent model can couple a child input directly to one of its parameters:
 
 ```python
@@ -269,6 +276,33 @@ Qualification assertions are standard Python `unittest` cases under
 their parsing/helper functions so reviewers encounter the contract first.
 The native workflow reruns the same suite with `SCPF_NATIVE_ROOT` and the
 pinned SolidCraft version set.
+
+Qualification publishing is deliberately **data + template driven**:
+
+1. Python tests and native SolidCraft commands produce raw evidence.
+2. `qualification/results.py` normalizes that evidence into one
+   `qualification-result.json` per case plus an aggregate
+   `output/qualification/results.json`.
+3. `qualification/templates/report.md` is the source document for the CI
+   Markdown report; `qualification/report.py` only fills its placeholders.
+4. Pages uses the external templates in `qualification/templates/`
+   (`case.html`, `index.html`, `results.html`, `capabilities.html` and
+   `coverage.html`). `site/build.py` supplies escaped values and repeated
+   rows/cards but does not contain complete qualification page documents.
+5. Native image evidence is generated from deterministic cameras:
+   `model-front/right/iso.png` is the **actual** SolidCraft output,
+   `goal-front/right/iso.png` is generated from independent expected geometry,
+   and `overlay-front/right/iso.png` draws that goal over the actual render.
+   `model.png` remains the primary overview thumbnail. A current actual render
+   must never be promoted to a visual baseline merely because CI produced it.
+6. Q4/Q5 consume `qualification/expectations.py` through
+   `qualification/native_validation.py`. Q6 may additionally compare the fixed
+   actual views with explicitly approved visual baselines. Until a baseline is
+   approved, Q6 is `REVIEW`, not `PASS`.
+
+Case definitions live in `qualification/cases.py`. The site consumes those
+definitions; the qualification pipeline must never depend on site-owned
+metadata.
 
 Source-matched native results are published on the library Pages site at
 `qualification/results/`; each case page also renders parameters and body

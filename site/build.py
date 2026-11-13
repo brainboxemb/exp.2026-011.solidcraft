@@ -9,15 +9,29 @@ import html
 import json
 from pathlib import Path
 import shutil
+from string import Template
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
 
 from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
-from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, QUALIFICATION_GROUPS, REFERENCE_URLS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
 
-ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+try:
+    from qualification.cases import (
+        QUALIFICATION_CASES,
+        QUALIFICATION_LEVELS,
+        QUALIFICATION_GROUPS,
+        REFERENCE_URLS,
+    )
+    from qualification.expectations import EXPECTED_VISUAL_BOXES
+finally:
+    sys.path.pop(0)
+
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
 CAD_SITE = "https://brainboxemb.github.io/2026-011-02.cad.solidcraft/"
 
@@ -133,6 +147,60 @@ def schematic(slug):
     )
 
 
+def expected_setup_schematic(slug):
+    bodies = EXPECTED_VISUAL_BOXES.get(slug, [])
+    if not bodies:
+        return ""
+
+    x_min = min(float(body["min"][0]) for body in bodies)
+    x_max = max(float(body["max"][0]) for body in bodies)
+    z_min = min(float(body["min"][2]) for body in bodies)
+    z_max = max(float(body["max"][2]) for body in bodies)
+
+    x_span = max(x_max - x_min, 1.0)
+    z_span = max(z_max - z_min, 1.0)
+    pad = 42.0
+    width = 640.0
+    height = 360.0
+    scale = min((width - 2 * pad) / x_span, (height - 2 * pad) / z_span)
+
+    def sx(value):
+        return pad + (float(value) - x_min) * scale
+
+    def sy(value):
+        return height - pad - (float(value) - z_min) * scale
+
+    shapes = []
+    for index, body in enumerate(bodies):
+        x0 = sx(body["min"][0])
+        x1 = sx(body["max"][0])
+        y0 = sy(body["max"][2])
+        y1 = sy(body["min"][2])
+        fill = "#dce8f5" if index % 2 == 0 else "#e5f2ea"
+        stroke = "#46627f" if index % 2 == 0 else "#47715d"
+        shapes.append(
+            f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{x1-x0:.1f}" height="{y1-y0:.1f}" '
+            f'fill="{fill}" stroke="{stroke}" stroke-width="2"/>'
+        )
+        label = escape(body.get("label", f"body {index + 1}"))
+        shapes.append(
+            f'<text x="{x0 + 5:.1f}" y="{max(y0 + 17, 20):.1f}" '
+            f'font-family="system-ui,sans-serif" font-size="13" fill="#26394f">{label}</text>'
+        )
+
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" '
+        'role="img" aria-label="Expected setup schematic; not a SolidCraft render">'
+        '<rect width="640" height="360" fill="#f8fafc"/>'
+        '<text x="24" y="28" font-family="system-ui,sans-serif" font-size="16" '
+        'font-weight="700" fill="#20344d">Expected setup — front projection</text>'
+        '<text x="24" y="50" font-family="system-ui,sans-serif" font-size="12" '
+        'fill="#60738a">Conceptual geometry only; verification renders appear later.</text>'
+        + "".join(shapes)
+        + '</svg>'
+    )
+
+
 def escape(value):
     return html.escape(str(value), quote=True)
 
@@ -141,11 +209,166 @@ def _format_vector(values):
     return "[" + ", ".join(f"{float(value):g}" for value in values) + "]"
 
 
+def _qualification_status(result):
+    labels = {
+        "pass": "PASS",
+        "fail": "FAIL",
+        "review": "REVIEW",
+        "incomplete": "INCOMPLETE",
+        "missing": "MISSING",
+        "not-required": "N/R",
+    }
+    details = []
+    for name in ("q1", "q2", "q3", "q4", "q5", "q6"):
+        state = result.get("levels", {}).get(name, {}).get("status", "missing")
+        q = name.upper()
+        if state == "pass":
+            details.append(q)
+        elif state == "not-required":
+            details.append(f"{q} N/R")
+        else:
+            details.append(f"{q} {labels.get(state, state.upper())}")
+    overall_state = result.get("status", "incomplete")
+    return labels.get(overall_state, overall_state.upper()), " · ".join(details)
+
+
+def _qualification_status_html(overall, detail):
+    status_class = {
+        "PASS": "pass",
+        "FAIL": "fail",
+        "REVIEW": "review",
+        "INCOMPLETE": "incomplete",
+        "NOT RUN": "not-run",
+    }.get(overall, "incomplete")
+    return (
+        '<div class="qualification-status-line">'
+        f'<span class="qualification-status {status_class}">{escape(overall)}</span>'
+        f'<span class="qualification-levels">{escape(detail)}</span>'
+        '</div>'
+    )
+
+
+def _image_sort_key(name):
+    if name == "model.png":
+        return (0, "", 0)
+    for view_index, view in enumerate(("front", "right", "iso"), 1):
+        order = {
+            f"model-{view}.png": 0,
+            f"goal-{view}.png": 1,
+            f"overlay-{view}.png": 2,
+            f"visual-diff-{view}.png": 3,
+        }
+        if name in order:
+            return (view_index, view, order[name])
+    return (10, name, 0)
+
+
+def _visual_view_html(case, view, native_images):
+    names = [
+        (f"model-{view}.png", "Actual", f"Current SolidCraft {view} view"),
+        (f"goal-{view}.png", "Goal", f"Expected geometry in the same {view} view"),
+        (f"overlay-{view}.png", "Overlay", f"Expected geometry over the actual {view} view"),
+    ]
+    figures = []
+    for name, label, caption in names:
+        if name not in native_images:
+            continue
+        figures.append(
+            '<figure class="qualification-visual-item">'
+            f'<a href="{escape(name)}" class="qualification-image-link" target="_blank" rel="noopener" '
+            f'title="Open full-size {escape(label)} image">'
+            f'<img src="{escape(name)}" '
+            f'alt="{escape(case["title"])} {escape(view)} {escape(label)}" loading="lazy">'
+            '</a>'
+            f'<figcaption><strong>{escape(label)}</strong><br>{escape(caption)}</figcaption>'
+            '</figure>'
+        )
+    if not figures:
+        return ""
+    return (
+        f'<section class="qualification-view" data-view="{escape(view)}">'
+        f'<h3>{escape(view.title())}</h3>'
+        '<div class="qualification-view-grid">'
+        + "".join(figures)
+        + '</div></section>'
+    )
+
+
+def _render_visual_evidence(case, native_images):
+    iso = _visual_view_html(case, "iso", native_images)
+    additional = "".join(
+        _visual_view_html(case, view, native_images)
+        for view in ("front", "right")
+    )
+    if not iso and not additional:
+        return ""
+    extra = (
+        '<details class="qualification-extra-views">'
+        '<summary>Additional front/right views</summary>'
+        + additional
+        + '</details>'
+        if additional else ""
+    )
+    return (
+        '<section class="panel qualification-visual-check">'
+        '<h2>5. Visual verification</h2>'
+        '<p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. '
+        'Overlay shows both together. Click any image for the full-size PNG.</p>'
+        + iso + extra +
+        '</section>'
+    )
+
+
+def _image_caption(name):
+    if name == "model.png":
+        return "Native baseline render."
+    for view in ("front", "right", "iso"):
+        if name == f"model-{view}.png":
+            return f"Actual SolidCraft {view} view."
+        if name == f"goal-{view}.png":
+            return f"Expected/goal geometry in the same {view} camera."
+        if name == f"overlay-{view}.png":
+            return f"Actual {view} render with expected geometry overlaid."
+        if name == f"visual-diff-{view}.png":
+            return f"Visual regression diff for the {view} view."
+    return f"Additional native evidence: {name}."
+
+
+def _render_validation_checks(native_case):
+    path = native_case / "validation.json"
+    if not path.is_file():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = []
+    for check in data.get("checks", []):
+        status = check.get("status", "missing").upper()
+        cls = "pass" if status == "PASS" else "fail"
+        expected = json.dumps(check.get("expected"), ensure_ascii=False)
+        actual = json.dumps(check.get("actual"), ensure_ascii=False)
+        rows.append(
+            "<tr>"
+            f"<td><span class=\"qualification-status {cls}\">{escape(status)}</span></td>"
+            f"<td>{escape(check.get('level', '').upper())}</td>"
+            f"<td>{escape(check.get('name'))}</td>"
+            f"<td><code>{escape(expected)}</code></td>"
+            f"<td><code>{escape(actual)}</code></td>"
+            "</tr>"
+        )
+    if not rows:
+        return ""
+    return (
+        '<h3>Semantic validation</h3>'
+        '<table class="qualification-checks"><thead><tr>'
+        '<th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th>'
+        '</tr></thead><tbody>' + "".join(rows) + "</tbody></table>"
+    )
+
+
 def _render_native_results(native_case, solidcraft_version):
     measurement_files = sorted(native_case.glob("measurements*.json"))
     if not measurement_files:
         return (
-            '<section class="panel"><h2>3. Results</h2>'
+            '<section class="panel"><h2>4. Machine verification</h2>'
             '<p>No measurement JSON was produced.</p></section>',
             None,
             None,
@@ -202,11 +425,12 @@ def _render_native_results(native_case, solidcraft_version):
         )
 
     return (
-        '<section class="panel"><h2>3. Results</h2>'
+        '<section class="panel"><h2>4. Machine verification</h2>'
         f'<p class="meta">Native runtime: <strong>SolidCraft '
         f'{escape(solidcraft_version)}</strong>. These values come from the '
         'saved native design, not from Python-side estimates.</p>'
         + "".join(sections)
+        + _render_validation_checks(native_case)
         + "</section>",
         baseline_body_count,
         baseline_parameter_count,
@@ -232,7 +456,12 @@ def text(path):
     return path.read_text(encoding="utf-8")
 
 
-def build(out, sha, native_root=None):
+def render_template(name, **values):
+    template_path = ROOT / "qualification" / "templates" / name
+    return Template(text(template_path)).substitute(values)
+
+
+def build(out, sha, native_root=None, diagram_root=None):
     """Compile the public examples and attach verified native screenshots if available.
 
     A .png is accepted only when the native verification file identifies the
@@ -373,6 +602,61 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         case_dir.mkdir(exist_ok=True)
         source = text(source_path)
         (case_dir / "model.py").write_text(source, encoding="utf-8")
+
+        diagram_html = ""
+        diagram_name = case.get("diagram")
+        plan_name = None
+        dxf_name = None
+        if diagram_name:
+            diagram_source = (
+                diagram_root / diagram_name
+                if diagram_root is not None
+                else ROOT / "qualification" / "diagrams" / diagram_name
+            )
+            if not diagram_source.is_file():
+                raise ValueError(f"Qualification diagram missing: {diagram_source}")
+            shutil.copyfile(diagram_source, case_dir / diagram_name)
+            dxf_source = diagram_source.with_suffix(".dxf")
+            if dxf_source.is_file():
+                dxf_name = dxf_source.name
+                shutil.copyfile(dxf_source, case_dir / dxf_name)
+            plan_source = ROOT / "qualification" / "diagrams" / f"{slug}.cadcraft.json"
+            if plan_source.is_file():
+                plan_name = plan_source.name
+                shutil.copyfile(plan_source, case_dir / plan_name)
+        else:
+            diagram_name = "setup.svg"
+            setup_svg = expected_setup_schematic(slug)
+            if setup_svg:
+                (case_dir / diagram_name).write_text(setup_svg, encoding="utf-8")
+            else:
+                diagram_name = None
+
+        if diagram_name:
+            if plan_name:
+                source_links = (
+                    f' <a href="{escape(plan_name)}">CadCraft source</a>'
+                    + (f' · <a href="{escape(dxf_name)}">DXF</a>' if dxf_name else "")
+                )
+                caption = (
+                    "Expected setup — technical drawing generated from the committed "
+                    "CadCraft command source; not verification output."
+                    + source_links
+                )
+            else:
+                caption = (
+                    "Expected setup — conceptual diagram, not verification output. "
+                    "Click for the full-size image."
+                )
+            diagram_html = (
+                '<figure class="qualification-setup-diagram">'
+                f'<a href="{escape(diagram_name)}" class="qualification-image-link" '
+                'target="_blank" rel="noopener" title="Open full-size setup diagram">'
+                f'<img src="{escape(diagram_name)}" alt="{escape(case["title"])} expected setup diagram">'
+                '</a>'
+                f'<figcaption>{caption}</figcaption>'
+                '</figure>'
+            )
         (case_dir / "commands.json").write_text(
             json.dumps(commands, indent=2) + "\n",
             encoding="utf-8",
@@ -390,6 +674,8 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
 
         native_case = native_root / slug if verified else None
         native_files = []
+        native_images = []
+        qualification_result = None
         body_count = None
         parameter_count = None
         results_html = (
@@ -402,12 +688,33 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             '<div class="notice">No source-matched native verification was supplied '
             'to this site build. The case sheet and command contract are still shown.</div>'
         )
-        status = "Q1/Q2 documented"
+        case_preview_html = ""
+        status = "NOT RUN"
+        status_detail = "Q1 Q2 documented"
         if native_case is not None and native_case.is_dir():
+            result_file = native_case / "qualification-result.json"
+            if not result_file.is_file():
+                raise ValueError(f"Structured qualification result missing: {result_file}")
+            qualification_result = json.loads(result_file.read_text(encoding="utf-8"))
+            if (
+                qualification_result.get("source_commit") != sha
+                or qualification_result.get("solidcraft_version") != metadata.get("solidcraft_version")
+            ):
+                raise ValueError(f"Qualification result does not match this build: {result_file}")
             snapshot = native_case / "model.png"
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
-            shutil.copyfile(snapshot, case_dir / "model.png")
+
+            image_paths = sorted(
+                native_case.glob("*.png"),
+                key=lambda path: _image_sort_key(path.name),
+            )
+            for image in image_paths:
+                if image.stat().st_size == 0:
+                    raise ValueError(f"Qualification snapshot empty: {image}")
+                shutil.copyfile(image, case_dir / image.name)
+                native_images.append(image.name)
+
             for pattern in (
                 "results*.json",
                 "measurements*.json",
@@ -418,16 +725,33 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 "model*.sc",
                 "model*.step",
                 "export-*.json",
+                "qualification-result.json",
+                "validation.json",
+                "visual-validation.json",
+                "camera-*.json",
             ):
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
                     native_files.append(evidence.name)
-            preview_html = (
-                '<figure class="example-image"><img src="model.png" '
-                f'alt="{escape(case["title"])} native SolidCraft snapshot" loading="lazy">'
-                '<figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>'
+            preview_html = _render_visual_evidence(case, native_images)
+            case_preview = (
+                "model-iso.png" if "model-iso.png" in native_images
+                else "model.png" if "model.png" in native_images
+                else None
             )
-            status = case.get("verified_status", "Q1–Q6 native verified")
+            if case_preview:
+                case_preview_html = (
+                    '<figure class="qualification-case-preview">'
+                    f'<a href="{escape(case_preview)}" class="qualification-image-link" '
+                    'target="_blank" rel="noopener" title="Open full-size native preview">'
+                    f'<img src="{escape(case_preview)}" '
+                    f'alt="{escape(case["title"])} native SolidCraft preview">'
+                    '</a>'
+                    '<figcaption>Native SolidCraft preview — the same render used on the '
+                    'qualification overview page.</figcaption>'
+                    '</figure>'
+                )
+            status, status_detail = _qualification_status(qualification_result)
             results_html, body_count, parameter_count = _render_native_results(
                 native_case,
                 metadata["solidcraft_version"],
@@ -452,33 +776,35 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f'<li><a href="{escape(name)}">{escape(name)}</a></li>'
             for name in native_files
         )
-        if native_case is not None and native_case.is_dir():
-            evidence_items.append('<li><a href="model.png">Native snapshot</a></li>')
+        if native_images:
+            evidence_items.extend(
+                f'<li><a href="{escape(name)}">Native snapshot: {escape(name)}</a></li>'
+                for name in native_images
+            )
 
-        case_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / {escape(case["title"])}</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · {escape(status)}</p>
-<h1>{escape(case["title"])}</h1><p>{escape(case["intent"])}</p></section>
-{preview_html}
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>{escape(case["forge_api"])}</code></p>
-<h3>Internal Forge model</h3><p>{escape(case["forge_model"])}</p>
-<h3>SolidCraft lowering</h3><p>{escape(case["lowering"])}</p>
-</section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>{escape(case["native_expectation"])}</p>
-<h3>Parametric mutation</h3><p>{escape(case["mutation"])}</p>
-<h3>Evidence</h3><ul>{"".join(evidence_items)}</ul>
-</section></div>
-{results_html}
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>{escape(lowering_detail)}</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul>{"".join(reference_items)}</ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>{escape(source)}</code></pre></section>
-</main>"""
+        case_body = render_template(
+            "case.html",
+            title=escape(case["title"]),
+            status_badge=_qualification_status_html(status, status_detail),
+            case_preview=case_preview_html,
+            setup_diagram=diagram_html,
+            intent=escape(case["intent"]),
+            gallery=preview_html,
+            forge_api=escape(case["forge_api"]),
+            forge_model=escape(case["forge_model"]),
+            lowering=escape(case["lowering"]),
+            native_expectation=escape(case["native_expectation"]),
+            mutation_criterion=(
+                '<h3>Mutation criterion</h3><p>' + escape(case["mutation"]) + '</p>'
+                if case.get("q5_required") else ""
+            ),
+            mutation=escape(case["mutation"]),
+            evidence_items="".join(evidence_items),
+            results=results_html,
+            lowering_detail=escape(lowering_detail),
+            reference_items="".join(reference_items),
+            source=escape(source),
+        )
         (case_dir / "index.html").write_text(
             page(
                 f"Qualification · {case['title']}",
@@ -493,17 +819,38 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         qualification_manifest[slug] = {
             "title": case["title"],
             "status": status,
+            "status_detail": status_detail,
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
+            "native_images": native_images,
+            "qualification_status": (
+                qualification_result.get("status") if qualification_result else None
+            ),
+            "levels": (
+                qualification_result.get("levels") if qualification_result else {}
+            ),
             "solidcraft_version": (
                 metadata.get("solidcraft_version") if verified else None
             ),
             "body_count": body_count,
             "parameter_count": parameter_count,
         }
+        card_preview = (
+            "model-iso.png" if "model-iso.png" in native_images
+            else "model.png" if "model.png" in native_images
+            else None
+        )
+        card_image = (
+            f'<a href="{escape(slug)}/" class="qualification-card-image">'
+            f'<img src="{escape(slug)}/{escape(card_preview)}" '
+            f'alt="{escape(case["title"])} native isometric preview" loading="lazy"></a>'
+            if card_preview else ""
+        )
         qualification_cards[case["group"]].append(
-            f'<article class="reference"><p class="eyebrow">{escape(status)}</p>'
-            f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
+            f'<article class="reference qualification-card">{card_image}'
+            f'<div class="qualification-card-content">'
+            + _qualification_status_html(status, status_detail)
+            + f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
             f'<p><code>{escape(case["forge_api"])}</code></p>'
             + (
@@ -511,7 +858,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 f' · {escape(body_count)} bodies · {escape(parameter_count)} parameters</p>'
                 if verified and body_count is not None else ""
             )
-            + f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></article>'
+            + f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></div></article>'
         )
 
     results_root = qualification_root / "results"
@@ -522,25 +869,20 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         result_rows.append(
             f"<tr><td><a href=\"../{escape(case['slug'])}/\">"
             f"{escape(case['title'])}</a></td>"
-            f"<td><strong>{escape(row['status'])}</strong></td>"
+            f"<td>{_qualification_status_html(row['status'], row.get('status_detail', ''))}</td>"
             f"<td>{escape(row.get('solidcraft_version') or '—')}</td>"
             f"<td>{escape(row.get('body_count') if row.get('body_count') is not None else '—')}</td>"
             f"<td>{escape(row.get('parameter_count') if row.get('parameter_count') is not None else '—')}</td>"
             f"<td>{escape(len(row.get('native_evidence', [])))}</td></tr>"
         )
-    results_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Results</div>
-<section class="hero small"><p class="eyebrow">Published qualification evidence</p>
-<h1>Qualification results</h1>
-<p>Measured native results for the exact source commit and SolidCraft runtime.
-Open a case for body bounds, parameters, mutation measurements and raw evidence.</p>
-<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft
-{escape(metadata.get("solidcraft_version") if verified else TESTED_SOLIDCRAFT_VERSION)}</p>
-</section>
-<section class="panel"><table><thead><tr><th>Case</th><th>Status</th>
-<th>SolidCraft</th><th>Bodies</th><th>Parameters</th><th>Evidence files</th>
-</tr></thead><tbody>{"".join(result_rows)}</tbody></table></section>
-</main>"""
+    results_body = render_template(
+        "results.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(
+            metadata.get("solidcraft_version") if verified else TESTED_SOLIDCRAFT_VERSION
+        ),
+        result_rows="".join(result_rows),
+    )
     (results_root / "index.html").write_text(
         page(
             "Qualification results",
@@ -557,32 +899,19 @@ Open a case for body bounds, parameters, mutation measurements and raw evidence.
         f"<td>{escape(description)}</td></tr>"
         for level, title, description in QUALIFICATION_LEVELS
     )
-    qualification_index = f"""<main class="wrap">
-<section class="hero small"><p class="eyebrow">SCPF Forge verification</p>
-<h1>Qualification</h1>
-<p>Every non-trivial Forge feature is traced from Python API through compiler
-representation and native SolidCraft behaviour. A green unit test alone is not
-treated as proof that the CAD result is correct.</p>
-<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft {TESTED_SOLIDCRAFT_VERSION}</p>
-</section>
-<p><a class="button" href="results/">Open published results →</a></p>
-<section class="panel"><h2>Qualification levels</h2>
-<table><thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
-<tbody>{level_rows}</tbody></table></section>
-<section class="section-heading"><h2>Functional qualification groups</h2>
-<p>Cases are grouped by the user concept they prove. Native SolidCraft command
-details stay inside each case's lowering section rather than becoming the
-learning structure.</p></section>
-{"".join(
-    f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
-    f'<div class="reference-grid">{"".join(qualification_cards[key])}</div>'
-    for key, title, description in QUALIFICATION_GROUPS
-    if qualification_cards[key]
-)}
-<section class="notice"><strong>Raw evidence:</strong> CI also retains the full
-saved .sc files and STEP exports in the qualification artifact. Pages publishes
-the command plans, measurement JSON and snapshots needed for normal review.</section>
-</main>"""
+    group_sections = "".join(
+        f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
+        f'<div class="reference-grid qualification-grid">{"".join(qualification_cards[key])}</div>'
+        for key, title, description in QUALIFICATION_GROUPS
+        if qualification_cards[key]
+    )
+    qualification_index = render_template(
+        "index.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(TESTED_SOLIDCRAFT_VERSION),
+        level_rows=level_rows,
+        group_sections=group_sections,
+    )
     capability_root = qualification_root / "capabilities"
     capability_root.mkdir(exist_ok=True)
     capability_sections = []
@@ -612,21 +941,11 @@ the command plans, measurement JSON and snapshots needed for normal review.</sec
         f'<p>{escape(item["use"])}</p><p>{escape(item["strength"])}</p></article>'
         for item in REFERENCE_MODELS
     )
-    capability_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / CAD capability map</div>
-<section class="hero small"><p class="eyebrow">Completeness, not just test count</p>
-<h1>SolidCraft capability & Forge API map</h1>
-<p>This is a curated map of user-level CAD capabilities. It deliberately does
-not mirror SolidCraft's hundreds of individual commands. The goal is to see
-what the native engine can do, what Forge exposes today, and which gaps matter.</p>
-</section>
-<section class="section-heading"><h2>Reference APIs</h2>
-<p>PythonSCAD is the primary Python ergonomics reference; BOSL2 the main
-attachment/local-frame reference; OpenSCAD the minimal CSG baseline; and
-SolidCraft remains the native capability truth.</p></section>
-<div class="reference-grid">{reference_cards}</div>
-{"".join(capability_sections)}
-</main>"""
+    capability_body = render_template(
+        "capabilities.html",
+        reference_cards=reference_cards,
+        capability_sections="".join(capability_sections),
+    )
     (capability_root / "index.html").write_text(
         page(
             "CAD capability map",
@@ -669,26 +988,13 @@ SolidCraft remains the native capability truth.</p></section>
 
     gap_exports = sum(1 for row in EXPORT_COVERAGE.values() if row[1] == "GAP")
     gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
-    coverage_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / API coverage</div>
-<section class="hero small"><p class="eyebrow">Declared coverage, including gaps</p>
-<h1>API & SolidCraft coverage matrix</h1>
-<p>This matrix is deliberately stricter than code coverage. It states the
-qualification level appropriate for each public API/capability and the highest
-dedicated level currently demonstrated.</p>
-<p class="meta">Public export gaps: {gap_exports} · capability gaps: {gap_capabilities}</p>
-</section>
-<section class="notice"><strong>Meaning of GAP:</strong> the API may already have
-unit tests or incidental use, but it does not yet have the dedicated
-qualification case required by its target level. The gap remains visible until
-that case exists.</section>
-<section class="panel"><h2>Public exports</h2>
-<table><thead><tr><th>API</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
-<tbody>{"".join(export_rows)}</tbody></table></section>
-<section class="panel"><h2>Behavioural capabilities</h2>
-<table><thead><tr><th>Area</th><th>Capability</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
-<tbody>{"".join(capability_rows)}</tbody></table></section>
-</main>"""
+    coverage_body = render_template(
+        "coverage.html",
+        gap_exports=escape(gap_exports),
+        gap_capabilities=escape(gap_capabilities),
+        export_rows="".join(export_rows),
+        capability_rows="".join(capability_rows),
+    )
     (coverage_root / "index.html").write_text(
         page(
             "Qualification coverage",
@@ -700,11 +1006,48 @@ that case exists.</section>
         encoding="utf-8",
     )
 
-    qualification_index = qualification_index.replace(
-        '<section class="section-heading"><h2>Case sheets</h2>',
-        '<p><a class="button" href="capabilities/">Open CAD capability map →</a> <a class="button" href="coverage/">Open Forge API coverage matrix →</a></p>'
-        '<section class="section-heading"><h2>Case sheets</h2>',
+    joint_anatomy_root = qualification_root / "joint-anatomy"
+    joint_anatomy_root.mkdir(exist_ok=True)
+    joint_diagrams = (
+        "solidcraft-joint-anatomy",
+        "solidcraft-joint-references",
+        "corner-bracket-goal",
+        "corner-bracket-depth",
+        "corner-bracket-local-axes",
+        "corner-bracket-front-corners",
     )
+    for diagram in joint_diagrams:
+        for suffix in (".svg", ".dxf"):
+            source = (
+                diagram_root / f"{diagram}{suffix}"
+                if diagram_root is not None else None
+            )
+            if source is None or not source.is_file():
+                raise ValueError(
+                    f"Generated SolidCraft joint concept drawing missing: {diagram}{suffix}"
+                )
+            shutil.copyfile(source, joint_anatomy_root / source.name)
+        plan = ROOT / "qualification" / "diagrams" / f"{diagram}.cadcraft.json"
+        if not plan.is_file():
+            raise ValueError(f"CadCraft concept source missing: {plan}")
+        shutil.copyfile(plan, joint_anatomy_root / plan.name)
+
+    joint_anatomy_body = render_template(
+        "joint-anatomy.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(TESTED_SOLIDCRAFT_VERSION),
+    )
+    (joint_anatomy_root / "index.html").write_text(
+        page(
+            "SolidCraft joint anatomy",
+            joint_anatomy_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+
     (qualification_root / "index.html").write_text(
         page(
             "Qualification",
@@ -776,6 +1119,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, default=ROOT / "output" / "site")
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--native", type=Path, help="Source-matched native screenshot directory")
+    parser.add_argument("--diagram-root", type=Path, help="Generated qualification setup diagrams")
     options = parser.parse_args()
-    build(options.out, options.source_sha, native_root=options.native)
+    build(options.out, options.source_sha, native_root=options.native, diagram_root=options.diagram_root)
     print(f"Built independent SCPF library site: {options.out}")

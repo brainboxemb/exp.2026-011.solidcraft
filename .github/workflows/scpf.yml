@@ -9,7 +9,6 @@ on:
       - "scpf/**"
       - "examples/**"
       - "qualification/**"
-      - "site/qualification_cases.py"
       - "site/api_coverage.py"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
@@ -32,7 +31,36 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install SCPF editable as an external-style package
-        run: python -m pip install -e ./scpf
+        run: python -m pip install -e ./scpf pillow
+
+      - name: Restore rendered CADCraft diagrams
+        id: cadcraft_diagrams
+        uses: actions/cache@v4
+        with:
+          path: output/diagrams
+          key: cadcraft-diagrams-v0.20.1-${{ hashFiles('qualification/diagrams/*.cadcraft.json', 'qualification/render_cadcraft_diagram.sh') }}
+
+      - name: Cache CADCraft CLI
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/cadcraft/0.20.1-linux-x86_64
+          key: cadcraft-0.20.1-linux-x86_64
+
+      - name: Set up CADCraft CLI
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        shell: bash
+        run: bash qualification/setup_cadcraft.sh
+
+      - name: Render technical qualification diagrams
+        if: steps.cadcraft_diagrams.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p output/diagrams
+          for plan in qualification/diagrams/*.cadcraft.json; do
+            bash qualification/render_cadcraft_diagram.sh "$plan" output/diagrams
+          done
       - name: Run independent API regressions without PYTHONPATH
         shell: bash
         run: |
@@ -59,7 +87,7 @@ jobs:
           unset PYTHONPATH
           mkdir -p output/qualification
           printf "case\tcommands\tstatus\n" > output/qualification/q2-command-contract.tsv
-          native_models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          native_models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $native_models history-policy plate; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
@@ -88,7 +116,7 @@ jobs:
           solidcraft-cli --version
           mkdir -p output/native output/qualification
           printf "case\tbuild\teval\tsnapshot\tstatus\n" > output/qualification/q3-q4-q6-native.tsv
-          native_models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          native_models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $native_models; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
@@ -99,10 +127,31 @@ jobs:
             solidcraft-cli eval "output/native/$model/model.sc" \
               --json-out "output/native/$model/measurements.json"
             jq -e '(.timeline | all(.error == null))' "output/native/$model/measurements.json"
+            solidcraft-cli run qualification/commands/inspect-joints.json \
+              --in "output/native/$model/model.sc" \
+              --param-check strict --results \
+              --json-out "output/native/$model/joint-inspect.json"
             test -s "output/native/$model/model.step"
             solidcraft-cli snapshot "output/native/$model/model.sc" \
               --out "output/native/$model/model.png" --no-grid --no-axes
             test -s "output/native/$model/model.png"
+
+            for view in front right iso; do
+              camera="$(python qualification/camera.py \
+                "output/native/$model/measurements.json" "$view")"
+              printf '%s\n' "$camera" > "output/native/$model/camera-$view.json"
+              solidcraft-cli snapshot "output/native/$model/model.sc" \
+                --out "output/native/$model/model-$view.png" \
+                --width 720 --height 540 --camera "$camera" --no-grid --no-axes
+              test -s "output/native/$model/model-$view.png"
+              python qualification/goal_overlay.py \
+                --case "$model" \
+                --camera "output/native/$model/camera-$view.json" \
+                --actual "output/native/$model/model-$view.png" \
+                --goal "output/native/$model/goal-$view.png" \
+                --overlay "output/native/$model/overlay-$view.png"
+            done
+
             printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
           # Four-corner diagnostic evidence. The functional assertions are
@@ -112,7 +161,7 @@ jobs:
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect.json
 
-          # Saved-design width/height mutation. Python is not rerun here.
+          # Saved-design width/depth mutation. Python is not rerun here.
           solidcraft-cli run qualification/commands/four-corner-l/change-size.json \
             --in output/native/four-corner-l/model.sc \
             --param-check strict \
@@ -121,10 +170,32 @@ jobs:
           solidcraft-cli eval output/native/four-corner-l/model-size-160x120.sc \
             --json-out output/native/four-corner-l/measurements-size-160x120.json
 
+          solidcraft-cli snapshot output/native/four-corner-l/model-size-160x120.sc \
+            --out output/native/four-corner-l/model-size-160x120.png --no-grid --no-axes
+          test -s output/native/four-corner-l/model-size-160x120.png
+          for view in front right iso; do
+            camera="$(python qualification/camera.py \
+              output/native/four-corner-l/measurements-size-160x120.json "$view")"
+            printf '%s\n' "$camera" > "output/native/four-corner-l/camera-size-160x120-$view.json"
+            solidcraft-cli snapshot output/native/four-corner-l/model-size-160x120.sc \
+              --out "output/native/four-corner-l/model-size-160x120-$view.png" \
+              --width 720 --height 540 --camera "$camera" --no-grid --no-axes
+            test -s "output/native/four-corner-l/model-size-160x120-$view.png"
+          done
+
           solidcraft-cli run qualification/commands/four-corner-l/inspect-joints.json \
             --in output/native/four-corner-l/model-size-160x120.sc \
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect-size-160x120.json
+
+          # Eight outside brackets: saved-design width/depth/height mutation.
+          solidcraft-cli run qualification/commands/eight-corner-brackets/change-size.json \
+            --in output/native/eight-corner-brackets/model.sc \
+            --param-check strict \
+            --save output/native/eight-corner-brackets/model-size-160x120x90.sc
+
+          solidcraft-cli eval output/native/eight-corner-brackets/model-size-160x120x90.sc \
+            --json-out output/native/eight-corner-brackets/measurements-size-160x120x90.json
 
           # Parameter-scope native evidence and saved-design mutation.
           solidcraft-cli run output/parameter-scope.json \
@@ -144,16 +215,8 @@ jobs:
           solidcraft-cli eval output/native/parameter-scope/model-shared-width-100.sc \
             --json-out output/native/parameter-scope/measurements-shared-width-100.json
 
-          # Parametric attachment regression: edit the saved native design,
-          # not the Python model. The rigid attachment must re-solve from gap.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 30) | fabs) < 0.001 and
-              ((.bbox.max[0] - 50) | fabs) < 0.001))
-          ' output/native/parametric-attach/measurements.json
+          # Produce saved-design mutation evidence. Geometry correctness is
+          # evaluated centrally by qualification/native_validation.py.
 
           cat > output/native/parametric-attach/change-gap.json <<'JSON'
           {"commands":[
@@ -168,26 +231,6 @@ jobs:
             --save output/native/parametric-attach/model-gap-30.sc
           solidcraft-cli eval output/native/parametric-attach/model-gap-30.sc \
             --json-out output/native/parametric-attach/measurements-gap-30.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 50) | fabs) < 0.001 and
-              ((.bbox.max[0] - 70) | fabs) < 0.001))
-          ' output/native/parametric-attach/measurements-gap-30.json
-
-          # Parametric in-plane offset regression: on FRONT_TOP_RIGHT the
-          # second planar value follows the vertical corner edge. A negative
-          # value moves outward/upward. Keep it as a parameter expression so
-          # editing the saved design re-solves the joint.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 25) | fabs) < 0.001 and
-              ((.bbox.max[2] - 35) | fabs) < 0.001))
-          ' output/native/parametric-offset/measurements.json
 
           cat > output/native/parametric-offset/change-shift.json <<'JSON'
           {"commands":[
@@ -202,24 +245,6 @@ jobs:
             --save output/native/parametric-offset/model-shift-10.sc
           solidcraft-cli eval output/native/parametric-offset/model-shift-10.sc \
             --json-out output/native/parametric-offset/measurements-shift-10.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 30) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001))
-          ' output/native/parametric-offset/measurements-shift-10.json
-
-          # Parametric face-anchor regression: the attach reference itself
-          # must follow the parent's RIGHT face when its width changes.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001))
-          ' output/native/parametric-anchor/measurements.json
 
           cat > output/native/parametric-anchor/change-base-width.json <<'JSON'
           {"commands":[
@@ -234,30 +259,6 @@ jobs:
             --save output/native/parametric-anchor/model-width-80.sc
           solidcraft-cli eval output/native/parametric-anchor/model-width-80.sc \
             --json-out output/native/parametric-anchor/measurements-width-80.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 60) | fabs) < 0.001))
-          ' output/native/parametric-anchor/measurements-width-80.json
-
-          # Native corner-anchor regression: the marker is attached to the
-          # Base's FRONT_TOP_RIGHT corner. Changing both width and height in
-          # the saved design must move that corner, and the marker with it.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 20) | fabs) < 0.001 and
-              ((.bbox.max[2] - 30) | fabs) < 0.001))
-          ' output/native/corner-anchor/measurements.json
 
           cat > output/native/corner-anchor/change-size.json <<'JSON'
           {"commands":[
@@ -275,61 +276,6 @@ jobs:
             --save output/native/corner-anchor/model-size-80x40.sc
           solidcraft-cli eval output/native/corner-anchor/model-size-80x40.sc \
             --json-out output/native/corner-anchor/measurements-size-80x40.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 30) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 40) | fabs) < 0.001 and
-              ((.bbox.max[2] - 50) | fabs) < 0.001))
-          ' output/native/corner-anchor/measurements-size-80x40.json
-
-          # Custom component-anchor regression: Arm:1.tip is authored while
-          # the occurrence is at identity, then the Arm rotates 90 degrees
-          # about Z. The named SolidCraft joint origin must rotate with it and
-          # place Marker at the rotated tip (0, 20, 5).
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Arm"));
-              ((.bbox.min[0] + 5) | fabs) < 0.001 and
-              ((.bbox.max[0] - 5) | fabs) < 0.001 and
-              ((.bbox.min[1] + 20) | fabs) < 0.001 and
-              ((.bbox.max[1] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] + 5) | fabs) < 0.001 and
-              ((.bbox.max[0] - 5) | fabs) < 0.001 and
-              ((.bbox.min[1] - 15) | fabs) < 0.001 and
-              ((.bbox.max[1] - 25) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 10) | fabs) < 0.001))
-          ' output/native/custom-anchor/measurements.json
-
-          # XZ rectangular component regression: markers are attached to
-          # both FRONT_TOP corners. Their local frames are mirrored, so check
-          # each side separately before changing the saved design.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Board"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
-            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.min[0] > 0
-              and ((.bbox.min[0] - 10) | fabs) < 0.001
-              and ((.bbox.max[0] - 20) | fabs) < 0.001
-              and ((.bbox.min[2] - 20) | fabs) < 0.001
-              and ((.bbox.max[2] - 30) | fabs) < 0.001)] | length) == 1 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.max[0] < 0
-              and ((.bbox.min[0] + 30) | fabs) < 0.001
-              and ((.bbox.max[0] + 20) | fabs) < 0.001
-              and ((.bbox.min[2] - 10) | fabs) < 0.001
-              and ((.bbox.max[2] - 20) | fabs) < 0.001)] | length) == 1
-          ' output/native/xz-anchor/measurements.json
 
           cat > output/native/xz-anchor/change-size.json <<'JSON'
           {"commands":[
@@ -347,130 +293,54 @@ jobs:
             --save output/native/xz-anchor/model-size-80x40.sc
           solidcraft-cli eval output/native/xz-anchor/model-size-80x40.sc \
             --json-out output/native/xz-anchor/measurements-size-80x40.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Board"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001)) and
-            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.min[0] > 0
-              and ((.bbox.min[0] - 30) | fabs) < 0.001
-              and ((.bbox.max[0] - 40) | fabs) < 0.001
-              and ((.bbox.min[2] - 40) | fabs) < 0.001
-              and ((.bbox.max[2] - 50) | fabs) < 0.001)] | length) == 1 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.max[0] < 0
-              and ((.bbox.min[0] + 50) | fabs) < 0.001
-              and ((.bbox.max[0] + 40) | fabs) < 0.001
-              and ((.bbox.min[2] - 30) | fabs) < 0.001
-              and ((.bbox.max[2] - 40) | fabs) < 0.001)] | length) == 1
-          ' output/native/xz-anchor/measurements-size-80x40.json
-
-          # Re-run the same standard qualification suite with native evidence
-          # enabled. Native TestCase classes are skipped in the fast PR run and
-          # become active here.
-          SCPF_NATIVE_ROOT="$GITHUB_WORKSPACE/output/native" \
-          SCPF_SOLIDCRAFT_VERSION="$SOLIDCRAFT_VERSION" \
-          python -m unittest discover \
-            -s "$GITHUB_WORKSPACE/qualification/tests" -v 2>&1 \
-            | tee output/qualification/q3-q5-python-qualification-tests.txt
 
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
-          printf "parameter-scope\tshared_width 80 -> 100 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "four-corner-l\tFrameBlock 120x80 -> 160x120 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parameter-scope\tshared_width 80 -> 100 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "four-corner-l\tframe footprint 120x80 -> 160x120 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "eight-corner-brackets\tframe 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-attach\tgap 10 -> 30 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-offset\tshift 5 -> 10 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+
+          python qualification/native_validation.py \
+            --native-root output/native \
+            --qualification-dir output/qualification
+
+          python qualification/visual_validation.py \
+            --native-root output/native \
+            --qualification-dir output/qualification
 
           jq -n --arg source "$GITHUB_SHA" --arg version "$SOLIDCRAFT_VERSION" \
             '{source_commit:$source,solidcraft_version:$version,verified:true,
               levels:{q1:"python-api",q2:"command-contract",q3:"native-build",
-                      q4:"native-measurement",q5:"parametric-mutation",
-                      q6:"native-snapshot"}}' \
+                      q4:"native-semantic-validation",q5:"parametric-mutation",
+                      q6:"visual-regression"}}' \
             > output/native/verification.json
+      - name: Collect structured qualification results
+        shell: bash
+        run: |
+          set -euo pipefail
+          python qualification/results.py \
+            --qualification-dir output/qualification \
+            --native-root output/native \
+            --source-sha "$GITHUB_SHA" \
+            --solidcraft-version "$SOLIDCRAFT_VERSION"
+
       - name: Build qualification report
         if: always()
         shell: bash
         run: |
           set -uo pipefail
-          mkdir -p output/qualification
-          report="output/qualification/REPORT.md"
-          {
-            echo "# SCPF Forge qualification"
-            echo
-            echo "- Commit: $GITHUB_SHA"
-            echo "- Target SolidCraft: $SOLIDCRAFT_VERSION"
-            echo
-            echo "## Q1 — Python API regressions"
-            echo
-            if test -s output/qualification/q1-python-tests.txt; then
-              echo '~~~text'
-              tail -n 40 output/qualification/q1-python-tests.txt
-              echo '~~~'
-            else
-              echo "No Q1 result file was produced."
-            fi
-            echo
-            echo "## Q2 — command contract"
-            echo
-            if test -s output/qualification/q2-command-contract.tsv; then
-              echo '~~~text'
-              cat output/qualification/q2-command-contract.tsv
-              echo '~~~'
-            else
-              echo "No Q2 result file was produced."
-            fi
-            echo
-            echo "## Qualification unittest results"
-            echo
-            if test -s output/qualification/q2-python-qualification-tests.txt; then
-              echo '~~~text'
-              cat output/qualification/q2-python-qualification-tests.txt
-              echo '~~~'
-            fi
-            if test -s output/qualification/q3-q5-python-qualification-tests.txt; then
-              echo '~~~text'
-              cat output/qualification/q3-q5-python-qualification-tests.txt
-              echo '~~~'
-            fi
-            echo
-            echo "## Q3/Q4/Q6 — native build, measurement and snapshot"
-            echo
-            if test -s output/qualification/q3-q4-q6-native.tsv; then
-              echo '~~~text'
-              cat output/qualification/q3-q4-q6-native.tsv
-              echo '~~~'
-            else
-              echo "No native result table was produced."
-            fi
-            echo
-            echo "## Q5 — saved-design parameter mutation"
-            echo
-            if test -s output/qualification/q5-parametric-mutation.tsv; then
-              echo '~~~text'
-              cat output/qualification/q5-parametric-mutation.tsv
-              echo '~~~'
-            else
-              echo "No Q5 result table was produced."
-            fi
-            echo
-            echo "## Evidence retained"
-            echo
-            echo "- generated command JSON"
-            echo "- native SolidCraft results and timeline evaluation"
-            echo "- saved .sc designs and version-specific plain model.json evidence"
-            echo "- STEP exports"
-            echo "- parameter exports and measurement JSON"
-            echo "- native PNG snapshots"
-            echo
-            echo "See scpf/docs/architecture.md for the required per-case sheet:"
-            echo "Intent -> Forge API -> Forge model -> SolidCraft lowering -> native expectation -> mutation -> evidence -> reference model."
-          } > "$report"
-          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          if test -s output/qualification/results.json; then
+            python qualification/report.py \
+              --results output/qualification/results.json \
+              --out output/qualification/REPORT.md
+            cat output/qualification/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Structured qualification results were not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload qualification evidence
         if: always()
@@ -489,7 +359,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          python site/build.py --out output/site --source-sha "$GITHUB_SHA" --native output/native
+          python site/build.py --out output/site --source-sha "$GITHUB_SHA" --native output/native --diagram-root output/diagrams
           python site/test_site.py output/site "$GITHUB_SHA" --require-native
       - name: Upload library site preview
         uses: actions/upload-artifact@v4
@@ -515,6 +385,31 @@ jobs:
           destination_dir: ${{ steps.native_preview.outputs.destination }}
           keep_files: true
           commit_message: "Native qualification ${{ github.ref_name }} at ${{ github.sha }}"
+
+      - name: Enforce qualification status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          results = json.loads(
+              Path("output/qualification/results.json").read_text(encoding="utf-8")
+          )
+          failing = {
+              slug: case["status"]
+              for slug, case in results["cases"].items()
+              if case["status"] != "pass"
+          }
+          if failing:
+              for slug, status in failing.items():
+                  print(f"{slug}: {status.upper()}")
+              raise SystemExit(
+                  f"Qualification failed: {len(failing)} case(s) are not PASS"
+              )
+          print(f"Qualification passed: {len(results['cases'])} case(s)")
+          PY
 
       - name: Publish clean library site (after passing regression tests)
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'

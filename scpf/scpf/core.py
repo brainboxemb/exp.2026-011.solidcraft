@@ -20,6 +20,14 @@ class Direction(str, Enum):
     SYMMETRIC = "symmetric"
 
 
+RIGHT = (1.0, 0.0, 0.0)
+LEFT = (-1.0, 0.0, 0.0)
+BACK = (0.0, 1.0, 0.0)
+FRONT = (0.0, -1.0, 0.0)
+UP = (0.0, 0.0, 1.0)
+DOWN = (0.0, 0.0, -1.0)
+
+
 class Anchor(str, Enum):
     """Assembly attachment references between reusable components."""
     CENTER = "center"
