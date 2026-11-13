@@ -425,12 +425,17 @@ class ModelInstance:
         )
 
     def attach(self, target, *, parent=Anchor.RIGHT, child=Anchor.LEFT,
-               offset=(0, 0), gap=0, angle=None, as_built=False):
+               offset=(0, 0), gap=0, angle=None, assembled_rotation=None,
+               as_built=False):
         """Attach this component rigidly to another component.
 
         ``gap`` is the normal distance between the references.
         ``angle`` is their relative turn in degrees around the attachment
         normal. Both stay native SolidCraft joint values.
+
+        ``assembled_rotation`` states the expected final quarter-turn
+        orientation for a rectangular parent corner. Forge uses it only to
+        choose the native corner frame; the assembly still owns the intent.
 
         ``as_built=True`` keeps both occurrences exactly where they already
         are and records only a fixed assembly relationship.
@@ -444,9 +449,11 @@ class ModelInstance:
                 or tuple(offset) != (0, 0)
                 or gap != 0
                 or angle is not None
+                or assembled_rotation is not None
             ):
                 raise ValueError(
-                    "as-built attach does not take anchors, offset, gap or angle"
+                    "as-built attach does not take anchors, offset, gap, angle "
+                    "or assembled_rotation"
                 )
             return replace(
                 self,
@@ -460,6 +467,20 @@ class ModelInstance:
             )
         parent = _resolve_anchor_reference(target, parent)
         child = _resolve_anchor_reference(self, child)
+        if assembled_rotation is not None:
+            if not isinstance(parent, Anchor) or parent not in _CORNER_ANCHORS:
+                raise ValueError(
+                    "assembled_rotation requires a rectangular parent corner Anchor"
+                )
+            edge, on, corner = _corner_origin_points(target, parent)
+            z, x = _rotate_corner_x(parent, assembled_rotation)
+            parent = AnchorTopology(
+                edge=edge,
+                on=on,
+                corner=corner,
+                z=z,
+                x=x,
+            )
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
@@ -550,24 +571,11 @@ class Assembly:
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(
-        self,
-        name,
-        target,
-        reference,
-        *,
-        offset=(0, 0),
-        rotation=None,
-    ):
+    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
         """Expose one named datum owned by this assembly.
 
         ``offset`` is an optional symbolic in-plane (u, v) correction that a
         consumer can pass through to ``attach(offset=...)``.
-
-        ``rotation`` optionally rotates a rectangular corner anchor around
-        its own normal in 90-degree steps. The owning assembly states the
-        expected orientation; Forge only converts that intent to the native
-        SolidCraft corner frame.
         """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
@@ -582,20 +590,6 @@ class Assembly:
         if not all(isfinite(pv(value)) for value in offset):
             raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
-        if rotation is not None:
-            if not isinstance(resolved, Anchor) or resolved not in _CORNER_ANCHORS:
-                raise ValueError(
-                    "assembly anchor rotation requires a rectangular corner Anchor"
-                )
-            edge, on, corner = _corner_origin_points(target, resolved)
-            z, x = _rotate_corner_x(resolved, rotation)
-            resolved = AnchorTopology(
-                edge=edge,
-                on=on,
-                corner=corner,
-                z=z,
-                x=x,
-            )
         return replace(
             self,
             anchors=self.anchors + (
