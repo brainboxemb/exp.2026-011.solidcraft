@@ -1,6 +1,6 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "External L-bracket – front-plane qualification",
+  "title": "Four reusable L-profile feet – bottom-face placement",
   "commands": [
     {
       "command": "layer.new",
@@ -27,7 +27,7 @@
     {
       "command": "layer.new",
       "params": {
-        "name": "BRACKET",
+        "name": "FEET",
         "color": 3,
         "lineweight": 0.5,
         "current": true
@@ -39,59 +39,27 @@
         "vertices": [
           [
             -60,
-            40
+            -40
           ],
           [
-            -20,
-            40
+            -32,
+            -40
           ],
           [
-            -20,
-            28
+            -32,
+            -32
           ],
           [
-            -48,
-            28
+            -52,
+            -32
           ],
           [
-            -48,
-            0
+            -52,
+            -12
           ],
           [
             -60,
-            0
-          ]
-        ],
-        "closed": true
-      }
-    },
-    {
-      "command": "pline",
-      "params": {
-        "vertices": [
-          [
-            60,
-            40
-          ],
-          [
-            20,
-            40
-          ],
-          [
-            20,
-            28
-          ],
-          [
-            48,
-            28
-          ],
-          [
-            48,
-            0
-          ],
-          [
-            60,
-            0
+            -12
           ]
         ],
         "closed": true
@@ -106,24 +74,56 @@
             -40
           ],
           [
-            20,
+            60,
+            -12
+          ],
+          [
+            52,
+            -12
+          ],
+          [
+            52,
+            -32
+          ],
+          [
+            32,
+            -32
+          ],
+          [
+            32,
             -40
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            60,
+            40
           ],
           [
-            20,
-            -28
+            32,
+            40
           ],
           [
-            48,
-            -28
+            32,
+            32
           ],
           [
-            48,
-            0
+            52,
+            32
+          ],
+          [
+            52,
+            12
           ],
           [
             60,
-            0
+            12
           ]
         ],
         "closed": true
@@ -135,27 +135,27 @@
         "vertices": [
           [
             -60,
-            -40
-          ],
-          [
-            -20,
-            -40
-          ],
-          [
-            -20,
-            -28
-          ],
-          [
-            -48,
-            -28
-          ],
-          [
-            -48,
-            0
+            40
           ],
           [
             -60,
-            0
+            12
+          ],
+          [
+            -52,
+            12
+          ],
+          [
+            -52,
+            32
+          ],
+          [
+            -32,
+            32
+          ],
+          [
+            -32,
+            40
           ]
         ],
         "closed": true
@@ -164,9 +164,9 @@
     {
       "command": "layer.new",
       "params": {
-        "name": "ANCHOR",
+        "name": "PLACEMENT",
         "color": 1,
-        "lineweight": 0.35,
+        "lineweight": 0.3,
         "current": true
       }
     },
@@ -175,19 +175,9 @@
       "params": {
         "center": [
           -60,
-          40
+          -40
         ],
-        "radius": 2.2
-      }
-    },
-    {
-      "command": "circle",
-      "params": {
-        "center": [
-          60,
-          40
-        ],
-        "radius": 2.2
+        "radius": 2
       }
     },
     {
@@ -197,7 +187,17 @@
           60,
           -40
         ],
-        "radius": 2.2
+        "radius": 2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          60,
+          40
+        ],
+        "radius": 2
       }
     },
     {
@@ -205,57 +205,9 @@
       "params": {
         "center": [
           -60,
-          -40
+          40
         ],
-        "radius": 2.2
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            -60,
-            40
-          ],
-          [
-            -92,
-            50
-          ]
-        ],
-        "text": "FRONT_TOP_LEFT"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            60,
-            40
-          ],
-          [
-            88,
-            50
-          ]
-        ],
-        "text": "FRONT_TOP_RIGHT"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            60,
-            -40
-          ],
-          [
-            88,
-            -50
-          ]
-        ],
-        "text": "FRONT_BOTTOM_RIGHT"
+        "radius": 2
       }
     },
     {
@@ -268,10 +220,42 @@
           ],
           [
             -92,
-            -50
+            -52
           ]
         ],
-        "text": "FRONT_BOTTOM_LEFT"
+        "text": "BOTTOM offset (-W/2, -D/2) | 0 deg"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            60,
+            -40
+          ],
+          [
+            88,
+            -52
+          ]
+        ],
+        "text": "BOTTOM offset (+W/2, -D/2) | 90 deg"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            60,
+            40
+          ],
+          [
+            88,
+            52
+          ]
+        ],
+        "text": "BOTTOM offset (+W/2, +D/2) | 180 deg"
       }
     },
     {
@@ -283,72 +267,11 @@
             40
           ],
           [
-            -34,
-            60
+            -92,
+            52
           ]
         ],
-        "text": "child: mount"
-      }
-    },
-    {
-      "command": "layer.new",
-      "params": {
-        "name": "AXIS",
-        "color": 5,
-        "lineweight": 0.25,
-        "current": true
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            -60,
-            40
-          ],
-          [
-            -30,
-            40
-          ]
-        ]
-      }
-    },
-    {
-      "command": "line",
-      "params": {
-        "points": [
-          [
-            -60,
-            40
-          ],
-          [
-            -60,
-            10
-          ]
-        ]
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          -28,
-          42
-        ],
-        "text": "local +X",
-        "height": 3
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          -57,
-          8
-        ],
-        "text": "local -Z",
-        "height": 3
+        "text": "BOTTOM offset (-W/2, +D/2) | 270 deg"
       }
     },
     {
@@ -373,7 +296,7 @@
         ],
         "at": [
           0,
-          -60
+          -66
         ],
         "rotation": 0
       }
@@ -390,7 +313,7 @@
           40
         ],
         "at": [
-          -78,
+          -106,
           0
         ],
         "rotation": 90
@@ -409,67 +332,32 @@
       "command": "rectang",
       "params": {
         "p1": [
-          105,
-          -40
+          118,
+          0
         ],
         "p2": [
-          135,
-          40
+          188,
+          18
         ]
       }
     },
     {
       "command": "layer.current",
       "params": {
-        "name": "BRACKET"
+        "name": "FEET"
       }
     },
     {
       "command": "rectang",
       "params": {
         "p1": [
-          101,
-          0
+          118,
+          -30
         ],
         "p2": [
-          105,
-          40
-        ]
-      }
-    },
-    {
-      "command": "rectang",
-      "params": {
-        "p1": [
-          101,
-          -40
-        ],
-        "p2": [
-          105,
+          146,
           0
         ]
-      }
-    },
-    {
-      "command": "layer.current",
-      "params": {
-        "name": "ANCHOR"
-      }
-    },
-    {
-      "command": "mleader",
-      "params": {
-        "points": [
-          [
-            103,
-            20
-          ],
-          [
-            146,
-            27
-          ]
-        ],
-        "text": "4 mm bracket outside front face"
       }
     },
     {
@@ -482,18 +370,18 @@
       "command": "dimlinear",
       "params": {
         "p1": [
-          101,
-          45
+          112,
+          -30
         ],
         "p2": [
-          105,
-          45
+          112,
+          0
         ],
         "at": [
-          103,
-          52
+          104,
+          -15
         ],
-        "rotation": 0
+        "rotation": 90
       }
     },
     {
@@ -508,10 +396,10 @@
       "command": "text",
       "params": {
         "at": [
-          -95,
+          -105,
           72
         ],
-        "text": "FOUR-CORNER L-BRACKET QUALIFICATION",
+        "text": "FOUR REUSABLE L-PROFILE CORNER FEET",
         "height": 5
       }
     },
@@ -519,10 +407,10 @@
       "command": "text",
       "params": {
         "at": [
-          -95,
+          -105,
           64
         ],
-        "text": "Front view: same child mount reused at all four FRONT_* anchors",
+        "text": "BOTTOM VIEW – one neutral CornerFoot, four assembly-owned positions and rotations",
         "height": 3
       }
     },
@@ -530,10 +418,10 @@
       "command": "text",
       "params": {
         "at": [
-          104,
-          55
+          116,
+          28
         ],
-        "text": "DEPTH VIEW",
+        "text": "SIDE DETAIL",
         "height": 4
       }
     },
@@ -541,22 +429,33 @@
       "command": "text",
       "params": {
         "at": [
-          104,
-          49
+          116,
+          22
         ],
-        "text": "front at x = 105",
-        "height": 2.6
+        "text": "frame",
+        "height": 2.8
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          -95,
-          -72
+          120,
+          -18
         ],
-        "text": "Setup drawing only – SolidCraft verification appears later on the qualification page.",
+        "text": "foot extends below frame",
         "height": 2.8
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -105,
+          -78
+        ],
+        "text": "CornerFoot contains geometry only. The assembly owns BOTTOM-face offset and spin.",
+        "height": 3
       }
     }
   ]

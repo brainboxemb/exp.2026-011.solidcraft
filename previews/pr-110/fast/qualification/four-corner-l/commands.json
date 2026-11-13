@@ -3,7 +3,7 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "FrameBlock_width",
+        "name": "frame_width",
         "expression": "120",
         "unit": "mm"
       }
@@ -11,7 +11,7 @@
     {
       "command": "parameters.add",
       "params": {
-        "name": "FrameBlock_height",
+        "name": "frame_depth",
         "expression": "80",
         "unit": "mm"
       }
@@ -34,12 +34,12 @@
       "command": "sketch.rectangle.two_point",
       "params": {
         "p0": [
-          "-FrameBlock_width / 2",
-          -15.0
+          "-frame_width / 2",
+          "-frame_depth / 2"
         ],
         "p1": [
-          "FrameBlock_width / 2",
-          15.0
+          "frame_width / 2",
+          "frame_depth / 2"
         ]
       }
     },
@@ -50,7 +50,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": "FrameBlock_height",
+        "distance": 60.0,
         "body_name": "FrameBlock"
       }
     },
@@ -63,14 +63,14 @@
     {
       "command": "component.create",
       "params": {
-        "name": "LBracket",
+        "name": "CornerFoot",
         "grounded": false
       }
     },
     {
       "command": "sketch.create",
       "params": {
-        "plane": "XZ",
+        "plane": "XY",
         "name": "Profile"
       }
     },
@@ -83,24 +83,24 @@
             0
           ],
           [
-            40.0,
+            28.0,
             0
           ],
           [
-            40.0,
-            12.0
+            28.0,
+            8.0
           ],
           [
-            12.0,
-            12.0
+            8.0,
+            8.0
           ],
           [
-            12.0,
-            40.0
+            8.0,
+            28.0
           ],
           [
             0,
-            40.0
+            28.0
           ]
         ],
         "closed": true,
@@ -121,9 +121,9 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 4.0,
-        "direction": "positive",
-        "body_name": "LBracket"
+        "distance": 30.0,
+        "direction": "negative",
+        "body_name": "CornerFoot"
       }
     },
     {
@@ -135,61 +135,55 @@
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "LBracket"
+        "component": "CornerFoot"
       }
     },
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "LBracket"
+        "component": "CornerFoot"
       }
     },
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "LBracket"
+        "component": "CornerFoot"
       }
     },
     {
-      "command": "occurrence.move",
+      "command": "joint.create",
       "params": {
-        "occurrence": "LBracket:1",
-        "translate": [
-          -60.0,
-          -15.0,
-          80.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:2",
-        "translate": [
-          60.0,
-          -15.0,
-          80.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:3",
-        "translate": [
-          60.0,
-          -15.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:4",
-        "translate": [
-          -60.0,
-          -15.0,
+        "type": "planar",
+        "name": "Attach CornerFoot:1 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "face": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "CornerFoot:1",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "values": [
+          "-(frame_width / 2)",
+          "-(frame_depth / 2)",
           0.0
         ]
       }
@@ -197,37 +191,27 @@
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
-        "name": "Attach LBracket:1 to FrameBlock:1",
+        "type": "planar",
+        "name": "Attach CornerFoot:2 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -15.0,
-            40.0
-          ],
-          "on": [
+          "face": [
             0.0,
-            -15.0,
-            40.0
-          ],
-          "corner": [
-            -60.0,
-            -15.0,
-            80.0
+            0.0,
+            0.0
           ]
         },
         "b": {
-          "occurrence": "LBracket:1",
+          "occurrence": "CornerFoot:2",
           "point": [
-            -60.0,
-            -15.0,
-            80.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
-            -1.0,
-            0.0
+            0.0,
+            1.0
           ],
           "x": [
             1.0,
@@ -235,43 +219,37 @@
             0.0
           ]
         },
-        "angle": 0.0
+        "values": [
+          "frame_width / 2",
+          "-(frame_depth / 2)",
+          90.0
+        ]
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
-        "name": "Attach LBracket:2 to FrameBlock:1",
+        "type": "planar",
+        "name": "Attach CornerFoot:3 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -15.0,
-            40.0
-          ],
-          "on": [
+          "face": [
             0.0,
-            -15.0,
-            40.0
-          ],
-          "corner": [
-            60.0,
-            -15.0,
-            80.0
+            0.0,
+            0.0
           ]
         },
         "b": {
-          "occurrence": "LBracket:2",
+          "occurrence": "CornerFoot:3",
           "point": [
-            60.0,
-            -15.0,
-            80.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
-            -1.0,
-            0.0
+            0.0,
+            1.0
           ],
           "x": [
             1.0,
@@ -279,43 +257,37 @@
             0.0
           ]
         },
-        "angle": 0.0
+        "values": [
+          "frame_width / 2",
+          "frame_depth / 2",
+          180.0
+        ]
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
-        "name": "Attach LBracket:3 to FrameBlock:1",
+        "type": "planar",
+        "name": "Attach CornerFoot:4 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -15.0,
-            40.0
-          ],
-          "on": [
+          "face": [
             0.0,
-            -15.0,
-            40.0
-          ],
-          "corner": [
-            60.0,
-            -15.0,
+            0.0,
             0.0
           ]
         },
         "b": {
-          "occurrence": "LBracket:3",
+          "occurrence": "CornerFoot:4",
           "point": [
-            60.0,
-            -15.0,
+            0.0,
+            0.0,
             0.0
           ],
           "z": [
             0.0,
-            -1.0,
-            0.0
+            0.0,
+            1.0
           ],
           "x": [
             1.0,
@@ -323,51 +295,11 @@
             0.0
           ]
         },
-        "angle": 0.0
-      }
-    },
-    {
-      "command": "joint.create",
-      "params": {
-        "type": "rigid",
-        "name": "Attach LBracket:4 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -15.0,
-            40.0
-          ],
-          "on": [
-            0.0,
-            -15.0,
-            40.0
-          ],
-          "corner": [
-            -60.0,
-            -15.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "LBracket:4",
-          "point": [
-            -60.0,
-            -15.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            -1.0,
-            0.0
-          ],
-          "x": [
-            1.0,
-            0.0,
-            0.0
-          ]
-        },
-        "angle": 0.0
+        "values": [
+          "-(frame_width / 2)",
+          "frame_depth / 2",
+          270.0
+        ]
       }
     },
     {
