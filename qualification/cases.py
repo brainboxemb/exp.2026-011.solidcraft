@@ -156,6 +156,7 @@ QUALIFICATION_CASES = [
     {
         "slug": "four-corner-l",
         "q5_required": True,
+        "diagram": "four-corner-l.svg",
         "group": "anchors",
         "title": "External L-bracket on all four front corners",
         "intent": "Prove that one reusable flat L-bracket can be mounted fully outside the front face at all four outer corners, with both L arms running inward over the frame, and that every bracket follows its own corner when frame width and height change.",
