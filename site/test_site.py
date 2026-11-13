@@ -84,6 +84,7 @@ def check(site: Path, sha: str, require_native: bool = False):
 
     assert "Qualification" in home and "Qualification" in qualification_index
     assert "Q1" in qualification_index and "Q6" in qualification_index
+    assert 'class="reference-grid qualification-grid"' in qualification_index
     assert qualification_manifest["library_commit"] == sha
     assert qualification_manifest["solidcraft_version"] == "0.30.1"
     assert set(qualification_manifest["cases"]) == {
