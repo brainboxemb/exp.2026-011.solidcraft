@@ -1,0 +1,255 @@
+{
+  "case": "eight-corner-brackets",
+  "q4": "fail",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "fail",
+      "expected": [
+        {
+          "label": "FrameBlock",
+          "min": [
+            -80,
+            -60,
+            0
+          ],
+          "max": [
+            80,
+            60,
+            90
+          ]
+        },
+        {
+          "label": "front top-left",
+          "min": [
+            -80,
+            -64,
+            62
+          ],
+          "max": [
+            -52,
+            -60,
+            90
+          ]
+        },
+        {
+          "label": "front top-right",
+          "min": [
+            52,
+            -64,
+            62
+          ],
+          "max": [
+            80,
+            -60,
+            90
+          ]
+        },
+        {
+          "label": "front bottom-right",
+          "min": [
+            52,
+            -64,
+            0
+          ],
+          "max": [
+            80,
+            -60,
+            28
+          ]
+        },
+        {
+          "label": "front bottom-left",
+          "min": [
+            -80,
+            -64,
+            0
+          ],
+          "max": [
+            -52,
+            -60,
+            28
+          ]
+        },
+        {
+          "label": "rear top-left",
+          "min": [
+            -80,
+            60,
+            62
+          ],
+          "max": [
+            -52,
+            64,
+            90
+          ]
+        },
+        {
+          "label": "rear top-right",
+          "min": [
+            52,
+            60,
+            62
+          ],
+          "max": [
+            80,
+            64,
+            90
+          ]
+        },
+        {
+          "label": "rear bottom-right",
+          "min": [
+            52,
+            60,
+            0
+          ],
+          "max": [
+            80,
+            64,
+            28
+          ]
+        },
+        {
+          "label": "rear bottom-left",
+          "min": [
+            -80,
+            60,
+            0
+          ],
+          "max": [
+            -52,
+            64,
+            28
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -60.0,
+            -40.0,
+            0.0
+          ],
+          "max": [
+            60.0,
+            40.0,
+            60.0
+          ]
+        },
+        {
+          "min": [
+            -60.0,
+            -44.0,
+            32.0
+          ],
+          "max": [
+            -32.0,
+            -40.0,
+            60.0
+          ]
+        },
+        {
+          "min": [
+            32.0,
+            -44.0,
+            32.0
+          ],
+          "max": [
+            60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        {
+          "min": [
+            32.0,
+            -44.0,
+            0.0
+          ],
+          "max": [
+            60.0,
+            -40.0,
+            28.0
+          ]
+        },
+        {
+          "min": [
+            -60.0,
+            -44.0,
+            0.0
+          ],
+          "max": [
+            -32.0,
+            -40.0,
+            28.0
+          ]
+        },
+        {
+          "min": [
+            -60.0,
+            40.0,
+            32.0
+          ],
+          "max": [
+            -32.0,
+            44.0,
+            60.0
+          ]
+        },
+        {
+          "min": [
+            32.0,
+            40.0,
+            32.0
+          ],
+          "max": [
+            60.0,
+            44.0,
+            60.0
+          ]
+        },
+        {
+          "min": [
+            32.0,
+            40.0,
+            0.0
+          ],
+          "max": [
+            60.0,
+            44.0,
+            28.0
+          ]
+        },
+        {
+          "min": [
+            -60.0,
+            40.0,
+            0.0
+          ],
+          "max": [
+            -32.0,
+            44.0,
+            28.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nine bodies: frame plus eight brackets",
+      "level": "q4",
+      "status": "pass",
+      "expected": 9,
+      "actual": 9
+    },
+    {
+      "name": "nine bodies after saved-design mutation",
+      "level": "q5",
+      "status": "pass",
+      "expected": 9,
+      "actual": 9
+    }
+  ]
+}

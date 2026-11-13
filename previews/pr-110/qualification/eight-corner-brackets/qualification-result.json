@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "case": "eight-corner-brackets",
+  "title": "Eight reusable outside L-brackets",
+  "source_commit": "d1844570eb9fbdbdbf099f5e9b6c7b1fb2748c1a",
+  "solidcraft_version": "0.30.1",
+  "status": "fail",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 39,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "fail",
+      "evidence": [
+        "joint-inspect.json",
+        "measurements-size-160x120x90.json",
+        "measurements.json",
+        "validation.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "frame 120x80x60 -> 160x120x90 mm",
+      "evidence": [
+        "measurements-size-160x120x90.json",
+        "model-size-160x120x90.sc"
+      ]
+    },
+    "q6": {
+      "status": "review",
+      "images": [
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png"
+      ],
+      "evidence": [
+        "visual-validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "joint-inspect.json",
+      "measurements-size-160x120x90.json",
+      "measurements.json",
+      "model-size-160x120x90.sc",
+      "model.sc",
+      "model.step",
+      "results.json",
+      "validation.json",
+      "visual-validation.json"
+    ],
+    "images": [
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png"
+    ]
+  }
+}

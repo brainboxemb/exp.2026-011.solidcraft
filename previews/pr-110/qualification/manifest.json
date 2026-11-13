@@ -1,5 +1,5 @@
 {
-  "library_commit": "366444a874b0ff7225f99db4405b93e04873f41b",
+  "library_commit": "d1844570eb9fbdbdbf099f5e9b6c7b1fb2748c1a",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -827,10 +827,10 @@
       "parameter_count": 2
     },
     "four-corner-l": {
-      "title": "External L-bracket on all four front corners",
-      "status": "PASS",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 26,
+      "title": "Four reusable L-profile corner feet",
+      "status": "FAIL",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 FAIL \u00b7 Q5 FAIL \u00b7 Q6 REVIEW",
+      "command_count": 22,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120.json",
@@ -855,21 +855,18 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
-        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
-        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
         "overlay-iso.png",
-        "visual-diff-iso.png",
         "model-size-160x120-front.png",
         "model-size-160x120-iso.png",
         "model-size-160x120-right.png",
         "model-size-160x120.png"
       ],
-      "qualification_status": "pass",
+      "qualification_status": "fail",
       "levels": {
         "q1": {
           "status": "pass",
@@ -879,7 +876,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 26,
+          "commands": 22,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -894,7 +891,7 @@
           ]
         },
         "q4": {
-          "status": "pass",
+          "status": "fail",
           "evidence": [
             "joint-inspect-size-160x120.json",
             "joint-inspect.json",
@@ -904,9 +901,9 @@
           ]
         },
         "q5": {
-          "status": "pass",
+          "status": "fail",
           "required": true,
-          "mutation": "FrameBlock 120x80 -> 160x120 mm",
+          "mutation": "frame footprint 120x80 -> 160x120 mm",
           "evidence": [
             "joint-inspect-size-160x120.json",
             "measurements-size-160x120.json",
@@ -914,7 +911,7 @@
           ]
         },
         "q6": {
-          "status": "pass",
+          "status": "review",
           "images": [
             "model.png",
             "goal-front.png",
@@ -929,15 +926,9 @@
             "model-size-160x120.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png",
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png"
+            "overlay-right.png"
           ],
           "evidence": [
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }
@@ -945,6 +936,103 @@
       "solidcraft_version": "0.30.1",
       "body_count": 5,
       "parameter_count": 2
+    },
+    "eight-corner-brackets": {
+      "title": "Eight reusable outside L-brackets",
+      "status": "FAIL",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 FAIL \u00b7 Q5 \u00b7 Q6 REVIEW",
+      "command_count": 39,
+      "native_evidence": [
+        "results.json",
+        "measurements-size-160x120x90.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model-size-160x120x90.sc",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png"
+      ],
+      "qualification_status": "fail",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 39,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "fail",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements-size-160x120x90.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "pass",
+          "required": true,
+          "mutation": "frame 120x80x60 -> 160x120x90 mm",
+          "evidence": [
+            "measurements-size-160x120x90.json",
+            "model-size-160x120x90.sc"
+          ]
+        },
+        "q6": {
+          "status": "review",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png"
+          ],
+          "evidence": [
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 9,
+      "parameter_count": 3
     },
     "custom-anchor": {
       "title": "Named oriented AnchorFrame",
