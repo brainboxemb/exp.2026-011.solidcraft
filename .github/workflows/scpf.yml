@@ -9,7 +9,6 @@ on:
       - "scpf/**"
       - "examples/**"
       - "qualification/**"
-      - "site/qualification_cases.py"
       - "site/api_coverage.py"
       - ".github/workflows/scpf.yml"
   workflow_dispatch: {}
