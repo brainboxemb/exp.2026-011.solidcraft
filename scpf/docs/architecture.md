@@ -242,3 +242,44 @@ geometry bug fixed solely because Python unit tests pass.
 
 Further reading: the [API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)
 and the [CAD models and native verification results](https://brainboxemb.github.io/2026-011-02.cad.solidcraft/).
+
+
+## Forge qualification levels
+
+Forge changes are qualified in layers. A green Python test alone is never
+treated as proof that SolidCraft produced the intended CAD result.
+
+| Level | What is verified | Typical evidence |
+| --- | --- | --- |
+| Q1 — Python API | Public API behavior, validation, symbolic-expression handling and compiler invariants | `unittest` results |
+| Q2 — command contract | Complete example scripts compile to valid, inspectable SolidCraft command JSON | generated `*.json`, command counts |
+| Q3 — native build | Official SolidCraft `0.30.1` accepts the command plan and creates a saved editable design | `results.json`, `model.sc`, STEP |
+| Q4 — native measurement | Actual bodies/timeline are evaluated after construction | `measurements.json`, bounding-box assertions |
+| Q5 — parametric mutation | A saved design is edited with `parameters.change`; dependent geometry/joints must re-solve without recompiling Python | changed `*.sc` plus second measurement set |
+| Q6 — visual artifact | Native snapshots make orientation and placement regressions reviewable by a human | PNG snapshot |
+
+The CI qualification artifact must retain the generated commands and native
+results, not only a pass/fail flag. For assembly/anchor work in particular,
+the report should show both the generated `joint.create` parameters and the
+measured native result after at least one parameter mutation.
+
+### Qualification fixture rules
+
+Fixtures should isolate one concept at a time. Keep geometry deliberately
+simple unless geometry itself is the feature under test. For example, the
+`bracket` fixture is a plain extruded L-profile: no holes, fillets or shell
+operations. More complex assembly fixtures may reuse that component, but a
+failure in an attachment test must not be confounded by unrelated feature
+history.
+
+A new Forge API or lowering feature is not considered ready for CAD-project
+use until it has:
+
+1. a focused Q1 regression;
+2. a self-contained Q2 fixture;
+3. a Q3/Q4 native SolidCraft check;
+4. Q5 coverage when the feature claims associativity/parametric behavior;
+5. a Q6 snapshot when orientation or spatial placement is material.
+
+The HUB75 model is therefore a downstream integration consumer, not the place
+where Forge attachment semantics are discovered experimentally.
