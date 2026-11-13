@@ -2,7 +2,7 @@
 import re
 
 from .compiler import ModelError
-from .core import Anchor, command_value, parameters_in
+from .core import Anchor, AnchorFrame, command_value, parameters_in
 from .model_objects import Assembly, ModelInstance, _anchor_origin
 from .compiler import compile_model
 
@@ -103,14 +103,14 @@ def compile_assembly(value, name):
         if attachment is None or attachment.as_built:
             continue
         if (
-            not isinstance(attachment.parent, Anchor)
+            isinstance(attachment.parent, str)
             and attachment.target.rotation is not None
         ):
             required_custom_origins.add(
                 (id(attachment.target), attachment.parent)
             )
         if (
-            not isinstance(attachment.child, Anchor)
+            isinstance(attachment.child, str)
             and instance.rotation is not None
         ):
             required_custom_origins.add((id(instance), attachment.child))
@@ -286,11 +286,19 @@ def compile_assembly(value, name):
             ))
             continue
 
-        def custom_anchor_reference(model, anchor_name, occurrence):
-            key = (id(model), anchor_name)
-            if model.rotation is not None:
-                return custom_origin_names[key]
-            frame = dict(model.definition.anchors)[anchor_name]
+        def custom_anchor_reference(model, anchor, occurrence):
+            if isinstance(anchor, AnchorFrame):
+                if model.rotation is not None:
+                    raise ModelError(
+                        "direct AnchorFrame attachments on explicitly rotated "
+                        "occurrences are not supported yet"
+                    )
+                frame = anchor
+            else:
+                key = (id(model), anchor)
+                if model.rotation is not None:
+                    return custom_origin_names[key]
+                frame = dict(model.definition.anchors)[anchor]
             return {
                 "occurrence": occurrence,
                 "point": [
