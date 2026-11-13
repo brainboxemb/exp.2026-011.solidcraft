@@ -88,7 +88,7 @@
       "Panel"
     ],
     "feature": 4,
-    "ms": 0.902395,
+    "ms": 0.769035,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -186,7 +186,7 @@
       "Panel_2"
     ],
     "feature": 8,
-    "ms": 0.27329,
+    "ms": 0.195999,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
@@ -315,7 +315,7 @@
       "Panel_3"
     ],
     "feature": 12,
-    "ms": 0.242964,
+    "ms": 0.207085,
     "name": "Extrude3",
     "removed_bodies": [],
     "warning": null
@@ -473,7 +473,7 @@
       "Panel_4"
     ],
     "feature": 17,
-    "ms": 0.237865,
+    "ms": 0.200766,
     "name": "Extrude4",
     "removed_bodies": [],
     "warning": null
