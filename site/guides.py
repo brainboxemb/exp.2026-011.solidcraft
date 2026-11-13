@@ -374,36 +374,97 @@ Do not assume every curved or lofted surface supports it.</p>""",
     {
         "slug": "components",
         "title": "Components and assemblies",
-        "summary": "Reusable definitions, occurrence transforms, grouping and attachments.",
+        "summary": "Describe reusable parts, placed copies and how they belong together.",
         "body": """
-<h2 id="definition">One definition, several occurrences</h2>
-""" + code("""from scpf import Box, assembly, component
+<h2 id="scenario">Start from a real build</h2>
+<p>Suppose you are making a wooden display frame with eight identical corner
+brackets. You do <strong>not</strong> want to model eight unrelated brackets.
+You want to describe:</p>
+<ul>
+<li>what one bracket looks like;</li>
+<li>where eight physical copies of that bracket are used;</li>
+<li>which boards and brackets together form the frame;</li>
+<li>how each bracket is related to the frame.</li>
+</ul>
+<p>Those four questions correspond directly to Forge's component, occurrence,
+assembly and attachment concepts.</p>
+
+<h2 id="component">Component: the reusable part design</h2>
+<p>A <strong>component</strong> describes one kind of physical part. A bracket,
+panel, side board or PCB enclosure is a good component candidate when you may
+use it more than once or want to edit it independently.</p>
+""" + code("""from scpf import Box, component
 
 @component
-class Beam:
-    length = 100.0
+class CornerBracket:
+    width = 24.0
 
     def build(self):
-        return Box(self.length, 20, 20)
+        return Box(40, self.width, 40)""") + """
+<p>This defines the bracket design. It does not mean that only one bracket
+exists in the final assembly.</p>
+
+<h2 id="occurrence">Occurrence: one physical use of that component</h2>
+<p>Every placed copy is an <strong>occurrence</strong>. Eight brackets in the
+frame means eight occurrences, while all eight still share one component
+definition.</p>
+""" + code("""first = CornerBracket()
+second = first.copy().move(x=100)""") + """
+<p>Think of buying eight identical metal brackets: there is one product design,
+but eight physical pieces. This distinction matters because changing the
+component definition should not require rebuilding eight independent models.</p>
+
+<h2 id="assembly">Assembly: the construction made from parts</h2>
+<p>An <strong>assembly</strong> describes how component occurrences form a
+larger object. The parts remain separate; an assembly is not automatically a
+Boolean union.</p>
+""" + code("""from scpf import assembly
 
 @assembly
-class BeamPair:
-    spacing = 120.0
-
+class Frame:
     def build(self):
-        left = Beam()
-        right = left.copy().move(x=self.spacing)
-        return (left + right).group("Beams")
+        left = SideBoard()
+        right = left.copy().move(x=800)
+        return left + right""") + """
+<p>The assembly can later grow to include top/bottom boards, panels and corner
+brackets without turning those parts into one inseparable solid.</p>
 
-pair = BeamPair()""") + """
-<p><code>@component</code> marks a reusable physical part whose
-<code>build()</code> returns one Shape. <code>@assembly</code> marks a class
-whose <code>build()</code> composes component occurrences. Both decorators
-return callable model objects, so normal model code stays readable as
-<code>Beam()</code> and <code>BeamPair()</code>.</p>
-<p>SolidCraft receives one reusable definition and multiple occurrences.
-A group is a native parent component in the browser, not a Boolean
-fusion of its children.</p>
+<h2 id="move-or-attach">Move or attach?</h2>
+<p>Use <code>move()</code> when you deliberately know an occurrence's assembly
+position. Use <code>attach()</code> when the important fact is a
+<strong>relationship between parts</strong>.</p>
+<table><thead><tr><th>Question</th><th>Prefer</th></tr></thead><tbody>
+<tr><td>“Put this reference object 200 mm to the right.”</td><td><code>move()</code></td></tr>
+<tr><td>“Keep this bracket on the top-left corner of the side board.”</td><td><code>attach()</code></td></tr>
+<tr><td>“Make five copies on a fixed pitch.”</td><td><code>copy().move(...)</code></td></tr>
+<tr><td>“This child must follow a parent face when its size changes.”</td><td><code>attach()</code></td></tr>
+</tbody></table>
+
+<h2 id="simple-attachment">Attachment: describe why the child belongs there</h2>
+""" + code("""bracket = CornerBracket().attach(
+    side_board,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)""") + """
+<p>The parent anchor says <em>where on the side board</em> the relationship
+belongs. The child anchor says <em>which part of the bracket</em> is placed
+there. Forge then maps that intent to SolidCraft.</p>
+<p>From the user's point of view this is the important API contract. Native
+SolidCraft joints are an implementation detail unless you are debugging or
+extending Forge.</p>
+
+<h2 id="component-vs-assembly-knowledge">Where should knowledge live?</h2>
+<p>A reusable component should know facts that are intrinsic to that part.
+An assembly should know facts that only make sense in one construction.</p>
+<table><thead><tr><th>Knowledge</th><th>Best owner</th></tr></thead><tbody>
+<tr><td>Bracket width, hole positions, intrinsic mounting face</td><td>Component</td></tr>
+<tr><td>“This is the frame's front-top-left mounting point”</td><td>Assembly</td></tr>
+<tr><td>One sensor connector's local orientation</td><td>Component anchor</td></tr>
+<tr><td>Which of eight brackets is used in one frame corner</td><td>Assembly</td></tr>
+</tbody></table>
+<p>This separation keeps generic components reusable instead of filling them
+with names and coordinates that only make sense in one project.</p>
+
 <h2 id="component-parameters">Component parameter visibility</h2>
 <p>Reusable component defaults are <strong>fixed by default</strong>. They
 still define the component geometry, but they do not automatically clutter the
