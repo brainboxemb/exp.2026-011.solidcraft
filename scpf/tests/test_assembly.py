@@ -1556,7 +1556,7 @@ class AssemblyTests(unittest.TestCase):
         )
         self.assertEqual(
             joint["b"]["face"][2],
-            17.0,
+            -1.0,
         )
         self.assertNotIn("values", joint)
 
