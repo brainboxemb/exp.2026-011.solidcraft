@@ -19,7 +19,7 @@ QUALIFICATION_LEVELS = [
     ("Q3", "Native build", "SolidCraft 0.30.1 accepts the command plan and saves an editable design."),
     ("Q4", "Native measurement", "Timeline and actual body measurements match the expected result."),
     ("Q5", "Parametric mutation", "A saved design re-solves correctly after parameters.change."),
-    ("Q6", "Visual artifact", "A native snapshot makes orientation and placement reviewable."),
+    ("Q6", "Human visual review", "A native snapshot exists and a reviewer explicitly accepts the visible geometry, orientation and placement."),
 ]
 
 
@@ -80,6 +80,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "components",
+        "visual_review": "fail",
+        "visual_review_note": "Rigid-joint placement is not visually accepted yet.",
         "group": "components",
         "title": "Place one component relative to another",
         "intent": "Verify reuse of one component definition while a child occurrence is placed relative to a meaningful face of the parent.",
@@ -94,6 +96,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-attach",
+        "visual_review": "fail",
+        "visual_review_note": "Joint placement/direction is not visually accepted yet.",
         "q5_required": True,
         "group": "associativity",
         "title": "Editable distance between attached components",
@@ -109,6 +113,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-offset",
+        "visual_review": "fail",
+        "visual_review_note": "Planar-joint local offset is not visually accepted yet.",
         "q5_required": True,
         "group": "associativity",
         "title": "Editable local offset at an attachment",
@@ -125,6 +131,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-anchor",
+        "visual_review": "fail",
+        "visual_review_note": "Anchor/joint placement is not visually accepted yet.",
         "q5_required": True,
         "group": "anchors",
         "title": "Face anchor follows parent geometry",
@@ -140,6 +148,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "corner-anchor",
+        "visual_review": "fail",
+        "visual_review_note": "Corner placement/orientation is visibly incorrect.",
         "q5_required": True,
         "group": "anchors",
         "title": "Topology-backed corner anchor",
@@ -155,6 +165,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "four-corner-l",
+        "visual_review": "fail",
+        "visual_review_note": "Corner bracket orientation/placement is visibly incorrect.",
         "q5_required": True,
         "group": "anchors",
         "title": "One L-profile on all four front corners",
@@ -171,6 +183,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "custom-anchor",
+        "visual_review": "fail",
+        "visual_review_note": "Named-frame joint orientation is not visually accepted yet.",
         "group": "anchors",
         "title": "Named oriented AnchorFrame",
         "intent": "Verify that a reusable component can publish a named attachment datum with both position and orientation.",
@@ -185,6 +199,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "xz-anchor",
+        "visual_review": "fail",
+        "visual_review_note": "Mirrored corner placement/orientation is not visually accepted yet.",
         "q5_required": True,
         "group": "anchors",
         "title": "Anchors on XZ-profile extrusion",
