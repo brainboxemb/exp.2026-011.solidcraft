@@ -447,8 +447,55 @@ marker = Marker().attach(
 components. <code>Anchor</code> selects the attachment reference: a supported
 face, or one of the eight rectangular corners such as
 <code>FRONT_TOP_RIGHT</code>. Corner anchors compile to native SolidCraft
-edge/corner origins, so they follow dimension changes in a saved design.
-SolidCraft joints remain an internal implementation detail; Forge does not
+edge/corner origins, so they follow dimension changes in a saved design.</p>
+<h2 id="anchor-frame">AnchorFrame: point plus orientation</h2>
+<p>An <code>AnchorFrame</code> describes one local attachment coordinate frame.
+<code>origin</code> gives the local point; <code>z</code> gives the attachment
+normal and <code>x</code> fixes the rotation around that normal. Use it when a
+single point or rectangular <code>Anchor</code> is not enough to describe how
+the occurrence must be oriented.</p>
+""" + code("""from scpf import Anchor, AnchorFrame
+
+mount = AnchorFrame(
+    origin=(0, 0, -12),
+    z=(0, 1, 0),
+    x=(0, 0, -1),
+)
+
+bracket = CornerBracket().attach(
+    side_board,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=mount,
+)""") + """
+<p>There are two ownership patterns. If the datum is an intrinsic part of a
+reusable component, expose it with <code>anchors()</code> and refer to it by
+name. If the frame exists only because of a particular assembly or mounting
+choice, construct the <code>AnchorFrame</code> in that assembly and pass it
+directly to <code>attach()</code>. This keeps application knowledge out of the
+generic component definition.</p>
+""" + code("""@component
+class Sensor:
+    def anchors(self):
+        return {
+            "connector": AnchorFrame(
+                origin=(12, 0, 4),
+                z=(1, 0, 0),
+                x=(0, 0, 1),
+            )
+        }
+
+    def build(self):
+        return Box(24, 12, 8)
+
+sensor = Sensor().attach(panel, child="connector")""") + """
+<p>For an unrotated occurrence, Forge lowers an <code>AnchorFrame</code>
+directly into the native <code>joint.create</code> reference as
+<code>point</code>, <code>z</code> and <code>x</code>; it does not create a
+persistent visible <code>joint.origin</code>. Named frames on explicitly
+rotated occurrences currently use the native origin fallback so SolidCraft
+owns the transform. A direct <code>AnchorFrame</code> on an explicitly rotated
+occurrence is not supported yet.</p>
+<p>SolidCraft joints remain an internal implementation detail; Forge does not
 expose a separate public Joint object.</p>
 <h2 id="verify">What to test in an assembly</h2>
 <p>Check the native command list for one <code>component.create</code>
