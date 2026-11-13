@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES
+from qualification_cases import QUALIFICATION_CASES
 
 
 def check(site: Path, sha: str, require_native: bool = False):
@@ -45,6 +46,43 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert "AnchorTopology" in cheatsheet
     assert "assembly.with_anchor" in cheatsheet
     assert "attach(offset=(u, v))" in cheatsheet
+    qualification_index = (site / "qualification" / "index.html").read_text(encoding="utf-8")
+    qualification_manifest = json.loads(
+        (site / "qualification" / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert "Qualification" in home and "Qualification" in qualification_index
+    assert "Q1" in qualification_index and "Q6" in qualification_index
+    assert qualification_manifest["library_commit"] == sha
+    assert qualification_manifest["solidcraft_version"] == "0.30.1"
+    assert set(qualification_manifest["cases"]) == {
+        case["slug"] for case in QUALIFICATION_CASES
+    }
+    for case in QUALIFICATION_CASES:
+        slug = case["slug"]
+        page_text = (
+            site / "qualification" / slug / "index.html"
+        ).read_text(encoding="utf-8")
+        for heading in (
+            "Forge contract",
+            "Internal Forge model",
+            "SolidCraft lowering",
+            "Native verification",
+            "Parametric mutation",
+            "Reference models",
+        ):
+            assert heading in page_text, (slug, heading)
+        assert case["title"] in page_text
+        assert (site / "qualification" / slug / "model.py").is_file()
+        assert (site / "qualification" / slug / "commands.json").is_file()
+        if require_native:
+            assert "Q1–Q6 native verified" in page_text, slug
+            image = site / "qualification" / slug / "model.png"
+            assert image.is_file() and image.stat().st_size > 0, slug
+            assert image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+            native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
+            assert "measurements.json" in native_evidence, slug
+            assert "results.json" in native_evidence, slug
+
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
     assert (site / "style.css").is_file()
@@ -54,6 +92,7 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert "SolidCraft CAD projects" in home and "SCPF examples" in home
     assert "Full SolidCraft CAD projects" in home
     assert "Cheatsheet" in home and "Cheatsheet" in cheatsheet
+    assert "Qualification" in home
     for concept in ("Box(", "Rectangle2D(", "Hole(", "copy()", "rotate(", "python -m scpf"):
         assert concept in cheatsheet, concept
     # The library page has only tiny fixtures. CAD models and native renders
