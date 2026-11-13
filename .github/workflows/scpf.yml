@@ -426,5 +426,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./output/site
-          keep_files: false
+          keep_files: true
           commit_message: "Verified SCPF library site at ${{ github.sha }}"
