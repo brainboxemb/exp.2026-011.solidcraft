@@ -55,29 +55,29 @@ class FourCornerL:
         # required clocking. The reusable CornerFoot itself remains neutral.
         bottom_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=DOWN,
-            x=FRONT,
+            z=Anchor.DOWN,
+            x=Anchor.FRONT,
         )
 
         front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=FRONT,
+            z=Anchor.UP,
+            x=Anchor.FRONT,
         )
         front_right_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=LEFT,
+            z=Anchor.UP,
+            x=Anchor.LEFT,
         )
         back_right_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=BACK,
+            z=Anchor.UP,
+            x=Anchor.BACK,
         )
         back_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=RIGHT,
+            z=Anchor.UP,
+            x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
