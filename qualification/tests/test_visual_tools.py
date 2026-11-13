@@ -1,5 +1,7 @@
 """Regression tests for fixed qualification cameras and goal projection."""
 from pathlib import Path
+import base64
+from io import BytesIO
 import json
 import sys
 import tempfile
@@ -13,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from qualification.camera import camera
 from qualification.goal_overlay import _project, render
+from qualification.visual_validation import REFERENCE_SIZE, decode_reference
 
 
 class QualificationCameraTests(unittest.TestCase):
@@ -51,6 +54,18 @@ class QualificationCameraTests(unittest.TestCase):
         self.assertAlmostEqual(right[1], center[1])
         self.assertLess(up[1], center[1])
         self.assertAlmostEqual(up[0], center[0])
+
+    def test_png_baseline_is_normalized_for_comparison(self):
+        source = Image.new("RGB", (240, 180), (90, 120, 150))
+        payload = BytesIO()
+        source.save(payload, format="PNG")
+
+        reference = decode_reference({
+            "png_base64": base64.b64encode(payload.getvalue()).decode("ascii")
+        })
+
+        self.assertEqual(reference.size, REFERENCE_SIZE)
+        self.assertEqual(reference.mode, "L")
 
     def test_overlay_keeps_actual_image_visible(self):
         with tempfile.TemporaryDirectory() as tmp:
