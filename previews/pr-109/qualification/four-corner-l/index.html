@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · One L-profile on all four front corners · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / One L-profile on all four front corners</div>
+<section class="hero small"><p class="eyebrow">Forge qualification case · Q1/Q2 documented</p>
+<h1>One L-profile on all four front corners</h1><p>Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.</p></section>
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+<div class="twocol">
+<section class="panel"><h2>1. Forge contract</h2>
+<h3>Public API</h3><p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0</code></p>
+<h3>Internal Forge model</h3><p>One parametric rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
+<h3>SolidCraft lowering</h3><p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
+</section>
+<section class="panel"><h2>2. Native verification</h2>
+<h3>Expected result</h3><p>The four 40x40 L bounding boxes occupy the four inward front-corner quadrants and keep the same local clock cycle after the parent grows from 120x80 to 160x120 mm.</p>
+<h3>Parametric mutation</h3><p>After the fixed baseline is proven, change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four brackets and solved joint origins must follow their corners without rerunning Python.</p>
+<h3>Evidence</h3><ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+</section></div>
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+<section class="panel"><h2>4. Generated native relationship/command path</h2>
+<pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -15.0,
+          40.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          40.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -15.0,
+          80.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -15.0,
+          80.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -15.0,
+          40.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          40.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -15.0,
+          80.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -15.0,
+          80.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -15.0,
+          40.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          40.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -15.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -15.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -15.0,
+          40.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          40.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -15.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -15.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;angle&quot;: 0.0
+    }
+  }
+]</code></pre></section>
+<section class="panel"><h2>5. Reference models</h2>
+<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+<ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner.</li></ul></section>
+<section class="panel"><h2>6. Fixture source</h2><pre><code>&quot;&quot;&quot;Four associative front-corner placements using the minimal L-profile.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    width = 120.0
+    DEPTH = 30.0
+    height = 80.0
+
+    def build(self):
+        return Box(self.width, self.DEPTH, self.height)
+
+
+class LBracket:
+    WIDTH = 24.0
+    ARM_LENGTH = 40.0
+    ARM_HEIGHT = 12.0
+
+    def build(self):
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.ARM_HEIGHT),
+                (self.ARM_HEIGHT, self.ARM_HEIGHT),
+                (self.ARM_HEIGHT, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
+            plane=&quot;XZ&quot;,
+        )
+        return profile.extrude(
+            self.WIDTH,
+            direction=Direction.SYMMETRIC,
+        )
+
+
+class FourCornerL:
+    def build(self):
+        frame = FrameBlock()
+        bracket = LBracket()
+
+        # The neutral L occupies +X and -Z from this local corner. Its
+        # attachment normal is +Y. The parent corner frame must rotate those
+        # two in-plane directions to the two inward edges at each corner.
+        mount = AnchorFrame(
+            origin=(0, 0, 0),
+            z=(0, -1, 0),
+            x=(1, 0, 0),
+        )
+
+        top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=mount,
+            angle=0,
+        )
+        top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=mount,
+            angle=0,
+        )
+        bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=mount,
+            angle=0,
+        )
+        bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=mount,
+            angle=0,
+        )
+
+        return frame + top_left + top_right + bottom_right + bottom_left
+
+
+FourCornerL()
+</code></pre></section>
+</main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
