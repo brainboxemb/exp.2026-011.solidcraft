@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES
 from qualification_cases import QUALIFICATION_CASES
+from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
+import scpf
 
 
 def check(site: Path, sha: str, require_native: bool = False):
@@ -50,6 +52,20 @@ def check(site: Path, sha: str, require_native: bool = False):
     qualification_manifest = json.loads(
         (site / "qualification" / "manifest.json").read_text(encoding="utf-8")
     )
+    coverage_page = (
+        site / "qualification" / "coverage" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
+        "Every public scpf.__all__ symbol must have a declared qualification row"
+    )
+    assert "API & SolidCraft coverage matrix" in coverage_page
+    for api_name in scpf.__all__:
+        assert f"<code>{api_name}</code>" in coverage_page, api_name
+    for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
+        assert capability in coverage_page, capability
+        assert target.startswith("Q")
+        assert current == "GAP" or current.startswith("Q")
+
     assert "Qualification" in home and "Qualification" in qualification_index
     assert "Q1" in qualification_index and "Q6" in qualification_index
     assert qualification_manifest["library_commit"] == sha
