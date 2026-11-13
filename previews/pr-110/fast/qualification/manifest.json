@@ -1,0 +1,163 @@
+{
+  "library_commit": "bfa9b9559348fd8d0793d9e0f99029898e6e8fc3",
+  "solidcraft_version": "0.30.1",
+  "native_verified": false,
+  "cases": {
+    "simple-box": {
+      "title": "Parameterized Box",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "anchored-holes": {
+      "title": "Face-relative hole pattern",
+      "status": "Q1/Q2 documented",
+      "command_count": 13,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "parameter-scope": {
+      "title": "Implicit component parameters and shared dependencies",
+      "status": "Q1/Q2 documented",
+      "command_count": 32,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "components": {
+      "title": "Place one component relative to another",
+      "status": "Q1/Q2 documented",
+      "command_count": 13,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "parametric-attach": {
+      "title": "Editable distance between attached components",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "parametric-offset": {
+      "title": "Editable local offset at an attachment",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "parametric-anchor": {
+      "title": "Face anchor follows parent geometry",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "corner-anchor": {
+      "title": "Topology-backed corner anchor",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "four-corner-l": {
+      "title": "One L-profile on all four front corners",
+      "status": "Q1/Q2 documented",
+      "command_count": 26,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "custom-anchor": {
+      "title": "Named oriented AnchorFrame",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "xz-anchor": {
+      "title": "Anchors on XZ-profile extrusion",
+      "status": "Q1/Q2 documented",
+      "command_count": 23,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "primitive-csg": {
+      "title": "Primitive CSG",
+      "status": "Q1/Q2 documented",
+      "command_count": 4,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    },
+    "bracket": {
+      "title": "Minimal L-profile",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": [],
+      "native_images": [],
+      "qualification_status": null,
+      "levels": {},
+      "solidcraft_version": null,
+      "body_count": null,
+      "parameter_count": null
+    }
+  }
+}
