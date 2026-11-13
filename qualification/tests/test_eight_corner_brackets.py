@@ -75,8 +75,8 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
             self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
             self.assertEqual(joint["a"]["corner"], corner)
             self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
-            self.assertEqual(joint["b"]["z"], [0, -1, 0])
-            self.assertEqual(joint["b"]["x"], [1, 0, 0])
+            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
+            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")

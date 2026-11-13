@@ -1231,6 +1231,42 @@ class AssemblyTests(unittest.TestCase):
             compile_assembly(board + child, "RotatedTopologyAnchor")
 
 
+    def test_direct_anchor_frame_rigid_attach_fixes_mating_angle(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, AnchorFrame, Box, FRONT, RIGHT
+        from scpf.runner import component
+
+        @component
+        class Base:
+            def build(self):
+                return Box(40, 30, 20)
+
+        @component
+        class Bracket:
+            def build(self):
+                return Box(10, 4, 10)
+
+        base = Base()
+        child_frame = AnchorFrame(
+            origin=(0, 0, 0),
+            z=FRONT,
+            x=RIGHT,
+        )
+        bracket = Bracket().attach(
+            base,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=child_frame,
+        )
+
+        commands = compile_assembly(base + bracket, "RigidFrame")["commands"]
+        joint = next(
+            row["params"]
+            for row in commands
+            if row["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "rigid")
+        self.assertEqual(joint["angle"], 0.0)
+
     def test_direct_anchor_frame_planar_attach_fixes_mating_angle(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, Box

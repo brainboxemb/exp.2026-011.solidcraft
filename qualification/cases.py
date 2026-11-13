@@ -177,7 +177,7 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Eight reusable outside L-brackets",
         "intent": "Mount one neutral flat L-bracket on every outside corner of a rectangular frame: four on the front face and four on the rear face. The assembly owns all eight placements; the bracket component owns only its local geometry.",
-        "forge_api": "attach(parent=Anchor.FRONT_/BACK_... corner, child=assembly-local AnchorFrame, angle=0)",
+        "forge_api": "attach(parent=Anchor.FRONT_/BACK_... corner, child=assembly-local AnchorFrame); explicit child frame fixes mating clocking automatically",
         "forge_model": "One parametric frame plus eight occurrences of one neutral LBracket definition. The same assembly-local bracket-corner reference is reused for front/rear, top/bottom and left/right placements.",
         "lowering": "Eight rigid joint.create commands use topology-backed parent corner references. Forge may pre-position occurrences so SolidCraft can resolve the selected references, but the saved assembly relationship is the native joint rather than a frozen world-coordinate placement.",
         "native_expectation": "Four brackets sit fully outside the front face and four sit fully outside the rear face. At each corner the two equal L arms run inward over the adjacent frame edges.",

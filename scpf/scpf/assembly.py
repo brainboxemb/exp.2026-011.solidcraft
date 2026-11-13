@@ -444,6 +444,10 @@ def compile_assembly(value, name):
                 params["angle"] = 0.0
         elif attachment.angle is not None:
             params["angle"] = attachment.angle
+        elif isinstance(attachment.child, AnchorFrame):
+            # An explicit child frame already defines its complete clocking.
+            # Prevent SolidCraft from choosing an optional automatic half-turn.
+            params["angle"] = 0.0
         commands.append(_command("joint.create", **params))
 
     # Keep the finished assembly view clean. Joint glyph visibility is only
