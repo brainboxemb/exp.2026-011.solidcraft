@@ -446,6 +446,7 @@ jobs:
             --param-check strict \
             --results \
             --json-out output/native/normalized-corner-anchor-lab/joint-inspect.json
+          jq . output/native/normalized-corner-anchor-lab/joint-inspect.json
           jq -e '
             (.[0].joints | length) == 9 and
             ([.[0].joints[] | select(.a.component_name == "Parent")
@@ -708,6 +709,7 @@ jobs:
           path: output/native/corner-axis-lab
           if-no-files-found: error
       - name: Upload normalized corner anchor lab evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: normalized-corner-anchor-lab
