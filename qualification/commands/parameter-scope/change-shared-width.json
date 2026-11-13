@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "command": "parameters.change",
+      "params": {
+        "name": "shared_width",
+        "expression": "100 mm"
+      }
+    }
+  ]
+}

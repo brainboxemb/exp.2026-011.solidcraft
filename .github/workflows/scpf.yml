@@ -17,6 +17,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: scpf-native-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -38,6 +42,16 @@ jobs:
           cd "$RUNNER_TEMP"
           python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v 2>&1 \
             | tee "$GITHUB_WORKSPACE/output/qualification/q1-python-tests.txt"
+      - name: Run standard qualification tests (command contract)
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset PYTHONPATH
+          mkdir -p "$GITHUB_WORKSPACE/output/qualification"
+          cd "$RUNNER_TEMP"
+          python -m unittest discover \
+            -s "$GITHUB_WORKSPACE/qualification/tests" -v 2>&1 \
+            | tee "$GITHUB_WORKSPACE/output/qualification/q2-python-qualification-tests.txt"
       - name: Compile self-contained API fixtures
         shell: bash
         run: |
@@ -52,7 +66,6 @@ jobs:
             count="$(jq '.commands | length' "output/$model.json")"
             printf "%s\t%s\tPASS\n" "$model" "$count" >> output/qualification/q2-command-contract.tsv
           done
-          python qualification/parameter_scope.py commands output/parameter-scope.json
       - name: Install official SolidCraft 0.30.1 (checksum-verified)
         shell: bash
         run: |
@@ -92,22 +105,30 @@ jobs:
             test -s "output/native/$model/model.png"
             printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
-          # Parameter scope regression: use the exact generated Forge command
-          # plan, retain both native save formats, export public parameters,
-          # then edit only the saved design and verify inherited expressions.
-          python qualification/parameter_scope.py prepare-native             output/native/parameter-scope
+          # Four-corner diagnostic evidence. The functional assertions are
+          # standard unittest cases in qualification/tests.
+          solidcraft-cli run qualification/commands/four-corner-l/inspect-joints.json \
+            --in output/native/four-corner-l/model.sc \
+            --param-check strict --results \
+            --json-out output/native/four-corner-l/joint-inspect.json
 
-          solidcraft-cli run output/parameter-scope.json             --param-check strict             --save output/native/parameter-scope/model.json
+          # Parameter-scope native evidence and saved-design mutation.
+          solidcraft-cli run output/parameter-scope.json \
+            --param-check strict \
+            --save output/native/parameter-scope/model.json
 
-          solidcraft-cli run output/native/parameter-scope/export-parameters.json             --in output/native/parameter-scope/model.sc             --param-check strict             --json-out output/native/parameter-scope/parameters-export-results.json
+          solidcraft-cli run qualification/commands/parameter-scope/export-parameters.json \
+            --in output/native/parameter-scope/model.sc \
+            --param-check strict \
+            --json-out output/native/parameter-scope/parameters-export-results.json
 
-          python qualification/parameter_scope.py baseline             output/native/parameter-scope/measurements.json             output/native/parameter-scope/parameters.json             output/native/parameter-scope/model.json             --solidcraft-version "$SOLIDCRAFT_VERSION"
+          solidcraft-cli run qualification/commands/parameter-scope/change-shared-width.json \
+            --in output/native/parameter-scope/model.sc \
+            --param-check strict \
+            --save output/native/parameter-scope/model-shared-width-100.sc
 
-          solidcraft-cli run output/native/parameter-scope/change-shared-width.json             --in output/native/parameter-scope/model.sc             --param-check strict             --save output/native/parameter-scope/model-shared-width-100.sc
-
-          solidcraft-cli eval output/native/parameter-scope/model-shared-width-100.sc             --json-out output/native/parameter-scope/measurements-shared-width-100.json
-
-          python qualification/parameter_scope.py shared-mutation             output/native/parameter-scope/measurements-shared-width-100.json
+          solidcraft-cli eval output/native/parameter-scope/model-shared-width-100.sc \
+            --json-out output/native/parameter-scope/measurements-shared-width-100.json
 
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -333,6 +354,15 @@ jobs:
               and ((.bbox.max[2] - 40) | fabs) < 0.001)] | length) == 1
           ' output/native/xz-anchor/measurements-size-80x40.json
 
+          # Re-run the same standard qualification suite with native evidence
+          # enabled. Native TestCase classes are skipped in the fast PR run and
+          # become active here.
+          SCPF_NATIVE_ROOT="$GITHUB_WORKSPACE/output/native" \
+          SCPF_SOLIDCRAFT_VERSION="$SOLIDCRAFT_VERSION" \
+          python -m unittest discover \
+            -s "$GITHUB_WORKSPACE/qualification/tests" -v 2>&1 \
+            | tee output/qualification/q3-q5-python-qualification-tests.txt
+
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
           printf "parameter-scope\tshared_width 80 -> 100 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
@@ -378,6 +408,19 @@ jobs:
               echo '~~~'
             else
               echo "No Q2 result file was produced."
+            fi
+            echo
+            echo "## Qualification unittest results"
+            echo
+            if test -s output/qualification/q2-python-qualification-tests.txt; then
+              echo '~~~text'
+              cat output/qualification/q2-python-qualification-tests.txt
+              echo '~~~'
+            fi
+            if test -s output/qualification/q3-q5-python-qualification-tests.txt; then
+              echo '~~~text'
+              cat output/qualification/q3-q5-python-qualification-tests.txt
+              echo '~~~'
             fi
             echo
             echo "## Q3/Q4/Q6 — native build, measurement and snapshot"
@@ -439,6 +482,25 @@ jobs:
           name: scpf-library-site
           path: output/site
           if-no-files-found: error
+      - name: Resolve native PR preview target
+        id: native_preview
+        if: success() && startsWith(github.ref_name, 'qualify/pr-')
+        shell: bash
+        run: |
+          pr="${GITHUB_REF_NAME#qualify/pr-}"
+          echo "destination=previews/pr-$pr" >> "$GITHUB_OUTPUT"
+
+      - name: Publish native qualification to PR preview
+        if: steps.native_preview.outputs.destination != ''
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./output/site
+          destination_dir: ${{ steps.native_preview.outputs.destination }}
+          keep_files: true
+          commit_message: "Native qualification ${{ github.ref_name }} at ${{ github.sha }}"
+
       - name: Publish clean library site (after passing regression tests)
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4

@@ -40,6 +40,15 @@ jobs:
           cd "$RUNNER_TEMP"
           python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v
 
+      - name: Run standard qualification tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset PYTHONPATH
+          cd "$RUNNER_TEMP"
+          python -m unittest discover \
+            -s "$GITHUB_WORKSPACE/qualification/tests" -v
+
       - name: Compile documented qualification fixtures
         shell: bash
         run: |

@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "command": "parameters.export",
+      "params": {
+        "format": "json",
+        "path": "output/native/parameter-scope/parameters.json"
+      }
+    }
+  ]
+}
