@@ -241,28 +241,6 @@
       }
     },
     {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "Marker:1",
-        "translate": [
-          15.0,
-          -5.0,
-          10.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "Marker:2",
-        "translate": [
-          -15.0,
-          -5.0,
-          10.0
-        ]
-      }
-    },
-    {
       "command": "joint.create",
       "params": {
         "type": "rigid",

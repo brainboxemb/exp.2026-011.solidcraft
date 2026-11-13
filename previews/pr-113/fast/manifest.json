@@ -1,5 +1,5 @@
 {
-  "library_commit": "e0e5a4630cb5276cd0003bb1c3aa2ab1a638e555",
+  "library_commit": "4fb0d790b5650f1746c360ba80ed479ed8a48a6b",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
@@ -26,7 +26,7 @@
     "corner-anchor": {
       "source": "examples/corner-anchor/model.py",
       "commands": "examples/corner-anchor/commands.json",
-      "command_count": 19,
+      "command_count": 18,
       "preview": "examples/corner-anchor/preview.svg",
       "preview_kind": "schematic"
     },

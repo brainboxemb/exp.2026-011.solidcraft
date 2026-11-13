@@ -133,17 +133,6 @@
       }
     },
     {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "Marker:1",
-        "translate": [
-          15.0,
-          -20.0,
-          10.0
-        ]
-      }
-    },
-    {
       "command": "parameters.add",
       "params": {
         "name": "shift",

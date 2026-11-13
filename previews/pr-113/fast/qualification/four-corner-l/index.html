@@ -87,40 +87,43 @@ class FourCornerL:
         # CornerFoot itself stays completely placement-agnostic.
         foot_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 0, 1),
-            x=(1, 0, 0),
+            z=UP,
+            x=RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
+        # SolidCraft&#x27;s native BOTTOM frame uses local X along world -Y and
+        # local in-plane Y along world -X.  offset=(u, v) is deliberately
+        # expressed in that local frame, not as world X/Y coordinates.
         front_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, -half_depth),
-            angle=0,
+            offset=(half_depth, half_width),
+            angle=90,
         )
         front_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(half_width, -half_depth),
-            angle=90,
+            offset=(half_depth, -half_width),
+            angle=180,
         )
         back_right = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(half_width, half_depth),
-            angle=180,
+            offset=(-half_depth, -half_width),
+            angle=270,
         )
         back_left = foot.copy().attach(
             frame,
             parent=Anchor.BOTTOM,
             child=foot_origin,
-            offset=(-half_width, half_depth),
-            angle=270,
+            offset=(-half_depth, half_width),
+            angle=0,
         )
 
         return frame + front_left + front_right + back_right + back_left
@@ -129,14 +132,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=0/90/180/270)</code></p>
+  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/270/0)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and rotations.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their native in-plane values contain the parametric width/depth offsets and the four quarter-turn angles.</p>
+  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. The (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-frame basis (not world X/Y), with parametric width/depth expressions and four quarter-turn angles.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -172,9 +175,9 @@ FourCornerL()
         ]
       },
       &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        &quot;-(frame_depth / 2)&quot;,
-        0.0
+        &quot;frame_depth / 2&quot;,
+        &quot;frame_width / 2&quot;,
+        90.0
       ]
     }
   },
@@ -210,9 +213,9 @@ FourCornerL()
         ]
       },
       &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;-(frame_depth / 2)&quot;,
-        90.0
+        &quot;frame_depth / 2&quot;,
+        &quot;-(frame_width / 2)&quot;,
+        180.0
       ]
     }
   },
@@ -248,9 +251,9 @@ FourCornerL()
         ]
       },
       &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;frame_depth / 2&quot;,
-        180.0
+        &quot;-(frame_depth / 2)&quot;,
+        &quot;-(frame_width / 2)&quot;,
+        270.0
       ]
     }
   },
@@ -286,9 +289,9 @@ FourCornerL()
         ]
       },
       &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        &quot;frame_depth / 2&quot;,
-        270.0
+        &quot;-(frame_depth / 2)&quot;,
+        &quot;frame_width / 2&quot;,
+        0.0
       ]
     }
   }
