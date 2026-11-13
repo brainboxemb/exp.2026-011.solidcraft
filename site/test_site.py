@@ -109,11 +109,16 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert (site / "qualification" / slug / "model.py").is_file()
         assert (site / "qualification" / slug / "commands.json").is_file()
         if require_native:
-            expected_status = case.get(
-                "verified_status",
-                "Q1–Q6 native verified",
-            )
-            assert expected_status in page_text, slug
+            manifest_case = qualification_manifest["cases"][slug]
+            assert manifest_case["qualification_status"] == "pass", slug
+            assert "PASS" in page_text, slug
+            result_path = site / "qualification" / slug / "qualification-result.json"
+            assert result_path.is_file(), slug
+            structured_result = json.loads(result_path.read_text(encoding="utf-8"))
+            assert structured_result["status"] == "pass", slug
+            assert structured_result["source_commit"] == sha, slug
+            assert structured_result["solidcraft_version"] == "0.30.1", slug
+            assert manifest_case["levels"] == structured_result["levels"], slug
             assert "Native runtime:" in page_text, slug
             assert "SolidCraft 0.30.1" in page_text, slug
             image = site / "qualification" / slug / "model.png"
