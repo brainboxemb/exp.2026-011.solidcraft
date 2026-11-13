@@ -1,0 +1,409 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Qualification goal - corner brackets on an open wood frame",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "WOOD",
+        "color": 8,
+        "lineweight": 0.4,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          90
+        ],
+        "p2": [
+          170,
+          102
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          170,
+          12
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          12
+        ],
+        "p2": [
+          12,
+          90
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          158,
+          12
+        ],
+        "p2": [
+          170,
+          90
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKETS",
+        "color": 3,
+        "lineweight": 0.55,
+        "current": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            12,
+            90
+          ],
+          [
+            48,
+            90
+          ],
+          [
+            48,
+            82
+          ],
+          [
+            20,
+            82
+          ],
+          [
+            20,
+            54
+          ],
+          [
+            12,
+            54
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            158,
+            90
+          ],
+          [
+            122,
+            90
+          ],
+          [
+            122,
+            82
+          ],
+          [
+            150,
+            82
+          ],
+          [
+            150,
+            54
+          ],
+          [
+            158,
+            54
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            12,
+            12
+          ],
+          [
+            48,
+            12
+          ],
+          [
+            48,
+            20
+          ],
+          [
+            20,
+            20
+          ],
+          [
+            20,
+            48
+          ],
+          [
+            12,
+            48
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            158,
+            12
+          ],
+          [
+            122,
+            12
+          ],
+          [
+            122,
+            20
+          ],
+          [
+            150,
+            20
+          ],
+          [
+            150,
+            48
+          ],
+          [
+            158,
+            48
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "DEPTH",
+        "color": 7,
+        "lineweight": 0.35,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          220,
+          15
+        ],
+        "p2": [
+          330,
+          87
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            230,
+            15
+          ],
+          [
+            230,
+            87
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            320,
+            15
+          ],
+          [
+            320,
+            87
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.current",
+      "params": {
+        "name": "BRACKETS"
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          230,
+          75
+        ],
+        "radius": 3
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          230,
+          27
+        ],
+        "radius": 3
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          320,
+          75
+        ],
+        "radius": 3
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          320,
+          27
+        ],
+        "radius": 3
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TEXT",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          126
+        ],
+        "text": "CORNER-BRACKET QUALIFICATION MUST MATCH THE REAL FRAME",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          115
+        ],
+        "text": "FRONT VIEW: brackets connect top/bottom boards to the two side boards.",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          225,
+          100
+        ],
+        "text": "DEPTH VIEW",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          218,
+          7
+        ],
+        "text": "front edge",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          302,
+          7
+        ],
+        "text": "rear edge",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          205,
+          -12
+        ],
+        "text": "4-bracket case: front row only",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          205,
+          -22
+        ],
+        "text": "8-bracket case: same 4 connections at front + rear",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -20
+        ],
+        "text": "The CornerBracket component knows only its own local geometry.",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -30
+        ],
+        "text": "The assembly chooses which wood connection and which depth edge each occurrence uses.",
+        "height": 3.2
+      }
+    }
+  ]
+}

@@ -1,0 +1,291 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "SolidCraft joint.create - two joint origins",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "PARTS",
+        "color": 8,
+        "lineweight": 0.35,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          90,
+          60
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          190,
+          0
+        ],
+        "p2": [
+          280,
+          60
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "FRAMES",
+        "color": 1,
+        "lineweight": 0.45,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          90,
+          30
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          190,
+          30
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            90,
+            30
+          ],
+          [
+            130,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            90,
+            30
+          ],
+          [
+            90,
+            68
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            190,
+            30
+          ],
+          [
+            150,
+            30
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            190,
+            30
+          ],
+          [
+            190,
+            68
+          ]
+        ]
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            90,
+            30
+          ],
+          [
+            105,
+            84
+          ]
+        ],
+        "text": "A: occurrence + joint origin"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            190,
+            30
+          ],
+          [
+            205,
+            84
+          ]
+        ],
+        "text": "B: occurrence + joint origin"
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TEXT",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          22,
+          25
+        ],
+        "text": "PARENT",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          213,
+          25
+        ],
+        "text": "CHILD",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          119,
+          33
+        ],
+        "text": "+zA",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          92,
+          65
+        ],
+        "text": "+xA",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          147,
+          33
+        ],
+        "text": "+zB",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          192,
+          65
+        ],
+        "text": "+xB",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          112
+        ],
+        "text": "SOLIDCRAFT JOINT = ORIGIN A + ORIGIN B + RELATION",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          101
+        ],
+        "text": "joint.create(type=..., a=A, b=B, flip?, offset?, angle?/values?)",
+        "height": 3.3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -26
+        ],
+        "text": "Default mate: B +z is turned against A +z, like two faces meeting.",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -36
+        ],
+        "text": "flip=true aligns the two +z directions instead.",
+        "height": 3.2
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -46
+        ],
+        "text": "x controls the spin around z. Without an explicit x, SolidCraft may choose it from z.",
+        "height": 3.2
+      }
+    }
+  ]
+}

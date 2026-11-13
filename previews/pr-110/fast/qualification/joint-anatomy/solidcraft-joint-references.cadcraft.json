@@ -1,0 +1,326 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "SolidCraft joint origins - topology reference versus point frame",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "PARTS",
+        "color": 8,
+        "lineweight": 0.35,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          110,
+          85
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          190,
+          0
+        ],
+        "p2": [
+          300,
+          85
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TOPOLOGY",
+        "color": 3,
+        "lineweight": 0.55,
+        "current": true
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            110,
+            0
+          ],
+          [
+            110,
+            85
+          ]
+        ]
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          110,
+          72
+        ],
+        "radius": 2.4
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          110,
+          42
+        ],
+        "radius": 2.4
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          95,
+          42
+        ],
+        "radius": 2.4
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            110,
+            72
+          ],
+          [
+            135,
+            76
+          ]
+        ],
+        "text": "corner"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            110,
+            42
+          ],
+          [
+            135,
+            48
+          ]
+        ],
+        "text": "edge pick"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            95,
+            42
+          ],
+          [
+            132,
+            30
+          ]
+        ],
+        "text": "on face"
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "POINT",
+        "color": 1,
+        "lineweight": 0.5,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          245,
+          42
+        ],
+        "radius": 2.6
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            245,
+            42
+          ],
+          [
+            285,
+            42
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            245,
+            42
+          ],
+          [
+            245,
+            78
+          ]
+        ]
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            245,
+            42
+          ],
+          [
+            212,
+            25
+          ]
+        ],
+        "text": "point"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          275,
+          46
+        ],
+        "text": "+z",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          248,
+          75
+        ],
+        "text": "+x",
+        "height": 3
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TEXT",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          112
+        ],
+        "text": "WHERE DOES A JOINT FRAME COME FROM?",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          5,
+          96
+        ],
+        "text": "TOPOLOGY-BACKED",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          194,
+          96
+        ],
+        "text": "EXPLICIT POINT FRAME",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -20
+        ],
+        "text": "edge + on + corner: SolidCraft can re-find the selected topology after dimensions change.",
+        "height": 3.1
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          0,
+          -30
+        ],
+        "text": "The selected face/edge supplies orientation; z/x may override it.",
+        "height": 3.1
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          190,
+          -20
+        ],
+        "text": "point gives the position.",
+        "height": 3.1
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          190,
+          -30
+        ],
+        "text": "z and x are optional native inputs, but x fixes the spin around z.",
+        "height": 3.1
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          190,
+          -40
+        ],
+        "text": "If x is omitted, SolidCraft chooses x from z.",
+        "height": 3.1
+      }
+    }
+  ]
+}

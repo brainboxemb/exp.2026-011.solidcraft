@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>SolidCraft joint anatomy · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / SolidCraft joint anatomy</div>
+
+<section class="hero small">
+  <p class="eyebrow">Native CAD concept first</p>
+  <h1>What SolidCraft needs to place two components</h1>
+  <p>Before choosing a Forge API, this page records the native information that
+  SolidCraft itself needs. The purpose is to keep Forge a thin, readable layer
+  instead of teaching it hidden bracket- or corner-specific placement logic.</p>
+  <p class="meta">SolidCraft 0.30.1 · source commit <code>17fb0a3d470a0e5d47b3607d622849b8fdb17038</code></p>
+</section>
+
+<section class="panel">
+  <h2>1. A joint connects two joint origins, not two XYZ points</h2>
+  <p><code>joint.create</code> receives an origin <strong>A</strong>, an origin
+  <strong>B</strong>, and the relationship between them. Each origin identifies an
+  occurrence and a reference on that occurrence. The reference may come from
+  topology such as a face/edge/corner, or from an explicit point/frame.</p>
+
+  <figure class="qualification-setup-diagram">
+    <a href="solidcraft-joint-anatomy.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="solidcraft-joint-anatomy.svg" alt="SolidCraft joint origin A and B with local z and x directions">
+    </a>
+    <figcaption>Native joint anatomy. <a href="solidcraft-joint-anatomy.cadcraft.json">CadCraft source</a> ·
+    <a href="solidcraft-joint-anatomy.dxf">DXF</a></figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Information</th><th>SolidCraft meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>occurrence</code></td><td>Which placed component this joint-origin belongs to.</td></tr>
+      <tr><td>reference</td><td>A face, circle, edge/corner, plane, axis, named origin, or explicit point.</td></tr>
+      <tr><td><code>z</code></td><td>Optional direction of the joint frame's local z axis.</td></tr>
+      <tr><td><code>x</code></td><td>Optional direction fixing the turn/spin around z.</td></tr>
+      <tr><td><code>type</code></td><td>Rigid, planar, revolute, slider, and the other native joint types.</td></tr>
+      <tr><td><code>flip</code></td><td>Controls whether the two z axes oppose each other or align.</td></tr>
+      <tr><td><code>offset</code>, <code>angle</code>, <code>values</code></td><td>Native relation values kept with the joint and re-solved by SolidCraft.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="notice"><strong>Important:</strong> a point origin may omit
+  <code>x</code>, but SolidCraft then chooses x from z. That means the position
+  can be known while the spin around z is not explicitly preserved. For a
+  deliberately oriented point-origin, the frame orientation must therefore be
+  described clearly.</div>
+</section>
+
+<section class="panel">
+  <h2>2. Topology can supply information that a free point cannot</h2>
+  <figure class="qualification-setup-diagram">
+    <a href="solidcraft-joint-references.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="solidcraft-joint-references.svg" alt="Comparison of a topology-backed SolidCraft joint origin and an explicit point frame">
+    </a>
+    <figcaption>Topology-backed reference versus explicit point frame.
+    <a href="solidcraft-joint-references.cadcraft.json">CadCraft source</a> ·
+    <a href="solidcraft-joint-references.dxf">DXF</a></figcaption>
+  </figure>
+
+  <div class="twocol">
+    <div>
+      <h3>Topology-backed origin</h3>
+      <p>An edge/corner origin can contain <code>edge</code>, <code>on</code>
+      and <code>corner</code>. SolidCraft keeps the selected topology by name,
+      so the origin can follow the part when its dimensions change. The selected
+      face/edge also gives SolidCraft geometric orientation information.</p>
+    </div>
+    <div>
+      <h3>Explicit point origin</h3>
+      <p>A point says where the origin is. <code>z</code> can state its normal,
+      and <code>x</code> can fix the remaining spin. These are native
+      SolidCraft frame inputs; Forge currently exposes them too literally in
+      some fixtures, which is the usability issue we are reviewing.</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>3. The corner-bracket use case we actually want</h2>
+  <p>The qualification must mirror the real HUB75-style wood frame. A bracket
+  connects a side board to the top or bottom board. Front/rear only identifies
+  which edge across the cabinet depth receives that same connection; there is
+  no front or rear board involved in this bracket relationship.</p>
+
+  <figure class="qualification-setup-diagram">
+    <a href="corner-bracket-goal.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="corner-bracket-goal.svg" alt="Open wood frame with four corner brackets and front/rear depth rows">
+    </a>
+    <figcaption>Target qualification geometry.
+    <a href="corner-bracket-goal.cadcraft.json">CadCraft source</a> ·
+    <a href="corner-bracket-goal.dxf">DXF</a></figcaption>
+  </figure>
+
+  <ol>
+    <li><strong>4-bracket case:</strong> one neutral <code>CornerBracket</code>
+    component, placed at the four side-to-top/bottom connections on the front edge.</li>
+    <li><strong>8-bracket case:</strong> the same four connections repeated on the rear edge.</li>
+    <li><strong>Later 8-corner/flightcase case:</strong> one true 3D corner component on all eight box corners.</li>
+  </ol>
+
+  <p>The reusable bracket itself owns only its local geometry. It does not know
+  left/right, top/bottom, front/rear, or the cabinet dimensions. Those choices
+  belong to the assembly.</p>
+</section>
+
+<section class="panel">
+  <h2>4. What is still an API design question for Forge?</h2>
+  <p>SolidCraft's native requirement is now clear: both sides of a joint need a
+  usable joint-origin/frame. The unresolved Forge question is only how to express
+  the child component's local reference <em>readably</em> when it is not backed
+  by topology.</p>
+  <ul>
+    <li>Do not make Forge infer how a bracket should rotate from its class name or geometry.</li>
+    <li>Do not put assembly-specific mount knowledge into <code>CornerBracket</code>.</li>
+    <li>Do not force ordinary model code to spell raw basis vectors such as <code>z=(0,-1,0)</code> and <code>x=(1,0,0)</code> unless that low-level control is genuinely wanted.</li>
+    <li>Whatever API we choose must translate directly to SolidCraft's native joint-origin information; no second orientation solver in Python.</li>
+  </ul>
+  <div class="notice"><strong>Next step:</strong> choose the smallest readable
+  Forge expression for that native frame, then qualify it with the 4-bracket
+  case before extending to 8 brackets.</div>
+</section>
+
+<section class="panel">
+  <h2>Native SolidCraft references</h2>
+  <ul>
+    <li><a href="https://docs.solidcraft.io/reference/commands.html">Command reference — joint.origin / joint.create</a></li>
+    <li><a href="https://docs.solidcraft.io/guide/assemblies.html">Components and joints guide</a></li>
+  </ul>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
