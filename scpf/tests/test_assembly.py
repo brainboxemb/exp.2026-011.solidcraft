@@ -947,6 +947,19 @@ class AssemblyTests(unittest.TestCase):
             ["Marker:1", "Marker:2"],
         )
 
+    def test_anchor_frame_accepts_named_axis_directions(self):
+        from scpf import AnchorFrame, AxisDirection
+
+        frame = AnchorFrame(
+            origin=(10, 25, 0),
+            z=AxisDirection.RIGHT,
+            x=AxisDirection.UP,
+        )
+
+        self.assertEqual(frame.origin, (10.0, 25.0, 0.0))
+        self.assertEqual(frame.z, (1.0, 0.0, 0.0))
+        self.assertEqual(frame.x, (0.0, 0.0, 1.0))
+
     def test_unrotated_custom_anchors_are_inlined_per_occurrence(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, Box
