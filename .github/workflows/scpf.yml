@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
           done
@@ -71,7 +71,7 @@ jobs:
           unset PYTHONPATH
           solidcraft-cli --version
           mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-anchor corner-anchor custom-anchor xz-anchor; do
+          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -118,6 +118,43 @@ jobs:
               ((.bbox.min[0] - 50) | fabs) < 0.001 and
               ((.bbox.max[0] - 70) | fabs) < 0.001))
           ' output/native/parametric-attach/measurements-gap-30.json
+
+          # Parametric in-plane offset regression: the first planar value
+          # follows the corner origin's local X direction. On FRONT_TOP_RIGHT
+          # that direction runs down the vertical edge, so a negative value
+          # moves the marker upward. The expression must be re-evaluated when
+          # the saved design parameter changes.
+          jq -e '
+            (all(.bodies[] | select(.name | startswith("Base"));
+              ((.bbox.min[2] - 0) | fabs) < 0.001 and
+              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
+            (all(.bodies[] | select(.name | startswith("Marker"));
+              ((.bbox.min[0] - 10) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001 and
+              ((.bbox.min[2] - 25) | fabs) < 0.001 and
+              ((.bbox.max[2] - 35) | fabs) < 0.001))
+          ' output/native/parametric-offset/measurements.json
+
+          cat > output/native/parametric-offset/change-shift.json <<'JSON'
+          {"commands":[
+            {"command":"parameters.change","params":{
+              "name":"shift","expression":"10 mm"
+            }}
+          ]}
+          JSON
+          solidcraft-cli run output/native/parametric-offset/change-shift.json \
+            --in output/native/parametric-offset/model.sc \
+            --param-check strict \
+            --save output/native/parametric-offset/model-shift-10.sc
+          solidcraft-cli eval output/native/parametric-offset/model-shift-10.sc \
+            --json-out output/native/parametric-offset/measurements-shift-10.json
+          jq -e '
+            (all(.bodies[] | select(.name | startswith("Marker"));
+              ((.bbox.min[0] - 10) | fabs) < 0.001 and
+              ((.bbox.max[0] - 20) | fabs) < 0.001 and
+              ((.bbox.min[2] - 30) | fabs) < 0.001 and
+              ((.bbox.max[2] - 40) | fabs) < 0.001))
+          ' output/native/parametric-offset/measurements-shift-10.json
 
           # Parametric face-anchor regression: the attach reference itself
           # must follow the parent's RIGHT face when its width changes.
