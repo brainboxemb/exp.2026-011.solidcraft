@@ -522,7 +522,7 @@ class AssemblyTests(unittest.TestCase):
             ["width", "depth", "height"],
         )
         self.assertTrue(
-            any(command["command"] == "solid.box" for command in commands)
+            any(command["command"] == "solid.extrude" for command in commands)
         )
 
     def test_decorated_component_is_reused_without_second_wrapper(self):
