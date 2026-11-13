@@ -16,7 +16,7 @@
   <p>Before choosing a Forge API, this page records the native information that
   SolidCraft itself needs. The purpose is to keep Forge a thin, readable layer
   instead of teaching it hidden bracket- or corner-specific placement logic.</p>
-  <p class="meta">SolidCraft 0.30.1 · source commit <code>17fb0a3d470a0e5d47b3607d622849b8fdb17038</code></p>
+  <p class="meta">SolidCraft 0.30.1 · source commit <code>3951c1b09feaab2050d294a8462d7755c2ee2652</code></p>
 </section>
 
 <section class="panel">
@@ -90,13 +90,22 @@
   which edge across the cabinet depth receives that same connection; there is
   no front or rear board involved in this bracket relationship.</p>
 
-  <figure class="qualification-setup-diagram">
+  <figure class="qualification-setup-diagram qualification-technical-large">
     <a href="corner-bracket-goal.svg" class="qualification-image-link" target="_blank" rel="noopener">
-      <img src="corner-bracket-goal.svg" alt="Open wood frame with four corner brackets and front/rear depth rows">
+      <img src="corner-bracket-goal.svg" alt="Front view of four brackets lying on the top, bottom and side boards">
     </a>
-    <figcaption>Target qualification geometry.
+    <figcaption>Front view — bracket material lies on the wood, never in the opening.
     <a href="corner-bracket-goal.cadcraft.json">CadCraft source</a> ·
     <a href="corner-bracket-goal.dxf">DXF</a></figcaption>
+  </figure>
+
+  <figure class="qualification-setup-diagram qualification-technical-large">
+    <a href="corner-bracket-depth.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="corner-bracket-depth.svg" alt="Depth view showing the front bracket row and the repeated rear bracket row">
+    </a>
+    <figcaption>Depth view — four brackets at the front edge; repeat the same four at the rear edge for eight.
+    <a href="corner-bracket-depth.cadcraft.json">CadCraft source</a> ·
+    <a href="corner-bracket-depth.dxf">DXF</a></figcaption>
   </figure>
 
   <ol>

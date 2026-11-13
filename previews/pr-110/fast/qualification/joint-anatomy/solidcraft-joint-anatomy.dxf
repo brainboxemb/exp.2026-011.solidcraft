@@ -21,7 +21,7 @@ $EXTMIN
   9
 $EXTMAX
  10
-280.0
+290.7
  20
 117.0
  30
@@ -581,7 +581,7 @@ AcDbViewportTableRecord
  21
 1.0
  12
-140.0
+145.35
  22
 35.5
  13
@@ -609,7 +609,7 @@ AcDbViewportTableRecord
  37
 0.0
  40
-192.50000000000003
+199.85625
  41
 1.6
  42
@@ -777,7 +777,7 @@ PARTS
   6
 Continuous
 370
-35
+80
 390
 1135
   0
@@ -799,7 +799,7 @@ FRAMES
   6
 Continuous
 370
-45
+80
 390
 1135
   0
@@ -2161,7 +2161,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +zA
   7
@@ -2187,7 +2187,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +xA
   7
@@ -2213,7 +2213,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +zB
   7
@@ -2239,7 +2239,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +xB
   7
@@ -2291,7 +2291,7 @@ AcDbText
  30
 0.0
  40
-3.3
+3.8
   1
 joint.create(type=..., a=A, b=B, flip?, offset?, angle?/values?)
   7
@@ -2317,7 +2317,7 @@ AcDbText
  30
 0.0
  40
-3.2
+3.8
   1
 Default mate: B +z is turned against A +z, like two faces meeting.
   7
@@ -2343,7 +2343,7 @@ AcDbText
  30
 0.0
  40
-3.2
+3.8
   1
 flip=true aligns the two +z directions instead.
   7
@@ -2369,7 +2369,7 @@ AcDbText
  30
 0.0
  40
-3.2
+3.8
   1
 x controls the spin around z. Without an explicit x, SolidCraft may choose it from z.
   7

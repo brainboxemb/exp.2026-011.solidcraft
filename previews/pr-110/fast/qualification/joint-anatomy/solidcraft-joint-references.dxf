@@ -21,7 +21,7 @@ $EXTMIN
   9
 $EXTMAX
  10
-374.14
+415.72
  20
 117.0
  30
@@ -581,7 +581,7 @@ AcDbViewportTableRecord
  21
 1.0
  12
-187.07
+207.86
  22
 38.5
  13
@@ -609,7 +609,7 @@ AcDbViewportTableRecord
  37
 0.0
  40
-257.22125
+285.8075
  41
 1.6
  42
@@ -777,7 +777,7 @@ PARTS
   6
 Continuous
 370
-35
+80
 390
 1137
   0
@@ -799,7 +799,7 @@ TOPOLOGY
   6
 Continuous
 370
-55
+80
 390
 1137
   0
@@ -821,7 +821,7 @@ POINT
   6
 Continuous
 370
-50
+80
 390
 1137
   0
@@ -2579,7 +2579,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +z
   7
@@ -2605,7 +2605,7 @@ AcDbText
  30
 0.0
  40
-3.0
+3.8
   1
 +x
   7
@@ -2709,7 +2709,7 @@ AcDbText
  30
 0.0
  40
-3.1
+3.8
   1
 edge + on + corner: SolidCraft can re-find the selected topology after dimensions change.
   7
@@ -2735,7 +2735,7 @@ AcDbText
  30
 0.0
  40
-3.1
+3.8
   1
 The selected face/edge supplies orientation; z/x may override it.
   7
@@ -2761,7 +2761,7 @@ AcDbText
  30
 0.0
  40
-3.1
+3.8
   1
 point gives the position.
   7
@@ -2787,7 +2787,7 @@ AcDbText
  30
 0.0
  40
-3.1
+3.8
   1
 z and x are optional native inputs, but x fixes the spin around z.
   7
@@ -2813,7 +2813,7 @@ AcDbText
  30
 0.0
  40
-3.1
+3.8
   1
 If x is omitted, SolidCraft chooses x from z.
   7

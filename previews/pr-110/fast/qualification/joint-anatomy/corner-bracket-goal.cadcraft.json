@@ -1,13 +1,13 @@
 {
   "cadcraft_version": "0.20.1",
-  "title": "Qualification goal - corner brackets on an open wood frame",
+  "title": "Corner brackets - front view on the wood frame",
   "commands": [
     {
       "command": "layer.new",
       "params": {
         "name": "WOOD",
         "color": 8,
-        "lineweight": 0.4,
+        "lineweight": 1,
         "current": true
       }
     },
@@ -21,7 +21,8 @@
         "p2": [
           170,
           102
-        ]
+        ],
+        "width": 0.7
       }
     },
     {
@@ -34,7 +35,8 @@
         "p2": [
           170,
           12
-        ]
+        ],
+        "width": 0.7
       }
     },
     {
@@ -47,7 +49,8 @@
         "p2": [
           12,
           90
-        ]
+        ],
+        "width": 0.7
       }
     },
     {
@@ -60,15 +63,209 @@
         "p2": [
           170,
           90
+        ],
+        "width": 0.7
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKET_FILL",
+        "color": 5,
+        "lineweight": 0.8,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            54
+          ],
+          [
+            12,
+            54
+          ],
+          [
+            0,
+            102
+          ],
+          [
+            12,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            12,
+            90
+          ],
+          [
+            48,
+            90
+          ],
+          [
+            12,
+            102
+          ],
+          [
+            48,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            158,
+            54
+          ],
+          [
+            170,
+            54
+          ],
+          [
+            158,
+            102
+          ],
+          [
+            170,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            122,
+            90
+          ],
+          [
+            158,
+            90
+          ],
+          [
+            122,
+            102
+          ],
+          [
+            158,
+            102
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            0,
+            48
+          ],
+          [
+            12,
+            48
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            12,
+            0
+          ],
+          [
+            48,
+            0
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            48,
+            12
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            158,
+            0
+          ],
+          [
+            170,
+            0
+          ],
+          [
+            158,
+            48
+          ],
+          [
+            170,
+            48
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            122,
+            0
+          ],
+          [
+            158,
+            0
+          ],
+          [
+            122,
+            12
+          ],
+          [
+            158,
+            12
+          ]
         ]
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "BRACKETS",
-        "color": 3,
-        "lineweight": 0.55,
+        "name": "BRACKET_OUTLINE",
+        "color": 5,
+        "lineweight": 1.2,
         "current": true
       }
     },
@@ -77,6 +274,14 @@
       "params": {
         "vertices": [
           [
+            0,
+            54
+          ],
+          [
+            12,
+            54
+          ],
+          [
             12,
             90
           ],
@@ -86,22 +291,15 @@
           ],
           [
             48,
-            82
+            102
           ],
           [
-            20,
-            82
-          ],
-          [
-            20,
-            54
-          ],
-          [
-            12,
-            54
+            0,
+            102
           ]
         ],
-        "closed": true
+        "closed": true,
+        "width": 0.8
       }
     },
     {
@@ -109,6 +307,14 @@
       "params": {
         "vertices": [
           [
+            170,
+            54
+          ],
+          [
+            158,
+            54
+          ],
+          [
             158,
             90
           ],
@@ -118,28 +324,29 @@
           ],
           [
             122,
-            82
+            102
           ],
           [
-            150,
-            82
-          ],
-          [
-            150,
-            54
-          ],
-          [
-            158,
-            54
+            170,
+            102
           ]
         ],
-        "closed": true
+        "closed": true,
+        "width": 0.8
       }
     },
     {
       "command": "pline",
       "params": {
         "vertices": [
+          [
+            0,
+            48
+          ],
+          [
+            12,
+            48
+          ],
           [
             12,
             12
@@ -150,22 +357,15 @@
           ],
           [
             48,
-            20
+            0
           ],
           [
-            20,
-            20
-          ],
-          [
-            20,
-            48
-          ],
-          [
-            12,
-            48
+            0,
+            0
           ]
         ],
-        "closed": true
+        "closed": true,
+        "width": 0.8
       }
     },
     {
@@ -173,6 +373,14 @@
       "params": {
         "vertices": [
           [
+            170,
+            48
+          ],
+          [
+            158,
+            48
+          ],
+          [
             158,
             12
           ],
@@ -182,120 +390,88 @@
           ],
           [
             122,
-            20
+            0
           ],
           [
-            150,
-            20
-          ],
-          [
-            150,
-            48
-          ],
-          [
-            158,
-            48
+            170,
+            0
           ]
         ],
-        "closed": true
+        "closed": true,
+        "width": 0.8
       }
     },
     {
       "command": "layer.new",
       "params": {
-        "name": "DEPTH",
+        "name": "CALLOUT",
         "color": 7,
-        "lineweight": 0.35,
+        "lineweight": 0.65,
         "current": true
       }
     },
     {
-      "command": "rectang",
-      "params": {
-        "p1": [
-          220,
-          15
-        ],
-        "p2": [
-          330,
-          87
-        ]
-      }
-    },
-    {
-      "command": "line",
+      "command": "mleader",
       "params": {
         "points": [
           [
-            230,
-            15
+            20,
+            96
           ],
           [
-            230,
-            87
+            -62,
+            116
           ]
-        ]
+        ],
+        "text": "1  TOP + LEFT"
       }
     },
     {
-      "command": "line",
+      "command": "mleader",
       "params": {
         "points": [
           [
-            320,
-            15
+            150,
+            96
           ],
           [
-            320,
-            87
+            190,
+            116
           ]
-        ]
-      }
-    },
-    {
-      "command": "layer.current",
-      "params": {
-        "name": "BRACKETS"
-      }
-    },
-    {
-      "command": "circle",
-      "params": {
-        "center": [
-          230,
-          75
         ],
-        "radius": 3
+        "text": "2  TOP + RIGHT"
       }
     },
     {
-      "command": "circle",
+      "command": "mleader",
       "params": {
-        "center": [
-          230,
-          27
+        "points": [
+          [
+            20,
+            6
+          ],
+          [
+            -62,
+            -15
+          ]
         ],
-        "radius": 3
+        "text": "3  BOTTOM + LEFT"
       }
     },
     {
-      "command": "circle",
+      "command": "mleader",
       "params": {
-        "center": [
-          320,
-          75
+        "points": [
+          [
+            150,
+            6
+          ],
+          [
+            190,
+            -15
+          ]
         ],
-        "radius": 3
-      }
-    },
-    {
-      "command": "circle",
-      "params": {
-        "center": [
-          320,
-          27
-        ],
-        "radius": 3
+        "text": "4  BOTTOM + RIGHT"
       }
     },
     {
@@ -303,6 +479,7 @@
       "params": {
         "name": "TEXT",
         "color": 7,
+        "lineweight": 0.5,
         "current": true
       }
     },
@@ -310,32 +487,21 @@
       "command": "text",
       "params": {
         "at": [
-          0,
-          126
+          -62,
+          142
         ],
-        "text": "CORNER-BRACKET QUALIFICATION MUST MATCH THE REAL FRAME",
-        "height": 5
+        "text": "4 CORNER BRACKETS - FRONT ROW",
+        "height": 7
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          0,
-          115
+          -62,
+          130
         ],
-        "text": "FRONT VIEW: brackets connect top/bottom boards to the two side boards.",
-        "height": 3.2
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          225,
-          100
-        ],
-        "text": "DEPTH VIEW",
+        "text": "The blue L-brackets sit ON the wood. The opening stays completely free.",
         "height": 4
       }
     },
@@ -343,66 +509,35 @@
       "command": "text",
       "params": {
         "at": [
-          218,
-          7
+          32,
+          48
         ],
-        "text": "front edge",
-        "height": 3
+        "text": "OPENING",
+        "height": 8,
+        "justify": "C"
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          302,
-          7
+          85,
+          39
         ],
-        "text": "rear edge",
-        "height": 3
+        "text": "no bracket material here",
+        "height": 3.5,
+        "justify": "C"
       }
     },
     {
       "command": "text",
       "params": {
         "at": [
-          205,
-          -12
+          -62,
+          -38
         ],
-        "text": "4-bracket case: front row only",
-        "height": 3.2
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          205,
-          -22
-        ],
-        "text": "8-bracket case: same 4 connections at front + rear",
-        "height": 3.2
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          -20
-        ],
-        "text": "The CornerBracket component knows only its own local geometry.",
-        "height": 3.2
-      }
-    },
-    {
-      "command": "text",
-      "params": {
-        "at": [
-          0,
-          -30
-        ],
-        "text": "The assembly chooses which wood connection and which depth edge each occurrence uses.",
-        "height": 3.2
+        "text": "Each bracket connects one side board to the top or bottom board.",
+        "height": 4
       }
     }
   ]

@@ -7,7 +7,7 @@
       "params": {
         "name": "PARTS",
         "color": 8,
-        "lineweight": 0.35,
+        "lineweight": 0.8,
         "current": true
       }
     },
@@ -42,7 +42,7 @@
       "params": {
         "name": "TOPOLOGY",
         "color": 3,
-        "lineweight": 0.55,
+        "lineweight": 0.8,
         "current": true
       }
     },
@@ -144,7 +144,7 @@
       "params": {
         "name": "POINT",
         "color": 1,
-        "lineweight": 0.5,
+        "lineweight": 0.8,
         "current": true
       }
     },
@@ -212,7 +212,7 @@
           46
         ],
         "text": "+z",
-        "height": 3
+        "height": 3.8
       }
     },
     {
@@ -223,7 +223,7 @@
           75
         ],
         "text": "+x",
-        "height": 3
+        "height": 3.8
       }
     },
     {
@@ -275,7 +275,7 @@
           -20
         ],
         "text": "edge + on + corner: SolidCraft can re-find the selected topology after dimensions change.",
-        "height": 3.1
+        "height": 3.8
       }
     },
     {
@@ -286,7 +286,7 @@
           -30
         ],
         "text": "The selected face/edge supplies orientation; z/x may override it.",
-        "height": 3.1
+        "height": 3.8
       }
     },
     {
@@ -297,7 +297,7 @@
           -20
         ],
         "text": "point gives the position.",
-        "height": 3.1
+        "height": 3.8
       }
     },
     {
@@ -308,7 +308,7 @@
           -30
         ],
         "text": "z and x are optional native inputs, but x fixes the spin around z.",
-        "height": 3.1
+        "height": 3.8
       }
     },
     {
@@ -319,7 +319,7 @@
           -40
         ],
         "text": "If x is omitted, SolidCraft chooses x from z.",
-        "height": 3.1
+        "height": 3.8
       }
     }
   ]
