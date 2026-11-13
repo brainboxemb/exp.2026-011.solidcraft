@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from qualification.expectations import EXPECTED_BOUNDS
+from qualification.expectations import EXPECTED_BOUNDS, EXPECTED_VISUAL_BOXES
 
 
 BOX_EDGES = (
@@ -135,11 +135,12 @@ def render(case, camera_path, actual_path, goal_path, overlay_path):
     actual = Image.open(actual_path).convert("RGBA")
 
     goal = Image.new("RGBA", actual.size, (248, 250, 253, 255))
-    _draw_expected(goal, camera, EXPECTED_BOUNDS[case])
+    expected = EXPECTED_VISUAL_BOXES.get(case, EXPECTED_BOUNDS[case])
+    _draw_expected(goal, camera, expected)
     goal.convert("RGB").save(goal_path)
 
     overlay = actual.copy()
-    _draw_expected(overlay, camera, EXPECTED_BOUNDS[case])
+    _draw_expected(overlay, camera, expected)
     overlay.convert("RGB").save(overlay_path)
 
 
