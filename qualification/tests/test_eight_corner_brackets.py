@@ -66,17 +66,38 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 8)
 
-        for index, (joint, corner) in enumerate(
-            zip(joints, EXPECTED_CORNERS),
+        origins = {
+            row["params"]["name"]: row["params"]
+            for row in commands
+            if row["command"] == "joint.origin"
+        }
+        expected_parent_names = [
+            "FrameBlock:1.front_top_left",
+            "FrameBlock:1.front_top_right",
+            "FrameBlock:1.front_bottom_right",
+            "FrameBlock:1.front_bottom_left",
+            "FrameBlock:1.back_top_left",
+            "FrameBlock:1.back_top_right",
+            "FrameBlock:1.back_bottom_right",
+            "FrameBlock:1.back_bottom_left",
+        ]
+        self.assertEqual(
+            [joint["a"] for joint in joints],
+            expected_parent_names,
+        )
+
+        for index, (joint, corner, origin_name) in enumerate(
+            zip(joints, EXPECTED_CORNERS, expected_parent_names),
             1,
         ):
             self.assertEqual(joint["type"], "rigid")
             self.assertEqual(joint["angle"], 0)
-            self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
-            self.assertEqual(joint["a"]["corner"], corner)
+            self.assertEqual(origins[origin_name]["occurrence"], "FrameBlock:1")
+            self.assertEqual(origins[origin_name]["corner"], corner)
             self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
-            self.assertEqual(joint["b"]["z"], [0, -1, 0])
-            self.assertEqual(joint["b"]["x"], [1, 0, 0])
+            self.assertEqual(joint["b"]["point"], corner)
+            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
+            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
