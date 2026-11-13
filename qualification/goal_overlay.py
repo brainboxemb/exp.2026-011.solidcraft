@@ -101,12 +101,6 @@ def _draw_expected(image, camera, expected, *, labels=True):
         # Alternate two strong line styles so neighbouring expected boxes remain
         # distinguishable without relying on the current SolidCraft body colours.
         line = (20, 110, 235, 230) if index % 2 == 0 else (0, 155, 110, 230)
-        fill = (20, 110, 235, 18) if index % 2 == 0 else (0, 155, 110, 18)
-
-        xs = [point[0] for point in points]
-        ys = [point[1] for point in points]
-        draw.rectangle((min(xs), min(ys), max(xs), max(ys)), fill=fill)
-
         for a, b in BOX_EDGES:
             draw.line((points[a], points[b]), fill=line, width=3)
 
