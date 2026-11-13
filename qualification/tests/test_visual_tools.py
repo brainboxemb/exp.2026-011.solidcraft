@@ -5,6 +5,7 @@ from io import BytesIO
 import json
 import sys
 import tempfile
+import zlib
 import unittest
 
 from PIL import Image
@@ -66,6 +67,18 @@ class QualificationCameraTests(unittest.TestCase):
 
         self.assertEqual(reference.size, REFERENCE_SIZE)
         self.assertEqual(reference.mode, "L")
+
+    def test_compressed_pixel_baseline_decodes(self):
+        pixels = bytes([123]) * (REFERENCE_SIZE[0] * REFERENCE_SIZE[1])
+        reference = decode_reference({
+            "pixels_zlib_base64": base64.b64encode(
+                zlib.compress(pixels, 9)
+            ).decode("ascii")
+        })
+
+        self.assertEqual(reference.size, REFERENCE_SIZE)
+        self.assertEqual(reference.mode, "L")
+        self.assertEqual(reference.getpixel((0, 0)), 123)
 
     def test_overlay_keeps_actual_image_visible(self):
         with tempfile.TemporaryDirectory() as tmp:
