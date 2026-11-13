@@ -84,6 +84,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./output/site
-          destination_dir: previews/pr-${{ github.event.pull_request.number }}
+          destination_dir: previews/pr-${{ github.event.pull_request.number }}/fast
           keep_files: true
-          commit_message: "Preview PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
+          commit_message: "Fast preview PR #${{ github.event.pull_request.number }} at ${{ github.sha }}"
