@@ -177,16 +177,8 @@ jobs:
           solidcraft-cli eval output/native/parameter-scope/model-shared-width-100.sc \
             --json-out output/native/parameter-scope/measurements-shared-width-100.json
 
-          # Parametric attachment regression: edit the saved native design,
-          # not the Python model. The rigid attachment must re-solve from gap.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 30) | fabs) < 0.001 and
-              ((.bbox.max[0] - 50) | fabs) < 0.001))
-          ' output/native/parametric-attach/measurements.json
+          # Produce saved-design mutation evidence. Geometry correctness is
+          # evaluated centrally by qualification/native_validation.py.
 
           cat > output/native/parametric-attach/change-gap.json <<'JSON'
           {"commands":[
@@ -201,26 +193,6 @@ jobs:
             --save output/native/parametric-attach/model-gap-30.sc
           solidcraft-cli eval output/native/parametric-attach/model-gap-30.sc \
             --json-out output/native/parametric-attach/measurements-gap-30.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 50) | fabs) < 0.001 and
-              ((.bbox.max[0] - 70) | fabs) < 0.001))
-          ' output/native/parametric-attach/measurements-gap-30.json
-
-          # Parametric in-plane offset regression: on FRONT_TOP_RIGHT the
-          # second planar value follows the vertical corner edge. A negative
-          # value moves outward/upward. Keep it as a parameter expression so
-          # editing the saved design re-solves the joint.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 25) | fabs) < 0.001 and
-              ((.bbox.max[2] - 35) | fabs) < 0.001))
-          ' output/native/parametric-offset/measurements.json
 
           cat > output/native/parametric-offset/change-shift.json <<'JSON'
           {"commands":[
@@ -235,24 +207,6 @@ jobs:
             --save output/native/parametric-offset/model-shift-10.sc
           solidcraft-cli eval output/native/parametric-offset/model-shift-10.sc \
             --json-out output/native/parametric-offset/measurements-shift-10.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 30) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001))
-          ' output/native/parametric-offset/measurements-shift-10.json
-
-          # Parametric face-anchor regression: the attach reference itself
-          # must follow the parent's RIGHT face when its width changes.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001))
-          ' output/native/parametric-anchor/measurements.json
 
           cat > output/native/parametric-anchor/change-base-width.json <<'JSON'
           {"commands":[
@@ -267,30 +221,6 @@ jobs:
             --save output/native/parametric-anchor/model-width-80.sc
           solidcraft-cli eval output/native/parametric-anchor/model-width-80.sc \
             --json-out output/native/parametric-anchor/measurements-width-80.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Block"));
-              ((.bbox.min[0] - 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 60) | fabs) < 0.001))
-          ' output/native/parametric-anchor/measurements-width-80.json
-
-          # Native corner-anchor regression: the marker is attached to the
-          # Base's FRONT_TOP_RIGHT corner. Changing both width and height in
-          # the saved design must move that corner, and the marker with it.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 10) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 20) | fabs) < 0.001 and
-              ((.bbox.max[2] - 30) | fabs) < 0.001))
-          ' output/native/corner-anchor/measurements.json
 
           cat > output/native/corner-anchor/change-size.json <<'JSON'
           {"commands":[
@@ -308,61 +238,6 @@ jobs:
             --save output/native/corner-anchor/model-size-80x40.sc
           solidcraft-cli eval output/native/corner-anchor/model-size-80x40.sc \
             --json-out output/native/corner-anchor/measurements-size-80x40.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Base"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] - 30) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 40) | fabs) < 0.001 and
-              ((.bbox.max[2] - 50) | fabs) < 0.001))
-          ' output/native/corner-anchor/measurements-size-80x40.json
-
-          # Custom component-anchor regression: Arm:1.tip is authored while
-          # the occurrence is at identity, then the Arm rotates 90 degrees
-          # about Z. The named SolidCraft joint origin must rotate with it and
-          # place Marker at the rotated tip (0, 20, 5).
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Arm"));
-              ((.bbox.min[0] + 5) | fabs) < 0.001 and
-              ((.bbox.max[0] - 5) | fabs) < 0.001 and
-              ((.bbox.min[1] + 20) | fabs) < 0.001 and
-              ((.bbox.max[1] - 20) | fabs) < 0.001)) and
-            (all(.bodies[] | select(.name | startswith("Marker"));
-              ((.bbox.min[0] + 5) | fabs) < 0.001 and
-              ((.bbox.max[0] - 5) | fabs) < 0.001 and
-              ((.bbox.min[1] - 15) | fabs) < 0.001 and
-              ((.bbox.max[1] - 25) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 10) | fabs) < 0.001))
-          ' output/native/custom-anchor/measurements.json
-
-          # XZ rectangular component regression: markers are attached to
-          # both FRONT_TOP corners. Their local frames are mirrored, so check
-          # each side separately before changing the saved design.
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Board"));
-              ((.bbox.min[0] + 20) | fabs) < 0.001 and
-              ((.bbox.max[0] - 20) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 20) | fabs) < 0.001)) and
-            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.min[0] > 0
-              and ((.bbox.min[0] - 10) | fabs) < 0.001
-              and ((.bbox.max[0] - 20) | fabs) < 0.001
-              and ((.bbox.min[2] - 20) | fabs) < 0.001
-              and ((.bbox.max[2] - 30) | fabs) < 0.001)] | length) == 1 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.max[0] < 0
-              and ((.bbox.min[0] + 30) | fabs) < 0.001
-              and ((.bbox.max[0] + 20) | fabs) < 0.001
-              and ((.bbox.min[2] - 10) | fabs) < 0.001
-              and ((.bbox.max[2] - 20) | fabs) < 0.001)] | length) == 1
-          ' output/native/xz-anchor/measurements.json
 
           cat > output/native/xz-anchor/change-size.json <<'JSON'
           {"commands":[
@@ -380,44 +255,15 @@ jobs:
             --save output/native/xz-anchor/model-size-80x40.sc
           solidcraft-cli eval output/native/xz-anchor/model-size-80x40.sc \
             --json-out output/native/xz-anchor/measurements-size-80x40.json
-          jq -e '
-            (all(.bodies[] | select(.name | startswith("Board"));
-              ((.bbox.min[0] + 40) | fabs) < 0.001 and
-              ((.bbox.max[0] - 40) | fabs) < 0.001 and
-              ((.bbox.min[2] - 0) | fabs) < 0.001 and
-              ((.bbox.max[2] - 40) | fabs) < 0.001)) and
-            ([.bodies[] | select(.name | startswith("Marker"))] | length) == 2 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.min[0] > 0
-              and ((.bbox.min[0] - 30) | fabs) < 0.001
-              and ((.bbox.max[0] - 40) | fabs) < 0.001
-              and ((.bbox.min[2] - 40) | fabs) < 0.001
-              and ((.bbox.max[2] - 50) | fabs) < 0.001)] | length) == 1 and
-            ([.bodies[] | select((.name | startswith("Marker"))
-              and .bbox.max[0] < 0
-              and ((.bbox.min[0] + 50) | fabs) < 0.001
-              and ((.bbox.max[0] + 40) | fabs) < 0.001
-              and ((.bbox.min[2] - 30) | fabs) < 0.001
-              and ((.bbox.max[2] - 40) | fabs) < 0.001)] | length) == 1
-          ' output/native/xz-anchor/measurements-size-80x40.json
-
-          # Re-run the same standard qualification suite with native evidence
-          # enabled. Native TestCase classes are skipped in the fast PR run and
-          # become active here.
-          SCPF_NATIVE_ROOT="$GITHUB_WORKSPACE/output/native" \
-          SCPF_SOLIDCRAFT_VERSION="$SOLIDCRAFT_VERSION" \
-          python -m unittest discover \
-            -s "$GITHUB_WORKSPACE/qualification/tests" -v 2>&1 \
-            | tee output/qualification/q3-q5-python-qualification-tests.txt
 
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
-          printf "parameter-scope\tshared_width 80 -> 100 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "four-corner-l\tFrameBlock 120x80 -> 160x120 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parameter-scope\tshared_width 80 -> 100 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "four-corner-l\tFrameBlock 120x80 -> 160x120 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-attach\tgap 10 -> 30 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-offset\tshift 5 -> 10 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
 
           python qualification/native_validation.py \
             --native-root output/native \
