@@ -1,5 +1,5 @@
 {
-  "library_commit": "1bb75920ab8ff60bd3e8a5278cd687748a0997d2",
+  "library_commit": "2368825562125e47c89dd24c86c79e427fd4cb4c",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -827,9 +827,9 @@
       "parameter_count": 2
     },
     "four-corner-l": {
-      "title": "One L-profile on all four front corners",
-      "status": "PASS",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
+      "title": "External L-bracket on all four front corners",
+      "status": "FAIL",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 FAIL \u00b7 Q5 FAIL \u00b7 Q6 REVIEW",
       "command_count": 26,
       "native_evidence": [
         "results.json",
@@ -855,21 +855,18 @@
         "model-front.png",
         "goal-front.png",
         "overlay-front.png",
-        "visual-diff-front.png",
         "model-right.png",
         "goal-right.png",
         "overlay-right.png",
-        "visual-diff-right.png",
         "model-iso.png",
         "goal-iso.png",
         "overlay-iso.png",
-        "visual-diff-iso.png",
         "model-size-160x120-front.png",
         "model-size-160x120-iso.png",
         "model-size-160x120-right.png",
         "model-size-160x120.png"
       ],
-      "qualification_status": "pass",
+      "qualification_status": "fail",
       "levels": {
         "q1": {
           "status": "pass",
@@ -894,7 +891,7 @@
           ]
         },
         "q4": {
-          "status": "pass",
+          "status": "fail",
           "evidence": [
             "joint-inspect-size-160x120.json",
             "joint-inspect.json",
@@ -904,7 +901,7 @@
           ]
         },
         "q5": {
-          "status": "pass",
+          "status": "fail",
           "required": true,
           "mutation": "FrameBlock 120x80 -> 160x120 mm",
           "evidence": [
@@ -914,7 +911,7 @@
           ]
         },
         "q6": {
-          "status": "pass",
+          "status": "review",
           "images": [
             "model.png",
             "goal-front.png",
@@ -929,15 +926,9 @@
             "model-size-160x120.png",
             "overlay-front.png",
             "overlay-iso.png",
-            "overlay-right.png",
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png"
+            "overlay-right.png"
           ],
           "evidence": [
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png",
             "visual-validation.json"
           ]
         }

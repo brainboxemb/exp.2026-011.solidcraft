@@ -39,22 +39,22 @@
       "volume_mm3": 576000.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 2272.0,
       "bbox": {
         "max": [
           -40.0,
-          -3.0,
+          -11.0,
           120.0
         ],
         "min": [
           -80.0,
-          -27.0,
+          -15.0,
           80.0
         ]
       },
       "center_of_mass": [
         -65.76470588235294,
-        -15.0,
+        -13.0,
         105.76470588235294
       ],
       "closed": true,
@@ -70,29 +70,29 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 4.21056,
       "material": "Default",
       "name": "LBracket",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 3264.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 2272.0,
       "bbox": {
         "max": [
           80.0,
-          -3.0,
+          -11.0,
           120.0
         ],
         "min": [
           40.0,
-          -27.0,
+          -15.0,
           80.0
         ]
       },
       "center_of_mass": [
         65.76470588235294,
-        -15.0,
+        -13.0,
         105.76470588235294
       ],
       "closed": true,
@@ -108,29 +108,29 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 4.21056,
       "material": "Default",
       "name": "LBracket (LBracket:2)",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 3264.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 2272.0,
       "bbox": {
         "max": [
           80.0,
-          -3.0,
+          -11.0,
           40.0
         ],
         "min": [
           40.0,
-          -27.0,
+          -15.0,
           0.0
         ]
       },
       "center_of_mass": [
         65.76470588235294,
-        -15.0,
+        -13.0,
         14.235294117647058
       ],
       "closed": true,
@@ -146,29 +146,29 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 4.21056,
       "material": "Default",
       "name": "LBracket (LBracket:3)",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 3264.0
     },
     {
-      "area_mm2": 5472.0,
+      "area_mm2": 2272.0,
       "bbox": {
         "max": [
           -40.0,
-          -3.0,
+          -11.0,
           40.0
         ],
         "min": [
           -80.0,
-          -27.0,
+          -15.0,
           0.0
         ]
       },
       "center_of_mass": [
         -65.76470588235294,
-        -15.0,
+        -13.0,
         14.235294117647058
       ],
       "closed": true,
@@ -184,11 +184,11 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 25.263360000000002,
+      "mass_g": 4.21056,
       "material": "Default",
       "name": "LBracket (LBracket:4)",
       "vertices": 12,
-      "volume_mm3": 19584.0
+      "volume_mm3": 3264.0
     }
   ],
   "body_count": 5,
@@ -240,7 +240,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.149429,
+      "ms": 0.18911199999999997,
       "name": "FrameBlock footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -254,7 +254,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.6639839999999999,
+      "ms": 1.084085,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -268,7 +268,7 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.073588,
+      "ms": 0.15781799999999999,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -282,7 +282,7 @@
       },
       "error": null,
       "id": 8,
-      "ms": 0.34770999999999996,
+      "ms": 1.022121,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,
@@ -291,12 +291,12 @@
     }
   ],
   "total": {
-    "area_mm2": 77088.0,
+    "area_mm2": 64288.0,
     "edges": 84,
     "faces": 38,
-    "mass_g": 844.0934400000001,
+    "mass_g": 759.8822399999999,
     "open_bodies_skipped": 0,
     "vertices": 56,
-    "volume_mm3": 654336.0
+    "volume_mm3": 589056.0
   }
 }

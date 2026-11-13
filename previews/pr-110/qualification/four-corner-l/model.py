@@ -11,9 +11,26 @@ class FrameBlock:
 
 
 class LBracket:
-    WIDTH = 24.0
+    THICKNESS = 4.0
     ARM_LENGTH = 40.0
     ARM_HEIGHT = 12.0
+
+    def anchors(self):
+        return {
+            # Physical mounting datum of the bracket:
+            #
+            # origin: outside corner of the L that touches the frame corner.
+            # z:      points out of the frame's front face (-Y).
+            # x:      follows the horizontal arm of the L (+X).
+            #
+            # The parent corner anchor supplies the rotation/mirroring needed
+            # for top-left, top-right, bottom-right and bottom-left.
+            "mount": AnchorFrame(
+                origin=(0, 0, 0),
+                z=(0, -1, 0),
+                x=(1, 0, 0),
+            ),
+        }
 
     def build(self):
         profile = Polygon2D(
@@ -27,9 +44,12 @@ class LBracket:
             ],
             plane="XZ",
         )
+        # The bracket is a flat plate on the outside of the front face.
+        # Its attachment frame points toward -Y, so a negative extrusion keeps
+        # the complete 4 mm plate outside the parent instead of straddling it.
         return profile.extrude(
-            self.WIDTH,
-            direction=Direction.SYMMETRIC,
+            self.THICKNESS,
+            direction=Direction.NEGATIVE,
         )
 
 
@@ -38,37 +58,28 @@ class FourCornerL:
         frame = FrameBlock()
         bracket = LBracket()
 
-        # The neutral L occupies +X and -Z from this local corner. Its
-        # attachment normal is +Y. The parent corner frame must rotate those
-        # two in-plane directions to the two inward edges at each corner.
-        mount = AnchorFrame(
-            origin=(0, 0, 0),
-            z=(0, -1, 0),
-            x=(1, 0, 0),
-        )
-
         top_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
-            child=mount,
+            child="mount",
             angle=0,
         )
         top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
-            child=mount,
+            child="mount",
             angle=0,
         )
         bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=mount,
+            child="mount",
             angle=0,
         )
         bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=mount,
+            child="mount",
             angle=0,
         )
 

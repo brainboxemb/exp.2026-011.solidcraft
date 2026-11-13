@@ -1,51 +1,136 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · One L-profile on all four front corners · SCPF Python library</title>
+<title>Qualification · External L-bracket on all four front corners · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
 <nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / One L-profile on all four front corners</div>
+<div class="crumb"><a href="../">← Qualification</a> / External L-bracket on all four front corners</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
-  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 · Q6</span></div>
-  <h1>One L-profile on all four front corners</h1>
-  <p>Verify that one directional L-profile and one child AnchorFrame are oriented correctly at all four front corners, then remain attached when the parent width and height change in the saved native design.</p>
+  <div class="qualification-status-line"><span class="qualification-status fail">FAIL</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 FAIL · Q5 FAIL · Q6 REVIEW</span></div>
+  <h1>External L-bracket on all four front corners</h1>
 </section>
 
-<div class="qualification-gallery"><figure class="qualification-image"><img src="model.png" alt="One L-profile on all four front corners native SolidCraft evidence 1" loading="lazy"><figcaption>Native baseline render.</figcaption></figure><figure class="qualification-image"><img src="model-front.png" alt="One L-profile on all four front corners native SolidCraft evidence 2" loading="lazy"><figcaption>Actual SolidCraft front view.</figcaption></figure><figure class="qualification-image"><img src="goal-front.png" alt="One L-profile on all four front corners native SolidCraft evidence 3" loading="lazy"><figcaption>Expected/goal geometry in the same front camera.</figcaption></figure><figure class="qualification-image"><img src="overlay-front.png" alt="One L-profile on all four front corners native SolidCraft evidence 4" loading="lazy"><figcaption>Actual front render with expected geometry overlaid.</figcaption></figure><figure class="qualification-image"><img src="visual-diff-front.png" alt="One L-profile on all four front corners native SolidCraft evidence 5" loading="lazy"><figcaption>Visual regression diff for the front view.</figcaption></figure><figure class="qualification-image"><img src="model-right.png" alt="One L-profile on all four front corners native SolidCraft evidence 6" loading="lazy"><figcaption>Actual SolidCraft right view.</figcaption></figure><figure class="qualification-image"><img src="goal-right.png" alt="One L-profile on all four front corners native SolidCraft evidence 7" loading="lazy"><figcaption>Expected/goal geometry in the same right camera.</figcaption></figure><figure class="qualification-image"><img src="overlay-right.png" alt="One L-profile on all four front corners native SolidCraft evidence 8" loading="lazy"><figcaption>Actual right render with expected geometry overlaid.</figcaption></figure><figure class="qualification-image"><img src="visual-diff-right.png" alt="One L-profile on all four front corners native SolidCraft evidence 9" loading="lazy"><figcaption>Visual regression diff for the right view.</figcaption></figure><figure class="qualification-image"><img src="model-iso.png" alt="One L-profile on all four front corners native SolidCraft evidence 10" loading="lazy"><figcaption>Actual SolidCraft iso view.</figcaption></figure><figure class="qualification-image"><img src="goal-iso.png" alt="One L-profile on all four front corners native SolidCraft evidence 11" loading="lazy"><figcaption>Expected/goal geometry in the same iso camera.</figcaption></figure><figure class="qualification-image"><img src="overlay-iso.png" alt="One L-profile on all four front corners native SolidCraft evidence 12" loading="lazy"><figcaption>Actual iso render with expected geometry overlaid.</figcaption></figure><figure class="qualification-image"><img src="visual-diff-iso.png" alt="One L-profile on all four front corners native SolidCraft evidence 13" loading="lazy"><figcaption>Visual regression diff for the iso view.</figcaption></figure><figure class="qualification-image"><img src="model-size-160x120-front.png" alt="One L-profile on all four front corners native SolidCraft evidence 14" loading="lazy"><figcaption>Additional native evidence: model-size-160x120-front.png.</figcaption></figure><figure class="qualification-image"><img src="model-size-160x120-iso.png" alt="One L-profile on all four front corners native SolidCraft evidence 15" loading="lazy"><figcaption>Additional native evidence: model-size-160x120-iso.png.</figcaption></figure><figure class="qualification-image"><img src="model-size-160x120-right.png" alt="One L-profile on all four front corners native SolidCraft evidence 16" loading="lazy"><figcaption>Additional native evidence: model-size-160x120-right.png.</figcaption></figure><figure class="qualification-image"><img src="model-size-160x120.png" alt="One L-profile on all four front corners native SolidCraft evidence 17" loading="lazy"><figcaption>Additional native evidence: model-size-160x120.png.</figcaption></figure></div>
-
-<div class="twocol">
-  <section class="panel">
-    <h2>1. Forge contract</h2>
-    <h3>Public API</h3>
-    <p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0</code></p>
-    <h3>Internal Forge model</h3>
-    <p>One parametric rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
-    <h3>SolidCraft lowering</h3>
-    <p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
-  </section>
-
-  <section class="panel">
-    <h2>2. Native verification</h2>
-    <h3>Expected result</h3>
-    <p>The four 40x40 L bounding boxes occupy the four inward front-corner quadrants and keep the same local clock cycle after the parent grows from 120x80 to 160x120 mm.</p>
-    <h3>Parametric mutation</h3>
-    <p>After the fixed baseline is proven, change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four brackets and solved joint origins must follow their corners without rerunning Python.</p>
-    <h3>Evidence</h3>
-    <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="camera-size-160x120-front.json">camera-size-160x120-front.json</a></li><li><a href="camera-size-160x120-iso.json">camera-size-160x120-iso.json</a></li><li><a href="camera-size-160x120-right.json">camera-size-160x120-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li><li><a href="model-size-160x120-front.png">Native snapshot: model-size-160x120-front.png</a></li><li><a href="model-size-160x120-iso.png">Native snapshot: model-size-160x120-iso.png</a></li><li><a href="model-size-160x120-right.png">Native snapshot: model-size-160x120-right.png</a></li><li><a href="model-size-160x120.png">Native snapshot: model-size-160x120.png</a></li></ul>
-  </section>
-</div>
-
-<section class="panel"><h2>3. Results</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>160.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -15, 0]</code></td><td><code>[80, 15, 120]</code></td></tr><tr><td>LBracket</td><td><code>[-80, -27, 80]</code></td><td><code>[-40, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[40, -27, 80]</code></td><td><code>[80, -3, 120]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[40, -27, 0]</code></td><td><code>[80, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-80, -27, 0]</code></td><td><code>[-40, -3, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>120.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -15, 0]</code></td><td><code>[60, 15, 80]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -27, 40]</code></td><td><code>[-20, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[20, -27, 40]</code></td><td><code>[60, -3, 80]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[20, -27, 0]</code></td><td><code>[60, -3, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -27, 0]</code></td><td><code>[-20, -3, 40]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-60, -15, 0], &quot;max&quot;: [60, 15, 80]}, {&quot;label&quot;: &quot;top-left&quot;, &quot;min&quot;: [-60, -27, 40], &quot;max&quot;: [-20, -3, 80]}, {&quot;label&quot;: &quot;top-right&quot;, &quot;min&quot;: [20, -27, 40], &quot;max&quot;: [60, -3, 80]}, {&quot;label&quot;: &quot;bottom-right&quot;, &quot;min&quot;: [20, -27, 0], &quot;max&quot;: [60, -3, 40]}, {&quot;label&quot;: &quot;bottom-left&quot;, &quot;min&quot;: [-60, -27, 0], &quot;max&quot;: [-20, -3, 40]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -15.0, 0.0], &quot;max&quot;: [60.0, 15.0, 80.0]}, {&quot;min&quot;: [-60.0, -27.0, 40.0], &quot;max&quot;: [-20.0, -3.0, 80.0]}, {&quot;min&quot;: [20.0, -27.0, 40.0], &quot;max&quot;: [60.0, -3.0, 80.0]}, {&quot;min&quot;: [20.0, -27.0, 0.0], &quot;max&quot;: [60.0, -3.0, 40.0]}, {&quot;min&quot;: [-60.0, -27.0, 0.0], &quot;max&quot;: [-20.0, -3.0, 40.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>frame bounds</td><td><code>null</code></td><td><code>null</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>four inward corner quadrants</td><td><code>[[[-60, -27, 0], [-20, -3, 40]], [[-60, -27, 40], [-20, -3, 80]], [[20, -27, 0], [60, -3, 40]], [[20, -27, 40], [60, -3, 80]]]</code></td><td><code>[[[-60.0, -27.0, 0.0], [-20.0, -3.0, 40.0]], [[-60.0, -27.0, 40.0], [-20.0, -3.0, 80.0]], [[20.0, -27.0, 0.0], [60.0, -3.0, 40.0]], [[20.0, -27.0, 40.0], [60.0, -3.0, 80.0]]]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -15, 0], &quot;max&quot;: [80, 15, 120]}, {&quot;label&quot;: &quot;top-left&quot;, &quot;min&quot;: [-80, -27, 80], &quot;max&quot;: [-40, -3, 120]}, {&quot;label&quot;: &quot;top-right&quot;, &quot;min&quot;: [40, -27, 80], &quot;max&quot;: [80, -3, 120]}, {&quot;label&quot;: &quot;bottom-right&quot;, &quot;min&quot;: [40, -27, 0], &quot;max&quot;: [80, -3, 40]}, {&quot;label&quot;: &quot;bottom-left&quot;, &quot;min&quot;: [-80, -27, 0], &quot;max&quot;: [-40, -3, 40]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -15.0, 0.0], &quot;max&quot;: [80.0, 15.0, 120.0]}, {&quot;min&quot;: [-80.0, -27.0, 80.0], &quot;max&quot;: [-40.0, -3.0, 120.0]}, {&quot;min&quot;: [40.0, -27.0, 80.0], &quot;max&quot;: [80.0, -3.0, 120.0]}, {&quot;min&quot;: [40.0, -27.0, 0.0], &quot;max&quot;: [80.0, -3.0, 40.0]}, {&quot;min&quot;: [-80.0, -27.0, 0.0], &quot;max&quot;: [-40.0, -3.0, 40.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>all four corners follow size mutation</td><td><code>[[[-80, -27, 0], [-40, -3, 40]], [[-80, -27, 80], [-40, -3, 120]], [[40, -27, 0], [80, -3, 40]], [[40, -27, 80], [80, -3, 120]]]</code></td><td><code>[[[-80.0, -27.0, 0.0], [-40.0, -3.0, 40.0]], [[-80.0, -27.0, 80.0], [-40.0, -3.0, 120.0]], [[40.0, -27.0, 0.0], [80.0, -3.0, 40.0]], [[40.0, -27.0, 80.0], [80.0, -3.0, 120.0]]]</code></td></tr></tbody></table></section>
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="four-corner-l.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="four-corner-l.svg" alt="External L-bracket on all four front corners expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Prove that one reusable flat L-bracket can be mounted fully outside the front face at all four outer corners, with both L arms running inward over the frame, and that every bracket follows its own corner when frame width and height change.</p>
+  <h3>Pass criteria</h3>
+  <p>All four 40x40x4 mm brackets lie completely outside the front face (y=-19..-15 for this frame), touch the frame at y=-15 without penetrating it, and occupy the four inward corner quadrants with the correct mirrored orientation.</p>
+  <h3>Mutation criterion</h3><p>Change FrameBlock_width from 120 to 160 mm and FrameBlock_height from 80 to 120 mm in the saved .sc design; all four external brackets must remain flush to the front face and follow their own moved outer corner without rerunning Python.</p>
+</section>
 
 <section class="panel">
-  <h2>4. Generated native relationship/command path</h2>
-  <pre><code>[
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Four associative front-corner placements using the minimal L-profile.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    width = 120.0
+    DEPTH = 30.0
+    height = 80.0
+
+    def build(self):
+        return Box(self.width, self.DEPTH, self.height)
+
+
+class LBracket:
+    THICKNESS = 4.0
+    ARM_LENGTH = 40.0
+    ARM_HEIGHT = 12.0
+
+    def anchors(self):
+        return {
+            # Physical mounting datum of the bracket:
+            #
+            # origin: outside corner of the L that touches the frame corner.
+            # z:      points out of the frame&#x27;s front face (-Y).
+            # x:      follows the horizontal arm of the L (+X).
+            #
+            # The parent corner anchor supplies the rotation/mirroring needed
+            # for top-left, top-right, bottom-right and bottom-left.
+            &quot;mount&quot;: AnchorFrame(
+                origin=(0, 0, 0),
+                z=(0, -1, 0),
+                x=(1, 0, 0),
+            ),
+        }
+
+    def build(self):
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.ARM_HEIGHT),
+                (self.ARM_HEIGHT, self.ARM_HEIGHT),
+                (self.ARM_HEIGHT, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
+            plane=&quot;XZ&quot;,
+        )
+        # The bracket is a flat plate on the outside of the front face.
+        # Its attachment frame points toward -Y, so a negative extrusion keeps
+        # the complete 4 mm plate outside the parent instead of straddling it.
+        return profile.extrude(
+            self.THICKNESS,
+            direction=Direction.NEGATIVE,
+        )
+
+
+class FourCornerL:
+    def build(self):
+        frame = FrameBlock()
+        bracket = LBracket()
+
+        top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=&quot;mount&quot;,
+            angle=0,
+        )
+        top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=&quot;mount&quot;,
+            angle=0,
+        )
+        bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=&quot;mount&quot;,
+            angle=0,
+        )
+        bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=&quot;mount&quot;,
+            angle=0,
+        )
+
+        return frame + top_left + top_right + bottom_right + bottom_left
+
+
+FourCornerL()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>LBracket.anchors() -&gt; {&#x27;mount&#x27;: AnchorFrame(...)}; attach(parent=Anchor.FRONT_..., child=&#x27;mount&#x27;)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One parametric rectangular frame plus four occurrences of one external LBracket definition. The bracket publishes one named mount datum; the four parent corner anchors provide the required corner orientation.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
@@ -223,95 +308,29 @@
     }
   }
 ]</code></pre>
+  </details>
 </section>
 
-<section class="panel">
-  <h2>5. Reference models</h2>
-  <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-  <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner.</li></ul>
-</section>
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>160.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -15, 0]</code></td><td><code>[80, 15, 120]</code></td></tr><tr><td>LBracket</td><td><code>[-80, -15, 80]</code></td><td><code>[-40, -11, 120]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[40, -15, 80]</code></td><td><code>[80, -11, 120]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[40, -15, 0]</code></td><td><code>[80, -11, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-80, -15, 0]</code></td><td><code>[-40, -11, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>FrameBlock_width</code></td><td>120.0</td></tr><tr><td><code>FrameBlock_height</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -15, 0]</code></td><td><code>[60, 15, 80]</code></td></tr><tr><td>LBracket</td><td><code>[-60, -15, 40]</code></td><td><code>[-20, -11, 80]</code></td></tr><tr><td>LBracket (LBracket:2)</td><td><code>[20, -15, 40]</code></td><td><code>[60, -11, 80]</code></td></tr><tr><td>LBracket (LBracket:3)</td><td><code>[20, -15, 0]</code></td><td><code>[60, -11, 40]</code></td></tr><tr><td>LBracket (LBracket:4)</td><td><code>[-60, -15, 0]</code></td><td><code>[-20, -11, 40]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-60, -15, 0], &quot;max&quot;: [60, 15, 80]}, {&quot;label&quot;: &quot;top-left&quot;, &quot;min&quot;: [-60, -19, 40], &quot;max&quot;: [-20, -15, 80]}, {&quot;label&quot;: &quot;top-right&quot;, &quot;min&quot;: [20, -19, 40], &quot;max&quot;: [60, -15, 80]}, {&quot;label&quot;: &quot;bottom-right&quot;, &quot;min&quot;: [20, -19, 0], &quot;max&quot;: [60, -15, 40]}, {&quot;label&quot;: &quot;bottom-left&quot;, &quot;min&quot;: [-60, -19, 0], &quot;max&quot;: [-20, -15, 40]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -15.0, 0.0], &quot;max&quot;: [60.0, 15.0, 80.0]}, {&quot;min&quot;: [-60.0, -15.0, 40.0], &quot;max&quot;: [-20.0, -11.0, 80.0]}, {&quot;min&quot;: [20.0, -15.0, 40.0], &quot;max&quot;: [60.0, -11.0, 80.0]}, {&quot;min&quot;: [20.0, -15.0, 0.0], &quot;max&quot;: [60.0, -11.0, 40.0]}, {&quot;min&quot;: [-60.0, -15.0, 0.0], &quot;max&quot;: [-20.0, -11.0, 40.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>frame bounds</td><td><code>null</code></td><td><code>null</code></td></tr><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q4</td><td>four inward corner quadrants</td><td><code>[[[-60, -27, 0], [-20, -3, 40]], [[-60, -27, 40], [-20, -3, 80]], [[20, -27, 0], [60, -3, 40]], [[20, -27, 40], [60, -3, 80]]]</code></td><td><code>[[[-60.0, -15.0, 0.0], [-20.0, -11.0, 40.0]], [[-60.0, -15.0, 40.0], [-20.0, -11.0, 80.0]], [[20.0, -15.0, 0.0], [60.0, -11.0, 40.0]], [[20.0, -15.0, 40.0], [60.0, -11.0, 80.0]]]</code></td></tr><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -15, 0], &quot;max&quot;: [80, 15, 120]}, {&quot;label&quot;: &quot;top-left&quot;, &quot;min&quot;: [-80, -19, 80], &quot;max&quot;: [-40, -15, 120]}, {&quot;label&quot;: &quot;top-right&quot;, &quot;min&quot;: [40, -19, 80], &quot;max&quot;: [80, -15, 120]}, {&quot;label&quot;: &quot;bottom-right&quot;, &quot;min&quot;: [40, -19, 0], &quot;max&quot;: [80, -15, 40]}, {&quot;label&quot;: &quot;bottom-left&quot;, &quot;min&quot;: [-80, -19, 0], &quot;max&quot;: [-40, -15, 40]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -15.0, 0.0], &quot;max&quot;: [80.0, 15.0, 120.0]}, {&quot;min&quot;: [-80.0, -15.0, 80.0], &quot;max&quot;: [-40.0, -11.0, 120.0]}, {&quot;min&quot;: [40.0, -15.0, 80.0], &quot;max&quot;: [80.0, -11.0, 120.0]}, {&quot;min&quot;: [40.0, -15.0, 0.0], &quot;max&quot;: [80.0, -11.0, 40.0]}, {&quot;min&quot;: [-80.0, -15.0, 0.0], &quot;max&quot;: [-40.0, -11.0, 40.0]}]</code></td></tr><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q5</td><td>all four corners follow size mutation</td><td><code>[[[-80, -27, 0], [-40, -3, 40]], [[-80, -27, 80], [-40, -3, 120]], [[40, -27, 0], [80, -3, 40]], [[40, -27, 80], [80, -3, 120]]]</code></td><td><code>[[[-80.0, -15.0, 0.0], [-40.0, -11.0, 40.0]], [[-80.0, -15.0, 80.0], [-40.0, -11.0, 120.0]], [[40.0, -15.0, 0.0], [80.0, -11.0, 40.0]], [[40.0, -15.0, 80.0], [80.0, -11.0, 120.0]]]</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="External L-bracket on all four front corners iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="External L-bracket on all four front corners iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="External L-bracket on all four front corners iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="External L-bracket on all four front corners front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="External L-bracket on all four front corners front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="External L-bracket on all four front corners front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="External L-bracket on all four front corners right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="External L-bracket on all four front corners right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="External L-bracket on all four front corners right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
 
 <section class="panel">
-  <h2>6. Fixture source</h2>
-  <pre><code>&quot;&quot;&quot;Four associative front-corner placements using the minimal L-profile.&quot;&quot;&quot;
-
-
-class FrameBlock:
-    width = 120.0
-    DEPTH = 30.0
-    height = 80.0
-
-    def build(self):
-        return Box(self.width, self.DEPTH, self.height)
-
-
-class LBracket:
-    WIDTH = 24.0
-    ARM_LENGTH = 40.0
-    ARM_HEIGHT = 12.0
-
-    def build(self):
-        profile = Polygon2D(
-            [
-                (0, 0),
-                (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_HEIGHT),
-                (self.ARM_HEIGHT, self.ARM_LENGTH),
-                (0, self.ARM_LENGTH),
-            ],
-            plane=&quot;XZ&quot;,
-        )
-        return profile.extrude(
-            self.WIDTH,
-            direction=Direction.SYMMETRIC,
-        )
-
-
-class FourCornerL:
-    def build(self):
-        frame = FrameBlock()
-        bracket = LBracket()
-
-        # The neutral L occupies +X and -Z from this local corner. Its
-        # attachment normal is +Y. The parent corner frame must rotate those
-        # two in-plane directions to the two inward edges at each corner.
-        mount = AnchorFrame(
-            origin=(0, 0, 0),
-            z=(0, -1, 0),
-            x=(1, 0, 0),
-        )
-
-        top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=mount,
-            angle=0,
-        )
-        top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=mount,
-            angle=0,
-        )
-        bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=mount,
-            angle=0,
-        )
-        bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=mount,
-            angle=0,
-        )
-
-        return frame + top_left + top_right + bottom_right + bottom_left
-
-
-FourCornerL()
-</code></pre>
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="camera-size-160x120-front.json">camera-size-160x120-front.json</a></li><li><a href="camera-size-160x120-iso.json">camera-size-160x120-iso.json</a></li><li><a href="camera-size-160x120-right.json">camera-size-160x120-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="model-size-160x120-front.png">Native snapshot: model-size-160x120-front.png</a></li><li><a href="model-size-160x120-iso.png">Native snapshot: model-size-160x120-iso.png</a></li><li><a href="model-size-160x120-right.png">Native snapshot: model-size-160x120-right.png</a></li><li><a href="model-size-160x120.png">Native snapshot: model-size-160x120.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> A single child-local frame should be reusable while the selected parent anchor supplies the different local corner orientations.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A corner joint origin retains the selected face/edge/corner topology and defines a local frame at that corner.</li></ul>
+    </div>
+  </div>
 </section>
 </main>
 
