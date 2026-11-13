@@ -431,6 +431,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 "model*.sc",
                 "model*.step",
                 "export-*.json",
+                "qualification-result.json",
             ):
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
@@ -557,19 +558,14 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f"<td>{escape(row.get('parameter_count') if row.get('parameter_count') is not None else '—')}</td>"
             f"<td>{escape(len(row.get('native_evidence', [])))}</td></tr>"
         )
-    results_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Results</div>
-<section class="hero small"><p class="eyebrow">Published qualification evidence</p>
-<h1>Qualification results</h1>
-<p>Measured native results for the exact source commit and SolidCraft runtime.
-Open a case for body bounds, parameters, mutation measurements and raw evidence.</p>
-<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft
-{escape(metadata.get("solidcraft_version") if verified else TESTED_SOLIDCRAFT_VERSION)}</p>
-</section>
-<section class="panel"><table><thead><tr><th>Case</th><th>Status</th>
-<th>SolidCraft</th><th>Bodies</th><th>Parameters</th><th>Evidence files</th>
-</tr></thead><tbody>{"".join(result_rows)}</tbody></table></section>
-</main>"""
+    results_body = render_template(
+        "results.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(
+            metadata.get("solidcraft_version") if verified else TESTED_SOLIDCRAFT_VERSION
+        ),
+        result_rows="".join(result_rows),
+    )
     (results_root / "index.html").write_text(
         page(
             "Qualification results",
@@ -586,32 +582,19 @@ Open a case for body bounds, parameters, mutation measurements and raw evidence.
         f"<td>{escape(description)}</td></tr>"
         for level, title, description in QUALIFICATION_LEVELS
     )
-    qualification_index = f"""<main class="wrap">
-<section class="hero small"><p class="eyebrow">SCPF Forge verification</p>
-<h1>Qualification</h1>
-<p>Every non-trivial Forge feature is traced from Python API through compiler
-representation and native SolidCraft behaviour. A green unit test alone is not
-treated as proof that the CAD result is correct.</p>
-<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft {TESTED_SOLIDCRAFT_VERSION}</p>
-</section>
-<p><a class="button" href="results/">Open published results →</a></p>
-<section class="panel"><h2>Qualification levels</h2>
-<table><thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
-<tbody>{level_rows}</tbody></table></section>
-<section class="section-heading"><h2>Functional qualification groups</h2>
-<p>Cases are grouped by the user concept they prove. Native SolidCraft command
-details stay inside each case's lowering section rather than becoming the
-learning structure.</p></section>
-{"".join(
-    f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
-    f'<div class="reference-grid">{"".join(qualification_cards[key])}</div>'
-    for key, title, description in QUALIFICATION_GROUPS
-    if qualification_cards[key]
-)}
-<section class="notice"><strong>Raw evidence:</strong> CI also retains the full
-saved .sc files and STEP exports in the qualification artifact. Pages publishes
-the command plans, measurement JSON and snapshots needed for normal review.</section>
-</main>"""
+    group_sections = "".join(
+        f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
+        f'<div class="reference-grid">{"".join(qualification_cards[key])}</div>'
+        for key, title, description in QUALIFICATION_GROUPS
+        if qualification_cards[key]
+    )
+    qualification_index = render_template(
+        "index.html",
+        source_sha=escape(sha),
+        solidcraft_version=escape(TESTED_SOLIDCRAFT_VERSION),
+        level_rows=level_rows,
+        group_sections=group_sections,
+    )
     capability_root = qualification_root / "capabilities"
     capability_root.mkdir(exist_ok=True)
     capability_sections = []
