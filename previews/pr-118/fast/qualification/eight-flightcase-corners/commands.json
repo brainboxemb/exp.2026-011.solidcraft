@@ -94,11 +94,11 @@
       "command": "solid.box",
       "params": {
         "length": 30.0,
-        "width": 4.0,
-        "height": 30.0,
+        "width": 4.5,
+        "height": 30.5,
         "center": [
           15.0,
-          -2.0,
+          -1.75,
           -30.0
         ],
         "operation": "join",
@@ -110,11 +110,11 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 4.0,
+        "length": 4.5,
         "width": 30.0,
-        "height": 30.0,
+        "height": 30.5,
         "center": [
-          -2.0,
+          -1.75,
           15.0,
           -30.0
         ],

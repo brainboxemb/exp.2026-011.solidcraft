@@ -13,10 +13,12 @@ class CaseBlock:
 class FlightcaseCorner:
     ARM = 30.0
     THICKNESS = 4.0
+    OVERLAP = 0.5
 
     def build(self):
         arm = self.ARM
         t = self.THICKNESS
+        overlap = self.OVERLAP
 
         # Neutral outside corner cap for FRONT_TOP_LEFT.
         # The case extends inward along +X, +Y and -Z.
@@ -29,13 +31,15 @@ class FlightcaseCorner:
             x=arm / 2,
             y=arm / 2,
         )
-        front = Box(arm, t, arm).move(
+        # A tiny internal overlap keeps the three native box joins robust.
+        # It is entirely inside the cap and does not change the outer bounds.
+        front = Box(arm, t + overlap, arm + overlap).move(
             x=arm / 2,
-            y=-(t / 2),
+            y=(overlap - t) / 2,
             z=-arm,
         )
-        side = Box(t, arm, arm).move(
-            x=-(t / 2),
+        side = Box(t + overlap, arm, arm + overlap).move(
+            x=(overlap - t) / 2,
             y=arm / 2,
             z=-arm,
         )
