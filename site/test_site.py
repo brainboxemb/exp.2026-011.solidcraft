@@ -165,7 +165,7 @@ def check(site: Path, sha: str, require_native: bool = False):
                 assert required_image in native_images, (slug, required_image)
 
             assert 'class="qualification-gallery"' in page_text, slug
-            assert f'src="{slug}/model.png"' in qualification_index, slug
+            assert f'src="{slug}/model-iso.png"' in qualification_index, slug
             native_evidence = qualification_manifest["cases"][slug]["native_evidence"]
             assert "measurements.json" in native_evidence, slug
             assert "results.json" in native_evidence, slug
