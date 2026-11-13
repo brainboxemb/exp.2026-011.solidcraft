@@ -487,38 +487,45 @@ fixed local correction and pass the result to <code>attach(offset=...)</code>.
 This is useful when an assembly datum follows a frame parameter such as wall
 thickness while the reusable part keeps a fixed mounting correction.</p>
 <h2 id="anchor-frame">AnchorFrame: point plus orientation</h2>
-<p>An <code>AnchorFrame</code> describes one local attachment coordinate frame.
-<code>origin</code> gives the local point; <code>z</code> gives the attachment
-normal and <code>x</code> fixes the rotation around that normal. Use it when a
-single point or rectangular <code>Anchor</code> is not enough to describe how
-the occurrence must be oriented.</p>
-""" + code("""from scpf import Anchor, AnchorFrame
+<p><strong>A joint origin is the digital attachment point used to connect a part.</strong>
+The easiest way to understand it is as a small local coordinate system attached
+to the component.</p>
+<p>It answers three questions: <strong>where is the point?</strong>
+(<code>origin</code>), <strong>which way does it face?</strong>
+(<code>z</code>), and <strong>how is it clocked around that direction?</strong>
+(<code>x</code>). Once Z and X are known, the remaining Y axis follows
+automatically.</p>
+""" + code("""from scpf import AnchorFrame, RIGHT, UP
 
 mount = AnchorFrame(
-    origin=(0, 0, -12),
-    z=(0, 1, 0),
-    x=(0, 0, -1),
-)
-
-bracket = CornerBracket().attach(
-    side_board,
-    parent=Anchor.FRONT_TOP_LEFT,
-    child=mount,
+    origin=(10, 25, 0),
+    z=RIGHT,
+    x=UP,
 )""") + """
+<p>Read that literally: the attachment point is at <code>(10,25,0)</code>,
+its local Z axis points right, and its local X axis points up. For ordinary
+axis-aligned frames you can use <code>RIGHT</code>, <code>LEFT</code>,
+<code>FRONT</code>, <code>BACK</code>, <code>UP</code> and
+<code>DOWN</code> instead of writing vectors by hand. Arbitrary XYZ vectors
+remain valid for angled frames.</p>
+<p>A useful mental model is:</p>
+""" + code("""origin = where is the point?
+Z      = which way does it face?
+X      = how is it rotated around that direction?
+Y      = calculated automatically""") + """
 <p>There are two ownership patterns. If the datum is an intrinsic part of a
 reusable component, expose it with <code>anchors()</code> and refer to it by
 name. If the frame exists only because of a particular assembly or mounting
 choice, construct the <code>AnchorFrame</code> in that assembly and pass it
-directly to <code>attach()</code>. This keeps application knowledge out of the
-generic component definition.</p>
+directly to <code>attach()</code>.</p>
 """ + code("""@component
 class Sensor:
     def anchors(self):
         return {
             "connector": AnchorFrame(
                 origin=(12, 0, 4),
-                z=(1, 0, 0),
-                x=(0, 0, 1),
+                z=RIGHT,
+                x=UP,
             )
         }
 
@@ -531,8 +538,7 @@ directly into the native <code>joint.create</code> reference as
 <code>point</code>, <code>z</code> and <code>x</code>; it does not create a
 persistent visible <code>joint.origin</code>. Named frames on explicitly
 rotated occurrences currently use the native origin fallback so SolidCraft
-owns the transform. A direct <code>AnchorFrame</code> on an explicitly rotated
-occurrence is not supported yet.</p>
+owns the transform.</p>
 <h2 id="anchor-topology">AnchorTopology: follow an edge or corner</h2>
 <p><code>AnchorTopology</code> is a named component datum that stays attached to native SolidCraft topology. <code>edge</code> picks an edge, <code>on</code> selects its adjacent planar face and <code>corner</code> optionally chooses one endpoint. The coordinates are selection picks; SolidCraft keeps the selected edge, face and endpoint by topology name as the design changes.</p>
 """ + code("""from scpf import AnchorTopology, Box, component
