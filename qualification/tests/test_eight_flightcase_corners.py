@@ -11,12 +11,12 @@ ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
 EXPECTED_CORNERS = [
-    [-160.0, -60.0, 160.0],
-    [160.0, -60.0, 160.0],
+    [-160.0, -60.0, 320.0],
+    [160.0, -60.0, 320.0],
     [160.0, -60.0, 0.0],
     [-160.0, -60.0, 0.0],
-    [-160.0, 60.0, 160.0],
-    [160.0, 60.0, 160.0],
+    [-160.0, 60.0, 320.0],
+    [160.0, 60.0, 320.0],
     [160.0, 60.0, 0.0],
     [-160.0, 60.0, 0.0],
 ]
@@ -62,7 +62,7 @@ class EightFlightcaseCornersNativeTests(unittest.TestCase):
         data = _load(
             Path(NATIVE_ROOT)
             / "eight-flightcase-corners"
-            / "measurements-size-400x160x200.json"
+            / "measurements-size-400x160x400.json"
         )
         self.assertEqual(data["body_count"], 9)
 

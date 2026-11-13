@@ -4,25 +4,23 @@
 class CaseBlock:
     _width = 320.0
     _depth = 120.0
-    _height = 160.0
+    _height = 320.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
 class FlightcaseCorner:
-    # 25% of the default case size per axis:
-    # 320 x 120 x 160 -> 80 x 30 x 40 mm.
-    X_ARM = 80.0
-    Y_ARM = 30.0
-    Z_ARM = 40.0
+    x_arm = 80.0
+    y_arm = 30.0
+    z_arm = 80.0
     THICKNESS = 6.0
     OVERLAP = 0.5
 
     def build(self):
-        x_arm = self.X_ARM
-        y_arm = self.Y_ARM
-        z_arm = self.Z_ARM
+        x_arm = self.x_arm
+        y_arm = self.y_arm
+        z_arm = self.z_arm
         t = self.THICKNESS
         overlap = self.OVERLAP
 
@@ -57,7 +55,7 @@ class FlightcaseCorner:
 class EightFlightcaseCorners:
     case_width = 320.0
     case_depth = 120.0
-    case_height = 160.0
+    case_height = 320.0
 
     def build(self):
         case = CaseBlock(
@@ -65,7 +63,11 @@ class EightFlightcaseCorners:
             _depth=self.case_depth,
             _height=self.case_height,
         )
-        protector = FlightcaseCorner()
+        protector = FlightcaseCorner(
+            x_arm=self.case_width / 4,
+            y_arm=self.case_depth / 4,
+            z_arm=self.case_height / 4,
+        )
 
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
