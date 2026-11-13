@@ -16,7 +16,7 @@
   <p class="guide-lead">Goal: one short, readable Forge expression that tells SolidCraft exactly
   how a reusable corner bracket is attached — without raw direction vectors in normal model code
   and without a second orientation solver in Forge.</p>
-  <p class="meta">SolidCraft 0.30.1 · source commit <code>4f40925ad7bceefa30d8c0aa4a3cf0f3b43b3de7</code></p>
+  <p class="meta">SolidCraft 0.30.1 · source commit <code>ff25c4dbacfc4691a0a7daaea3cea30e853e92c5</code></p>
 </section>
 
 <section class="panel">
@@ -167,7 +167,85 @@
 </section>
 
 <section class="panel">
-  <h2>4. What the current Forge code is doing</h2>
+  <h2>4. Zoom in: what do x and z mean at the four corners?</h2>
+  <p>The current HUB75 model gives us a concrete example. The bracket geometry has its own
+  model axes. The joint origin then defines another local frame on that geometry.</p>
+
+  <figure class="qualification-setup-diagram qualification-concept-diagram">
+    <a href="corner-bracket-local-axes.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="corner-bracket-local-axes.svg" alt="Corner bracket local model axes, points A and B, and front/rear joint-frame directions">
+    </a>
+    <figcaption>The bracket's model axes and the current assembly-local joint frames.
+    <a href="corner-bracket-local-axes.cadcraft.json">CadCraft source</a> ·
+    <a href="corner-bracket-local-axes.dxf">DXF</a></figcaption>
+  </figure>
+
+  <div class="notice"><strong>Do not mix these two coordinate systems.</strong>
+  <code>+X/+Y/+Z</code> describe the bracket model. Lower-case joint
+  <code>x</code> and <code>z</code> describe the frame SolidCraft uses to mate that bracket.
+  For example, <code>joint x = -Z</code> means that the joint-frame x-axis points in the
+  bracket model's negative-Z direction.</div>
+
+  <h3>The two points used by the current HUB75 assembly</h3>
+  <p>The reusable <code>CornerBracket</code> does not store these as named anchors. The assembly
+  currently chooses two points on the neutral bracket geometry:</p>
+  <pre><code>I = (0, 0, 0)          # inside corner / component origin
+A = (0, 0, -w)         # one arm thickness below I
+B = (w, 0, 0)          # one arm thickness right of I</code></pre>
+
+  <p>For the <strong>front row</strong>, both A and B use the same current child-frame directions:</p>
+  <pre><code>joint z = +Y = (0, 1, 0)     # out through the broad bracket face
+joint x = -Z = (0, 0, -1)    # down along the bracket profile</code></pre>
+
+  <p>For the <strong>rear row</strong>, the current assembly uses:</p>
+  <pre><code>joint z = -Y = (0, -1, 0)    # opposite broad bracket face
+joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
+
+  <h3>Four front corners, one by one</h3>
+  <figure class="qualification-setup-diagram qualification-technical-large">
+    <a href="corner-bracket-front-corners.svg" class="qualification-image-link" target="_blank" rel="noopener">
+      <img src="corner-bracket-front-corners.svg" alt="Four enlarged front frame corners with bracket point A or B and parent x direction">
+    </a>
+    <figcaption>Four enlarged front-corner placements. The parent topology frame rotates around the frame; the current child definition is reused.
+    <a href="corner-bracket-front-corners.cadcraft.json">CadCraft source</a> ·
+    <a href="corner-bracket-front-corners.dxf">DXF</a></figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Corner</th><th>Parent anchor</th><th>Child point</th><th>Parent z</th><th>Parent x</th><th>Current child input</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Top left</td><td><code>FRONT_TOP_LEFT</code></td><td>A</td><td><code>-Y</code></td><td><code>-Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Top right</td><td><code>FRONT_TOP_RIGHT</code></td><td>B</td><td><code>-Y</code></td><td><code>-X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Bottom right</td><td><code>FRONT_BOTTOM_RIGHT</code></td><td>A</td><td><code>-Y</code></td><td><code>+Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Bottom left</td><td><code>FRONT_BOTTOM_LEFT</code></td><td>B</td><td><code>-Y</code></td><td><code>+X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+    </tbody>
+  </table>
+
+  <p>Notice what changes: the <strong>parent x-axis</strong> rotates with the selected corner.
+  The raw child-frame definition for the front row does not change. When SolidCraft solves the
+  joint, the bracket occurrence rotates so its child frame mates with that parent frame.</p>
+
+  <h3>The rear row is the same idea from the other face</h3>
+  <table>
+    <thead>
+      <tr><th>Corner</th><th>Parent anchor</th><th>Child point</th><th>Parent z</th><th>Parent x</th><th>Current child input</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Top left</td><td><code>BACK_TOP_LEFT</code></td><td>A</td><td><code>+Y</code></td><td><code>+X</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Top right</td><td><code>BACK_TOP_RIGHT</code></td><td>B</td><td><code>+Y</code></td><td><code>-Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Bottom right</td><td><code>BACK_BOTTOM_RIGHT</code></td><td>A</td><td><code>+Y</code></td><td><code>-X</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Bottom left</td><td><code>BACK_BOTTOM_LEFT</code></td><td>B</td><td><code>+Y</code></td><td><code>+Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
+    </tbody>
+  </table>
+
+  <p class="meta">These values describe the <strong>current HUB75 assembly implementation</strong>;
+  they are evidence for understanding the native joint frames, not a proposal for the final Forge API.</p>
+</section>
+
+<section class="panel">
+  <h2>5. What the current Forge code is doing</h2>
   <p>The current fixture first defines the child joint origin in Python:</p>
 
   <pre><code>bracket_corner = AnchorFrame(
@@ -191,7 +269,7 @@
 </section>
 
 <section class="panel">
-  <h2>5. Requirements for the Forge API</h2>
+  <h2>6. Requirements for the Forge API</h2>
   <ol class="concept-requirements">
     <li>The generated data must map directly to SolidCraft's own joint-origin information. No second orientation solver in Python.</li>
     <li><code>CornerBracket</code> must remain independent of the cabinet: no left/right, top/bottom, front/rear or cabinet dimensions.</li>
@@ -207,7 +285,7 @@
 </section>
 
 <section class="panel">
-  <h2>6. Qualification order</h2>
+  <h2>7. Qualification order</h2>
   <table>
     <thead><tr><th>Case</th><th>What it proves</th></tr></thead>
     <tbody>
