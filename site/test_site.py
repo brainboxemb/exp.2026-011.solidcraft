@@ -24,6 +24,17 @@ def check(site: Path, sha: str, require_native: bool = False):
     transformations = (site / "guide" / "transformations" / "index.html").read_text(encoding="utf-8")
     for term in ("orient(", "rotate(", "occurrence.move", "does not compose", "rotate(Z, 180)"):
         assert term in transformations, term
+    components = (site / "guide" / "components" / "index.html").read_text(encoding="utf-8")
+    for term in (
+        "AnchorFrame",
+        "point plus orientation",
+        "child=mount",
+        "anchors()",
+        "joint.create",
+        "direct <code>AnchorFrame</code>",
+    ):
+        assert term in components, term
+    assert "AnchorFrame" in cheatsheet and "child=mount" in cheatsheet
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()
     assert (site / "style.css").is_file()

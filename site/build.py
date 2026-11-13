@@ -41,9 +41,9 @@ EXAMPLES = {
         "concepts": ["Anchor", "attach", "corner", "associative placement"],
     },
     "custom-anchor": {
-        "title": "5 · Component-defined anchor",
-        "description": "Define a local AnchorFrame on a component and let SolidCraft carry it through occurrence rotation.",
-        "concepts": ["AnchorFrame", "anchors()", "attach", "rotation"],
+        "title": "5 · Named attachment frame",
+        "description": "Expose a named local AnchorFrame from a component when the datum belongs to that reusable part.",
+        "concepts": ["AnchorFrame", "anchors()", "attach", "named datum"],
     },
 }
 
@@ -89,8 +89,8 @@ CHEATSHEET = [
          "right = Block().attach(left, parent=Anchor.RIGHT, child=Anchor.LEFT)", "components"),
         ("corner anchors", "Use one of the eight rectangular corner references when attaching components.",
          "marker = Marker().attach(base, parent=Anchor.FRONT_TOP_RIGHT, child=Anchor.BACK_TOP_RIGHT)", "corner-anchor"),
-        ("AnchorFrame", "Define a named local attachment frame on a non-rectangular component.",
-         "def anchors(self):\n    return {\"mount\": AnchorFrame(origin=(0,0,0), z=(0,0,1), x=(1,0,0))}", "custom-anchor"),
+        ("AnchorFrame", "Define an oriented local attachment frame. Return it from anchors() when the datum belongs to the reusable component, or pass it directly to attach() when it belongs only to the assembly.",
+         "mount = AnchorFrame(origin=(0,0,-12), z=(0,1,0), x=(0,0,-1))\npart.attach(base, parent=Anchor.FRONT_TOP_LEFT, child=mount)", "custom-anchor"),
         ("model.rotate(axis=..., degrees=...)", "Orient a native occurrence; rotation does not alter the shared component.",
          "second = first.copy().move(x=40).rotate(axis=(0,0,1), degrees=180)", None),
     ]),
