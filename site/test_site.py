@@ -90,6 +90,35 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert item["name"] in capability_page
     for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
         assert capability in capability_page
+    custom_anchor_page = (
+        site / "qualification" / "custom-anchor" / "index.html"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Nederlands · Joint origin op een bracket",
+        "English · Joint origin on a bracket",
+        "z=RIGHT",
+        "x=UP",
+        "RIGHT",
+        "LEFT",
+        "FRONT",
+        "BACK",
+        "UP",
+        "DOWN",
+    ):
+        assert term in custom_anchor_page, term
+
+    four_corner_page = (
+        site / "qualification" / "four-corner-l" / "index.html"
+    ).read_text(encoding="utf-8")
+    for term in (
+        "Expected CAD result",
+        "Native render",
+        "Front view",
+        "Depth view",
+        "bracket crosses front plane",
+    ):
+        assert term in four_corner_page, term
+
     for case in QUALIFICATION_CASES:
         slug = case["slug"]
         page_text = (
