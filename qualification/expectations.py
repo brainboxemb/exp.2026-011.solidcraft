@@ -46,6 +46,13 @@ EXPECTED_BOUNDS = {
         {"label": "back-right foot", "min": [32, 12, -30], "max": [60, 40, 0]},
         {"label": "back-left foot", "min": [-60, 12, -30], "max": [-32, 40, 0]},
     ],
+    "four-corner-brackets": [
+        {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+        {"label": "front top-left", "min": [-60, -44, 32], "max": [-32, -40, 60]},
+        {"label": "front top-right", "min": [32, -44, 32], "max": [60, -40, 60]},
+        {"label": "front bottom-right", "min": [32, -44, 0], "max": [60, -40, 28]},
+        {"label": "front bottom-left", "min": [-60, -44, 0], "max": [-32, -40, 28]},
+    ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
         {"label": "front top-left", "min": [-60, -44, 32], "max": [-32, -40, 60]},
@@ -106,6 +113,13 @@ EXPECTED_MUTATION_BOUNDS = {
         {"label": "back-right foot", "min": [52, 32, -30], "max": [80, 60, 0]},
         {"label": "back-left foot", "min": [-80, 32, -30], "max": [-52, 60, 0]},
     ],
+    "four-corner-brackets": [
+        {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
+        {"label": "front top-left", "min": [-80, -64, 62], "max": [-52, -60, 90]},
+        {"label": "front top-right", "min": [52, -64, 62], "max": [80, -60, 90]},
+        {"label": "front bottom-right", "min": [52, -64, 0], "max": [80, -60, 28]},
+        {"label": "front bottom-left", "min": [-80, -64, 0], "max": [-52, -60, 28]},
+    ],
     "eight-corner-brackets": [
         {"label": "FrameBlock", "min": [-80, -60, 0], "max": [80, 60, 90]},
         {"label": "front top-left", "min": [-80, -64, 62], "max": [-52, -60, 90]},
@@ -153,6 +167,18 @@ EXPECTED_VISUAL_BOXES["four-corner-l"] = [
     # back-left: same foot rotated 270 degrees
     {"label": "BL arm X", "min": [-60, 12, -30], "max": [-52, 40, 0]},
     {"label": "BL arm Y", "min": [-60, 32, -30], "max": [-32, 40, 0]},
+]
+
+EXPECTED_VISUAL_BOXES["four-corner-brackets"] = [
+    {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+    {"label": "FTL top arm", "min": [-60, -44, 52], "max": [-32, -40, 60]},
+    {"label": "FTL side arm", "min": [-60, -44, 32], "max": [-52, -40, 60]},
+    {"label": "FTR top arm", "min": [32, -44, 52], "max": [60, -40, 60]},
+    {"label": "FTR side arm", "min": [52, -44, 32], "max": [60, -40, 60]},
+    {"label": "FBR bottom arm", "min": [32, -44, 0], "max": [60, -40, 8]},
+    {"label": "FBR side arm", "min": [52, -44, 0], "max": [60, -40, 28]},
+    {"label": "FBL bottom arm", "min": [-60, -44, 0], "max": [-32, -40, 8]},
+    {"label": "FBL side arm", "min": [-60, -44, 0], "max": [-52, -40, 28]},
 ]
 
 EXPECTED_VISUAL_BOXES["eight-corner-brackets"] = [

@@ -171,6 +171,23 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "four-corner-brackets",
+        "q5_required": True,
+        "diagram": "four-corner-brackets.svg",
+        "group": "anchors",
+        "title": "Four HUB75-style outside corner brackets",
+        "intent": "Mount one neutral flat L-bracket on the four outside corners of the front face. This is the direct step after four bottom feet and matches the corner-placement pattern used by the HUB75 frame before adding the rear set.",
+        "forge_api": "attach(parent=Anchor.FRONT_TOP_/BOTTOM_... corner, child=assembly-local AnchorFrame)",
+        "forge_model": "One parametric frame plus four occurrences of one neutral LBracket definition. LBracket contains only local XZ geometry; the assembly owns which front corner each occurrence uses.",
+        "lowering": "Four rigid joint.create commands use topology-backed FRONT corner references. The explicit child AnchorFrame fixes the bracket clocking without repeated angle=0 in the model.",
+        "native_expectation": "Four brackets sit outside the front face: top-left, top-right, bottom-right and bottom-left. Their two equal L arms run inward along the adjacent frame edges.",
+        "mutation": "Change frame_width, frame_depth and frame_height from 120x80x60 mm to 160x120x90 mm in the saved .sc design; all four front brackets must follow their moved corners without rerunning Python.",
+        "references": [
+            ("SolidCraft", "The four FRONT corner references provide the native topology relationship used by this HUB75-style placement."),
+            ("BOSL2", "The reusable bracket remains local; the assembly selects the parent corner and therefore owns placement."),
+        ],
+    },
+    {
         "slug": "eight-corner-brackets",
         "q5_required": True,
         "diagram": "eight-corner-brackets.svg",

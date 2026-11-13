@@ -292,6 +292,26 @@ def validate_four_corner_l(root: Path) -> Validation:
     return v
 
 
+def validate_four_corner_brackets(root: Path) -> Validation:
+    v = Validation("four-corner-brackets")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "four-corner-brackets")
+    v.check("five bodies: frame plus four brackets",
+            d["body_count"] == 5, 5, d["body_count"])
+
+    m = load(root / "measurements-size-160x120x90.json")
+    _check_declared_bounds(
+        v,
+        m,
+        "four-corner-brackets",
+        level="q5",
+        mutation=True,
+    )
+    v.check("five bodies after saved-design mutation",
+            m["body_count"] == 5, 5, m["body_count"], "q5")
+    return v
+
+
 def validate_eight_corner_brackets(root: Path) -> Validation:
     v = Validation("eight-corner-brackets")
     d = load(root / "measurements.json")
@@ -391,6 +411,7 @@ VALIDATORS = {
     "parametric-anchor": validate_parametric_anchor,
     "corner-anchor": validate_corner_anchor,
     "four-corner-l": validate_four_corner_l,
+    "four-corner-brackets": validate_four_corner_brackets,
     "eight-corner-brackets": validate_eight_corner_brackets,
     "custom-anchor": validate_custom_anchor,
     "xz-anchor": validate_xz_anchor,
