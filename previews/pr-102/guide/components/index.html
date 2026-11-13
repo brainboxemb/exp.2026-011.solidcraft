@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Components and assemblies · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../parameters-associativity/">Parameters and associativity</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Components and assemblies</p><h1>Components and assemblies</h1><p class="guide-lead">Reusable definitions, occurrence transforms, grouping and attachments.</p>
+<h2 id="definition">One definition, several occurrences</h2>
+<pre><code>from scpf import Box, assembly, component
+
+@component
+class Beam:
+    length = 100.0
+
+    def build(self):
+        return Box(self.length, 20, 20)
+
+@assembly
+class BeamPair:
+    spacing = 120.0
+
+    def build(self):
+        left = Beam()
+        right = left.copy().move(x=self.spacing)
+        return (left + right).group(&quot;Beams&quot;)
+
+pair = BeamPair()</code></pre>
+<p><code>@component</code> marks a reusable physical part whose
+<code>build()</code> returns one Shape. <code>@assembly</code> marks a class
+whose <code>build()</code> composes component occurrences. Both decorators
+return callable model objects, so normal model code stays readable as
+<code>Beam()</code> and <code>BeamPair()</code>.</p>
+<p>SolidCraft receives one reusable definition and multiple occurrences.
+A group is a native parent component in the browser, not a Boolean
+fusion of its children.</p>
+<h2 id="component-parameters">Component parameter visibility</h2>
+<p>Reusable component defaults are <strong>fixed by default</strong>. They
+still define the component geometry, but they do not automatically clutter the
+design-wide SolidCraft parameter list. Publish only the defaults you actually
+want users to edit:</p>
+<pre><code>Bracket = component(
+    CornerBracket,
+    include=(&quot;inside_corner_radius&quot;,),
+)
+
+# Or expose every local default:
+EditableBracket = component(CornerBracket, include=&quot;*&quot;)</code></pre>
+<p>A parent <code>Parameter</code> or expression passed into a component always
+stays symbolic, even when it is not in <code>include</code>. For example,
+<code>Bracket(inside_corner_radius=self.corner_radius)</code> reuses the
+parent design's <code>corner_radius</code>; it does not create a separate
+<code>CornerBracket_inside_corner_radius</code> parameter.</p>
+<h2 id="placement">Occurrence placement</h2>
+<p><code>copy()</code> in Python retains the source's intended position
+and orientation. <code>move()</code> then adds the given displacement.
+For example, moving a copy by X=120 after its source already sits at X=50
+makes the copy's intended X position 170. This is normal Python-side behavior.
+When compiling, SCPF first creates all native occurrences at the origin and
+asks SolidCraft to position each one <em>once</em>. No previous native
+transform needs to be undone, and no inverse matrix is calculated.</p>
+<pre><code>center = BeamComponent()
+array = center
+for x in (-240, -120, 120, 240):
+    array = array + center.copy().move(x=x)</code></pre>
+<h2 id="attach">Component attachment</h2>
+<pre><code>right = BeamComponent().attach(
+    left, parent=Anchor.RIGHT, child=Anchor.LEFT
+)
+
+marker = Marker().attach(
+    frame,
+    parent=Anchor.FRONT_TOP_RIGHT,
+    child=Anchor.BACK_TOP_RIGHT,
+)</code></pre>
+<p><code>attach()</code> is the public Forge relationship between reusable
+components. <code>Anchor</code> selects the attachment reference: a supported
+face, or one of the eight rectangular corners such as
+<code>FRONT_TOP_RIGHT</code>. Corner anchors compile to native SolidCraft
+edge/corner origins, so they follow dimension changes in a saved design.</p>
+<h2 id="attach-offset">Associative in-plane attachment offset</h2>
+<p><code>attach(offset=(u, v))</code> moves the child within the attachment
+plane. Numeric values and parameter expressions are both supported. Forge
+lowers a non-zero or symbolic in-plane offset to a native planar joint and
+keeps <code>u</code> and <code>v</code> as SolidCraft joint values, so they are
+re-evaluated when their parameters change.</p>
+<pre><code>wood = Parameter(&quot;wood_thickness&quot;, 18)
+
+bracket = Bracket().attach(
+    side,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=mount,
+    offset=(0, -wood + 12),
+    gap=-12,
+)</code></pre>
+<p><code>offset</code> is independent of <code>gap</code>: the two offset
+values move in the attachment plane, while <code>gap</code> remains the normal
+distance between the two references. On a rectangular corner origin, the
+second planar value follows the selected vertical corner edge; its sign is
+defined by that corner frame rather than by world Z.</p>
+<h2 id="assembly-anchor">Assembly-owned named anchors</h2>
+<p>When a datum belongs to the meaning of an assembly rather than to a generic
+component, keep it on the assembly with <code>with_anchor()</code>. The anchor
+stores the target occurrence plus its attachment reference. Consumers resolve
+it by name with <code>anchor()</code>.</p>
+<pre><code>frame = (left + right + bottom).with_anchor(
+    &quot;front_top_left&quot;,
+    left,
+    AnchorTopology(
+        edge=(-6, 0, 181),
+        on=(0, 0, 181),
+        corner=(-6, 0, 362),
+        z=(0, 0, -1),
+        x=(1, 0, 0),
+    ),
+)
+
+parent = frame.anchor(&quot;front_top_left&quot;)
+bracket = CornerBracket().attach(
+    parent.target,
+    parent=parent.reference,
+    child=bracket_reference,
+)</code></pre>
+<p>This keeps a generic <code>Board</code> or <code>CornerBracket</code> free
+of application-specific anchor names while a higher-level frame can expose
+semantic datums such as <code>front_top_left</code>.</p>
+<p>An assembly anchor may also carry its own symbolic
+<code>offset=(u, v)</code>. Consumers can combine that semantic offset with a
+fixed local correction and pass the result to <code>attach(offset=...)</code>.
+This is useful when an assembly datum follows a frame parameter such as wall
+thickness while the reusable part keeps a fixed mounting correction.</p>
+<h2 id="anchor-frame">AnchorFrame: point plus orientation</h2>
+<p>An <code>AnchorFrame</code> describes one local attachment coordinate frame.
+<code>origin</code> gives the local point; <code>z</code> gives the attachment
+normal and <code>x</code> fixes the rotation around that normal. Use it when a
+single point or rectangular <code>Anchor</code> is not enough to describe how
+the occurrence must be oriented.</p>
+<pre><code>from scpf import Anchor, AnchorFrame
+
+mount = AnchorFrame(
+    origin=(0, 0, -12),
+    z=(0, 1, 0),
+    x=(0, 0, -1),
+)
+
+bracket = CornerBracket().attach(
+    side_board,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=mount,
+)</code></pre>
+<p>There are two ownership patterns. If the datum is an intrinsic part of a
+reusable component, expose it with <code>anchors()</code> and refer to it by
+name. If the frame exists only because of a particular assembly or mounting
+choice, construct the <code>AnchorFrame</code> in that assembly and pass it
+directly to <code>attach()</code>. This keeps application knowledge out of the
+generic component definition.</p>
+<pre><code>@component
+class Sensor:
+    def anchors(self):
+        return {
+            &quot;connector&quot;: AnchorFrame(
+                origin=(12, 0, 4),
+                z=(1, 0, 0),
+                x=(0, 0, 1),
+            )
+        }
+
+    def build(self):
+        return Box(24, 12, 8)
+
+sensor = Sensor().attach(panel, child=&quot;connector&quot;)</code></pre>
+<p>For an unrotated occurrence, Forge lowers an <code>AnchorFrame</code>
+directly into the native <code>joint.create</code> reference as
+<code>point</code>, <code>z</code> and <code>x</code>; it does not create a
+persistent visible <code>joint.origin</code>. Named frames on explicitly
+rotated occurrences currently use the native origin fallback so SolidCraft
+owns the transform. A direct <code>AnchorFrame</code> on an explicitly rotated
+occurrence is not supported yet.</p>
+<h2 id="anchor-topology">AnchorTopology: follow an edge or corner</h2>
+<p><code>AnchorTopology</code> is a named component datum that stays attached to native SolidCraft topology. <code>edge</code> picks an edge, <code>on</code> selects its adjacent planar face and <code>corner</code> optionally chooses one endpoint. The coordinates are selection picks; SolidCraft keeps the selected edge, face and endpoint by topology name as the design changes.</p>
+<pre><code>from scpf import AnchorTopology, Box, component
+
+@component
+class Board:
+    def anchors(self):
+        return {
+            &quot;mount&quot;: AnchorTopology(
+                edge=(-20, 50, 5),
+                on=(-20, 50, 10),
+                corner=(-20, 0, 5),
+                z=(0, 1, 0),
+                x=(0, 0, 1),
+            )
+        }
+
+    def build(self):
+        return Box(40, 100, 20)</code></pre>
+<p>This is useful for references such as the straight tangent edge beside a fillet: if dimensions move that edge, the joint can follow it without freezing the original XYZ point. The current implementation supports named or direct <code>AnchorTopology</code> values on non-rotated occurrences. A direct topology anchor is useful when the datum belongs only to one assembly rather than to the reusable component. SCPF deliberately does not transform topology picks itself.</p>
+<p>SolidCraft joints remain an internal implementation detail; Forge does not
+expose a separate public Joint object.</p>
+<h2 id="verify">What to test in an assembly</h2>
+<p>Check the native command list for one <code>component.create</code>
+per shared definition, expected <code>occurrence.copy</code> counts,
+and native <code>translate</code>, <code>axis</code> and <code>angle</code>
+parameters for rotated occurrences. Separately verify native SolidCraft
+geometry and its bounding dimensions before trusting an assembly image.</p></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

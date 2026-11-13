@@ -1,0 +1,111 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "width",
+        "expression": "100",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "depth",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "thickness",
+        "expression": "10",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "spacing",
+        "expression": "40",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Base"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          0,
+          0
+        ],
+        "p1": [
+          "width",
+          "depth"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "thickness",
+        "direction": "positive",
+        "body_name": "AnchoredHoles"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Holes"
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          50.0,
+          10.0
+        ],
+        "diameter": 8
+      }
+    },
+    {
+      "command": "sketch.circle.center",
+      "params": {
+        "center": [
+          50.0,
+          50.0
+        ],
+        "diameter": 8
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "thickness",
+        "direction": "positive",
+        "operation": "cut",
+        "targets": [
+          "AnchoredHoles"
+        ],
+        "name": "Holes"
+      }
+    }
+  ]
+}
