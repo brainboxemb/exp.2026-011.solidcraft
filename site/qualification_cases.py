@@ -143,6 +143,20 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "primitive-csg",
+        "title": "Primitive CSG and orientation",
+        "intent": "Qualify the direct CSG path independently of feature-history geometry: Sphere and Box union, translated primitives, three-axis Cylinder.orient() cuts and intersection.",
+        "forge_api": "Sphere(); Box(...).move(...); Cylinder(...).orient(X, Y, Z); + / - / &",
+        "forge_model": "A Shape CSG tree rooted in Sphere so Forge deliberately selects the direct CSG compiler rather than the feature-history Box compiler.",
+        "lowering": "solid.sphere(new), solid.box(join), three centered solid.cylinder(cut) commands for X/Y/Z, then solid.box(intersect).",
+        "native_expectation": "One valid clipped solid remains after union, three orthogonal bores and intersection; SolidCraft must accept every CSG operation with an error-free evaluated timeline.",
+        "mutation": "No saved-design mutation in this case; it isolates primitive CSG lowering and orientation. Parameter mutation belongs in the parameter-specific cases.",
+        "references": [
+            ("OpenSCAD", "This is closest to ordinary union()/difference()/intersection() with translate()/rotate() around primitives."),
+            ("PythonSCAD", "Useful comparison for first-class solid objects and Python operators while Forge still delegates geometry to SolidCraft."),
+        ],
+    },
+    {
         "slug": "bracket",
         "title": "Minimal L-profile",
         "intent": "Provide a deliberately simple reusable L-shaped reference component for later attachment/orientation qualification.",
