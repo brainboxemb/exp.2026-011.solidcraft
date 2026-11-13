@@ -11,24 +11,35 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
-    # Deliberately unequal arms make every 3D orientation observable.
-    X_ARM = 36.0
-    Y_ARM = 28.0
-    Z_ARM = 24.0
-    THICKNESS = 8.0
+    ARM = 30.0
+    THICKNESS = 4.0
 
     def build(self):
+        arm = self.ARM
         t = self.THICKNESS
-        x_arm = Box(self.X_ARM, t, t).move(
-            x=self.X_ARM / 2,
-            z=-(t / 2),
+
+        # Neutral outside corner cap. For the canonical FRONT_TOP_LEFT
+        # orientation the case extends inward along +X, -Y and -Z.
+        #
+        # Three square plates meet at the same corner:
+        #   top plate   : +X / -Y, thickness outward in +Z
+        #   front plate : +X / -Z, thickness outward in -Y
+        #   side plate  : -Y / -Z, thickness outward in -X
+        top = Box(arm, arm, t).move(
+            x=arm / 2,
+            y=-(arm / 2),
         )
-        y_arm = Box(t, self.Y_ARM, t).move(
-            y=self.Y_ARM / 2,
-            z=-(t / 2),
+        front = Box(arm, t, arm).move(
+            x=arm / 2,
+            y=-(t / 2),
+            z=-arm,
         )
-        z_arm = Box(t, t, self.Z_ARM)
-        return x_arm + y_arm + z_arm
+        side = Box(t, arm, arm).move(
+            x=-(t / 2),
+            y=-(arm / 2),
+            z=-arm,
+        )
+        return top + front + side
 
 
 class EightFlightcaseCorners:
@@ -44,8 +55,9 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral 3D protector is reused at all eight topology corners.
-        # The unequal arms make accidental mirroring or clocking visible.
+        # One neutral trihedral protector is reused at all eight topology
+        # corners. Its three plates must always wrap the outside corner and
+        # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
             z=FRONT,

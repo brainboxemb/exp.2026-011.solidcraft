@@ -1,5 +1,5 @@
 {
-  "library_commit": "c65c5aa758b6c1b5a71eafe6f5971601a3fd5afa",
+  "library_commit": "5cd7c359f5e26cdb83992802b13bbb7e45223fcc",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -147,7 +147,7 @@
       "parameter_count": null
     },
     "eight-flightcase-corners": {
-      "title": "Eight asymmetric flightcase corners",
+      "title": "Eight flightcase corner protectors",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 38,

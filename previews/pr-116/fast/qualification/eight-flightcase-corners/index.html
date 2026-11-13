@@ -1,30 +1,30 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Eight asymmetric flightcase corners · SCPF Python library</title>
+<title>Qualification · Eight flightcase corner protectors · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
 <nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
 <a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Eight asymmetric flightcase corners</div>
+<div class="crumb"><a href="../">← Qualification</a> / Eight flightcase corner protectors</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Eight asymmetric flightcase corners</h1>
+  <h1>Eight flightcase corner protectors</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight asymmetric flightcase corners expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight flightcase corner protectors expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
   <h3>Test goal</h3>
-  <p>Prove the corner API on a second, genuinely 3D component: one asymmetric three-arm corner protector reused on all eight corners of a case.</p>
+  <p>Prove the corner API on a second, genuinely 3D component: one three-plate flightcase corner protector reused on all eight corners of a case.</p>
   <h3>Pass criteria</h3>
-  <p>All eight protectors remain one shared component definition and occupy the eight distinct 3D corner orientations.</p>
+  <p>Each protector wraps its outside case corner with three plates extending inward over the adjacent faces, while all eight remain one shared component definition.</p>
   <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every protector must follow its moved corner.</p>
 </section>
 
@@ -44,24 +44,35 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
-    # Deliberately unequal arms make every 3D orientation observable.
-    X_ARM = 36.0
-    Y_ARM = 28.0
-    Z_ARM = 24.0
-    THICKNESS = 8.0
+    ARM = 30.0
+    THICKNESS = 4.0
 
     def build(self):
+        arm = self.ARM
         t = self.THICKNESS
-        x_arm = Box(self.X_ARM, t, t).move(
-            x=self.X_ARM / 2,
-            z=-(t / 2),
+
+        # Neutral outside corner cap. For the canonical FRONT_TOP_LEFT
+        # orientation the case extends inward along +X, -Y and -Z.
+        #
+        # Three square plates meet at the same corner:
+        #   top plate   : +X / -Y, thickness outward in +Z
+        #   front plate : +X / -Z, thickness outward in -Y
+        #   side plate  : -Y / -Z, thickness outward in -X
+        top = Box(arm, arm, t).move(
+            x=arm / 2,
+            y=-(arm / 2),
         )
-        y_arm = Box(t, self.Y_ARM, t).move(
-            y=self.Y_ARM / 2,
-            z=-(t / 2),
+        front = Box(arm, t, arm).move(
+            x=arm / 2,
+            y=-(t / 2),
+            z=-arm,
         )
-        z_arm = Box(t, t, self.Z_ARM)
-        return x_arm + y_arm + z_arm
+        side = Box(t, arm, arm).move(
+            x=-(t / 2),
+            y=-(arm / 2),
+            z=-arm,
+        )
+        return top + front + side
 
 
 class EightFlightcaseCorners:
@@ -77,8 +88,9 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral 3D protector is reused at all eight topology corners.
-        # The unequal arms make accidental mirroring or clocking visible.
+        # One neutral trihedral protector is reused at all eight topology
+        # corners. Its three plates must always wrap the outside corner and
+        # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
             z=FRONT,
@@ -124,12 +136,12 @@ EightFlightcaseCorners()
   <h3>Public Forge API used</h3>
   <p><code>FlightcaseCorner + one explicit child AnchorFrame attached to all eight FRONT/BACK corner anchors.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One CaseBlock plus eight occurrences of one trihedral protector. Its X/Y/Z arms have different lengths so every mirror/clocking error is measurable.</p>
+  <p>One CaseBlock plus eight occurrences of one trihedral corner cap made from three 30 mm plates. The reusable component owns only its local outside-corner geometry.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid topology-backed corner joints place one asymmetric 3D component around all eight box corners; no occurrence-specific geometry is authored.</p>
+  <p>Eight rigid topology-backed corner joints place the same 3D corner cap around all eight box corners; no occurrence-specific geometry is authored.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -506,7 +518,7 @@ EightFlightcaseCorners()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A second component family demonstrates that the corner-frame API is not HUB75-specific.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Asymmetric geometry makes the local anchor orientation observable at every 3D corner.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A second component family demonstrates that the corner-frame API is not HUB75-specific.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The same local trihedral corner is reoriented by the assembly at all eight topology corners.</li></ul>
     </div>
   </div>
 </section>

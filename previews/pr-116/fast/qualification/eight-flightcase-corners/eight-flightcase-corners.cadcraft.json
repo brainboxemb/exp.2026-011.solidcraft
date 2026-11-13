@@ -1,6 +1,6 @@
 {
   "cadcraft_version":"0.20.1",
-  "title":"Eight asymmetric flightcase corners",
+  "title":"Eight flightcase corner protectors",
   "commands":[
     {"command":"layer.new","params":{"name":"CASE","color":8,"lineweight":0.35,"current":true}},
     {"command":"rectang","params":{"p1":[-60,0],"p2":[60,60]}},
@@ -16,6 +16,6 @@
     {"command":"circle","params":{"center":[-60,0],"radius":8}},
     {"command":"layer.new","params":{"name":"TEXT","color":7,"current":true}},
     {"command":"text","params":{"at":[-105,82],"text":"8 FLIGHTCASE CORNERS","height":5}},
-    {"command":"text","params":{"at":[-105,74],"text":"Asymmetric X/Y/Z arms make all 8 orientations observable","height":3}}
+    {"command":"text","params":{"at":[-105,74],"text":"One 3-plate corner cap reused on all 8 outside corners","height":3}}
   ]
 }

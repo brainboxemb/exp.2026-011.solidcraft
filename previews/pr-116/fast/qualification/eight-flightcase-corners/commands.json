@@ -78,13 +78,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 36.0,
-        "width": 8.0,
-        "height": 8.0,
+        "length": 30.0,
+        "width": 30.0,
+        "height": 4.0,
         "center": [
-          18.0,
-          0.0,
-          -4.0
+          15.0,
+          -15.0,
+          0.0
         ],
         "operation": "new",
         "body_name": "FlightcaseCorner"
@@ -93,13 +93,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 8.0,
-        "width": 28.0,
-        "height": 8.0,
+        "length": 30.0,
+        "width": 4.0,
+        "height": 30.0,
         "center": [
-          0.0,
-          14.0,
-          -4.0
+          15.0,
+          -2.0,
+          -30.0
         ],
         "operation": "join",
         "targets": [
@@ -110,13 +110,13 @@
     {
       "command": "solid.box",
       "params": {
-        "length": 8.0,
-        "width": 8.0,
-        "height": 24.0,
+        "length": 4.0,
+        "width": 30.0,
+        "height": 30.0,
         "center": [
-          0,
-          0,
-          0
+          -2.0,
+          -15.0,
+          -30.0
         ],
         "operation": "join",
         "targets": [
