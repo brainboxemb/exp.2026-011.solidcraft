@@ -174,7 +174,10 @@ def _qualification_status(result):
 
 
 def _qualification_status_html(overall, detail):
-    status_class = "pass" if overall == "PASS" else "fail"
+    status_class = {
+        "PASS": "pass",
+        "NOT RUN": "not-run",
+    }.get(overall, "fail")
     return (
         '<div class="qualification-status-line">'
         f'<span class="qualification-status {status_class}">{escape(overall)}</span>'
