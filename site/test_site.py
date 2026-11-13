@@ -131,7 +131,8 @@ def check(site: Path, sha: str, require_native: bool = False):
         if require_native:
             manifest_case = qualification_manifest["cases"][slug]
             assert manifest_case["qualification_status"] == "pass", slug
-            assert "PASS" in page_text, slug
+            assert 'qualification-status pass' in page_text, slug
+            assert ">PASS</span>" in page_text, slug
             result_path = site / "qualification" / slug / "qualification-result.json"
             assert result_path.is_file(), slug
             structured_result = json.loads(result_path.read_text(encoding="utf-8"))
