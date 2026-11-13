@@ -44,18 +44,18 @@
         "max": [
           40.0,
           -15.0,
-          50.0
+          40.0
         ],
         "min": [
           30.0,
           -25.0,
-          40.0
+          30.0
         ]
       },
       "center_of_mass": [
         35.0,
         -20.0,
-        45.0
+        35.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -126,7 +126,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.158687,
+      "ms": 0.269656,
       "name": "Base footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -140,7 +140,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.76576,
+      "ms": 0.97369,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -154,7 +154,7 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.077525,
+      "ms": 0.07959000000000001,
       "name": "Marker footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -168,7 +168,7 @@
       },
       "error": null,
       "id": 8,
-      "ms": 0.238916,
+      "ms": 0.278644,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,

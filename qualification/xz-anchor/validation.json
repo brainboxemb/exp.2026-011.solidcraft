@@ -1,12 +1,12 @@
 {
   "case": "xz-anchor",
-  "q4": "fail",
-  "q5": "fail",
+  "q4": "pass",
+  "q5": "pass",
   "checks": [
     {
       "name": "declared target geometry",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": [
         {
           "label": "Board",
@@ -65,22 +65,22 @@
           "min": [
             10.0,
             -10.0,
-            20.0
+            10.0
           ],
           "max": [
             20.0,
             0.0,
-            30.0
+            20.0
           ]
         },
         {
           "min": [
-            -30.0,
+            -20.0,
             -10.0,
             10.0
           ],
           "max": [
-            -20.0,
+            -10.0,
             0.0,
             20.0
           ]
@@ -97,7 +97,7 @@
     {
       "name": "right BACK_TOP corner alignment",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           10.0,
@@ -115,22 +115,22 @@
           [
             10.0,
             -10.0,
-            20.0
+            10.0
           ],
           [
             20.0,
             0.0,
-            30.0
+            20.0
           ]
         ],
         [
           [
-            -30.0,
+            -20.0,
             -10.0,
             10.0
           ],
           [
-            -20.0,
+            -10.0,
             0.0,
             20.0
           ]
@@ -140,7 +140,7 @@
     {
       "name": "left BACK_TOP corner alignment",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           -20.0,
@@ -158,22 +158,22 @@
           [
             10.0,
             -10.0,
-            20.0
+            10.0
           ],
           [
             20.0,
             0.0,
-            30.0
+            20.0
           ]
         ],
         [
           [
-            -30.0,
+            -20.0,
             -10.0,
             10.0
           ],
           [
-            -20.0,
+            -10.0,
             0.0,
             20.0
           ]
@@ -183,7 +183,7 @@
     {
       "name": "right corner follows size mutation",
       "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           30.0,
@@ -201,22 +201,22 @@
           [
             30.0,
             -10.0,
-            40.0
+            30.0
           ],
           [
             40.0,
             0.0,
-            50.0
+            40.0
           ]
         ],
         [
           [
-            -50.0,
+            -40.0,
             -10.0,
             30.0
           ],
           [
-            -40.0,
+            -30.0,
             0.0,
             40.0
           ]
@@ -226,7 +226,7 @@
     {
       "name": "left corner follows size mutation",
       "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           -40.0,
@@ -244,22 +244,22 @@
           [
             30.0,
             -10.0,
-            40.0
+            30.0
           ],
           [
             40.0,
             0.0,
-            50.0
+            40.0
           ]
         ],
         [
           [
-            -50.0,
+            -40.0,
             -10.0,
             30.0
           ],
           [
-            -40.0,
+            -30.0,
             0.0,
             40.0
           ]

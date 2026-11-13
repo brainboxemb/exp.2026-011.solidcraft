@@ -1,12 +1,12 @@
 {
   "case": "parametric-offset",
-  "q4": "fail",
-  "q5": "fail",
+  "q4": "pass",
+  "q5": "pass",
   "checks": [
     {
       "name": "declared target geometry",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": [
         {
           "label": "Base",
@@ -52,12 +52,12 @@
           "min": [
             10.0,
             -25.0,
-            25.0
+            15.0
           ],
           "max": [
             20.0,
             -15.0,
-            35.0
+            25.0
           ]
         }
       ]
@@ -65,7 +65,7 @@
     {
       "name": "top-right anchor + 5 mm local offset",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           10,
@@ -82,19 +82,19 @@
         "max": [
           20.0,
           -15.0,
-          35.0
+          25.0
         ],
         "min": [
           10.0,
           -25.0,
-          25.0
+          15.0
         ]
       }
     },
     {
       "name": "declared mutation target geometry",
       "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": [
         {
           "label": "Base",
@@ -140,12 +140,12 @@
           "min": [
             10.0,
             -25.0,
-            30.0
+            20.0
           ],
           "max": [
             20.0,
             -15.0,
-            40.0
+            30.0
           ]
         }
       ]
@@ -153,7 +153,7 @@
     {
       "name": "10 mm local offset mutation",
       "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           10,
@@ -170,12 +170,12 @@
         "max": [
           20.0,
           -15.0,
-          40.0
+          30.0
         ],
         "min": [
           10.0,
           -25.0,
-          30.0
+          20.0
         ]
       }
     }

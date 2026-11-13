@@ -1,12 +1,12 @@
 {
   "case": "corner-anchor",
-  "q4": "fail",
-  "q5": "fail",
+  "q4": "pass",
+  "q5": "pass",
   "checks": [
     {
       "name": "declared target geometry",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": [
         {
           "label": "Base",
@@ -52,12 +52,12 @@
           "min": [
             10.0,
             -25.0,
-            20.0
+            10.0
           ],
           "max": [
             20.0,
             -15.0,
-            30.0
+            20.0
           ]
         }
       ]
@@ -65,7 +65,7 @@
     {
       "name": "BACK_TOP_RIGHT meets parent FRONT_TOP_RIGHT",
       "level": "q4",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           10,
@@ -82,91 +82,19 @@
         "max": [
           20.0,
           -15.0,
-          30.0
+          20.0
         ],
         "min": [
           10.0,
           -25.0,
-          20.0
+          10.0
         ]
       }
     },
     {
       "name": "declared mutation target geometry",
       "level": "q5",
-      "status": "fail",
-      "expected": [
-        {
-          "label": "Board",
-          "min": [
-            -40,
-            0,
-            0
-          ],
-          "max": [
-            40,
-            12,
-            40
-          ]
-        },
-        {
-          "label": "right Marker",
-          "min": [
-            30,
-            -10,
-            30
-          ],
-          "max": [
-            40,
-            0,
-            40
-          ]
-        },
-        {
-          "label": "left Marker",
-          "min": [
-            -40,
-            -10,
-            30
-          ],
-          "max": [
-            -30,
-            0,
-            40
-          ]
-        }
-      ],
-      "actual": [
-        {
-          "min": [
-            -40.0,
-            -15.0,
-            0.0
-          ],
-          "max": [
-            40.0,
-            15.0,
-            40.0
-          ]
-        },
-        {
-          "min": [
-            30.0,
-            -25.0,
-            40.0
-          ],
-          "max": [
-            40.0,
-            -15.0,
-            50.0
-          ]
-        }
-      ]
-    },
-    {
-      "name": "declared mutation target geometry",
-      "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": [
         {
           "label": "Base",
@@ -212,12 +140,12 @@
           "min": [
             30.0,
             -25.0,
-            40.0
+            30.0
           ],
           "max": [
             40.0,
             -15.0,
-            50.0
+            40.0
           ]
         }
       ]
@@ -225,7 +153,7 @@
     {
       "name": "corner follows 80x40 mutation",
       "level": "q5",
-      "status": "fail",
+      "status": "pass",
       "expected": {
         "min": [
           30,
@@ -242,12 +170,12 @@
         "max": [
           40.0,
           -15.0,
-          50.0
+          40.0
         ],
         "min": [
           30.0,
           -25.0,
-          40.0
+          30.0
         ]
       }
     }

@@ -44,18 +44,18 @@
         "max": [
           40.0,
           0.0,
-          50.0
+          40.0
         ],
         "min": [
           30.0,
           -10.0,
-          40.0
+          30.0
         ]
       },
       "center_of_mass": [
         35.0,
         -5.0,
-        45.0
+        35.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -80,18 +80,18 @@
       "area_mm2": 600.0,
       "bbox": {
         "max": [
-          -40.0,
+          -30.0,
           0.0,
           40.0
         ],
         "min": [
-          -50.0,
+          -40.0,
           -10.0,
           30.0
         ]
       },
       "center_of_mass": [
-        -45.0,
+        -35.0,
         -5.0,
         35.0
       ],
@@ -173,7 +173,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.15182400000000001,
+      "ms": 0.21870099999999998,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -187,7 +187,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.817828,
+      "ms": 1.012182,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -201,7 +201,7 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.07188499999999999,
+      "ms": 0.087986,
       "name": "Marker footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -215,7 +215,7 @@
       },
       "error": null,
       "id": 8,
-      "ms": 0.238786,
+      "ms": 0.286909,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,

@@ -54,58 +54,50 @@ class EightCornerBrackets:
         # supplies the corner position/orientation on the front or rear face.
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, -1, 0),
-            x=(1, 0, 0),
+            z=FRONT,
+            x=RIGHT,
         )
 
         front_top_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         front_top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         front_bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         front_bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
 
         rear_top_left = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_TOP_LEFT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         rear_top_right = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_TOP_RIGHT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         rear_bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
         rear_bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_BOTTOM_LEFT,
-            child=bracket_corner,
-            angle=0,
+            child=bracket_corner
         )
 
         return (

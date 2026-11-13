@@ -1,21 +1,45 @@
 {
   "case": "eight-corner-brackets",
-  "status": "review",
+  "status": "pass",
   "views": {
     "front": {
-      "status": "review",
+      "status": "pass",
       "image": "model-front.png",
-      "reason": "no approved visual baseline"
+      "diff": "visual-diff-front.png",
+      "metrics": {
+        "mean_abs": 0.0,
+        "changed_pixel_fraction": 0.0
+      },
+      "limits": {
+        "mean_abs": 6.0,
+        "changed_pixel_fraction": 0.08
+      }
     },
     "right": {
-      "status": "review",
+      "status": "pass",
       "image": "model-right.png",
-      "reason": "no approved visual baseline"
+      "diff": "visual-diff-right.png",
+      "metrics": {
+        "mean_abs": 0.0,
+        "changed_pixel_fraction": 0.0
+      },
+      "limits": {
+        "mean_abs": 6.0,
+        "changed_pixel_fraction": 0.08
+      }
     },
     "iso": {
-      "status": "review",
+      "status": "pass",
       "image": "model-iso.png",
-      "reason": "no approved visual baseline"
+      "diff": "visual-diff-iso.png",
+      "metrics": {
+        "mean_abs": 0.0,
+        "changed_pixel_fraction": 0.0
+      },
+      "limits": {
+        "mean_abs": 6.0,
+        "changed_pixel_fraction": 0.08
+      }
     }
   },
   "missing": []

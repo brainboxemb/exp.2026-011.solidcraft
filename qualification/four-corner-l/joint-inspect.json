@@ -25,31 +25,24 @@
           "occurrence": 2,
           "occurrence_name": "FrameBlock:1",
           "path": "FrameBlock:1",
-          "references": [
-            {
-              "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:start",
-              "role": "face",
-              "role_in_feature": "start"
-            }
-          ],
+          "references": [],
           "resolves": true,
           "snap": {
-            "face": "F4:start",
-            "pick": [
+            "point": [
               0.0,
               0.0,
               0.0
             ],
-            "type": "face_center",
+            "type": "point",
             "x": [
               0.0,
               -1.0,
               0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
             ]
           }
         },
@@ -59,8 +52,8 @@
           "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              40.0,
-              60.0,
+              -60.0,
+              -40.0,
               0.0
             ],
             "x": [
@@ -87,8 +80,8 @@
             ],
             "type": "point",
             "x": [
-              1.0,
               0.0,
+              -1.0,
               0.0
             ],
             "z": [
@@ -107,8 +100,8 @@
         "errors": [],
         "expressions": {
           "values": [
-            "-(frame_width / 2)",
-            "-(frame_depth / 2)"
+            "frame_depth / 2",
+            "frame_width / 2"
           ]
         },
         "flip": false,
@@ -123,13 +116,13 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": -60.0
+            "value": 40.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": -40.0
+            "value": 60.0
           },
           {
             "limits": null,
@@ -164,47 +157,40 @@
           "occurrence": 2,
           "occurrence_name": "FrameBlock:1",
           "path": "FrameBlock:1",
-          "references": [
-            {
-              "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:start",
-              "role": "face",
-              "role_in_feature": "start"
-            }
-          ],
+          "references": [],
           "resolves": true,
           "snap": {
-            "face": "F4:start",
-            "pick": [
+            "point": [
               0.0,
               0.0,
               0.0
             ],
-            "type": "face_center",
+            "type": "point",
             "x": [
               0.0,
               -1.0,
               0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
             ]
           }
         },
-        "angle": 180.0,
+        "angle": 0.0,
         "b": {
           "component": 5,
           "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              40.0,
-              -60.0,
+              60.0,
+              -40.0,
               0.0
             ],
             "x": [
-              1.0,
-              1.8369701987210297e-16,
+              0.0,
+              -1.0,
               0.0
             ],
             "z": [
@@ -226,7 +212,7 @@
             ],
             "type": "point",
             "x": [
-              1.0,
+              -1.0,
               0.0,
               0.0
             ],
@@ -246,8 +232,8 @@
         "errors": [],
         "expressions": {
           "values": [
-            "frame_width / 2",
-            "-(frame_depth / 2)"
+            "frame_depth / 2",
+            "-(frame_width / 2)"
           ]
         },
         "flip": false,
@@ -262,19 +248,19 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": 60.0
+            "value": 40.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": -40.0
+            "value": -60.0
           },
           {
             "limits": null,
             "name": "angle",
             "unit": "deg",
-            "value": 90.0
+            "value": 0.0
           }
         ],
         "visible": false
@@ -303,31 +289,24 @@
           "occurrence": 2,
           "occurrence_name": "FrameBlock:1",
           "path": "FrameBlock:1",
-          "references": [
-            {
-              "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:start",
-              "role": "face",
-              "role_in_feature": "start"
-            }
-          ],
+          "references": [],
           "resolves": true,
           "snap": {
-            "face": "F4:start",
-            "pick": [
+            "point": [
               0.0,
               0.0,
               0.0
             ],
-            "type": "face_center",
+            "type": "point",
             "x": [
               0.0,
               -1.0,
               0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
             ]
           }
         },
@@ -337,13 +316,13 @@
           "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              -40.0,
-              -60.0,
+              60.0,
+              40.0,
               0.0
             ],
             "x": [
-              -1.2246467991473532e-16,
-              1.0,
+              0.0,
+              -1.0,
               0.0
             ],
             "z": [
@@ -365,8 +344,8 @@
             ],
             "type": "point",
             "x": [
-              1.0,
               0.0,
+              1.0,
               0.0
             ],
             "z": [
@@ -385,8 +364,8 @@
         "errors": [],
         "expressions": {
           "values": [
-            "frame_width / 2",
-            "frame_depth / 2"
+            "-(frame_depth / 2)",
+            "-(frame_width / 2)"
           ]
         },
         "flip": false,
@@ -401,19 +380,19 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": 60.0
+            "value": -40.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": 40.0
+            "value": -60.0
           },
           {
             "limits": null,
             "name": "angle",
             "unit": "deg",
-            "value": 180.0
+            "value": 0.0
           }
         ],
         "visible": false
@@ -442,31 +421,24 @@
           "occurrence": 2,
           "occurrence_name": "FrameBlock:1",
           "path": "FrameBlock:1",
-          "references": [
-            {
-              "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:start",
-              "role": "face",
-              "role_in_feature": "start"
-            }
-          ],
+          "references": [],
           "resolves": true,
           "snap": {
-            "face": "F4:start",
-            "pick": [
+            "point": [
               0.0,
               0.0,
               0.0
             ],
-            "type": "face_center",
+            "type": "point",
             "x": [
               0.0,
               -1.0,
               0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
             ]
           }
         },
@@ -476,13 +448,13 @@
           "component_name": "CornerFoot",
           "frame": {
             "origin": [
-              -40.0,
-              60.0,
+              -60.0,
+              40.0,
               0.0
             ],
             "x": [
-              1.0,
-              1.8369701987210297e-16,
+              0.0,
+              -1.0,
               0.0
             ],
             "z": [
@@ -524,8 +496,8 @@
         "errors": [],
         "expressions": {
           "values": [
-            "-(frame_width / 2)",
-            "frame_depth / 2"
+            "-(frame_depth / 2)",
+            "frame_width / 2"
           ]
         },
         "flip": false,
@@ -540,19 +512,19 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": -60.0
+            "value": -40.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": 40.0
+            "value": 60.0
           },
           {
             "limits": null,
             "name": "angle",
             "unit": "deg",
-            "value": 270.0
+            "value": 0.0
           }
         ],
         "visible": false

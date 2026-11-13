@@ -12,7 +12,7 @@
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
-  <div class="qualification-status-line"><span class="qualification-status fail">FAIL</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 FAIL · Q5 FAIL · Q6 REVIEW</span></div>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 · Q6</span></div>
   <h1>Four reusable L-profile corner feet</h1>
 </section>
 
@@ -83,44 +83,65 @@ class FourCornerL:
         )
         foot = CornerFoot()
 
-        # The assembly chooses the attachment point and orientation.
-        # CornerFoot itself stays completely placement-agnostic.
-        foot_origin = AnchorFrame(
+        # Placement belongs to this assembly. All four frames use the same
+        # local origin and Z direction; only local X changes to express the
+        # required clocking. The reusable CornerFoot itself remains neutral.
+        bottom_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 0, 1),
-            x=(1, 0, 0),
+            z=DOWN,
+            x=FRONT,
+        )
+
+        front_left_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=FRONT,
+        )
+        front_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=LEFT,
+        )
+        back_right_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=BACK,
+        )
+        back_left_origin = AnchorFrame(
+            origin=(0, 0, 0),
+            z=UP,
+            x=RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
 
+        # SolidCraft&#x27;s BOTTOM frame uses local X along world -Y and local Y
+        # along world -X. Express the four positions in that local (u, v)
+        # frame; no extra joint angle is required.
         front_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
-            child=foot_origin,
-            offset=(-half_width, -half_depth),
-            angle=0,
+            parent=bottom_frame,
+            child=front_left_origin,
+            offset=(half_depth, half_width),
         )
         front_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
-            child=foot_origin,
-            offset=(half_width, -half_depth),
-            angle=90,
+            parent=bottom_frame,
+            child=front_right_origin,
+            offset=(half_depth, -half_width),
         )
         back_right = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
-            child=foot_origin,
-            offset=(half_width, half_depth),
-            angle=180,
+            parent=bottom_frame,
+            child=back_right_origin,
+            offset=(-half_depth, -half_width),
         )
         back_left = foot.copy().attach(
             frame,
-            parent=Anchor.BOTTOM,
-            child=foot_origin,
-            offset=(-half_width, half_depth),
-            angle=270,
+            parent=bottom_frame,
+            child=back_left_origin,
+            offset=(-half_depth, half_width),
         )
 
         return frame + front_left + front_right + back_right + back_left
@@ -129,14 +150,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=0/90/180/270)</code></p>
+  <p><code>attach(parent=assembly-local bottom AnchorFrame, child=assembly-local AnchorFrame, offset=(u, v)); parent uses z=DOWN/x=FRONT and child X uses FRONT/LEFT/BACK/RIGHT</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and rotations.</p>
+  <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns position and clocking through four explicit AnchorFrames with the same origin/Z and different X directions.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. Their native in-plane values contain the parametric width/depth offsets and the four quarter-turn angles.</p>
+  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=DOWN; x=FRONT). Parametric (u,v) expressions move to the four corners. Because both sides are explicit AnchorFrames, Forge emits mating angle=0 so SolidCraft cannot substitute its optional automatic half-turn.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -147,9 +168,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -166,16 +197,17 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
           0.0,
+          -1.0,
           0.0
         ]
       },
       &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        &quot;-(frame_depth / 2)&quot;,
+        &quot;frame_depth / 2&quot;,
+        &quot;frame_width / 2&quot;,
         0.0
-      ]
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -185,9 +217,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -204,16 +246,17 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
+          -1.0,
           0.0,
           0.0
         ]
       },
       &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;-(frame_depth / 2)&quot;,
-        90.0
-      ]
+        &quot;frame_depth / 2&quot;,
+        &quot;-(frame_width / 2)&quot;,
+        0.0
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -223,9 +266,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:3 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -242,16 +295,17 @@ FourCornerL()
           1.0
         ],
         &quot;x&quot;: [
-          1.0,
           0.0,
+          1.0,
           0.0
         ]
       },
       &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;frame_depth / 2&quot;,
-        180.0
-      ]
+        &quot;-(frame_depth / 2)&quot;,
+        &quot;-(frame_width / 2)&quot;,
+        0.0
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -261,9 +315,19 @@ FourCornerL()
       &quot;name&quot;: &quot;Attach CornerFoot:4 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;face&quot;: [
+        &quot;point&quot;: [
           0.0,
           0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          -1.0,
           0.0
         ]
       },
@@ -286,17 +350,18 @@ FourCornerL()
         ]
       },
       &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        &quot;frame_depth / 2&quot;,
-        270.0
-      ]
+        &quot;-(frame_depth / 2)&quot;,
+        &quot;frame_width / 2&quot;,
+        0.0
+      ],
+      &quot;angle&quot;: 0.0
     }
   }
 ]</code></pre>
   </details>
 </section>
 
-<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>160.0</td></tr><tr><td><code>frame_depth</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -60, 0]</code></td><td><code>[80, 60, 60]</code></td></tr><tr><td>CornerFoot</td><td><code>[60, 52, -30]</code></td><td><code>[88, 80, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:2)</td><td><code>[60, -80, -30]</code></td><td><code>[88, -52, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:3)</td><td><code>[-88, -80, -30]</code></td><td><code>[-60, -52, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:4)</td><td><code>[-60, 80, -30]</code></td><td><code>[-32, 108, 0]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>120.0</td></tr><tr><td><code>frame_depth</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -40, 0]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>CornerFoot</td><td><code>[40, 32, -30]</code></td><td><code>[68, 60, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:2)</td><td><code>[40, -60, -30]</code></td><td><code>[68, -32, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:3)</td><td><code>[-68, -60, -30]</code></td><td><code>[-40, -32, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:4)</td><td><code>[-40, 60, -30]</code></td><td><code>[-12, 88, 0]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-60, -40, 0], &quot;max&quot;: [60, 40, 60]}, {&quot;label&quot;: &quot;front-left foot&quot;, &quot;min&quot;: [-60, -40, -30], &quot;max&quot;: [-32, -12, 0]}, {&quot;label&quot;: &quot;front-right foot&quot;, &quot;min&quot;: [32, -40, -30], &quot;max&quot;: [60, -12, 0]}, {&quot;label&quot;: &quot;back-right foot&quot;, &quot;min&quot;: [32, 12, -30], &quot;max&quot;: [60, 40, 0]}, {&quot;label&quot;: &quot;back-left foot&quot;, &quot;min&quot;: [-60, 12, -30], &quot;max&quot;: [-32, 40, 0]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -40.0, 0.0], &quot;max&quot;: [60.0, 40.0, 60.0]}, {&quot;min&quot;: [40.0, 32.0, -30.0], &quot;max&quot;: [68.0, 60.0, 0.0]}, {&quot;min&quot;: [39.99999999999999, -60.0, -30.0], &quot;max&quot;: [68.0, -32.0, 0.0]}, {&quot;min&quot;: [-68.0, -60.0, -30.0], &quot;max&quot;: [-40.0, -32.0, 0.0]}, {&quot;min&quot;: [-40.00000000000001, 60.0, -30.0], &quot;max&quot;: [-12.0, 88.0, 0.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>frame bounds</td><td><code>null</code></td><td><code>null</code></td></tr><tr><td><span class="qualification-status fail">FAIL</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 60]}, {&quot;label&quot;: &quot;front-left foot&quot;, &quot;min&quot;: [-80, -60, -30], &quot;max&quot;: [-52, -32, 0]}, {&quot;label&quot;: &quot;front-right foot&quot;, &quot;min&quot;: [52, -60, -30], &quot;max&quot;: [80, -32, 0]}, {&quot;label&quot;: &quot;back-right foot&quot;, &quot;min&quot;: [52, 32, -30], &quot;max&quot;: [80, 60, 0]}, {&quot;label&quot;: &quot;back-left foot&quot;, &quot;min&quot;: [-80, 32, -30], &quot;max&quot;: [-52, 60, 0]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -60.0, 0.0], &quot;max&quot;: [80.0, 60.0, 60.0]}, {&quot;min&quot;: [60.0, 52.0, -30.0], &quot;max&quot;: [88.0, 80.0, 0.0]}, {&quot;min&quot;: [59.99999999999999, -80.0, -30.0], &quot;max&quot;: [88.0, -52.0, 0.0]}, {&quot;min&quot;: [-88.0, -80.0, -30.0], &quot;max&quot;: [-60.0, -52.0, 0.0]}, {&quot;min&quot;: [-60.00000000000001, 80.0, -30.0], &quot;max&quot;: [-32.0, 108.0, 0.0]}]</code></td></tr></tbody></table></section>
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120</strong> · 5 bodies · <a href="measurements-size-160x120.json">measurements-size-160x120.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>160.0</td></tr><tr><td><code>frame_depth</code></td><td>120.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-80, -60, 0]</code></td><td><code>[80, 60, 60]</code></td></tr><tr><td>CornerFoot</td><td><code>[-80, -60, -30]</code></td><td><code>[-52, -32, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:2)</td><td><code>[52, -60, -30]</code></td><td><code>[80, -32, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:3)</td><td><code>[52, 32, -30]</code></td><td><code>[80, 60, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:4)</td><td><code>[-80, 32, -30]</code></td><td><code>[-52, 60, 0]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 5 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>frame_width</code></td><td>120.0</td></tr><tr><td><code>frame_depth</code></td><td>80.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>FrameBlock</td><td><code>[-60, -40, 0]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>CornerFoot</td><td><code>[-60, -40, -30]</code></td><td><code>[-32, -12, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:2)</td><td><code>[32, -40, -30]</code></td><td><code>[60, -12, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:3)</td><td><code>[32, 12, -30]</code></td><td><code>[60, 40, 0]</code></td></tr><tr><td>CornerFoot (CornerFoot:4)</td><td><code>[-60, 12, -30]</code></td><td><code>[-32, 40, 0]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-60, -40, 0], &quot;max&quot;: [60, 40, 60]}, {&quot;label&quot;: &quot;front-left foot&quot;, &quot;min&quot;: [-60, -40, -30], &quot;max&quot;: [-32, -12, 0]}, {&quot;label&quot;: &quot;front-right foot&quot;, &quot;min&quot;: [32, -40, -30], &quot;max&quot;: [60, -12, 0]}, {&quot;label&quot;: &quot;back-right foot&quot;, &quot;min&quot;: [32, 12, -30], &quot;max&quot;: [60, 40, 0]}, {&quot;label&quot;: &quot;back-left foot&quot;, &quot;min&quot;: [-60, 12, -30], &quot;max&quot;: [-32, 40, 0]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -40.0, 0.0], &quot;max&quot;: [60.0, 40.0, 60.0]}, {&quot;min&quot;: [-60.0, -40.0, -30.0], &quot;max&quot;: [-32.0, -12.0, 0.0]}, {&quot;min&quot;: [32.0, -40.0, -30.0], &quot;max&quot;: [60.0, -12.0, 0.0]}, {&quot;min&quot;: [32.0, 12.0, -30.0], &quot;max&quot;: [60.0, 40.0, 0.0]}, {&quot;min&quot;: [-60.0, 12.0, -30.0], &quot;max&quot;: [-32.0, 40.0, 0.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>frame bounds</td><td><code>null</code></td><td><code>null</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;FrameBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 60]}, {&quot;label&quot;: &quot;front-left foot&quot;, &quot;min&quot;: [-80, -60, -30], &quot;max&quot;: [-52, -32, 0]}, {&quot;label&quot;: &quot;front-right foot&quot;, &quot;min&quot;: [52, -60, -30], &quot;max&quot;: [80, -32, 0]}, {&quot;label&quot;: &quot;back-right foot&quot;, &quot;min&quot;: [52, 32, -30], &quot;max&quot;: [80, 60, 0]}, {&quot;label&quot;: &quot;back-left foot&quot;, &quot;min&quot;: [-80, 32, -30], &quot;max&quot;: [-52, 60, 0]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -60.0, 0.0], &quot;max&quot;: [80.0, 60.0, 60.0]}, {&quot;min&quot;: [-80.0, -60.0, -30.0], &quot;max&quot;: [-52.0, -32.0, 0.0]}, {&quot;min&quot;: [52.0, -60.0, -30.0], &quot;max&quot;: [80.0, -32.0, 0.0]}, {&quot;min&quot;: [52.0, 32.0, -30.0], &quot;max&quot;: [80.0, 60.0, 0.0]}, {&quot;min&quot;: [-80.0, 32.0, -30.0], &quot;max&quot;: [-52.0, 60.0, 0.0]}]</code></td></tr></tbody></table></section>
 
 <section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Four reusable L-profile corner feet iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Four reusable L-profile corner feet iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Four reusable L-profile corner feet iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Four reusable L-profile corner feet front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Four reusable L-profile corner feet front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Four reusable L-profile corner feet front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Four reusable L-profile corner feet right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Four reusable L-profile corner feet right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Four reusable L-profile corner feet right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
 
@@ -307,13 +372,13 @@ FourCornerL()
       <h3>Raw evidence</h3>
       <details>
         <summary>Show generated files and measurements</summary>
-        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="camera-size-160x120-front.json">camera-size-160x120-front.json</a></li><li><a href="camera-size-160x120-iso.json">camera-size-160x120-iso.json</a></li><li><a href="camera-size-160x120-right.json">camera-size-160x120-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="model-size-160x120-front.png">Native snapshot: model-size-160x120-front.png</a></li><li><a href="model-size-160x120-iso.png">Native snapshot: model-size-160x120-iso.png</a></li><li><a href="model-size-160x120-right.png">Native snapshot: model-size-160x120-right.png</a></li><li><a href="model-size-160x120.png">Native snapshot: model-size-160x120.png</a></li></ul>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-160x120.json">measurements-size-160x120.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect-size-160x120.json">joint-inspect-size-160x120.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-160x120.sc">model-size-160x120.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="camera-size-160x120-front.json">camera-size-160x120-front.json</a></li><li><a href="camera-size-160x120-iso.json">camera-size-160x120-iso.json</a></li><li><a href="camera-size-160x120-right.json">camera-size-160x120-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li><li><a href="model-size-160x120-front.png">Native snapshot: model-size-160x120-front.png</a></li><li><a href="model-size-160x120-iso.png">Native snapshot: model-size-160x120-iso.png</a></li><li><a href="model-size-160x120-right.png">Native snapshot: model-size-160x120-right.png</a></li><li><a href="model-size-160x120.png">Native snapshot: model-size-160x120.png</a></li></ul>
       </details>
     </div>
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The useful comparison is attachment in the local plane of the selected parent face: position and spin belong to the assembly, not to the reusable foot.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A bottom-face planar joint is the natural native relationship for a foot whose placement moves in the frame&#x27;s XY plane.</li></ul>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The useful comparison is attachment in a local parent frame: position and clocking belong to the assembly, not to the reusable foot.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A planar joint between explicit parent/child frames keeps the in-plane offsets parametric while avoiding automatic half-turn ambiguity.</li></ul>
     </div>
   </div>
 </section>
