@@ -8,7 +8,7 @@ SolidCraft behaviour.  The site and site tests both consume this table.
 REFERENCE_URLS = {
     "BOSL2": "https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview",
     "OpenSCAD": "https://openscad.org/documentation.html",
-    "PythonSCAD": "https://github.com/gsohler/openscad",
+    "PythonSCAD": "https://github.com/pythonscad/pythonscad",
 }
 
 
