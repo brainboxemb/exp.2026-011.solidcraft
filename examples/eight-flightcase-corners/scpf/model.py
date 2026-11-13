@@ -65,8 +65,8 @@ class EightFlightcaseCorners:
         # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=BACK,
-            x=DOWN,
+            z=Anchor.BACK,
+            x=Anchor.DOWN,
         )
 
         front_top_left = protector.copy().attach(
