@@ -1068,7 +1068,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joints[1]["a"]["z"], [0.0, 0.0, -1.0])
         self.assertEqual(joints[1]["b"]["z"], [0.0, 0.0, -1.0])
 
-    def test_named_topology_anchor_is_inlined_as_edge_reference(self):
+    def test_named_topology_anchor_materializes_native_origin(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, AnchorTopology, Box
         from scpf.runner import component
@@ -1102,17 +1102,16 @@ class AssemblyTests(unittest.TestCase):
         )
 
         commands = compile_assembly(board + marker, "TopologyAnchor")["commands"]
-        self.assertFalse(
-            any(command["command"] == "joint.origin" for command in commands)
-        )
-        joint = next(
+        origin = next(
             command["params"]
             for command in commands
-            if command["command"] == "joint.create"
+            if command["command"] == "joint.origin"
+            and command["params"]["name"] == "Board:1.front_tangent"
         )
         self.assertEqual(
-            joint["a"],
+            origin,
             {
+                "name": "Board:1.front_tangent",
                 "occurrence": "Board:1",
                 "edge": [-20.0, 0.0, 5.0],
                 "on": [-20.0, 10.0, 10.0],
@@ -1121,8 +1120,14 @@ class AssemblyTests(unittest.TestCase):
                 "x": [0.0, 0.0, 1.0],
             },
         )
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["a"], "Board:1.front_tangent")
 
-    def test_direct_topology_anchor_is_inlined(self):
+    def test_direct_topology_anchor_materializes_native_origin(self):
         from scpf.assembly import compile_assembly
         from scpf.core import AnchorFrame, AnchorTopology, Box
         from scpf.runner import component
@@ -1149,13 +1154,19 @@ class AssemblyTests(unittest.TestCase):
             for command in compile_assembly(base + child, "DirectTopology")["commands"]
             if command["command"] == "joint.create"
         )
-        self.assertEqual(joint["a"]["edge"], [10.0, 0.0, 5.0])
-        self.assertEqual(joint["a"]["corner"], [10.0, 0.0, 0.0])
-        self.assertEqual(joint["a"]["z"], [0.0, 0.0, -1.0])
+        self.assertEqual(joint["a"], "Block:1.topology_1")
+        origin = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.origin"
+            and command["params"]["name"] == "Block:1.topology_1"
+        )
+        self.assertEqual(origin["edge"], [10.0, 0.0, 5.0])
+        self.assertEqual(origin["corner"], [10.0, 0.0, 0.0])
+        self.assertEqual(origin["z"], [0.0, 0.0, -1.0])
 
-    def test_named_topology_anchor_rejects_rotated_occurrence(self):
+    def test_named_topology_anchor_materializes_before_rotation(self):
         from scpf.assembly import compile_assembly
-        from scpf.compiler import ModelError
         from scpf.core import Anchor, AnchorTopology, Axis, Box
         from scpf.runner import component
 
@@ -1174,11 +1185,25 @@ class AssemblyTests(unittest.TestCase):
 
         board = Board().rotate(Axis.Z, 90)
         child = Board().attach(board, parent="edge_mount", child=Anchor.LEFT)
+        commands = compile_assembly(board + child, "RotatedTopologyAnchor")["commands"]
 
-        with self.assertRaisesRegex(
-            ModelError, "AnchorTopology.*rotated"
-        ):
-            compile_assembly(board + child, "RotatedTopologyAnchor")
+        origin_index = next(
+            i for i, command in enumerate(commands)
+            if command["command"] == "joint.origin"
+            and command["params"]["name"] == "Board:1.edge_mount"
+        )
+        move_index = next(
+            i for i, command in enumerate(commands)
+            if command["command"] == "occurrence.move"
+            and command["params"]["occurrence"] == "Board:1"
+        )
+        self.assertLess(origin_index, move_index)
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["a"], "Board:1.edge_mount")
 
 
     def test_direct_anchor_frame_attachment_is_inlined(self):
