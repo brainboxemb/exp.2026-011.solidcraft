@@ -30,9 +30,9 @@
   <section class="panel">
     <h2>1. Forge contract</h2>
     <h3>Public API</h3>
-    <p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0</code></p>
+    <p><code>LBracket.anchors() -&gt; {&#x27;mount&#x27;: AnchorFrame(...)}; attach(parent=Anchor.FRONT_..., child=&#x27;mount&#x27;)</code></p>
     <h3>Internal Forge model</h3>
-    <p>One parametric rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
+    <p>One parametric rectangular frame plus four occurrences of one external LBracket definition. The bracket publishes one named mount datum; the four parent corner anchors provide the required corner orientation.</p>
     <h3>SolidCraft lowering</h3>
     <p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
   </section>
