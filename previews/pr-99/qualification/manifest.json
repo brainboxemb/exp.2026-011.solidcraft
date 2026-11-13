@@ -1,0 +1,67 @@
+{
+  "library_commit": "59b7b8a3d8836d10c6a43cecb74a4461c5c0adbe",
+  "solidcraft_version": "0.30.1",
+  "native_verified": false,
+  "cases": {
+    "simple-box": {
+      "title": "Parameterized Box",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": []
+    },
+    "anchored-holes": {
+      "title": "Face-relative hole pattern",
+      "status": "Q1/Q2 documented",
+      "command_count": 13,
+      "native_evidence": []
+    },
+    "components": {
+      "title": "Rigid component attachment",
+      "status": "Q1/Q2 documented",
+      "command_count": 10,
+      "native_evidence": []
+    },
+    "parametric-attach": {
+      "title": "Parametric normal gap",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "parametric-offset": {
+      "title": "Parametric in-plane joint offset",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "parametric-anchor": {
+      "title": "Face anchor follows parent geometry",
+      "status": "Q1/Q2 documented",
+      "command_count": 16,
+      "native_evidence": []
+    },
+    "corner-anchor": {
+      "title": "Topology-backed corner anchor",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": []
+    },
+    "custom-anchor": {
+      "title": "Named oriented AnchorFrame",
+      "status": "Q1/Q2 documented",
+      "command_count": 17,
+      "native_evidence": []
+    },
+    "xz-anchor": {
+      "title": "Anchors on XZ-profile extrusion",
+      "status": "Q1/Q2 documented",
+      "command_count": 22,
+      "native_evidence": []
+    },
+    "bracket": {
+      "title": "Minimal L-profile",
+      "status": "Q1/Q2 documented",
+      "command_count": 7,
+      "native_evidence": []
+    }
+  }
+}
