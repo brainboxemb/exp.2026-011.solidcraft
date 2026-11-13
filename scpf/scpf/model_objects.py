@@ -422,9 +422,10 @@ class ModelInstance:
         ``angle`` is their relative turn in degrees around the attachment
         normal. Both stay native SolidCraft joint values.
 
-        ``assembled_rotation`` states the child's absolute final quarter-turn
-        orientation around world Y at a rectangular parent corner. Forge uses
-        the child reference axis to author the matching native corner frame.
+        ``assembled_rotation`` states the child's expected final quarter-turn
+        orientation around world Y at a rectangular parent corner. It is used
+        only to orient the native joint frame; SolidCraft performs the actual
+        child placement through that joint.
 
         ``as_built=True`` keeps both occurrences exactly where they already
         are and records only a fixed assembly relationship.
@@ -491,8 +492,6 @@ class ModelInstance:
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
-        if assembled_rotation is not None:
-            child_local = _quarter_turn_y(child_local, assembled_rotation)
         tangent = (0.0, 0.0, 0.0)
         target_world = tuple(
             target_local[i] + target.translation[i] + tangent[i]
@@ -514,11 +513,6 @@ class ModelInstance:
         return replace(
             self,
             translation=translation,
-            rotation=(
-                ((0.0, 1.0, 0.0), float(assembled_rotation))
-                if assembled_rotation is not None
-                else self.rotation
-            ),
             attachment=Attachment(
                 target=target,
                 parent=parent,
