@@ -39,8 +39,8 @@ class FourCornerL:
         bracket = LBracket()
 
         # The neutral L occupies +X and -Z from this local corner. Its
-        # attachment normal faces FRONT. A half-width gap keeps the symmetric
-        # extrusion fully outside the frame while its inner face stays flush.
+        # attachment normal is +Y. The parent corner frame must rotate those
+        # two in-plane directions to the two inward edges at each corner.
         mount = AnchorFrame(
             origin=(0, 0, 0),
             z=FRONT,
@@ -51,28 +51,24 @@ class FourCornerL:
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
             child=mount,
-            gap=LBracket.WIDTH / 2,
             angle=0,
         )
         top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=mount,
-            gap=LBracket.WIDTH / 2,
             angle=0,
         )
         bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
             child=mount,
-            gap=LBracket.WIDTH / 2,
             angle=0,
         )
         bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
             child=mount,
-            gap=LBracket.WIDTH / 2,
             angle=0,
         )
 
