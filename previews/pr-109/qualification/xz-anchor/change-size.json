@@ -1,0 +1,8 @@
+{"commands":[
+  {"command":"parameters.change","params":{
+    "name":"board_width","expression":"80 mm"
+  }},
+  {"command":"parameters.change","params":{
+    "name":"board_height","expression":"40 mm"
+  }}
+]}

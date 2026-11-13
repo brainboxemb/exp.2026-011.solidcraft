@@ -1,0 +1,122 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 5548.172494650442,
+      "bbox": {
+        "max": [
+          25.000116688074947,
+          19.99966515508273,
+          20.00000000000001
+        ],
+        "min": [
+          -19.999999999494193,
+          -19.999665155175794,
+          0.000059519390469256
+        ]
+      },
+      "center_of_mass": [
+        5.572878614152768,
+        -1.4880643768877925e-6,
+        8.850164072389246
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 22,
+      "face_types": {
+        "cylinder": 1,
+        "plane": 7,
+        "sphere": 1
+      },
+      "faces": 9,
+      "kernel": {
+        "edges": 36,
+        "faces": 13,
+        "shells": 1,
+        "vertices": 24
+      },
+      "mass_g": 29.54841122766693,
+      "material": "Default",
+      "name": "PrimitiveCsg",
+      "vertices": 15,
+      "volume_mm3": 22905.745137726302
+    }
+  ],
+  "body_count": 1,
+  "params": [],
+  "sketches": [],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 12.081989,
+      "name": "Sphere1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "SphereFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 697.139352,
+      "name": "Box1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 878.6751849999999,
+      "name": "Cylinder1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "CylinderFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [
+          {
+            "face_shift_mm": 0.0,
+            "rotation_rad": 2e-6,
+            "strategy": "tool_nudge",
+            "tolerance_mm": 0.0,
+            "translation_mm": 0.00015462587105656022
+          }
+        ],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 2991.411006,
+      "name": "Box2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": "Boolean retry: tool displacement 1.546259e-4 mm, rotation 2.000000e-6 rad"
+    }
+  ],
+  "total": {
+    "area_mm2": 5548.172494650442,
+    "edges": 22,
+    "faces": 9,
+    "mass_g": 29.54841122766693,
+    "open_bodies_skipped": 0,
+    "vertices": 15,
+    "volume_mm3": 22905.745137726302
+  }
+}

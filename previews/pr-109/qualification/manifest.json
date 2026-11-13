@@ -1,124 +1,213 @@
 {
-  "library_commit": "a002a22b46b8fab2b9aeec3f4c68b8057f702fb0",
+  "library_commit": "b92c9de16526fbb7e0c461c708a7feaa7b564945",
   "solidcraft_version": "0.30.1",
-  "native_verified": false,
+  "native_verified": true,
   "cases": {
     "simple-box": {
       "title": "Parameterized Box",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 7,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 1,
+      "parameter_count": 3
     },
     "anchored-holes": {
       "title": "Face-relative hole pattern",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 13,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 1,
+      "parameter_count": 4
     },
     "parameter-scope": {
       "title": "Implicit component parameters and shared dependencies",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 32,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-shared-width-100.json",
+        "measurements.json",
+        "parameters-export-results.json",
+        "parameters.json",
+        "model.json",
+        "model-shared-width-100.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 5,
+      "parameter_count": 3
     },
     "components": {
       "title": "Place one component relative to another",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 13,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 3
     },
     "parametric-attach": {
       "title": "Editable distance between attached components",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 16,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-gap-30.json",
+        "measurements.json",
+        "change-gap.json",
+        "model-gap-30.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 1
     },
     "parametric-offset": {
       "title": "Editable local offset at an attachment",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 16,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-shift-10.json",
+        "measurements.json",
+        "change-shift.json",
+        "model-shift-10.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 1
     },
     "parametric-anchor": {
       "title": "Face anchor follows parent geometry",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 16,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-width-80.json",
+        "measurements.json",
+        "change-base-width.json",
+        "model-width-80.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 1
     },
     "corner-anchor": {
       "title": "Topology-backed corner anchor",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 17,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-size-80x40.json",
+        "measurements.json",
+        "change-size.json",
+        "model-size-80x40.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 2
     },
     "four-corner-l": {
       "title": "One L-profile on all four front corners",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q4/Q6 native verified",
       "command_count": 26,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-size-160x120.json",
+        "measurements.json",
+        "joint-inspect-size-160x120.json",
+        "joint-inspect.json",
+        "model-size-160x120.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 5,
+      "parameter_count": 2
     },
     "custom-anchor": {
       "title": "Named oriented AnchorFrame",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 17,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 0
     },
     "xz-anchor": {
       "title": "Anchors on XZ-profile extrusion",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 23,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements-size-80x40.json",
+        "measurements.json",
+        "change-size.json",
+        "model-size-80x40.sc",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 3,
+      "parameter_count": 3
     },
     "primitive-csg": {
       "title": "Primitive CSG",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 4,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 1,
+      "parameter_count": 0
     },
     "bracket": {
       "title": "Minimal L-profile",
-      "status": "Q1/Q2 documented",
+      "status": "Q1\u2013Q6 native verified",
       "command_count": 7,
-      "native_evidence": [],
-      "solidcraft_version": null,
-      "body_count": null,
-      "parameter_count": null
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "model.sc",
+        "model.step"
+      ],
+      "solidcraft_version": "0.30.1",
+      "body_count": 1,
+      "parameter_count": 3
     }
   }
 }
