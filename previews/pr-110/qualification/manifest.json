@@ -1,5 +1,5 @@
 {
-  "library_commit": "2368825562125e47c89dd24c86c79e427fd4cb4c",
+  "library_commit": "d955b92d09b792ca7dbe6968650426123f5a276b",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -828,8 +828,8 @@
     },
     "four-corner-l": {
       "title": "External L-bracket on all four front corners",
-      "status": "FAIL",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 FAIL \u00b7 Q5 FAIL \u00b7 Q6 REVIEW",
+      "status": "REVIEW",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 REVIEW",
       "command_count": 26,
       "native_evidence": [
         "results.json",
@@ -866,7 +866,7 @@
         "model-size-160x120-right.png",
         "model-size-160x120.png"
       ],
-      "qualification_status": "fail",
+      "qualification_status": "review",
       "levels": {
         "q1": {
           "status": "pass",
@@ -891,7 +891,7 @@
           ]
         },
         "q4": {
-          "status": "fail",
+          "status": "pass",
           "evidence": [
             "joint-inspect-size-160x120.json",
             "joint-inspect.json",
@@ -901,7 +901,7 @@
           ]
         },
         "q5": {
-          "status": "fail",
+          "status": "pass",
           "required": true,
           "mutation": "FrameBlock 120x80 -> 160x120 mm",
           "evidence": [

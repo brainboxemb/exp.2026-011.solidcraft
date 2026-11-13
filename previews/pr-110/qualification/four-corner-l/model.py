@@ -17,14 +17,16 @@ class LBracket:
 
     def anchors(self):
         return {
-            # Physical mounting datum of the bracket:
+            # Physical mating datum of the bracket:
             #
-            # origin: outside corner of the L that touches the frame corner.
-            # z:      points out of the frame's front face (-Y).
-            # x:      follows the horizontal arm of the L (+X).
+            # origin: the outer corner of the L; this point must coincide with
+            #         the selected parent corner.
+            # z:      the mating normal of the child datum. It points toward
+            #         the outside/front side in the bracket's local frame.
+            # x:      the local direction of the horizontal L arm.
             #
-            # The parent corner anchor supplies the rotation/mirroring needed
-            # for top-left, top-right, bottom-right and bottom-left.
+            # Important: z describes the attachment frame, not the direction
+            # in which the bracket material is extruded.
             "mount": AnchorFrame(
                 origin=(0, 0, 0),
                 z=(0, -1, 0),
@@ -44,12 +46,12 @@ class LBracket:
             ],
             plane="XZ",
         )
-        # The bracket is a flat plate on the outside of the front face.
-        # Its attachment frame points toward -Y, so a negative extrusion keeps
-        # the complete 4 mm plate outside the parent instead of straddling it.
+        # Material lies on the opposite side of the mating normal. With the
+        # mount datum above, +Y in the bracket definition becomes the outside
+        # of the parent's front face after the rigid joint is solved.
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.NEGATIVE,
+            direction=Direction.POSITIVE,
         )
 
 
