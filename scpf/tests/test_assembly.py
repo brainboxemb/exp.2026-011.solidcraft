@@ -309,7 +309,7 @@ class AssemblyTests(unittest.TestCase):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 panel.rotate(**kwargs)
 
-    def test_component_attach_lowers_in_plane_offset_as_planar_joint(self):
+    def test_component_attach_lowers_xyz_offset_as_shifted_rigid_datum(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, Box
         from scpf.model_objects import ModelDefinition, ModelInstance
@@ -324,7 +324,7 @@ class AssemblyTests(unittest.TestCase):
             left,
             parent=Anchor.RIGHT,
             child=Anchor.LEFT,
-            offset=(5, 7),
+            offset=(5, 7, 9),
             gap=3,
             angle=15,
         )
@@ -335,10 +335,12 @@ class AssemblyTests(unittest.TestCase):
             for command in commands
             if command["command"] == "joint.create"
         )
-        self.assertEqual(joint["type"], "planar")
-        self.assertEqual(joint["values"], [5, 7, 15])
+        self.assertEqual(joint["type"], "rigid")
+        self.assertEqual(joint["a"]["face"], [25.0, 7.0, 14.0])
+        self.assertEqual(joint["b"]["face"], [25.0, 7.0, 14.0])
         self.assertEqual(joint["offset"], 3)
-        self.assertNotIn("angle", joint)
+        self.assertEqual(joint["angle"], 15)
+        self.assertNotIn("values", joint)
 
     def test_different_model_parameters_create_independent_component_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1101,13 +1103,13 @@ class AssemblyTests(unittest.TestCase):
             "top_left",
             left,
             topology,
-            offset=(5, 0),
+            offset=(5, 0, 0),
         )
 
         anchor = frame.anchor("top_left")
         self.assertIs(anchor.target, left)
         self.assertIs(anchor.reference, topology)
-        self.assertEqual(anchor.offset, (5, 0))
+        self.assertEqual(anchor.offset, (5, 0, 0))
 
         marker = Block().attach(
             anchor.target,
@@ -1123,51 +1125,6 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joint["a"]["occurrence"], "Block:1")
         self.assertEqual(joint["a"]["edge"], [-10.0, 0.0, 5.0])
         self.assertEqual(joint["a"]["corner"], [-10.0, 0.0, 10.0])
-
-    def test_attach_assembled_rotation_rotates_planar_offset_only(self):
-        from scpf.assembly import compile_assembly
-        from scpf.core import Anchor, AnchorFrame, Box
-        from scpf.runner import component
-
-        @component
-        class Block:
-            def build(self):
-                return Box(20, 20, 10)
-
-        parent = Block(name="parent")
-        child = Block(name="child").attach(
-            parent,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=AnchorFrame(
-                origin=(2, 0, -3),
-                z=(0, 1, 0),
-                x=(0, 0, -1),
-            ),
-            offset=(5, 7),
-            assembled_rotation=90,
-        )
-
-        self.assertIsNone(child.rotation)
-        self.assertIs(child.attachment.parent, Anchor.FRONT_BOTTOM_RIGHT)
-
-        commands = compile_assembly(parent + child, "AssembledRotation")["commands"]
-        joint = next(
-            command["params"]
-            for command in commands
-            if command["command"] == "joint.create"
-        )
-        self.assertEqual(joint["values"], [7, -5, 0.0])
-        self.assertNotIn("x", joint["a"])
-        self.assertNotIn("z", joint["a"])
-
-        with self.assertRaisesRegex(ValueError, "multiple of 90"):
-            Block().attach(
-                parent,
-                parent=Anchor.FRONT_TOP_LEFT,
-                child=AnchorFrame(z=(0, 1, 0), x=(0, 0, -1)),
-                offset=(0, 1),
-                assembled_rotation=45,
-            )
 
     def test_group_preserves_assembly_anchor_target(self):
         from scpf.core import AnchorTopology, Box
@@ -1350,36 +1307,29 @@ class AssemblyTests(unittest.TestCase):
             },
         )
 
-    def test_direct_anchor_frame_tracks_rotated_occurrence(self):
+    def test_direct_anchor_frame_rejects_rotated_occurrence(self):
         from scpf.assembly import compile_assembly
-        from scpf.core import Anchor, AnchorFrame, Box
+        from scpf.compiler import ModelError
+        from scpf.core import Anchor, AnchorFrame, Axis, Box
         from scpf.runner import component
 
         @component
         class Block:
             def build(self):
-                return Box(20, 20, 10)
+                return Box(20, 20, 20)
 
-        parent = Block(name="parent")
-        child = Block(name="child").rotate("Y", 180).attach(
-            parent,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=AnchorFrame(
-                origin=(2, 0, -3),
-                z=(0, 1, 0),
-                x=(0, 0, -1),
-            ),
+        base = Block()
+        child = Block().rotate(Axis.Z, 90).attach(
+            base,
+            parent=Anchor.RIGHT,
+            child=AnchorFrame(),
         )
 
-        commands = compile_assembly(parent + child, "RotatedAnchorFrame")["commands"]
-        joint = next(
-            command["params"]
-            for command in commands
-            if command["command"] == "joint.create"
-        )
-        self.assertAlmostEqual(joint["b"]["point"][0], child.translation[0] - 2.0)
-        self.assertAlmostEqual(joint["b"]["point"][2], child.translation[2] + 3.0)
-        self.assertAlmostEqual(joint["b"]["x"][2], 1.0)
+        with self.assertRaisesRegex(
+            ModelError, "direct AnchorFrame attachments.*rotated"
+        ):
+            compile_assembly(base + child, "RotatedDirectFrame")
+
 
     def test_generated_joint_glyphs_are_hidden_after_assembly_compile(self):
         from scpf.assembly import compile_assembly
@@ -1570,7 +1520,7 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual([joint["type"] for joint in joints], ["rigid", "rigid"])
         self.assertEqual([joint["angle"] for joint in joints], [0, 90])
 
-    def test_parametric_attach_keeps_in_plane_offset_expression(self):
+    def test_parametric_attach_keeps_xyz_offset_expression_on_rigid_datum(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, Box, Parameter
         from scpf.model_objects import ModelDefinition, ModelInstance
@@ -1582,7 +1532,7 @@ class AssemblyTests(unittest.TestCase):
             left,
             parent=Anchor.RIGHT,
             child=Anchor.LEFT,
-            offset=(0, -wood + 12),
+            offset=(0, 0, -wood + 12),
         )
 
         commands = compile_assembly(left + right, "ParametricOffset")["commands"]
@@ -1599,11 +1549,16 @@ class AssemblyTests(unittest.TestCase):
             for command in commands
             if command["command"] == "joint.create"
         )
-        self.assertEqual(joint["type"], "planar")
+        self.assertEqual(joint["type"], "rigid")
         self.assertEqual(
-            joint["values"],
-            [0, "-(wood_thickness) + 12 mm", 0.0],
+            joint["a"]["face"][2],
+            "-(wood_thickness) + 12 mm + 5 mm",
         )
+        self.assertEqual(
+            joint["b"]["face"][2],
+            17.0,
+        )
+        self.assertNotIn("values", joint)
 
 
     def test_parametric_attach_keeps_gap_as_native_joint_expression(self):
