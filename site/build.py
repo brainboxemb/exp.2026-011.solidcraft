@@ -664,6 +664,10 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             forge_model=escape(case["forge_model"]),
             lowering=escape(case["lowering"]),
             native_expectation=escape(case["native_expectation"]),
+            mutation_criterion=(
+                '<h3>Mutation criterion</h3><p>' + escape(case["mutation"]) + '</p>'
+                if case.get("q5_required") else ""
+            ),
             mutation=escape(case["mutation"]),
             evidence_items="".join(evidence_items),
             results=results_html,
