@@ -84,7 +84,7 @@
         "center": [
           15.0,
           15.0,
-          0.0
+          2.0
         ],
         "operation": "new",
         "body_name": "FlightcaseCorner"
@@ -99,7 +99,7 @@
         "center": [
           15.0,
           -1.75,
-          -30.0
+          -14.75
         ],
         "operation": "join",
         "targets": [
@@ -116,7 +116,7 @@
         "center": [
           -1.75,
           15.0,
-          -30.0
+          -14.75
         ],
         "operation": "join",
         "targets": [

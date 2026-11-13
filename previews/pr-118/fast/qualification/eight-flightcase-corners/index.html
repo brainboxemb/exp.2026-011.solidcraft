@@ -63,18 +63,19 @@ class FlightcaseCorner:
         top = Box(arm, arm, t).move(
             x=arm / 2,
             y=arm / 2,
+            z=t / 2,
         )
         # A tiny internal overlap keeps the three native box joins robust.
         # It is entirely inside the cap and does not change the outer bounds.
         front = Box(arm, t + overlap, arm + overlap).move(
             x=arm / 2,
             y=(overlap - t) / 2,
-            z=-arm,
+            z=(overlap - arm) / 2,
         )
         side = Box(t + overlap, arm, arm + overlap).move(
             x=(overlap - t) / 2,
             y=arm / 2,
-            z=-arm,
+            z=(overlap - arm) / 2,
         )
         return top + front + side
 
