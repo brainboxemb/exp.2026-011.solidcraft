@@ -438,10 +438,17 @@ def compile_assembly(value, name):
                     expression=f"{parameter.value:g} mm",
                 ))
 
-        u, v, normal = _xyz_offset_in_joint_frame(
-            attachment.parent,
-            attachment.offset,
-        )
+        if len(attachment.offset) == 2:
+            # Backward-compatible local planar offset.
+            u, v = attachment.offset
+            normal = 0
+        else:
+            # New API: world/assembly XYZ offset projected into the native
+            # joint frame used by SolidCraft.
+            u, v, normal = _xyz_offset_in_joint_frame(
+                attachment.parent,
+                attachment.offset,
+            )
         has_planar_offset = (
             pv(u) != 0
             or pv(v) != 0
