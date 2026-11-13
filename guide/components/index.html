@@ -80,6 +80,26 @@ components. <code>Anchor</code> selects the attachment reference: a supported
 face, or one of the eight rectangular corners such as
 <code>FRONT_TOP_RIGHT</code>. Corner anchors compile to native SolidCraft
 edge/corner origins, so they follow dimension changes in a saved design.</p>
+<h2 id="attach-offset">Associative in-plane attachment offset</h2>
+<p><code>attach(offset=(u, v))</code> moves the child within the attachment
+plane. Numeric values and parameter expressions are both supported. Forge
+lowers a non-zero or symbolic in-plane offset to a native planar joint and
+keeps <code>u</code> and <code>v</code> as SolidCraft joint values, so they are
+re-evaluated when their parameters change.</p>
+<pre><code>wood = Parameter(&quot;wood_thickness&quot;, 18)
+
+bracket = Bracket().attach(
+    side,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=mount,
+    offset=(0, -wood + 12),
+    gap=-12,
+)</code></pre>
+<p><code>offset</code> is independent of <code>gap</code>: the two offset
+values move in the attachment plane, while <code>gap</code> remains the normal
+distance between the two references. On a rectangular corner origin, the
+second planar value follows the selected vertical corner edge; its sign is
+defined by that corner frame rather than by world Z.</p>
 <h2 id="assembly-anchor">Assembly-owned named anchors</h2>
 <p>When a datum belongs to the meaning of an assembly rather than to a generic
 component, keep it on the assembly with <code>with_anchor()</code>. The anchor
@@ -106,6 +126,11 @@ bracket = CornerBracket().attach(
 <p>This keeps a generic <code>Board</code> or <code>CornerBracket</code> free
 of application-specific anchor names while a higher-level frame can expose
 semantic datums such as <code>front_top_left</code>.</p>
+<p>An assembly anchor may also carry its own symbolic
+<code>offset=(u, v)</code>. Consumers can combine that semantic offset with a
+fixed local correction and pass the result to <code>attach(offset=...)</code>.
+This is useful when an assembly datum follows a frame parameter such as wall
+thickness while the reusable part keeps a fixed mounting correction.</p>
 <h2 id="anchor-frame">AnchorFrame: point plus orientation</h2>
 <p>An <code>AnchorFrame</code> describes one local attachment coordinate frame.
 <code>origin</code> gives the local point; <code>z</code> gives the attachment
