@@ -40,7 +40,7 @@ class Attachment:
     target: "ModelInstance"
     parent: Anchor | str | AnchorFrame | AnchorTopology | None
     child: Anchor | str | AnchorFrame | AnchorTopology | None
-    offset: tuple[float, float]
+    offset: tuple[object, object]
     gap: object = 0
     angle: float | None = None
     as_built: bool = False
@@ -424,13 +424,10 @@ class ModelInstance:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("component attach offset must be an (u, v) pair")
-        face_offset = tuple(pv(v) for v in offset)
-        if not all(isfinite(v) for v in face_offset):
+        face_offset = tuple(offset)
+        face_offset_values = tuple(pv(value) for value in face_offset)
+        if not all(isfinite(value) for value in face_offset_values):
             raise ValueError("component attach offset must be finite")
-        if any(face_offset):
-            raise ValueError(
-                "component attach offset is not implemented associatively yet"
-            )
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
