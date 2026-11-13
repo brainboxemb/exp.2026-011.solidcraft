@@ -212,10 +212,10 @@ QUALIFICATION_CASES = [
         "title": "Eight proportional flightcase corner protectors",
         "intent": "Replace the flat L-bracket with a genuinely wrapping three-face protector. One neutral protector is reused at all eight box corners.",
         "forge_api": "FlightcaseCorner three-plate geometry + attach(parent=all 8 corner Anchors, child=AnchorFrame(z=BACK, x=DOWN))",
-        "forge_model": "One 320x120x160 case plus eight occurrences of one trihedral protector. Its default reach is 25% of the case size per axis: X=80, Y=30 and Z=40 mm.",
+        "forge_model": "One 320x120x320 case plus eight occurrences of one trihedral protector. Its reach is bound to 25% of the case size per axis: X=80, Y=30 and Z=80 mm.",
         "lowering": "Eight rigid topology-backed corner joints orient the same three-face component around the eight physical box corners.",
-        "native_expectation": "Each protector truly wraps three adjacent case faces: 80 mm along X, 30 mm along Y and 40 mm along Z, with 6 mm material extending outside the case surfaces.",
-        "mutation": "Resize the saved case to 400x160x200 mm; the protectors keep their physical size but all eight attachment points follow the moved corners.",
+        "native_expectation": "Each protector truly wraps three adjacent case faces: 80 mm along X, 30 mm along Y and 80 mm along Z, with 6 mm material extending outside the case surfaces.",
+        "mutation": "Resize the saved case to 400x160x400 mm; protector reach updates natively to 100x40x100 mm and all eight attachment points follow the moved corners.",
         "references": [
             ("SolidCraft", "This proves the corner-frame semantics with a genuinely 3D child instead of another flat bracket."),
             ("BOSL2", "The component is neutral; all eight orientations are assembly relationships."),
