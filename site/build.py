@@ -636,7 +636,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     )
     group_sections = "".join(
         f'<section class="section-heading"><h2>{escape(title)}</h2><p>{escape(description)}</p></section>'
-        f'<div class="reference-grid">{"".join(qualification_cards[key])}</div>'
+        f'<div class="reference-grid qualification-grid">{"".join(qualification_cards[key])}</div>'
         for key, title, description in QUALIFICATION_GROUPS
         if qualification_cards[key]
     )
