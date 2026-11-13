@@ -247,6 +247,26 @@ jobs:
           solidcraft-cli snapshot output/native/planar-fixed-lab/model-fixed.sc \
             --out output/native/planar-fixed-lab/fixed.png --no-grid --no-axes
 
+          jq -e '
+            (.[0].joints | length) == 1 and
+            .[0].joints[0].type == "planar" and
+            .[0].joints[0].expressions.values[0] == "-(shift)" and
+            .[0].joints[0].values[0].value == -12 and
+            .[0].joints[0].values[1].value == 0 and
+            .[0].joints[0].values[1].limits == [0,0] and
+            .[0].joints[0].values[2].value == -180 and
+            .[0].joints[0].values[2].limits == [-180,-180]
+          ' output/native/planar-fixed-lab/joint-inspect-fixed.json
+          jq -e '
+            (all(.bodies[] | select(.name == "LBracket");
+              ((.bbox.min[0] - 28) | fabs) < 0.001 and
+              ((.bbox.max[0] - 90) | fabs) < 0.001 and
+              ((.bbox.min[1] + 15) | fabs) < 0.001 and
+              ((.bbox.max[1] - 9) | fabs) < 0.001 and
+              ((.bbox.min[2] + 52) | fabs) < 0.001 and
+              ((.bbox.max[2] - 0) | fabs) < 0.001))
+          ' output/native/planar-fixed-lab/measurements-fixed.json
+
           # Try to move the coordinates that should be locked. SolidCraft must
           # clamp both requests to their fixed limits.
           cat > output/native/planar-fixed-lab/try-drive-locked.json <<'JSON'
@@ -269,6 +289,18 @@ jobs:
             --results \
             --json-out output/native/planar-fixed-lab/drive-locked-results.json \
             --save output/native/planar-fixed-lab/model-after-drive.sc
+
+          jq -e '
+            length == 2 and
+            all(.[];
+              .moved == false and
+              (.held | length) == 1
+            ) and
+            .[0].held[0].name == "y" and
+            .[0].held[0].value == 0 and
+            .[1].held[0].name == "angle" and
+            .[1].held[0].value == -180
+          ' output/native/planar-fixed-lab/drive-locked-results.json
 
           # A no-op parameter edit must not pick another orientation branch.
           cat > output/native/planar-fixed-lab/noop-shift.json <<'JSON'
@@ -309,6 +341,24 @@ jobs:
             --json-out output/native/planar-fixed-lab/joint-inspect-shift-18.json
           solidcraft-cli snapshot output/native/planar-fixed-lab/model-shift-18.sc \
             --out output/native/planar-fixed-lab/shift-18.png --no-grid --no-axes
+
+          jq -e '
+            .[0].joints[0].expressions.values[0] == "-(shift)" and
+            .[0].joints[0].values[0].value == -18 and
+            .[0].joints[0].values[1].value == 0 and
+            .[0].joints[0].values[1].limits == [0,0] and
+            .[0].joints[0].values[2].value == -180 and
+            .[0].joints[0].values[2].limits == [-180,-180]
+          ' output/native/planar-fixed-lab/joint-inspect-shift-18.json
+          jq -e '
+            (all(.bodies[] | select(.name == "LBracket");
+              ((.bbox.min[0] - 28) | fabs) < 0.001 and
+              ((.bbox.max[0] - 90) | fabs) < 0.001 and
+              ((.bbox.min[1] + 15) | fabs) < 0.001 and
+              ((.bbox.max[1] - 9) | fabs) < 0.001 and
+              ((.bbox.min[2] + 58) | fabs) < 0.001 and
+              ((.bbox.max[2] + 6) | fabs) < 0.001))
+          ' output/native/planar-fixed-lab/measurements-shift-18.json
 
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
