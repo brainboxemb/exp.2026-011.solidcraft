@@ -11,7 +11,7 @@ class FrameBlock:
 
 
 class LBracket:
-    WIDTH = 24.0
+    THICKNESS = 4.0
     ARM_LENGTH = 40.0
     ARM_HEIGHT = 12.0
 
@@ -27,9 +27,12 @@ class LBracket:
             ],
             plane="XZ",
         )
+        # The bracket is a flat plate on the outside of the front face.
+        # Its attachment frame points toward -Y, so a negative extrusion keeps
+        # the complete 4 mm plate outside the parent instead of straddling it.
         return profile.extrude(
-            self.WIDTH,
-            direction=Direction.SYMMETRIC,
+            self.THICKNESS,
+            direction=Direction.NEGATIVE,
         )
 
 
@@ -39,8 +42,9 @@ class FourCornerL:
         bracket = LBracket()
 
         # The neutral L occupies +X and -Z from this local corner. Its
-        # attachment normal is +Y. The parent corner frame must rotate those
-        # two in-plane directions to the two inward edges at each corner.
+        # attachment frame points toward the front (-Y). At every parent
+        # corner the complete plate must remain outside the front face while
+        # the two L arms run inward along the frame edges.
         mount = AnchorFrame(
             origin=(0, 0, 0),
             z=(0, -1, 0),
