@@ -73,6 +73,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "standard face anchors", "Q5", "Q6", ["parametric-anchor"], "Parent topology mutation qualified."),
     ("Assemblies", "standard corner anchors", "Q5", "Q6", ["corner-anchor", "xz-anchor"], "Width/height mutation and mirrored corners qualified."),
     ("Assemblies", "four-corner local-frame orientation", "Q6", "Q6", ["four-corner-l"], "One directional L and one child frame are native-qualified on all four front corners, including solved joint-frame rotation and measured bboxes."),
+    ("Assemblies", "four-corner topology follows parent width/height", "Q5", "Q5", ["four-corner-l"], "Saved-design 120x80 -> 160x120 mutation keeps all four bracket bboxes and solved corner-frame origins associative in SolidCraft 0.30.1."),
     ("Assemblies", "AnchorFrame", "Q6", "Q6", ["custom-anchor"], "Position + orientation on rotated parent."),
     ("Assemblies", "AnchorTopology", "Q5", "GAP", [], "Needs native mutation fixture."),
     ("Assemblies", "assembly.with_anchor()/anchor()", "Q5", "GAP", [], "Needs dedicated native semantic-datum fixture."),

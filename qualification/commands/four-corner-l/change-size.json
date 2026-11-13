@@ -1,0 +1,18 @@
+{
+  "commands": [
+    {
+      "command": "parameters.change",
+      "params": {
+        "name": "FrameBlock_width",
+        "expression": "160 mm"
+      }
+    },
+    {
+      "command": "parameters.change",
+      "params": {
+        "name": "FrameBlock_height",
+        "expression": "120 mm"
+      }
+    }
+  ]
+}
