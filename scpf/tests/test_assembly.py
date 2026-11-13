@@ -970,8 +970,8 @@ class AssemblyTests(unittest.TestCase):
 
         frame = AnchorFrame(
             origin=(10, 25, 0),
-            z=RIGHT,
-            x=UP,
+            z=Anchor.RIGHT,
+            x=Anchor.UP,
         )
 
         self.assertEqual(frame.origin, (10.0, 25.0, 0.0))
@@ -1249,8 +1249,8 @@ class AssemblyTests(unittest.TestCase):
         base = Base()
         child_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=FRONT,
-            x=RIGHT,
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
         )
         bracket = Bracket().attach(
             base,
