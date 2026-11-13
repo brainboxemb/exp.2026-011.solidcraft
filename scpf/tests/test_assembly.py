@@ -1149,9 +1149,10 @@ class AssemblyTests(unittest.TestCase):
             ),
             child=AnchorFrame(),
         )
+        commands = compile_assembly(base + child, "DirectTopology")["commands"]
         joint = next(
             command["params"]
-            for command in compile_assembly(base + child, "DirectTopology")["commands"]
+            for command in commands
             if command["command"] == "joint.create"
         )
         self.assertEqual(joint["a"], "Block:1.topology_1")
