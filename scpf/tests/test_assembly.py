@@ -1068,6 +1068,88 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(joints[1]["a"]["z"], [0.0, 0.0, -1.0])
         self.assertEqual(joints[1]["b"]["z"], [0.0, 0.0, -1.0])
 
+    def test_named_topology_anchor_is_inlined_as_edge_reference(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import AnchorFrame, AnchorTopology, Box
+        from scpf.runner import component
+
+        @component
+        class Board:
+            def anchors(self):
+                return {
+                    "front_tangent": AnchorTopology(
+                        edge=(-20, 0, 5),
+                        on=(-20, 10, 10),
+                        corner=(-20, 0, 5),
+                        z=(0, 1, 0),
+                        x=(0, 0, 1),
+                    )
+                }
+
+            def build(self):
+                return Box(40, 20, 20)
+
+        @component
+        class Marker:
+            def build(self):
+                return Box(10, 10, 10)
+
+        board = Board()
+        marker = Marker().attach(
+            board,
+            parent="front_tangent",
+            child=AnchorFrame(),
+        )
+
+        commands = compile_assembly(board + marker, "TopologyAnchor")["commands"]
+        self.assertFalse(
+            any(command["command"] == "joint.origin" for command in commands)
+        )
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(
+            joint["a"],
+            {
+                "occurrence": "Board:1",
+                "edge": [-20.0, 0.0, 5.0],
+                "on": [-20.0, 10.0, 10.0],
+                "corner": [-20.0, 0.0, 5.0],
+                "z": [0.0, 1.0, 0.0],
+                "x": [0.0, 0.0, 1.0],
+            },
+        )
+
+    def test_named_topology_anchor_rejects_rotated_occurrence(self):
+        from scpf.assembly import compile_assembly
+        from scpf.compiler import ModelError
+        from scpf.core import Anchor, AnchorTopology, Axis, Box
+        from scpf.runner import component
+
+        @component
+        class Board:
+            def anchors(self):
+                return {
+                    "edge_mount": AnchorTopology(
+                        edge=(10, 0, 5),
+                        on=(0, 0, 5),
+                    )
+                }
+
+            def build(self):
+                return Box(20, 20, 10)
+
+        board = Board().rotate(Axis.Z, 90)
+        child = Board().attach(board, parent="edge_mount", child=Anchor.LEFT)
+
+        with self.assertRaisesRegex(
+            ModelError, "AnchorTopology.*rotated"
+        ):
+            compile_assembly(board + child, "RotatedTopologyAnchor")
+
+
     def test_direct_anchor_frame_attachment_is_inlined(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, AnchorFrame, Box
