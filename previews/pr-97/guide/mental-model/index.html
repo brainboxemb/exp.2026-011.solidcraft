@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>How to think about Forge · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../mental-model/">How to think about Forge</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / How to think about Forge</p><h1>How to think about Forge</h1><p class="guide-lead">The small set of concepts you need before learning the API.</p>
+<h2 id="goal">Start with the thing you want to build</h2>
+<p>You do not need to think in SolidCraft commands, transformation matrices or
+joint internals to use Forge. Start by asking a simpler question:
+<strong>what are the physical parts, and how are they related?</strong></p>
+<p>For a small frame with four corner brackets, for example, you might have:</p>
+<ul>
+<li>two side boards;</li>
+<li>a top and bottom board;</li>
+<li>one reusable corner-bracket design;</li>
+<li>eight placed copies of that bracket.</li>
+</ul>
+<p>Forge turns that description into native SolidCraft geometry and assembly
+relationships.</p>
+
+<h2 id="model">Model: one thing you can build</h2>
+<p>A <strong>model</strong> is a Python class with a <code>build()</code>
+method. It describes one piece of geometry or one composed result.</p>
+<pre><code>class Plate:
+    width = 100.0
+    height = 60.0
+    thickness = 10.0
+
+    def build(self):
+        return Box(self.width, self.height, self.thickness)</code></pre>
+<p>The public dimensions can become editable CAD parameters. You normally do
+not need to write SolidCraft commands yourself.</p>
+
+<h2 id="component">Component: a reusable physical part</h2>
+<p>A <strong>component</strong> is a model that represents a reusable part.
+Think of a bracket, panel, beam or PCB enclosure. If you need the same part
+five times, you still want one definition of the part.</p>
+<pre><code>@component
+class Bracket:
+    def build(self):
+        return Box(40, 20, 10)</code></pre>
+<p>Changing the component definition changes what every occurrence of that
+part represents.</p>
+
+<h2 id="occurrence">Occurrence: one placed copy of a component</h2>
+<p>An <strong>occurrence</strong> is one use of a component inside a larger
+design. It has its own position and orientation, while sharing the same
+component definition.</p>
+<pre><code>first = Bracket()
+second = first.copy().move(x=80)</code></pre>
+<p>This is similar to putting two identical purchased brackets on a workbench:
+they are two physical instances of the same part design.</p>
+
+<h2 id="assembly">Assembly: parts that belong together</h2>
+<p>An <strong>assembly</strong> combines component occurrences into a larger
+construction. An assembly is not one fused blob of geometry. The parts remain
+separate, reusable objects with relationships between them.</p>
+<pre><code>@assembly
+class Frame:
+    def build(self):
+        left = SideBoard()
+        right = left.copy().move(x=800)
+        return left + right</code></pre>
+<p>An assembly can itself expose useful attachment locations for something
+that will be mounted to the complete frame.</p>
+
+<h2 id="anchor">Anchor: a meaningful place and direction</h2>
+<p>An <strong>anchor</strong> tells Forge where a relationship belongs.
+A simple anchor can mean “the right face” or “the front-top-left corner”.
+More advanced anchors can also describe orientation.</p>
+<pre><code>parent=Anchor.FRONT_TOP_LEFT
+child=Anchor.BACK_TOP_RIGHT</code></pre>
+<p>This is more useful than saying “put it at X=412, Y=-6, Z=362”, because a
+semantic anchor can keep referring to the same face or corner when dimensions
+change.</p>
+<div class="notice"><strong>Important:</strong> an anchor should be thought of
+as a local attachment reference, not merely a world XYZ point. For oriented
+attachments, its local directions matter too.</div>
+
+<h2 id="attachment">Attachment: the relationship between two anchors</h2>
+<p><code>attach()</code> says that one component occurrence belongs relative
+to another one. You choose a parent anchor and a child anchor; Forge converts
+that relationship into the appropriate native SolidCraft representation.</p>
+<pre><code>bracket = Bracket().attach(
+    side,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)</code></pre>
+<p>From a user point of view, the important statement is simply:
+“attach this bracket here using this side of the bracket.” You should not need
+to design the underlying SolidCraft joint yourself.</p>
+
+<h2 id="relationship-values">Gap, offset and orientation are different ideas</h2>
+<p>Once two anchors are related, additional values may refine that
+relationship. Keep these concepts separate:</p>
+<table><thead><tr><th>Concept</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>gap</code></td><td>Distance along the attachment normal</td></tr>
+<tr><td><code>offset=(u,v)</code></td><td>Displacement inside the local attachment plane</td></tr>
+<tr><td>orientation / frame</td><td>Which way the attached part faces</td></tr>
+<tr><td>world move</td><td>Explicit placement in assembly X/Y/Z coordinates</td></tr>
+</tbody></table>
+<p>These are intentionally not interchangeable. A local attachment offset is
+not automatically a world-X or world-Z movement.</p>
+
+<h2 id="parameters">Parameters: dimensions you expect to edit later</h2>
+<p>A parameter is a value that should remain meaningful after the Python model
+has been compiled. If a frame width changes from 800 to 900 mm, an attached
+part should ideally follow its semantic anchor rather than keep an old
+hard-coded coordinate.</p>
+<p>This is why Forge qualification tests do more than check the initial
+picture: important cases also edit the saved SolidCraft parameters and verify
+that relationships still solve correctly.</p>
+
+<h2 id="solidcraft">What SolidCraft does underneath</h2>
+<p>Forge is a description and compilation layer. SolidCraft remains the CAD
+engine. Forge may lower your intent to sketches, extrusions, component
+occurrences, joint origins or native joints, but those are implementation
+details unless you are debugging or extending Forge.</p>
+<p>The later chapters explain those details where they are useful. For normal
+model writing, keep the simpler hierarchy in mind:</p>
+<pre><code>model
+  └─ component definition
+       └─ occurrences
+            └─ assembly
+                 └─ anchors
+                      └─ attachments</code></pre>
+<h2 id="next">Where to go next</h2>
+<p>Read <a href="../model-objects/">Model objects and parameters</a> for the
+Python rules behind models and components, then
+<a href="../components/">Components and assemblies</a> for placement,
+anchors and attachments.</p></article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
