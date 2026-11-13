@@ -87,6 +87,11 @@ background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
   .qualification-card{width:100%}
 }
 
+.qualification-case-preview{margin:0 0 18px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+.qualification-case-preview .qualification-image-link{background:linear-gradient(135deg,#f1f5fb,#e5eff8)}
+.qualification-case-preview img{display:block;width:100%;max-height:390px;aspect-ratio:16/7;object-fit:contain;padding:14px}
+.qualification-case-preview figcaption{padding:9px 14px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line)}
+
 .qualification-test-purpose{margin-bottom:18px}
 .qualification-test-purpose h2{margin-bottom:8px}
 .qualification-test-purpose h3{margin-top:18px;margin-bottom:6px}
