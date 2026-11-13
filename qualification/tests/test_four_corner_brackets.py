@@ -50,10 +50,10 @@ class FourHub75CornerBracketsCommandTests(unittest.TestCase):
                 f"Hub75CornerBracket:{index}",
             )
 
-        self.assertEqual(joints[0]["b"]["point"], [0.0, 0.0, 48.0])
-        self.assertEqual(joints[1]["b"]["point"], [72.0, 0.0, 60.0])
-        self.assertEqual(joints[2]["b"]["point"], [60.0, 0.0, -12.0])
-        self.assertEqual(joints[3]["b"]["point"], [-48.0, 0.0, 0.0])
+        self.assertEqual(
+            [joint["b"]["point"] for joint in joints],
+            EXPECTED_CORNERS,
+        )
         self.assertTrue(all(j["b"]["z"] == [0.0, 1.0, 0.0] for j in joints))
         self.assertTrue(all(j["b"]["x"] == [0.0, 0.0, -1.0] for j in joints))
 
