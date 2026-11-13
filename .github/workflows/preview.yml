@@ -55,7 +55,7 @@ jobs:
           set -euo pipefail
           unset PYTHONPATH
           mkdir -p output
-          models="$(python -c 'import sys; sys.path.insert(0, "site"); from qualification_cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
+          models="$(python -c 'from qualification.cases import QUALIFICATION_CASES; print(" ".join(case["slug"] for case in QUALIFICATION_CASES))')"
           for model in $models history-policy plate; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
