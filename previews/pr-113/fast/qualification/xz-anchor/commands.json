@@ -197,56 +197,29 @@
       }
     },
     {
-      "command": "joint.origin",
-      "params": {
-        "name": "Marker:1.back_top_right",
-        "occurrence": "Marker:1",
-        "edge": [
-          5.0,
-          5.0,
-          5.0
-        ],
-        "on": [
-          0.0,
-          5.0,
-          5.0
-        ],
-        "corner": [
-          5.0,
-          5.0,
-          10.0
-        ]
-      }
-    },
-    {
-      "command": "joint.origin",
-      "params": {
-        "name": "Marker:2.back_top_left",
-        "occurrence": "Marker:2",
-        "edge": [
-          -5.0,
-          5.0,
-          5.0
-        ],
-        "on": [
-          0.0,
-          5.0,
-          5.0
-        ],
-        "corner": [
-          -5.0,
-          5.0,
-          10.0
-        ]
-      }
-    },
-    {
       "command": "joint.create",
       "params": {
         "type": "rigid",
         "name": "Attach Marker:1 to Board:1",
         "a": "Board:1.front_top_right",
-        "b": "Marker:1.back_top_right"
+        "b": {
+          "occurrence": "Marker:1",
+          "point": [
+            5.0,
+            5.0,
+            10.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        }
       }
     },
     {
@@ -255,7 +228,24 @@
         "type": "rigid",
         "name": "Attach Marker:2 to Board:1",
         "a": "Board:1.front_top_left",
-        "b": "Marker:2.back_top_left"
+        "b": {
+          "occurrence": "Marker:2",
+          "point": [
+            -5.0,
+            5.0,
+            10.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
       }
     },
     {

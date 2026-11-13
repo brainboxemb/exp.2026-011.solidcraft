@@ -98,34 +98,29 @@ CornerAnchor()
     }
   },
   {
-    &quot;command&quot;: &quot;joint.origin&quot;,
-    &quot;params&quot;: {
-      &quot;name&quot;: &quot;Marker:1.back_top_right&quot;,
-      &quot;occurrence&quot;: &quot;Marker:1&quot;,
-      &quot;edge&quot;: [
-        5.0,
-        5.0,
-        5.0
-      ],
-      &quot;on&quot;: [
-        0.0,
-        5.0,
-        5.0
-      ],
-      &quot;corner&quot;: [
-        5.0,
-        5.0,
-        10.0
-      ]
-    }
-  },
-  {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;rigid&quot;,
       &quot;name&quot;: &quot;Attach Marker:1 to Base:1&quot;,
       &quot;a&quot;: &quot;Base:1.front_top_right&quot;,
-      &quot;b&quot;: &quot;Marker:1.back_top_right&quot;
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:1&quot;,
+        &quot;point&quot;: [
+          5.0,
+          5.0,
+          10.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      }
     }
   }
 ]</code></pre>

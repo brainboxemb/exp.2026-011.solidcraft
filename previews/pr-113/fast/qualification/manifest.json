@@ -1,5 +1,5 @@
 {
-  "library_commit": "4fb0d790b5650f1746c360ba80ed479ed8a48a6b",
+  "library_commit": "ee40e90a77d7fd3654a218dd51b9b74b5372b8ce",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -72,7 +72,7 @@
       "title": "Editable local offset at an attachment",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
-      "command_count": 17,
+      "command_count": 16,
       "native_evidence": [],
       "native_images": [],
       "qualification_status": null,
@@ -98,7 +98,7 @@
       "title": "Topology-backed corner anchor",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
-      "command_count": 18,
+      "command_count": 17,
       "native_evidence": [],
       "native_images": [],
       "qualification_status": null,
@@ -150,7 +150,7 @@
       "title": "Anchors on XZ-profile extrusion",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
-      "command_count": 25,
+      "command_count": 23,
       "native_evidence": [],
       "native_images": [],
       "qualification_status": null,

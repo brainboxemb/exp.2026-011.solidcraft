@@ -116,7 +116,7 @@ class FourCornerL:
             parent=Anchor.BOTTOM,
             child=foot_origin,
             offset=(-half_depth, -half_width),
-            angle=270,
+            angle=-90,
         )
         back_left = foot.copy().attach(
             frame,
@@ -132,14 +132,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/270/0)</code></p>
+  <p><code>attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/-90/0)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and rotations.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. The (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-frame basis (not world X/Y), with parametric width/depth expressions and four quarter-turn angles.</p>
+  <p>Four planar joint.create commands use the frame BOTTOM face as the parent reference. The (u,v) values are expressed in SolidCraft&#x27;s local BOTTOM-frame basis (not world X/Y), with parametric width/depth expressions and four quarter-turn angles (using -90 rather than 270 for the back-right corner).</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -253,7 +253,7 @@ FourCornerL()
       &quot;values&quot;: [
         &quot;-(frame_depth / 2)&quot;,
         &quot;-(frame_width / 2)&quot;,
-        270.0
+        -90.0
       ]
     }
   },

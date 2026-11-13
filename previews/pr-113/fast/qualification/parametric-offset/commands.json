@@ -111,28 +111,6 @@
       }
     },
     {
-      "command": "joint.origin",
-      "params": {
-        "name": "Marker:1.back_top_right",
-        "occurrence": "Marker:1",
-        "edge": [
-          5.0,
-          5.0,
-          5.0
-        ],
-        "on": [
-          0.0,
-          5.0,
-          5.0
-        ],
-        "corner": [
-          5.0,
-          5.0,
-          10.0
-        ]
-      }
-    },
-    {
       "command": "parameters.add",
       "params": {
         "name": "shift",
@@ -145,7 +123,24 @@
         "type": "planar",
         "name": "Attach Marker:1 to Base:1",
         "a": "Base:1.front_top_right",
-        "b": "Marker:1.back_top_right",
+        "b": {
+          "occurrence": "Marker:1",
+          "point": [
+            5.0,
+            5.0,
+            10.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        },
         "values": [
           0,
           "-(shift)",

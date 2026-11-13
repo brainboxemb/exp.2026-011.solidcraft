@@ -260,7 +260,7 @@
         "values": [
           "-(frame_depth / 2)",
           "-(frame_width / 2)",
-          270.0
+          -90.0
         ]
       }
     },
