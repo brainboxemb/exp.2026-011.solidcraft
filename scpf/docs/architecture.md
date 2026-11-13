@@ -283,3 +283,68 @@ use until it has:
 
 The HUB75 model is therefore a downstream integration consumer, not the place
 where Forge attachment semantics are discovered experimentally.
+
+
+### Qualification case sheet
+
+Every non-trivial Forge qualification case should explain the complete path,
+not only assert a final number. Use the following structure in test comments,
+fixture documentation or the generated qualification report:
+
+1. **Intent** — the user-level CAD operation being expressed.
+2. **Forge API** — the exact public Python calls used by the fixture.
+3. **Forge model** — the internal objects/relations that should result.
+4. **SolidCraft lowering** — the native command(s) and parameter fields that
+   Forge is expected to emit.
+5. **Native expectation** — the measurable geometry/placement SolidCraft must
+   create.
+6. **Parametric mutation** — which saved-design parameter is changed and which
+   native relation must update without rerunning Python.
+7. **Evidence** — command JSON, timeline/results, measurements and snapshot.
+8. **Reference model** — where useful, compare the concept with BOSL2,
+   OpenSCAD or PythonSCAD and state explicitly where Forge differs.
+
+The reference comparison is conceptual, not an API-compatibility promise.
+Forge should use familiar CAD vocabulary when it helps users understand the
+model, but its lowering must follow SolidCraft's native capabilities.
+
+#### BOSL2 as an anchor/attachment reference
+
+BOSL2 is particularly useful for terminology around **anchors** and
+**attachment frames**. Its attachable model separates several ideas that are
+also valuable in Forge:
+
+- an **anchor** selects a meaningful point/region on an object;
+- orientation is part of the attachment context rather than merely an XYZ
+  coordinate;
+- attachment is evaluated in the **local coordinate system at the parent
+  anchor**, not blindly in world coordinates;
+- named anchors may expose application-specific datums while generic anchors
+  cover common sides, edges and corners.
+
+Forge does not need to reproduce BOSL2's implementation. The comparison is a
+design check: when Forge uses the word `Anchor`, tests should make clear
+whether it means only a point, a point plus orientation, or a topology-backed
+native SolidCraft reference.
+
+Useful external references:
+
+- BOSL2 attachment overview:
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview
+- BOSL2 basic positioning (anchor, spin, orient):
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Basic-Positioning
+- BOSL2 attach behavior and parent-local coordinate system:
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Attach
+
+#### OpenSCAD and PythonSCAD comparisons
+
+OpenSCAD remains useful as the baseline for explicit constructive geometry:
+translations, rotations, unions/differences and parameter-driven source are
+easy to reason about because transforms are visible in the program text.
+Qualification notes may show an equivalent OpenSCAD expression when that
+makes Forge semantics clearer.
+
+PythonSCAD comparisons are useful primarily for **Python API ergonomics**:
+how a Pythonic model represents transforms, reusable objects and composition.
+Forge should only adopt those patterns when they remain a thin, predictable
+translation to SolidCraft rather than becoming a second CAD kernel.
