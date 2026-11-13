@@ -347,6 +347,31 @@ jobs:
           keep_files: true
           commit_message: "Native qualification ${{ github.ref_name }} at ${{ github.sha }}"
 
+      - name: Enforce qualification status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          results = json.loads(
+              Path("output/qualification/results.json").read_text(encoding="utf-8")
+          )
+          failing = {
+              slug: case["status"]
+              for slug, case in results["cases"].items()
+              if case["status"] != "pass"
+          }
+          if failing:
+              for slug, status in failing.items():
+                  print(f"{slug}: {status.upper()}")
+              raise SystemExit(
+                  f"Qualification failed: {len(failing)} case(s) are not PASS"
+              )
+          print(f"Qualification passed: {len(results['cases'])} case(s)")
+          PY
+
       - name: Publish clean library site (after passing regression tests)
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
