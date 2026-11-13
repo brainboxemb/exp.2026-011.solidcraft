@@ -1,0 +1,102 @@
+{
+  "commands": [
+    {
+      "command": "solid.sphere",
+      "params": {
+        "radius": 20,
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "operation": "new",
+        "body_name": "PrimitiveCsg"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 30,
+        "width": 30,
+        "height": 20,
+        "center": [
+          18.0,
+          0.0,
+          10.0
+        ],
+        "operation": "join",
+        "targets": [
+          "PrimitiveCsg"
+        ]
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "height": 60,
+        "diameter": 8,
+        "base": [
+          -30.0,
+          0,
+          0
+        ],
+        "axis": "X",
+        "operation": "cut",
+        "targets": [
+          "PrimitiveCsg"
+        ]
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "height": 60,
+        "diameter": 8,
+        "base": [
+          0,
+          -30.0,
+          0
+        ],
+        "axis": "Y",
+        "operation": "cut",
+        "targets": [
+          "PrimitiveCsg"
+        ]
+      }
+    },
+    {
+      "command": "solid.cylinder",
+      "params": {
+        "height": 60,
+        "diameter": 8,
+        "base": [
+          0,
+          0,
+          -30.0
+        ],
+        "axis": "Z",
+        "operation": "cut",
+        "targets": [
+          "PrimitiveCsg"
+        ]
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 50,
+        "width": 50,
+        "height": 30,
+        "center": [
+          0.0,
+          0.0,
+          15.0
+        ],
+        "operation": "intersect",
+        "targets": [
+          "PrimitiveCsg"
+        ]
+      }
+    }
+  ]
+}

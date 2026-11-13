@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Anchors and attachments · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap guide-layout"><aside class="guide-sidebar"><h2>API Guide</h2><a href="../">All chapters</a><a href="../getting-started/">Getting started</a><a href="../model-objects/">Model objects and parameters</a><a href="../geometry/">Geometry, sketches and Boolean operations</a><a href="../transformations/">Transformations and orientation</a><a href="../features/">Features and references</a><a href="../components/">Components and assemblies</a><a href="../anchors-attachments/">Anchors and attachments</a><a href="../verification/">Verification and API boundaries</a></aside><article class="guide-article"><p class="crumb"><a href="../">← API Guide</a> / Anchors and attachments</p><h1>Anchors and attachments</h1><p class="guide-lead">Describe where parts connect, which way they face and which relationship should remain associative.</p>
+<h2 id="why">Why anchors exist</h2>
+<p>If you place every part with absolute X/Y/Z coordinates, the model may look
+correct once but becomes fragile as soon as dimensions change. An
+<strong>anchor</strong> gives a part a meaningful attachment reference such as
+“right face”, “front-top-left corner” or a named mounting frame.</p>
+<p>The important idea is not the coordinate value itself. The important idea is
+<strong>what place on the part this coordinate represents</strong> and, for
+oriented attachments, <strong>which way the local attachment frame points</strong>.</p>
+
+<h2 id="parent-child">An attachment relates two anchors</h2>
+<p><code>attach()</code> always describes a relationship between a parent
+reference and a child reference:</p>
+<pre><code>bracket = Bracket().attach(
+    frame,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)</code></pre>
+<p>Read this as:</p>
+<ul>
+<li>find the parent's front-top-left attachment reference;</li>
+<li>take the child's back-top-right attachment reference;</li>
+<li>place the child so those references form the requested relationship.</li>
+</ul>
+<p>You should not need to calculate the final world coordinates yourself.</p>
+
+<h2 id="standard">Standard anchors</h2>
+<p>For simple rectangular parts, Forge provides semantic anchors for common
+faces and corners:</p>
+<pre><code>Anchor.LEFT
+Anchor.RIGHT
+Anchor.TOP
+Anchor.BOTTOM
+Anchor.FRONT
+Anchor.BACK
+
+Anchor.FRONT_TOP_LEFT
+Anchor.FRONT_TOP_RIGHT
+Anchor.FRONT_BOTTOM_LEFT
+Anchor.FRONT_BOTTOM_RIGHT
+Anchor.BACK_TOP_LEFT
+Anchor.BACK_TOP_RIGHT
+Anchor.BACK_BOTTOM_LEFT
+Anchor.BACK_BOTTOM_RIGHT</code></pre>
+<p>These names describe the part from its own local coordinate system. A corner
+anchor should continue to mean the same corner when a parameter changes the
+part's width or height.</p>
+
+<h2 id="local-frame">An anchor is more than a world point</h2>
+<p>A reliable attachment needs a local frame. Conceptually that frame contains:</p>
+<ul>
+<li>an origin — where the attachment is;</li>
+<li>a normal/direction — which way it faces;</li>
+<li>a rotation reference around that normal.</li>
+</ul>
+<p>This is why the same numeric adjustment can behave differently at different
+corners if it is interpreted in the anchor's local coordinate system. A local
+attachment offset is not automatically a world-X, world-Y or world-Z move.</p>
+<div class="notice"><strong>Design rule:</strong> Forge should make the coordinate
+space explicit. The user should never have to guess whether an offset is local
+to the anchor or global to the assembly.</div>
+
+<h2 id="gap-offset">Gap and offset describe different parts of the relationship</h2>
+<table><thead><tr><th>Value</th><th>Meaning</th><th>Coordinate space</th></tr></thead><tbody>
+<tr><td><code>gap</code></td><td>Distance away from/toward the parent along the attachment normal</td><td>Local normal</td></tr>
+<tr><td><code>offset=(u,v)</code></td><td>Movement within the attachment plane</td><td>Local anchor plane</td></tr>
+<tr><td><code>move(x,y,z)</code></td><td>Explicit occurrence translation</td><td>Assembly/world axes</td></tr>
+<tr><td>orientation</td><td>Which way the child faces</td><td>Anchor/component frame</td></tr>
+</tbody></table>
+<p>Keeping these concepts separate is important for parametric models. If an
+offset is local, Forge should preserve it as a local relationship instead of
+flattening it into one-time global coordinates.</p>
+
+<h2 id="anchorframe">AnchorFrame: define a custom oriented mounting frame</h2>
+<p>Use <code>AnchorFrame</code> when the attachment location is not one of the
+standard faces/corners, or when the orientation must be stated explicitly.</p>
+<pre><code>mount = AnchorFrame(
+    origin=(0, 0, -12),
+    z=(0, 1, 0),
+    x=(0, 0, -1),
+)</code></pre>
+<p>Here:</p>
+<ul>
+<li><code>origin</code> is the component-local mounting point;</li>
+<li><code>z</code> is the local attachment direction;</li>
+<li><code>x</code> fixes the rotation around that direction.</li>
+</ul>
+<p>This is conceptually close to BOSL2's attachable model: a useful anchor has
+both a location and local orientation. Forge does not need to copy BOSL2's API,
+but that mental model is a good check for clear semantics.</p>
+
+<h2 id="topology">AnchorTopology: follow real model topology</h2>
+<p>Sometimes a datum should follow a real edge/corner in SolidCraft instead of
+remaining at a free local coordinate. <code>AnchorTopology</code> describes
+selection picks for an edge, adjacent face and optional endpoint.</p>
+<pre><code>mount = AnchorTopology(
+    edge=(-20, 50, 5),
+    on=(-20, 50, 10),
+    corner=(-20, 0, 5),
+)</code></pre>
+<p>Those coordinates are used to identify native topology. The intention is
+that SolidCraft keeps following that selected edge/corner when the underlying
+dimensions change.</p>
+
+<h2 id="ownership">Who should own an anchor?</h2>
+<p>An anchor belongs where its meaning originates:</p>
+<table><thead><tr><th>Example</th><th>Owner</th></tr></thead><tbody>
+<tr><td>A sensor connector position that is intrinsic to the sensor</td><td>Component</td></tr>
+<tr><td>The top-left mounting datum of one particular frame assembly</td><td>Assembly</td></tr>
+<tr><td>A generic rectangular face or corner</td><td>Standard <code>Anchor</code></td></tr>
+</tbody></table>
+<p>This prevents a generic component from accumulating project-specific names
+and offsets.</p>
+
+<h2 id="parametric">What should happen when dimensions change?</h2>
+<p>A good associative attachment is judged by its behaviour after an edit, not
+only by its initial picture. For example:</p>
+<ol>
+<li>a frame width changes from 800 to 900 mm;</li>
+<li>the semantic top-right corner moves;</li>
+<li>the child attached to that corner follows it;</li>
+<li>its local gap/offset still mean the same thing;</li>
+<li>no Python recompilation is needed for a saved-design parameter edit where
+the relationship is supported natively.</li>
+</ol>
+<p>This is why Forge qualification cases explicitly edit saved SolidCraft
+parameters and measure the native result.</p>
+
+<h2 id="current-boundaries">Current API boundaries</h2>
+<p>Forge currently supports standard rectangular anchors, named
+<code>AnchorFrame</code> values, topology-backed references and native rigid or
+planar attachment lowering for documented cases. It is not yet a general mate
+solver for arbitrary faces and every possible 3D relationship.</p>
+<p>When we add a new attachment capability, its coordinate space and
+associativity must first be described here, then implemented and qualified in
+an isolated use scenario before it is used in a larger CAD project.</p>
+</article></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
