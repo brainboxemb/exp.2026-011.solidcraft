@@ -5,7 +5,14 @@
   <p class="eyebrow">Forge qualification case</p>
   $status_badge
   <h1>$title</h1>
+</section>
+
+<section class="panel qualification-test-purpose">
+  <h2>Test goal</h2>
   <p>$intent</p>
+  <h3>Pass criteria</h3>
+  <p>$native_expectation</p>
+  $mutation_criterion
 </section>
 
 $gallery
@@ -23,8 +30,6 @@ $gallery
 
   <section class="panel">
     <h2>2. Native verification</h2>
-    <h3>Expected result</h3>
-    <p>$native_expectation</p>
     <h3>Parametric mutation</h3>
     <p>$mutation</p>
     <h3>Evidence</h3>
