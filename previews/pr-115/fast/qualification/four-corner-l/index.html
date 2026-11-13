@@ -157,7 +157,7 @@ FourCornerL()
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=DOWN; x=FRONT). Parametric (u,v) expressions move to the four corners; explicit child X directions provide the four orientations without ambiguous automatic half-turns.</p>
+  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=DOWN; x=FRONT). Parametric (u,v) expressions move to the four corners. Because both sides are explicit AnchorFrames, Forge emits mating angle=0 so SolidCraft cannot substitute its optional automatic half-turn.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -206,7 +206,8 @@ FourCornerL()
         &quot;frame_depth / 2&quot;,
         &quot;frame_width / 2&quot;,
         0.0
-      ]
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -254,7 +255,8 @@ FourCornerL()
         &quot;frame_depth / 2&quot;,
         &quot;-(frame_width / 2)&quot;,
         0.0
-      ]
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -302,7 +304,8 @@ FourCornerL()
         &quot;-(frame_depth / 2)&quot;,
         &quot;-(frame_width / 2)&quot;,
         0.0
-      ]
+      ],
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -350,7 +353,8 @@ FourCornerL()
         &quot;-(frame_depth / 2)&quot;,
         &quot;frame_width / 2&quot;,
         0.0
-      ]
+      ],
+      &quot;angle&quot;: 0.0
     }
   }
 ]</code></pre>

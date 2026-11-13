@@ -195,7 +195,8 @@
           "frame_depth / 2",
           "frame_width / 2",
           0.0
-        ]
+        ],
+        "angle": 0.0
       }
     },
     {
@@ -243,7 +244,8 @@
           "frame_depth / 2",
           "-(frame_width / 2)",
           0.0
-        ]
+        ],
+        "angle": 0.0
       }
     },
     {
@@ -291,7 +293,8 @@
           "-(frame_depth / 2)",
           "-(frame_width / 2)",
           0.0
-        ]
+        ],
+        "angle": 0.0
       }
     },
     {
@@ -339,7 +342,8 @@
           "-(frame_depth / 2)",
           "frame_width / 2",
           0.0
-        ]
+        ],
+        "angle": 0.0
       }
     },
     {
