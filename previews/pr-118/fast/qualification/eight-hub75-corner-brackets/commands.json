@@ -1,0 +1,859 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_width",
+        "expression": "120",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_depth",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_height",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "FrameBlock",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "FrameBlock footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-frame_width / 2",
+          "-frame_depth / 2"
+        ],
+        "p1": [
+          "frame_width / 2",
+          "frame_depth / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "frame_height",
+        "body_name": "FrameBlock"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_arm_width",
+        "expression": "24",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_horizontal_arm_length",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_arm_height",
+        "expression": "12",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_arm_end_chamfer",
+        "expression": "3",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_outer_corner_chamfer",
+        "expression": "6",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_vertical_arm_length",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_inside_corner_radius",
+        "expression": "4",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_elephant_foot_relief",
+        "expression": "0.6",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "Hub75CornerBracket_side_edge_chamfer",
+        "expression": "2",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Hub75CornerBracket",
+        "grounded": false
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XZ",
+        "name": "Profile"
+      }
+    },
+    {
+      "command": "sketch.line",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            "Hub75CornerBracket_horizontal_arm_length",
+            0
+          ],
+          [
+            "Hub75CornerBracket_horizontal_arm_length",
+            "-(Hub75CornerBracket_arm_height - (Hub75CornerBracket_arm_end_chamfer))"
+          ],
+          [
+            "Hub75CornerBracket_horizontal_arm_length - (Hub75CornerBracket_arm_end_chamfer)",
+            "-(Hub75CornerBracket_arm_height)"
+          ],
+          [
+            "(-(Hub75CornerBracket_arm_height)) + (Hub75CornerBracket_outer_corner_chamfer)",
+            "-(Hub75CornerBracket_arm_height)"
+          ],
+          [
+            "-(Hub75CornerBracket_arm_height)",
+            "-(Hub75CornerBracket_arm_height - (Hub75CornerBracket_outer_corner_chamfer))"
+          ],
+          [
+            "-(Hub75CornerBracket_arm_height)",
+            "-((-(Hub75CornerBracket_vertical_arm_length)) + (Hub75CornerBracket_arm_end_chamfer))"
+          ],
+          [
+            "(-(Hub75CornerBracket_arm_height)) + (Hub75CornerBracket_arm_end_chamfer)",
+            "-(-(Hub75CornerBracket_vertical_arm_length))"
+          ],
+          [
+            0,
+            "-(-(Hub75CornerBracket_vertical_arm_length))"
+          ]
+        ],
+        "closed": true,
+        "ids": [
+          "i_corner",
+          "o_hor_tip",
+          "o_hor_bevel",
+          "o_hor",
+          "o_corner",
+          "o_vert",
+          "o_vert_bevel",
+          "o_vert_end",
+          "v_tip"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "Hub75CornerBracket_arm_width",
+        "direction": "symmetric",
+        "body_name": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "solid.fillet",
+      "params": {
+        "edges": [
+          [
+            0.0,
+            0.0,
+            -0.0
+          ]
+        ],
+        "radius": "Hub75CornerBracket_inside_corner_radius",
+        "body": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "solid.chamfer",
+      "params": {
+        "edges": [
+          [
+            60.0,
+            0.0,
+            -0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -60.0
+          ]
+        ],
+        "distance": "Hub75CornerBracket_elephant_foot_relief",
+        "body": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "solid.chamfer",
+      "params": {
+        "edges": [
+          [
+            60.0,
+            -12.0,
+            4.5
+          ],
+          [
+            58.5,
+            -12.0,
+            10.5
+          ],
+          [
+            25.5,
+            -12.0,
+            12.0
+          ],
+          [
+            -9.0,
+            -12.0,
+            9.0
+          ],
+          [
+            -12.0,
+            -12.0,
+            -25.5
+          ],
+          [
+            -10.5,
+            -12.0,
+            -58.5
+          ],
+          [
+            -4.5,
+            -12.0,
+            -60.0
+          ],
+          [
+            60.0,
+            12.0,
+            4.5
+          ],
+          [
+            58.5,
+            12.0,
+            10.5
+          ],
+          [
+            25.5,
+            12.0,
+            12.0
+          ],
+          [
+            -9.0,
+            12.0,
+            9.0
+          ],
+          [
+            -12.0,
+            12.0,
+            -25.5
+          ],
+          [
+            -10.5,
+            12.0,
+            -58.5
+          ],
+          [
+            -4.5,
+            12.0,
+            -60.0
+          ]
+        ],
+        "distance": "Hub75CornerBracket_side_edge_chamfer",
+        "body": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "solid.chamfer",
+      "params": {
+        "edges": [
+          [
+            30.0,
+            -12.0,
+            -0.0
+          ],
+          [
+            30.0,
+            12.0,
+            -0.0
+          ]
+        ],
+        "distance": "Hub75CornerBracket_elephant_foot_relief",
+        "body": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Hub75CornerBracket"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:1",
+        "translate": [
+          -60.0,
+          -40.0,
+          72.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:2",
+        "translate": [
+          48.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:3",
+        "translate": [
+          60.0,
+          -40.0,
+          12.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:4",
+        "translate": [
+          -72.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:5",
+        "translate": [
+          -60.0,
+          40.0,
+          72.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:6",
+        "translate": [
+          48.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:7",
+        "translate": [
+          60.0,
+          40.0,
+          12.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Hub75CornerBracket:8",
+        "translate": [
+          -72.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:1 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:1",
+          "point": [
+            -60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:2 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:2",
+          "point": [
+            60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:3 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:3",
+          "point": [
+            60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:4 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:4",
+          "point": [
+            -60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "x": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:5 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:5",
+          "point": [
+            -60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:6 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:6",
+          "point": [
+            60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:7 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:7",
+          "point": [
+            60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Hub75CornerBracket:8 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "Hub75CornerBracket:8",
+          "point": [
+            -60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": 12.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}
