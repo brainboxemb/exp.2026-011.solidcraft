@@ -87,6 +87,8 @@ CHEATSHEET = [
          "second = first.copy().move(x=40)", "components"),
         ("model.attach(...)", "Fix one reusable component to another through explicit attachment references.",
          "right = Block().attach(left, parent=Anchor.RIGHT, child=Anchor.LEFT)", "components"),
+        ("attach(offset=(u, v))", "Keep an in-plane attachment offset associative; parameter expressions become native planar-joint values.",
+         "part.attach(base, parent=Anchor.FRONT_TOP_LEFT, child=mount, offset=(0, -wall + 12))", "components"),
         ("assembly.with_anchor(...) / anchor(...)", "Expose a semantic attachment datum owned by an assembly without adding application-specific anchors to a generic component.",
          "frame = (left + right).with_anchor(\"front_top_left\", left, ref)\nparent = frame.anchor(\"front_top_left\")", "components"),
         ("corner anchors", "Use one of the eight rectangular corner references when attaching components.",

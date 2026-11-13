@@ -309,10 +309,10 @@ class AssemblyTests(unittest.TestCase):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 panel.rotate(**kwargs)
 
-    def test_component_attach_rejects_non_associative_offset_for_now(self):
-        from scpf.core import Anchor
+    def test_component_attach_lowers_in_plane_offset_as_planar_joint(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, Box
         from scpf.model_objects import ModelDefinition, ModelInstance
-        from scpf.core import Box
 
         definition = ModelDefinition(
             "Block",
@@ -320,15 +320,25 @@ class AssemblyTests(unittest.TestCase):
             Box(40, 30, 10),
         )
         left = ModelInstance(definition)
-        right = ModelInstance(definition)
+        right = ModelInstance(definition).attach(
+            left,
+            parent=Anchor.RIGHT,
+            child=Anchor.LEFT,
+            offset=(5, 7),
+            gap=3,
+            angle=15,
+        )
 
-        with self.assertRaisesRegex(ValueError, "not implemented associatively"):
-            right.attach(
-                left,
-                parent=Anchor.RIGHT,
-                child=Anchor.LEFT,
-                offset=(5, 0),
-            )
+        commands = compile_assembly(left + right, "OffsetAttach")["commands"]
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "planar")
+        self.assertEqual(joint["values"], [5, 7, 15])
+        self.assertEqual(joint["offset"], 3)
+        self.assertNotIn("angle", joint)
 
     def test_different_model_parameters_create_independent_component_definitions(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1087,11 +1097,17 @@ class AssemblyTests(unittest.TestCase):
             z=(0, 0, -1),
             x=(1, 0, 0),
         )
-        frame = (left + right).with_anchor("top_left", left, topology)
+        frame = (left + right).with_anchor(
+            "top_left",
+            left,
+            topology,
+            offset=(5, 0),
+        )
 
         anchor = frame.anchor("top_left")
         self.assertIs(anchor.target, left)
         self.assertIs(anchor.reference, topology)
+        self.assertEqual(anchor.offset, (5, 0))
 
         marker = Block().attach(
             anchor.target,
@@ -1501,6 +1517,42 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual([joint["type"] for joint in joints], ["rigid", "rigid"])
         self.assertEqual([joint["angle"] for joint in joints], [0, 90])
+
+    def test_parametric_attach_keeps_in_plane_offset_expression(self):
+        from scpf.assembly import compile_assembly
+        from scpf.core import Anchor, Box, Parameter
+        from scpf.model_objects import ModelDefinition, ModelInstance
+
+        definition = ModelDefinition("Block", (), Box(40, 30, 10))
+        left = ModelInstance(definition)
+        wood = Parameter("wood_thickness", 18)
+        right = ModelInstance(definition).attach(
+            left,
+            parent=Anchor.RIGHT,
+            child=Anchor.LEFT,
+            offset=(0, -wood + 12),
+        )
+
+        commands = compile_assembly(left + right, "ParametricOffset")["commands"]
+        parameter = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "parameters.add"
+            and command["params"]["name"] == "wood_thickness"
+        )
+        self.assertEqual(parameter["expression"], "18 mm")
+
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "planar")
+        self.assertEqual(
+            joint["values"],
+            [0, "-(wood_thickness) + 12 mm", 0.0],
+        )
+
 
     def test_parametric_attach_keeps_gap_as_native_joint_expression(self):
         commands = run_script(

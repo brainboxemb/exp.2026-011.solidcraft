@@ -40,7 +40,7 @@ class Attachment:
     target: "ModelInstance"
     parent: Anchor | str | AnchorFrame | AnchorTopology | None
     child: Anchor | str | AnchorFrame | AnchorTopology | None
-    offset: tuple[float, float]
+    offset: tuple[object, object]
     gap: object = 0
     angle: float | None = None
     as_built: bool = False
@@ -424,13 +424,10 @@ class ModelInstance:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
         if not isinstance(offset, (tuple, list)) or len(offset) != 2:
             raise ValueError("component attach offset must be an (u, v) pair")
-        face_offset = tuple(pv(v) for v in offset)
-        if not all(isfinite(v) for v in face_offset):
+        face_offset = tuple(offset)
+        face_offset_values = tuple(pv(value) for value in face_offset)
+        if not all(isfinite(value) for value in face_offset_values):
             raise ValueError("component attach offset must be finite")
-        if any(face_offset):
-            raise ValueError(
-                "component attach offset is not implemented associatively yet"
-            )
 
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
@@ -483,6 +480,7 @@ class AssemblyAnchor:
 
     target: ModelInstance
     reference: Anchor | str | AnchorFrame | AnchorTopology
+    offset: tuple[object, object] = (0, 0)
 
 
 @dataclass(frozen=True)
@@ -505,14 +503,21 @@ class Assembly:
                 AssemblyAnchor(
                     target=remap[id(anchor.target)],
                     reference=anchor.reference,
+                    offset=anchor.offset,
                 ),
             )
             for anchor_name, anchor in self.anchors
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(self, name, target, reference):
-        """Expose one named datum owned by this assembly."""
+    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
+        """Expose one named datum owned by this assembly.
+
+        ``offset`` is an optional symbolic in-plane (u, v) correction that a
+        consumer can pass through to ``attach(offset=...)``. Keeping it on the
+        assembly lets a semantic datum depend on assembly parameters without
+        putting that knowledge on the reusable component.
+        """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
         if any(existing == name for existing, _ in self.anchors):
@@ -521,11 +526,22 @@ class Assembly:
             raise TypeError("assembly anchor target must be a model object")
         if not any(instance is target for instance in self.instances):
             raise ValueError("assembly anchor target must belong to this assembly")
+        if not isinstance(offset, (tuple, list)) or len(offset) != 2:
+            raise ValueError("assembly anchor offset must be an (u, v) pair")
+        if not all(isfinite(pv(value)) for value in offset):
+            raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
         return replace(
             self,
             anchors=self.anchors + (
-                (name, AssemblyAnchor(target=target, reference=resolved)),
+                (
+                    name,
+                    AssemblyAnchor(
+                        target=target,
+                        reference=resolved,
+                        offset=tuple(offset),
+                    ),
+                ),
             ),
         )
 
