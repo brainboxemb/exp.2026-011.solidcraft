@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "case": "parametric-offset",
+  "title": "Editable local offset at an attachment",
+  "source_commit": "784e1ed6d3a538d97d91b8e3d83b7462eec6f50b",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 16,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "measurements-shift-10.json",
+        "measurements.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "shift 5 -> 10 mm",
+      "evidence": [
+        "change-shift.json",
+        "measurements-shift-10.json",
+        "model-shift-10.sc"
+      ]
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "change-shift.json",
+      "measurements-shift-10.json",
+      "measurements.json",
+      "model-shift-10.sc",
+      "model.sc",
+      "model.step",
+      "results.json"
+    ],
+    "images": [
+      "model.png"
+    ]
+  }
+}

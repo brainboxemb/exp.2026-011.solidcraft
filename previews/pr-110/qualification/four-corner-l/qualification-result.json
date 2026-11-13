@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "case": "four-corner-l",
+  "title": "One L-profile on all four front corners",
+  "source_commit": "784e1ed6d3a538d97d91b8e3d83b7462eec6f50b",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 26,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "joint-inspect-size-160x120.json",
+        "joint-inspect.json",
+        "measurements-size-160x120.json",
+        "measurements.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "FrameBlock 120x80 -> 160x120 mm",
+      "evidence": [
+        "joint-inspect-size-160x120.json",
+        "measurements-size-160x120.json",
+        "model-size-160x120.sc"
+      ]
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model-size-160x120.png",
+        "model.png"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "joint-inspect-size-160x120.json",
+      "joint-inspect.json",
+      "measurements-size-160x120.json",
+      "measurements.json",
+      "model-size-160x120.sc",
+      "model.sc",
+      "model.step",
+      "results.json"
+    ],
+    "images": [
+      "model-size-160x120.png",
+      "model.png"
+    ]
+  }
+}

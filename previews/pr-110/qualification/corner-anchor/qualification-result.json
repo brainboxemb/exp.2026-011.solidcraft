@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "case": "corner-anchor",
+  "title": "Topology-backed corner anchor",
+  "source_commit": "784e1ed6d3a538d97d91b8e3d83b7462eec6f50b",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 17,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "measurements-size-80x40.json",
+        "measurements.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "base 40x20 -> 80x40 mm",
+      "evidence": [
+        "change-size.json",
+        "measurements-size-80x40.json",
+        "model-size-80x40.sc"
+      ]
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "change-size.json",
+      "measurements-size-80x40.json",
+      "measurements.json",
+      "model-size-80x40.sc",
+      "model.sc",
+      "model.step",
+      "results.json"
+    ],
+    "images": [
+      "model.png"
+    ]
+  }
+}

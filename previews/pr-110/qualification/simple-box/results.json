@@ -1,0 +1,101 @@
+[
+  {
+    "display_value": 40.0,
+    "name": "length",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "display_value": 30.0,
+    "name": "width",
+    "unit": "mm",
+    "value": 30.0
+  },
+  {
+    "display_value": 10.0,
+    "name": "height",
+    "unit": "mm",
+    "value": 10.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "SimpleBox footprint",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "SimpleBox"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "SimpleBox"
+    ],
+    "feature": 2,
+    "ms": 0.8611,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

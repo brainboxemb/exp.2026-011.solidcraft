@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "case": "anchored-holes",
+  "title": "Face-relative hole pattern",
+  "source_commit": "784e1ed6d3a538d97d91b8e3d83b7462eec6f50b",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 13,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "measurements.json"
+      ]
+    },
+    "q5": {
+      "status": "not-required",
+      "required": false,
+      "mutation": null,
+      "evidence": []
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "measurements.json",
+      "model.sc",
+      "model.step",
+      "results.json"
+    ],
+    "images": [
+      "model.png"
+    ]
+  }
+}
