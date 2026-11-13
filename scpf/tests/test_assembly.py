@@ -966,7 +966,7 @@ class AssemblyTests(unittest.TestCase):
         )
 
     def test_anchor_frame_accepts_named_axis_directions(self):
-        from scpf import AnchorFrame, RIGHT, UP
+        from scpf import Anchor, AnchorFrame
 
         frame = AnchorFrame(
             origin=(10, 25, 0),
@@ -1233,7 +1233,7 @@ class AssemblyTests(unittest.TestCase):
 
     def test_direct_anchor_frame_rigid_attach_fixes_mating_angle(self):
         from scpf.assembly import compile_assembly
-        from scpf.core import Anchor, AnchorFrame, Box, FRONT, RIGHT
+        from scpf.core import Anchor, AnchorFrame, Box
         from scpf.runner import component
 
         @component
