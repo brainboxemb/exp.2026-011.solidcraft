@@ -32,8 +32,8 @@ Every occurrence uses the same child frame:
 ```python
 mount = AnchorFrame(
     origin=(0, 0, 0),
-    z=(0, -1, 0),
-    x=(1, 0, 0),
+    z=FRONT,
+    x=RIGHT,
 )
 ```
 
@@ -46,7 +46,7 @@ Anchor.FRONT_BOTTOM_RIGHT
 Anchor.FRONT_BOTTOM_LEFT
 ```
 
-There is deliberately no `gap`, `offset` or parameter mutation. The attachment uses `angle=0` explicitly so SolidCraft does not choose a half-turn from the starting placement.
+The attachment uses `gap=12` mm: half of the 24 mm symmetric bracket width. That moves the bracket completely outside the front face while keeping its inner face flush to the frame. `angle=0` keeps the intended corner clocking explicit.
 
 ## Expected behaviour
 
@@ -62,11 +62,7 @@ bottom-right: X  20 ..  60   Z  0 .. 40
 bottom-left:  X -60 .. -20   Z  0 .. 40
 ```
 
-The L is extruded symmetrically through 24 mm. With its centre plane on the
-parent front face at Y=-15, every bracket spans Y=-27 .. -3.
-
-This case is about local corner orientation only; the bracket intentionally
-straddles the face. Normal/front-back placement is qualified separately later.
+The L is extruded symmetrically through 24 mm. The parent front face is at Y=-15. A 12 mm outward gap places the bracket centre plane at Y=-27, so every bracket spans Y=-39 .. -15. The bracket is therefore fully outside the frame and touches it exactly at its inner face.
 
 ## Resolved native frame cycle
 
@@ -97,7 +93,7 @@ The generated command JSON must contain:
 - four different topology-backed parent corner origins;
 - the same child `point/z/x` frame on all four occurrences;
 - explicit `angle=0` on all four joints;
-- no gap/offset values.
+- a 12 mm normal gap on every joint; no in-plane offset values.
 
 ## Q3/Q4 — native SolidCraft
 
