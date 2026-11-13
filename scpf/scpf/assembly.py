@@ -98,35 +98,52 @@ def compile_assembly(value, name):
     # existing native-origin route only for explicitly rotated occurrences,
     # where SolidCraft can own the local-to-world transform.
     required_custom_origins = set()
+    topology_anchors_by_instance = {}
+    topology_origin_names = {}
+
+    def topology_token(anchor):
+        if isinstance(anchor, str):
+            return ("named", anchor)
+        return ("direct", id(anchor))
+
+    def register_topology(model, anchor):
+        custom = (
+            dict(model.definition.anchors)[anchor]
+            if isinstance(anchor, str)
+            else anchor
+        )
+        if not isinstance(custom, AnchorTopology):
+            return
+        token = topology_token(anchor)
+        items = topology_anchors_by_instance.setdefault(id(model), [])
+        if not any(existing_token == token for existing_token, _ in items):
+            items.append((token, custom))
+
     for instance in assembly.instances:
         attachment = instance.attachment
         if attachment is None or attachment.as_built:
             continue
+        register_topology(attachment.target, attachment.parent)
+        register_topology(instance, attachment.child)
         if (
             isinstance(attachment.parent, str)
             and attachment.target.rotation is not None
+            and isinstance(
+                dict(attachment.target.definition.anchors)[attachment.parent],
+                AnchorFrame,
+            )
         ):
-            parent_anchor = dict(attachment.target.definition.anchors)[
-                attachment.parent
-            ]
-            if isinstance(parent_anchor, AnchorTopology):
-                raise ModelError(
-                    "AnchorTopology on explicitly rotated occurrences "
-                    "is not supported yet"
-                )
             required_custom_origins.add(
                 (id(attachment.target), attachment.parent)
             )
         if (
             isinstance(attachment.child, str)
             and instance.rotation is not None
+            and isinstance(
+                dict(instance.definition.anchors)[attachment.child],
+                AnchorFrame,
+            )
         ):
-            child_anchor = dict(instance.definition.anchors)[attachment.child]
-            if isinstance(child_anchor, AnchorTopology):
-                raise ModelError(
-                    "AnchorTopology on explicitly rotated occurrences "
-                    "is not supported yet"
-                )
             required_custom_origins.add((id(instance), attachment.child))
 
     # Named groups are actual empty native components, not just labels in
@@ -263,6 +280,35 @@ def compile_assembly(value, name):
                     },
                 ))
 
+            # Topology-backed datums are deliberately materialized as native
+            # joint origins while the occurrence is still at identity.
+            # SolidCraft then owns the edge/face/corner reference and follows
+            # it through later parameter edits and occurrence transforms.
+            for index, (token, topology) in enumerate(
+                topology_anchors_by_instance.get(id(instance), ()),
+                start=1,
+            ):
+                label = (
+                    token[1]
+                    if token[0] == "named"
+                    else f"topology_{index}"
+                )
+                origin_name = f"{native_name}.{label}"
+                topology_origin_names[(id(instance), token)] = origin_name
+                params = {
+                    "name": origin_name,
+                    "occurrence": native_name,
+                    "edge": list(topology.edge),
+                    "on": list(topology.on),
+                }
+                if topology.corner is not None:
+                    params["corner"] = list(topology.corner)
+                if topology.z is not None:
+                    params["z"] = list(topology.z)
+                if topology.x is not None:
+                    params["x"] = list(topology.x)
+                commands.append(_command("joint.origin", **params))
+
         # Each occurrence now starts at identity. SolidCraft itself applies
         # the requested translation and axis-angle rotation directly.
         # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
@@ -302,44 +348,21 @@ def compile_assembly(value, name):
 
         def custom_anchor_reference(model, anchor, occurrence):
             if isinstance(anchor, (AnchorFrame, AnchorTopology)):
-                if model.rotation is not None:
-                    kind = type(anchor).__name__
+                if isinstance(anchor, AnchorFrame) and model.rotation is not None:
                     raise ModelError(
-                        f"direct {kind} attachments on explicitly rotated "
+                        "direct AnchorFrame attachments on explicitly rotated "
                         "occurrences are not supported yet"
                     )
                 custom = anchor
             else:
                 custom = dict(model.definition.anchors)[anchor]
-                if model.rotation is not None:
-                    if isinstance(custom, AnchorTopology):
-                        raise ModelError(
-                            "AnchorTopology on explicitly rotated occurrences "
-                            "is not supported yet"
-                        )
+                if model.rotation is not None and isinstance(custom, AnchorFrame):
                     return custom_origin_names[(id(model), anchor)]
 
             if isinstance(custom, AnchorTopology):
-                def world(point):
-                    if point is None:
-                        return None
-                    return [
-                        point[i] + model.translation[i]
-                        for i in range(3)
-                    ]
-
-                reference = {
-                    "occurrence": occurrence,
-                    "edge": world(custom.edge),
-                    "on": world(custom.on),
-                }
-                if custom.corner is not None:
-                    reference["corner"] = world(custom.corner)
-                if custom.z is not None:
-                    reference["z"] = list(custom.z)
-                if custom.x is not None:
-                    reference["x"] = list(custom.x)
-                return reference
+                return topology_origin_names[
+                    (id(model), topology_token(anchor))
+                ]
 
             return {
                 "occurrence": occurrence,
