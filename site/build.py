@@ -9,6 +9,7 @@ import html
 import json
 from pathlib import Path
 import shutil
+from string import Template
 
 from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
@@ -230,6 +231,11 @@ def page(title, body, *, stylesheet, home, cheatsheet):
 
 def text(path):
     return path.read_text(encoding="utf-8")
+
+
+def render_template(name, **values):
+    template_path = ROOT / "qualification" / "templates" / name
+    return Template(text(template_path)).substitute(values)
 
 
 def build(out, sha, native_root=None):
@@ -478,30 +484,23 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 for name in native_images
             )
 
-        case_body = f"""<main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / {escape(case["title"])}</div>
-<section class="hero small"><p class="eyebrow">Forge qualification case · {escape(status)}</p>
-<h1>{escape(case["title"])}</h1><p>{escape(case["intent"])}</p></section>
-{preview_html}
-<div class="twocol">
-<section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>{escape(case["forge_api"])}</code></p>
-<h3>Internal Forge model</h3><p>{escape(case["forge_model"])}</p>
-<h3>SolidCraft lowering</h3><p>{escape(case["lowering"])}</p>
-</section>
-<section class="panel"><h2>2. Native verification</h2>
-<h3>Expected result</h3><p>{escape(case["native_expectation"])}</p>
-<h3>Parametric mutation</h3><p>{escape(case["mutation"])}</p>
-<h3>Evidence</h3><ul>{"".join(evidence_items)}</ul>
-</section></div>
-{results_html}
-<section class="panel"><h2>4. Generated native relationship/command path</h2>
-<pre><code>{escape(lowering_detail)}</code></pre></section>
-<section class="panel"><h2>5. Reference models</h2>
-<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-<ul>{"".join(reference_items)}</ul></section>
-<section class="panel"><h2>6. Fixture source</h2><pre><code>{escape(source)}</code></pre></section>
-</main>"""
+        case_body = render_template(
+            "case.html",
+            title=escape(case["title"]),
+            status=escape(status),
+            intent=escape(case["intent"]),
+            gallery=preview_html,
+            forge_api=escape(case["forge_api"]),
+            forge_model=escape(case["forge_model"]),
+            lowering=escape(case["lowering"]),
+            native_expectation=escape(case["native_expectation"]),
+            mutation=escape(case["mutation"]),
+            evidence_items="".join(evidence_items),
+            results=results_html,
+            lowering_detail=escape(lowering_detail),
+            reference_items="".join(reference_items),
+            source=escape(source),
+        )
         (case_dir / "index.html").write_text(
             page(
                 f"Qualification · {case['title']}",
