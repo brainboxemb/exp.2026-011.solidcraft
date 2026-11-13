@@ -510,25 +510,13 @@ class Assembly:
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(
-        self,
-        name,
-        target,
-        reference,
-        *,
-        offset=(0, 0),
-        z=None,
-        x=None,
-    ):
+    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
         """Expose one named datum owned by this assembly.
 
         ``offset`` is an optional symbolic in-plane (u, v) correction that a
-        consumer can pass through to ``attach(offset=...)``.
-
-        For a rectangular corner ``Anchor``, optional ``z`` and ``x``
-        vectors explicitly define the native joint frame orientation. This
-        lets the owning assembly normalize corner frames without putting
-        application-specific mounting knowledge on the reusable component.
+        consumer can pass through to ``attach(offset=...)``. Keeping it on the
+        assembly lets a semantic datum depend on assembly parameters without
+        putting that knowledge on the reusable component.
         """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
@@ -543,20 +531,6 @@ class Assembly:
         if not all(isfinite(pv(value)) for value in offset):
             raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
-        if z is not None or x is not None:
-            if not isinstance(resolved, Anchor) or resolved not in _CORNER_ANCHORS:
-                raise ValueError(
-                    "assembly anchor z/x orientation requires a rectangular "
-                    "corner Anchor"
-                )
-            edge, on, corner = _corner_origin_points(target, resolved)
-            resolved = AnchorTopology(
-                edge=edge,
-                on=on,
-                corner=corner,
-                z=z,
-                x=x,
-            )
         return replace(
             self,
             anchors=self.anchors + (
