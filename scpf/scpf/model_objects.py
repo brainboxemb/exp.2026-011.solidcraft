@@ -480,6 +480,7 @@ class AssemblyAnchor:
 
     target: ModelInstance
     reference: Anchor | str | AnchorFrame | AnchorTopology
+    offset: tuple[object, object] = (0, 0)
 
 
 @dataclass(frozen=True)
@@ -502,14 +503,21 @@ class Assembly:
                 AssemblyAnchor(
                     target=remap[id(anchor.target)],
                     reference=anchor.reference,
+                    offset=anchor.offset,
                 ),
             )
             for anchor_name, anchor in self.anchors
         )
         return Assembly(grouped, anchors)
 
-    def with_anchor(self, name, target, reference):
-        """Expose one named datum owned by this assembly."""
+    def with_anchor(self, name, target, reference, *, offset=(0, 0)):
+        """Expose one named datum owned by this assembly.
+
+        ``offset`` is an optional symbolic in-plane (u, v) correction that a
+        consumer can pass through to ``attach(offset=...)``. Keeping it on the
+        assembly lets a semantic datum depend on assembly parameters without
+        putting that knowledge on the reusable component.
+        """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("assembly anchor name must be non-empty text")
         if any(existing == name for existing, _ in self.anchors):
@@ -518,11 +526,22 @@ class Assembly:
             raise TypeError("assembly anchor target must be a model object")
         if not any(instance is target for instance in self.instances):
             raise ValueError("assembly anchor target must belong to this assembly")
+        if not isinstance(offset, (tuple, list)) or len(offset) != 2:
+            raise ValueError("assembly anchor offset must be an (u, v) pair")
+        if not all(isfinite(pv(value)) for value in offset):
+            raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
         return replace(
             self,
             anchors=self.anchors + (
-                (name, AssemblyAnchor(target=target, reference=resolved)),
+                (
+                    name,
+                    AssemblyAnchor(
+                        target=target,
+                        reference=resolved,
+                        offset=tuple(offset),
+                    ),
+                ),
             ),
         )
 
