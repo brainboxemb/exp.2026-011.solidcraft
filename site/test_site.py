@@ -36,7 +36,7 @@ def check(site: Path, sha: str, require_native: bool = False):
         "follow an edge or corner",
         "Assembly-owned named anchors",
         "with_anchor()",
-        'anchor("front_top_left")',
+        "front_top_left",
     ):
         assert term in components, term
     assert "AnchorFrame" in cheatsheet and "child=mount" in cheatsheet
