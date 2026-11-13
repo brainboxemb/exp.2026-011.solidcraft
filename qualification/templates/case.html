@@ -1,0 +1,51 @@
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / $title</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case · $status</p>
+  <h1>$title</h1>
+  <p>$intent</p>
+</section>
+
+$gallery
+
+<div class="twocol">
+  <section class="panel">
+    <h2>1. Forge contract</h2>
+    <h3>Public API</h3>
+    <p><code>$forge_api</code></p>
+    <h3>Internal Forge model</h3>
+    <p>$forge_model</p>
+    <h3>SolidCraft lowering</h3>
+    <p>$lowering</p>
+  </section>
+
+  <section class="panel">
+    <h2>2. Native verification</h2>
+    <h3>Expected result</h3>
+    <p>$native_expectation</p>
+    <h3>Parametric mutation</h3>
+    <p>$mutation</p>
+    <h3>Evidence</h3>
+    <ul>$evidence_items</ul>
+  </section>
+</div>
+
+$results
+
+<section class="panel">
+  <h2>4. Generated native relationship/command path</h2>
+  <pre><code>$lowering_detail</code></pre>
+</section>
+
+<section class="panel">
+  <h2>5. Reference models</h2>
+  <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+  <ul>$reference_items</ul>
+</section>
+
+<section class="panel">
+  <h2>6. Fixture source</h2>
+  <pre><code>$source</code></pre>
+</section>
+</main>
