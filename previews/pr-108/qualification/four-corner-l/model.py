@@ -43,7 +43,7 @@ class FourCornerL:
         # two in-plane directions to the two inward edges at each corner.
         mount = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 1, 0),
+            z=(0, -1, 0),
             x=(1, 0, 0),
         )
 
@@ -51,21 +51,25 @@ class FourCornerL:
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
             child=mount,
+            angle=0,
         )
         top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=mount,
+            angle=0,
         )
         bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
             child=mount,
+            angle=0,
         )
         bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
             child=mount,
+            angle=0,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left

@@ -14,9 +14,9 @@
 <div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
 <div class="twocol">
 <section class="panel"><h2>1. Forge contract</h2>
-<h3>Public API</h3><p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,1,0), x=(1,0,0))</code></p>
+<h3>Public API</h3><p><code>Anchor.FRONT_TOP_LEFT/RIGHT and FRONT_BOTTOM_LEFT/RIGHT; one AnchorFrame(origin=(0,0,0), z=(0,-1,0), x=(1,0,0)) with angle=0</code></p>
 <h3>Internal Forge model</h3><p>One fixed rectangular parent plus four occurrences of one LBracket definition; every child uses the same local attachment frame and differs only by the selected parent corner.</p>
-<h3>SolidCraft lowering</h3><p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame.</p>
+<h3>SolidCraft lowering</h3><p>Four rigid joint.create commands: parent corners use topology-backed edge/on/corner origins; each child supplies the same point/z/x local frame and an explicit zero joint angle.</p>
 </section>
 <section class="panel"><h2>2. Native verification</h2>
 <h3>Expected result</h3><p>The four 40x40 L bounding boxes occupy the four quadrants immediately inside the parent front-face corners, with the bracket width centred on that face.</p>
@@ -57,7 +57,7 @@
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
+          -1.0,
           0.0
         ],
         &quot;x&quot;: [
@@ -65,7 +65,8 @@
           0.0,
           0.0
         ]
-      }
+      },
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -100,7 +101,7 @@
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
+          -1.0,
           0.0
         ],
         &quot;x&quot;: [
@@ -108,7 +109,8 @@
           0.0,
           0.0
         ]
-      }
+      },
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -143,7 +145,7 @@
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
+          -1.0,
           0.0
         ],
         &quot;x&quot;: [
@@ -151,7 +153,8 @@
           0.0,
           0.0
         ]
-      }
+      },
+      &quot;angle&quot;: 0.0
     }
   },
   {
@@ -186,7 +189,7 @@
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
+          -1.0,
           0.0
         ],
         &quot;x&quot;: [
@@ -194,7 +197,8 @@
           0.0,
           0.0
         ]
-      }
+      },
+      &quot;angle&quot;: 0.0
     }
   }
 ]</code></pre></section>
@@ -246,7 +250,7 @@ class FourCornerL:
         # two in-plane directions to the two inward edges at each corner.
         mount = AnchorFrame(
             origin=(0, 0, 0),
-            z=(0, 1, 0),
+            z=(0, -1, 0),
             x=(1, 0, 0),
         )
 
@@ -254,21 +258,25 @@ class FourCornerL:
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
             child=mount,
+            angle=0,
         )
         top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=mount,
+            angle=0,
         )
         bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
             child=mount,
+            angle=0,
         )
         bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
             child=mount,
+            angle=0,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left
