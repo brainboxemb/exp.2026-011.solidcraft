@@ -282,9 +282,16 @@ Qualification publishing is deliberately **data + template driven**:
    (`case.html`, `index.html`, `results.html`, `capabilities.html` and
    `coverage.html`). `site/build.py` supplies escaped values and repeated
    rows/cards but does not contain complete qualification page documents.
-5. Native PNG evidence is copied from the case directory. `model.png` is the
-   baseline image; additional PNG files are published as extra views or
-   mutation evidence in stable order.
+5. Native image evidence is generated from deterministic cameras:
+   `model-front/right/iso.png` is the **actual** SolidCraft output,
+   `goal-front/right/iso.png` is generated from independent expected geometry,
+   and `overlay-front/right/iso.png` draws that goal over the actual render.
+   `model.png` remains the primary overview thumbnail. A current actual render
+   must never be promoted to a visual baseline merely because CI produced it.
+6. Q4/Q5 consume `qualification/expectations.py` through
+   `qualification/native_validation.py`. Q6 may additionally compare the fixed
+   actual views with explicitly approved visual baselines. Until a baseline is
+   approved, Q6 is `REVIEW`, not `PASS`.
 
 Case definitions live in `qualification/cases.py`. The site consumes those
 definitions; the qualification pipeline must never depend on site-owned
