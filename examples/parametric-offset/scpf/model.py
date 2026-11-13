@@ -17,7 +17,7 @@ class ParametricOffset:
             base,
             parent=Anchor.FRONT_TOP_RIGHT,
             child=Anchor.BACK_TOP_RIGHT,
-            offset=(-self.shift, 0),
+            offset=(0, -self.shift),
         )
         return base + marker
 
