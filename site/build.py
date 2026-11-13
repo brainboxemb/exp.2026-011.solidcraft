@@ -142,6 +142,24 @@ def _format_vector(values):
     return "[" + ", ".join(f"{float(value):g}" for value in values) + "]"
 
 
+def _qualification_status(result):
+    levels = result.get("levels", {})
+    passed = [
+        name.upper()
+        for name in ("q1", "q2", "q3", "q4", "q5", "q6")
+        if levels.get(name, {}).get("status") == "pass"
+    ]
+    not_required = [
+        name.upper()
+        for name in ("q1", "q2", "q3", "q4", "q5", "q6")
+        if levels.get(name, {}).get("status") == "not-required"
+    ]
+    label = f"{result.get('status', 'incomplete').upper()} · {' '.join(passed)}"
+    if not_required:
+        label += f" · {' '.join(not_required)} N/R"
+    return label
+
+
 def _render_native_results(native_case, solidcraft_version):
     measurement_files = sorted(native_case.glob("measurements*.json"))
     if not measurement_files:
@@ -397,6 +415,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         native_case = native_root / slug if verified else None
         native_files = []
         native_images = []
+        qualification_result = None
         body_count = None
         parameter_count = None
         results_html = (
@@ -411,6 +430,17 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         )
         status = "Q1/Q2 documented"
         if native_case is not None and native_case.is_dir():
+            result_file = native_case / "qualification-result.json"
+            if not result_file.is_file():
+                raise ValueError(f"Structured qualification result missing: {result_file}")
+            qualification_result = json.loads(result_file.read_text(encoding="utf-8"))
+            if (
+                qualification_result.get("source_commit") != sha
+                or qualification_result.get("solidcraft_version") != metadata.get("solidcraft_version")
+            ):
+                raise ValueError(f"Qualification result does not match this build: {result_file}")
+            if qualification_result.get("status") != "pass":
+                raise ValueError(f"Qualification case is not complete: {slug}")
             snapshot = native_case / "model.png"
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
@@ -454,7 +484,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 + "".join(figures)
                 + "</div>"
             )
-            status = case.get("verified_status", "Q1–Q6 native verified")
+            status = _qualification_status(qualification_result)
             results_html, body_count, parameter_count = _render_native_results(
                 native_case,
                 metadata["solidcraft_version"],
@@ -519,6 +549,12 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             "command_count": len(commands["commands"]),
             "native_evidence": native_files,
             "native_images": native_images,
+            "qualification_status": (
+                qualification_result.get("status") if qualification_result else None
+            ),
+            "levels": (
+                qualification_result.get("levels") if qualification_result else {}
+            ),
             "solidcraft_version": (
                 metadata.get("solidcraft_version") if verified else None
             ),
@@ -712,11 +748,6 @@ that case exists.</section>
         encoding="utf-8",
     )
 
-    qualification_index = qualification_index.replace(
-        '<section class="section-heading"><h2>Case sheets</h2>',
-        '<p><a class="button" href="capabilities/">Open CAD capability map →</a> <a class="button" href="coverage/">Open Forge API coverage matrix →</a></p>'
-        '<section class="section-heading"><h2>Case sheets</h2>',
-    )
     (qualification_root / "index.html").write_text(
         page(
             "Qualification",
