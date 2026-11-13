@@ -89,7 +89,7 @@ class FourCornerL:
             parent=Anchor.BOTTOM,
             child=foot_origin_reversed,
             offset=(-half_depth, -half_width),
-            angle=-90,
+            angle=90,
         )
         back_left = foot.copy().attach(
             frame,

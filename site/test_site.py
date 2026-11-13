@@ -240,9 +240,13 @@ def check(site: Path, sha: str, require_native: bool = False):
             assert "validation.json" in native_evidence, slug
             assert "visual-validation.json" in native_evidence, slug
 
-            if slug in {"parametric-offset", "corner-anchor", "xz-anchor"}:
-                assert structured_result["status"] == "fail", slug
-                assert structured_result["levels"]["q4"]["status"] == "fail", slug
+            # Qualification status is data, not a hard-coded historical
+            # expectation.  The site must render whatever status the current
+            # structured result reports (PASS/FAIL/REVIEW/INCOMPLETE).
+            status = structured_result["status"]
+            assert status in {"pass", "fail", "review", "incomplete"}, slug
+            status_class = f'qualification-status {status}'
+            assert status_class in page_text, (slug, status)
 
             if slug == "four-corner-l":
                 cadcraft_source = (

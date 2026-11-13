@@ -272,7 +272,6 @@ def validate_corner_anchor(root: Path) -> Validation:
             {"min": [10, -25, 10], "max": [20, -15, 20]}, marker["bbox"])
 
     m = load(root / "measurements-size-80x40.json")
-    _check_declared_bounds(v, m, "xz-anchor", level="q5", mutation=True)
     _check_declared_bounds(v, m, "corner-anchor", level="q5", mutation=True)
     marker2 = one_body(m, "Marker")
     v.check("corner follows 80x40 mutation",

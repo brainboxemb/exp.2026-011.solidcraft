@@ -160,9 +160,9 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Four reusable L-profile corner feet",
         "intent": "Mount one neutral L-profile foot below each corner of a rectangular frame. The feet belong to the bottom face, so the assembly places four occurrences by local bottom-face offsets and rotates the same component through the four corner orientations.",
-        "forge_api": "attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/-90/0)",
+        "forge_api": "attach(parent=Anchor.BOTTOM, child=assembly-local AnchorFrame, offset=(u, v), angle=90/180/90/0)",
         "forge_model": "One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns all four positions and clocking. The back-right occurrence uses the same origin with an explicit reversed local X direction.",
-        "lowering": "Four planar joint.create commands use the frame BOTTOM face as the parent reference. The (u,v) values are expressed in SolidCraft's local BOTTOM-frame basis (not world X/Y), with parametric width/depth expressions and four quarter-turn angles (using -90 rather than 270 for the back-right corner).",
+        "lowering": "Four planar joint.create commands use the frame BOTTOM face as the parent reference. The (u,v) values are expressed in SolidCraft's local BOTTOM-frame basis (not world X/Y), with parametric width/depth expressions. The back-right foot uses the reversed local X frame plus a 90 degree native planar turn.",
         "native_expectation": "The four feet sit below the frame, one at each bottom corner. Their equal L arms point inward along the two adjacent frame edges and their 30 mm height extends only below the frame.",
         "mutation": "Change frame_width from 120 to 160 mm and frame_depth from 80 to 120 mm in the saved .sc design; all four feet must follow the moved bottom corners without rerunning Python.",
         "references": [
