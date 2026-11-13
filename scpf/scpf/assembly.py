@@ -427,6 +427,13 @@ def compile_assembly(value, name):
             params["offset"] = command_value(attachment.gap)
         if has_planar_offset:
             u, v = attachment.offset
+            if attachment.assembled_rotation is not None:
+                quarter_turns = int(round(attachment.assembled_rotation / 90.0)) % 4
+                # offset is expressed in the assembled bracket's semantic
+                # planar axes. Convert it back into the native joint-local
+                # planar axes without changing either joint frame.
+                for _ in range(quarter_turns):
+                    u, v = v, -u
             params["values"] = [
                 command_value(u),
                 command_value(v),
