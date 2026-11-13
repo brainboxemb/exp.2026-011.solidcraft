@@ -139,7 +139,7 @@ jobs:
           ]}
           JSON
           solidcraft-cli run output/native/planar-limit-lab/inspect-limited.json \
-            --in output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
+            --in output/native/planar-limit-lab/model-limited.sc \
             --param-check strict \
             --results \
             --json-out output/native/planar-limit-lab/joint-inspect-limited.json
@@ -190,7 +190,7 @@ jobs:
           ]}
           JSON
           solidcraft-cli run output/native/planar-limit-lab/change-shift.json \
-            --in output/native/planar-limit-lab/model-limited.sc \
+            --in output/native/planar-limit-lab/model-limited-angle-minus-180.sc \
             --param-check strict \
             --save output/native/planar-limit-lab/model-limited-shift-18.sc
           solidcraft-cli eval output/native/planar-limit-lab/model-limited-shift-18.sc \
