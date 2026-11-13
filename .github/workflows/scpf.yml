@@ -119,7 +119,11 @@ jobs:
               ((.bbox.max[0] - 70) | fabs) < 0.001))
           ' output/native/parametric-attach/measurements-gap-30.json
 
-          # Parametric in-plane offset regression: the first planar value
+          echo "parametric-offset initial measurements:"
+          cat output/native/parametric-offset/measurements.json
+
+          # Parametric in-plane offset regression: determine and verify the
+          # corner-origin planar direction natively; do not infer it from XYZ.
           # follows the corner origin's local X direction. On FRONT_TOP_RIGHT
           # that direction runs down the vertical edge, so a negative value
           # moves the marker upward. The expression must be re-evaluated when
