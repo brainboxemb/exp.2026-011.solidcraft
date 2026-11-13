@@ -1108,7 +1108,7 @@ class AssemblyTests(unittest.TestCase):
             joint["b"],
             {
                 "occurrence": "Bracket:1",
-                "point": [20.0, -20.0, 35.0],
+                "point": [20.0, -20.0, 40.0],
                 "z": [0.0, 1.0, 0.0],
                 "x": [0.0, 0.0, -1.0],
             },
