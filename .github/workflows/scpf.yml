@@ -331,6 +331,85 @@ jobs:
                       q4:"native-measurement",q5:"parametric-mutation",
                       q6:"native-snapshot"}}' \
             > output/native/verification.json
+      - name: Build qualification report
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p output/qualification
+          report="output/qualification/REPORT.md"
+          {
+            echo "# SCPF Forge qualification"
+            echo
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Target SolidCraft: 0.30.1"
+            echo
+            echo "## Q1 — Python API regressions"
+            echo
+            if test -s output/qualification/q1-python-tests.txt; then
+              echo '~~~text'
+              tail -n 40 output/qualification/q1-python-tests.txt
+              echo '~~~'
+            else
+              echo "No Q1 result file was produced."
+            fi
+            echo
+            echo "## Q2 — command contract"
+            echo
+            if test -s output/qualification/q2-command-contract.tsv; then
+              echo '~~~text'
+              cat output/qualification/q2-command-contract.tsv
+              echo '~~~'
+            else
+              echo "No Q2 result file was produced."
+            fi
+            echo
+            echo "## Q3/Q4/Q6 — native build, measurement and snapshot"
+            echo
+            if test -s output/qualification/q3-q4-q6-native.tsv; then
+              echo '~~~text'
+              cat output/qualification/q3-q4-q6-native.tsv
+              echo '~~~'
+            else
+              echo "No native result table was produced."
+            fi
+            echo
+            echo "## Q5 — saved-design parameter mutation"
+            echo
+            if test -s output/qualification/q5-parametric-mutation.tsv; then
+              echo '~~~text'
+              cat output/qualification/q5-parametric-mutation.tsv
+              echo '~~~'
+            else
+              echo "No Q5 result table was produced."
+            fi
+            echo
+            echo "## Evidence retained"
+            echo
+            echo "- generated command JSON"
+            echo "- native SolidCraft results and timeline evaluation"
+            echo "- saved .sc designs"
+            echo "- STEP exports"
+            echo "- measurement JSON"
+            echo "- native PNG snapshots"
+            echo
+            echo "See scpf/docs/architecture.md for the required per-case sheet:"
+            echo "Intent -> Forge API -> Forge model -> SolidCraft lowering -> native expectation -> mutation -> evidence -> reference model."
+          } > "$report"
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scpf-qualification-${{ github.sha }}
+          path: |
+            output/qualification
+            output/*.json
+            output/native
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Build the lightweight library Pages site
         shell: bash
         run: |
