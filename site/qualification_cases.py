@@ -22,9 +22,19 @@ QUALIFICATION_LEVELS = [
 ]
 
 
+QUALIFICATION_GROUPS = [
+    ("fundamentals", "1 · Basic geometry", "Primitives, profiles, CSG and simple reusable reference geometry."),
+    ("features", "2 · Parent/child features and faces", "Features that belong to an existing object and use a meaningful parent face."),
+    ("components", "3 · Components and occurrences", "Reusable physical parts and more than one placed occurrence."),
+    ("anchors", "4 · Anchors and local frames", "Richer component references: faces, corners, topology and oriented local frames."),
+    ("associativity", "5 · Associative relationships", "Editable distances and local offsets that must keep their meaning after parameter changes."),
+]
+
+
 QUALIFICATION_CASES = [
     {
         "slug": "simple-box",
+        "group": "fundamentals",
         "title": "Parameterized Box",
         "intent": "Establish the smallest model/parameter contract: three public Python fields create one editable native box.",
         "forge_api": "class fields -> Parameter; Box(length, width, height); build()",
@@ -38,6 +48,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "anchored-holes",
+        "group": "features",
         "title": "Face-relative hole pattern",
         "intent": "Verify a 2D profile, native extrusion, patterned holes and placement on a selected face.",
         "forge_api": "Rectangle2D(...).extrude(...); Hole(...).pattern(...).on(..., face=Faces.TOP)",
@@ -51,8 +62,9 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "components",
-        "title": "Rigid component attachment",
-        "intent": "Verify reuse of one component definition and a rigid face-to-face relationship between two occurrences.",
+        "group": "components",
+        "title": "Place one component relative to another",
+        "intent": "Verify reuse of one component definition while a child occurrence is placed relative to a meaningful face of the parent.",
         "forge_api": "copy()/reusable model semantics; attach(parent=Anchor.RIGHT, child=Anchor.LEFT)",
         "forge_model": "Two ModelInstance occurrences sharing one ModelDefinition; the second carries an Attachment to the first.",
         "lowering": "One component definition, one copied occurrence and joint.create(type='rigid') using the RIGHT and LEFT native references.",
@@ -64,7 +76,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-attach",
-        "title": "Parametric normal gap",
+        "group": "associativity",
+        "title": "Editable distance between attached components",
         "intent": "Verify that distance along the attachment normal remains a native editable joint parameter.",
         "forge_api": "attach(..., gap=self.gap)",
         "forge_model": "Rigid Attachment with a symbolic gap expression; anchor identities are unchanged.",
@@ -77,7 +90,8 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-offset",
-        "title": "Parametric in-plane joint offset",
+        "group": "associativity",
+        "title": "Editable local offset at an attachment",
         "intent": "Verify the existing local (u,v) attachment-plane offset and make its coordinate semantics explicit.",
         "forge_api": "attach(..., offset=(u, v))",
         "forge_model": "Attachment stores two symbolic local planar values; these are not world X/Y/Z coordinates.",
@@ -91,6 +105,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-anchor",
+        "group": "anchors",
         "title": "Face anchor follows parent geometry",
         "intent": "Verify that a standard face anchor remains tied to changing parent topology.",
         "forge_api": "Anchor.RIGHT / Anchor.LEFT with parent parameter propagation",
@@ -104,6 +119,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "corner-anchor",
+        "group": "anchors",
         "title": "Topology-backed corner anchor",
         "intent": "Verify a corner reference that follows both parent width and height changes.",
         "forge_api": "Anchor.FRONT_TOP_RIGHT paired with child Anchor.BACK_TOP_RIGHT",
@@ -117,6 +133,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "custom-anchor",
+        "group": "anchors",
         "title": "Named oriented AnchorFrame",
         "intent": "Verify that a reusable component can publish a named attachment datum with both position and orientation.",
         "forge_api": "anchors() -> {'tip': AnchorFrame(origin=..., z=..., x=...)}; attach(parent='tip', child='mount')",
@@ -130,6 +147,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "xz-anchor",
+        "group": "anchors",
         "title": "Anchors on XZ-profile extrusion",
         "intent": "Verify standard corner anchors on geometry authored as an XZ polygon and extruded in Y.",
         "forge_api": "Polygon2D(..., plane='XZ', world=True).extrude(...); standard corner Anchors",
@@ -144,13 +162,14 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "primitive-csg",
-        "title": "Primitive CSG and orientation",
-        "intent": "Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, three-axis Cylinder.orient() cuts and intersection.",
-        "forge_api": "Sphere(); Box(...).move(...); Cylinder(...).orient(X, Y, Z); + / - / &",
+        "group": "fundamentals",
+        "title": "Primitive CSG",
+        "intent": "Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one ordinary Cylinder cut and intersection.",
+        "forge_api": "Sphere(); Box(...).move(...); Cylinder(...).move(...); + / - / &",
         "forge_model": "A Shape CSG tree rooted in Sphere so Forge deliberately selects the direct CSG compiler instead of the feature-history Box compiler.",
-        "lowering": "solid.sphere(new), solid.box(join), three centered solid.cylinder(cut) commands for X/Y/Z, then solid.box(intersect).",
+        "lowering": "solid.sphere(new), solid.box(join), one Z-axis solid.cylinder(cut), then solid.box(intersect).",
         "native_expectation": "SolidCraft accepts the complete CSG command path, produces one valid clipped body and evaluates the native timeline without errors.",
-        "mutation": "No saved-design mutation in this case; it isolates primitive CSG lowering and orientation. Parametric edits are covered by dedicated Q5 cases.",
+        "mutation": "No saved-design mutation in this case; it isolates primitive CSG lowering. Parametric edits are covered by dedicated Q5 cases.",
         "references": [
             ("OpenSCAD", "Closest to ordinary union()/difference()/intersection() with translate()/rotate() around primitives."),
             ("PythonSCAD", "Useful comparison for Python objects and operators while Forge still delegates all geometry to SolidCraft."),
@@ -158,6 +177,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "bracket",
+        "group": "fundamentals",
         "title": "Minimal L-profile",
         "intent": "Provide a deliberately simple reusable L-shaped reference component for later attachment/orientation qualification.",
         "forge_api": "Polygon2D(..., plane='XZ').extrude(width, direction=Direction.SYMMETRIC)",

@@ -7,8 +7,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES
-from qualification_cases import QUALIFICATION_CASES
+from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
+from capability_map import SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
 import scpf
 
 
@@ -25,7 +26,7 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert "guide-sidebar" in page and "guide-article" in page
         assert len(page) > 1400, chapter["slug"]
     transformations = (site / "guide" / "transformations" / "index.html").read_text(encoding="utf-8")
-    for term in ("orient(", "rotate(", "occurrence.move", "does not compose", "rotate(Z, 180)"):
+    for term in ("rotate(", "occurrence.move", "does not compose", "rotate(Z, 180)"):
         assert term in transformations, term
     components = (site / "guide" / "components" / "index.html").read_text(encoding="utf-8")
     for term in (
@@ -73,6 +74,18 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert set(qualification_manifest["cases"]) == {
         case["slug"] for case in QUALIFICATION_CASES
     }
+    group_keys = {key for key, _, _ in QUALIFICATION_GROUPS}
+    assert all(case["group"] in group_keys for case in QUALIFICATION_CASES)
+    for _, title, _ in QUALIFICATION_GROUPS:
+        assert title in qualification_index
+    capability_page = (
+        site / "qualification" / "capabilities" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert "SolidCraft capability & Forge API map" in capability_page
+    for item in REFERENCE_MODELS:
+        assert item["name"] in capability_page
+    for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
+        assert capability in capability_page
     for case in QUALIFICATION_CASES:
         slug = case["slug"]
         page_text = (

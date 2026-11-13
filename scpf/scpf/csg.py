@@ -14,20 +14,6 @@ def _half(dim, negative=False):
     return -pv(dim) / 2 if negative else pv(dim) / 2
 
 
-def _cylinder_base(height, axis):
-    if isinstance(height, Parameter):
-        half = f"-({height.name}) / 2"
-    elif hasattr(height, "expression"):
-        half = f"-({height.expression}) / 2"
-    else:
-        half = -pv(height) / 2
-    return {
-        "X": [half, 0, 0],
-        "Y": [0, half, 0],
-        "Z": [0, 0, half],
-    }[axis]
-
-
 def _shift(offset, delta):
     return tuple(a + b for a, b in zip(offset, delta))
 
@@ -41,7 +27,7 @@ def _add_offset(coord, offset):
     return coord + offset
 
 
-def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), centered=False):
+def _csg_primitive(shape, body_name, operation, *, offset=(0, 0, 0)):
     kind, data = shape.kind, shape.data
     if kind == "box":
         length, width, height = data
@@ -62,12 +48,10 @@ def _csg_primitive(shape, body_name, operation, *, axis="Z", offset=(0, 0, 0), c
         height, diameter = data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
-        base = _cylinder_base(height, axis) if centered else [0, 0, 0]
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
-                      base=[_add_offset(coord, delta)
-                            for coord, delta in zip(base, offset)],
-                      axis=axis, operation=operation)
+                      base=list(offset),
+                      axis="Z", operation=operation)
         command = "solid.cylinder"
     else:
         raise ModelError(f"not a supported CSG primitive: {kind}")
@@ -85,12 +69,6 @@ def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
         return _csg_apply(child, name, operation, _shift(offset, delta))
     if shape.kind in ("box", "sphere", "cylinder"):
         return [_csg_primitive(shape, name, operation, offset=offset)]
-    if shape.kind == "orient" and operation in ("cut", "join"):
-        cylinder, axes = shape.data
-        return [
-            _csg_primitive(cylinder, name, operation, axis=axis, offset=offset, centered=True)
-            for axis in axes
-        ]
     if shape.kind == "union" and operation in ("cut", "join"):
         left, right = shape.data
         return _csg_apply(left, name, operation, offset) + _csg_apply(right, name, operation, offset)
