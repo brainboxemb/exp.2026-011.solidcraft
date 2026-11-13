@@ -1,41 +1,41 @@
 {
-  "library_commit": "052929b3c555f028d42db6efb0b1050b79c3560c",
+  "library_commit": "7840e40f1ad184cd6da6fc6f3080943cfa52faf5",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
       "source": "examples/simple-box/model.py",
       "commands": "examples/simple-box/commands.json",
       "command_count": 7,
-      "preview": "examples/simple-box/preview.png",
-      "preview_kind": "native-snapshot"
+      "preview": "examples/simple-box/preview.svg",
+      "preview_kind": "schematic"
     },
     "anchored-holes": {
       "source": "examples/anchored-holes/model.py",
       "commands": "examples/anchored-holes/commands.json",
       "command_count": 13,
-      "preview": "examples/anchored-holes/preview.png",
-      "preview_kind": "native-snapshot"
+      "preview": "examples/anchored-holes/preview.svg",
+      "preview_kind": "schematic"
     },
     "components": {
       "source": "examples/components/model.py",
       "commands": "examples/components/commands.json",
       "command_count": 13,
-      "preview": "examples/components/preview.png",
-      "preview_kind": "native-snapshot"
+      "preview": "examples/components/preview.svg",
+      "preview_kind": "schematic"
     },
     "corner-anchor": {
       "source": "examples/corner-anchor/model.py",
       "commands": "examples/corner-anchor/commands.json",
       "command_count": 17,
-      "preview": "examples/corner-anchor/preview.png",
-      "preview_kind": "native-snapshot"
+      "preview": "examples/corner-anchor/preview.svg",
+      "preview_kind": "schematic"
     },
     "custom-anchor": {
       "source": "examples/custom-anchor/model.py",
       "commands": "examples/custom-anchor/commands.json",
       "command_count": 17,
-      "preview": "examples/custom-anchor/preview.png",
-      "preview_kind": "native-snapshot"
+      "preview": "examples/custom-anchor/preview.svg",
+      "preview_kind": "schematic"
     }
   }
 }
