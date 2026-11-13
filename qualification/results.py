@@ -77,7 +77,8 @@ def collect(
         mutation = mutation_rows.get(slug)
         mutation_required = bool(case.get("q5_required", False))
 
-        images = _existing_names(case_dir, ("model*.png",))
+        images = _existing_names(case_dir, ("*.png",))
+        images.sort(key=lambda name: (name != "model.png", name))
         native_files = _existing_names(
             case_dir,
             (
