@@ -3,6 +3,14 @@
     {
       "command": "parameters.add",
       "params": {
+        "name": "Board_depth",
+        "expression": "12",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
         "name": "board_width",
         "expression": "40",
         "unit": "mm"
@@ -67,7 +75,7 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 12.0,
+        "distance": "Board_depth",
         "direction": "positive",
         "body_name": "Board"
       }

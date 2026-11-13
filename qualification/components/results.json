@@ -1,5 +1,23 @@
 [
   {
+    "display_value": 40.0,
+    "name": "Block_length",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "display_value": 30.0,
+    "name": "Block_width",
+    "unit": "mm",
+    "value": 30.0
+  },
+  {
+    "display_value": 10.0,
+    "name": "Block_height",
+    "unit": "mm",
+    "value": 10.0
+  },
+  {
     "component": 1,
     "grounded": true,
     "name": "Block",
@@ -65,7 +83,7 @@
       "top": "l3"
     },
     "sketch": {
-      "dof": 4,
+      "dof": 0,
       "solved": true
     }
   },
@@ -82,7 +100,7 @@
       "Block"
     ],
     "feature": 4,
-    "ms": 0.844187,
+    "ms": 0.8258519999999999,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null

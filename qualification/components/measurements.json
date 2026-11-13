@@ -78,11 +78,39 @@
     }
   ],
   "body_count": 2,
-  "params": [],
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "40",
+      "model": false,
+      "name": "Block_length",
+      "unit": "mm",
+      "value": 40.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "30",
+      "model": false,
+      "name": "Block_width",
+      "unit": "mm",
+      "value": 30.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "10",
+      "model": false,
+      "name": "Block_height",
+      "unit": "mm",
+      "value": 10.0
+    }
+  ],
   "sketches": [
     {
       "curves": 4,
-      "dof": 4,
+      "dof": 0,
       "id": 3,
       "name": "Block footprint",
       "profiles": 1,
@@ -98,7 +126,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.152077,
+      "ms": 0.17302499999999998,
       "name": "Block footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -112,7 +140,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.6966169999999999,
+      "ms": 0.801917,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,

@@ -63,14 +63,12 @@ bracket = Bracket(
     inside_corner_radius=self.corner_radius,
 )</code></pre>
 <p>Here the wooden fillets and bracket inside fillet all depend on the same
-<code>corner_radius</code>. A reusable component default can also be published
-under an explicit shared name:</p>
-<pre><code>Bracket = component(
-    CornerBracket,
-    include={&quot;inside_corner_radius&quot;: &quot;corner_radius&quot;},
-)</code></pre>
-<p>Use a tuple such as <code>include=("outer_corner_chamfer",)</code> when the
-component should expose its own namespaced editable parameter instead.</p>
+<code>corner_radius</code>. Passing the parent parameter into the child input
+reuses that existing native dependency rather than creating a duplicate child
+parameter.</p>
+<p>If a reusable component owns a public lower-case numeric default itself,
+that default automatically becomes an editable, namespaced component
+parameter. No extra publication or alias declaration is needed.</p>
 <h2 id="shape">Shape versus component occurrence</h2>
 <p><strong>Shape</strong> describes geometry or a feature expression
 (<code>Box</code>, <code>Hole</code>, an extrusion). A <strong>component

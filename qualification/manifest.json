@@ -1,5 +1,5 @@
 {
-  "library_commit": "f27379b4fc1fe1cd22aefffd875e1d91dec12a46",
+  "library_commit": "0669e12d6e01760d7f552b7ad466ad060b703251",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -21,10 +21,25 @@
         "measurements.json"
       ]
     },
+    "parameter-scope": {
+      "title": "Implicit component parameters and shared dependencies",
+      "status": "Q1\u2013Q6 native verified",
+      "command_count": 32,
+      "native_evidence": [
+        "results.json",
+        "measurements-shared-width-100.json",
+        "measurements.json",
+        "change-shared-width.json",
+        "parameters-export-results.json",
+        "parameters.json",
+        "model.json",
+        "export-parameters.json"
+      ]
+    },
     "components": {
       "title": "Place one component relative to another",
       "status": "Q1\u2013Q6 native verified",
-      "command_count": 10,
+      "command_count": 13,
       "native_evidence": [
         "results.json",
         "measurements.json"
@@ -86,7 +101,7 @@
     "xz-anchor": {
       "title": "Anchors on XZ-profile extrusion",
       "status": "Q1\u2013Q6 native verified",
-      "command_count": 22,
+      "command_count": 23,
       "native_evidence": [
         "results.json",
         "measurements-size-80x40.json",

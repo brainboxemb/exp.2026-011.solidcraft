@@ -1,5 +1,11 @@
 [
   {
+    "display_value": 12.0,
+    "name": "Board_depth",
+    "unit": "mm",
+    "value": 12.0
+  },
+  {
     "display_value": 40.0,
     "name": "board_width",
     "unit": "mm",
@@ -72,7 +78,7 @@
       "Board"
     ],
     "feature": 4,
-    "ms": 0.767653,
+    "ms": 0.898969,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -176,7 +182,7 @@
       "Marker"
     ],
     "feature": 8,
-    "ms": 0.20743899999999998,
+    "ms": 0.24299700000000002,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
