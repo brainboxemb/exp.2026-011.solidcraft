@@ -2,7 +2,6 @@ name: SCPF Python package qualification
 
 on:
   pull_request:
-    branches: [main]
     paths:
       - "scpf/**"
       - "examples/**"
@@ -37,16 +36,29 @@ jobs:
         run: |
           set -euo pipefail
           unset PYTHONPATH
+          mkdir -p "$GITHUB_WORKSPACE/output/qualification"
           cd "$RUNNER_TEMP"
-          python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v
+          python -m unittest discover -s "$GITHUB_WORKSPACE/scpf/tests" -v 2>&1 \
+            | tee "$GITHUB_WORKSPACE/output/qualification/q1-python-tests.txt"
       - name: Compile self-contained API fixtures
         shell: bash
         run: |
           set -euo pipefail
           unset PYTHONPATH
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor history-policy plate bracket; do
+          mkdir -p output/qualification
+          printf "case\tcommands\tstatus\n" > output/qualification/q2-command-contract.tsv
+          native_models="$(python - <<'PY'
+import sys
+sys.path.insert(0, "site")
+from qualification_cases import QUALIFICATION_CASES
+print(" ".join(case["slug"] for case in QUALIFICATION_CASES))
+PY
+          )"
+          for model in $native_models history-policy plate; do
             python -m scpf "examples/$model/scpf/model.py" --out "output/$model.json"
             python -m json.tool "output/$model.json" >/dev/null
+            count="$(jq '.commands | length' "output/$model.json")"
+            printf "%s\t%s\tPASS\n" "$model" "$count" >> output/qualification/q2-command-contract.tsv
           done
       - name: Install official SolidCraft 0.30.1 (checksum-verified)
         shell: bash
@@ -70,8 +82,16 @@ jobs:
           set -euo pipefail
           unset PYTHONPATH
           solidcraft-cli --version
-          mkdir -p output/native
-          for model in simple-box anchored-holes components parametric-attach parametric-offset parametric-anchor corner-anchor custom-anchor xz-anchor; do
+          mkdir -p output/native output/qualification
+          printf "case\tbuild\teval\tsnapshot\tstatus\n" > output/qualification/q3-q4-q6-native.tsv
+          native_models="$(python - <<'PY'
+import sys
+sys.path.insert(0, "site")
+from qualification_cases import QUALIFICATION_CASES
+print(" ".join(case["slug"] for case in QUALIFICATION_CASES))
+PY
+          )"
+          for model in $native_models; do
             mkdir -p "output/native/$model"
             solidcraft-cli run "output/$model.json" \
               --param-check strict --results \
@@ -85,6 +105,7 @@ jobs:
             solidcraft-cli snapshot "output/native/$model/model.sc" \
               --out "output/native/$model/model.png" --no-grid --no-axes
             test -s "output/native/$model/model.png"
+            printf "%s\tPASS\tPASS\tPASS\tPASS\n" "$model" >> output/qualification/q3-q4-q6-native.tsv
           done
           # Parametric attachment regression: edit the saved native design,
           # not the Python model. The rigid attachment must re-solve from gap.
@@ -310,9 +331,98 @@ jobs:
               and ((.bbox.max[2] - 40) | fabs) < 0.001)] | length) == 1
           ' output/native/xz-anchor/measurements-size-80x40.json
 
+          printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-attach\tgap 10 -> 30 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-offset\tshift 5 -> 10 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "parametric-anchor\tbase_width 40 -> 80 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "corner-anchor\tbase 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "xz-anchor\tboard 40x20 -> 80x40 mm\tPASS\n" >> output/qualification/q5-parametric-mutation.tsv
+
           jq -n --arg source "$GITHUB_SHA" \
-            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true}' \
+            '{source_commit:$source,solidcraft_version:"0.30.1",verified:true,
+              levels:{q1:"python-api",q2:"command-contract",q3:"native-build",
+                      q4:"native-measurement",q5:"parametric-mutation",
+                      q6:"native-snapshot"}}' \
             > output/native/verification.json
+      - name: Build qualification report
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p output/qualification
+          report="output/qualification/REPORT.md"
+          {
+            echo "# SCPF Forge qualification"
+            echo
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Target SolidCraft: 0.30.1"
+            echo
+            echo "## Q1 — Python API regressions"
+            echo
+            if test -s output/qualification/q1-python-tests.txt; then
+              echo '~~~text'
+              tail -n 40 output/qualification/q1-python-tests.txt
+              echo '~~~'
+            else
+              echo "No Q1 result file was produced."
+            fi
+            echo
+            echo "## Q2 — command contract"
+            echo
+            if test -s output/qualification/q2-command-contract.tsv; then
+              echo '~~~text'
+              cat output/qualification/q2-command-contract.tsv
+              echo '~~~'
+            else
+              echo "No Q2 result file was produced."
+            fi
+            echo
+            echo "## Q3/Q4/Q6 — native build, measurement and snapshot"
+            echo
+            if test -s output/qualification/q3-q4-q6-native.tsv; then
+              echo '~~~text'
+              cat output/qualification/q3-q4-q6-native.tsv
+              echo '~~~'
+            else
+              echo "No native result table was produced."
+            fi
+            echo
+            echo "## Q5 — saved-design parameter mutation"
+            echo
+            if test -s output/qualification/q5-parametric-mutation.tsv; then
+              echo '~~~text'
+              cat output/qualification/q5-parametric-mutation.tsv
+              echo '~~~'
+            else
+              echo "No Q5 result table was produced."
+            fi
+            echo
+            echo "## Evidence retained"
+            echo
+            echo "- generated command JSON"
+            echo "- native SolidCraft results and timeline evaluation"
+            echo "- saved .sc designs"
+            echo "- STEP exports"
+            echo "- measurement JSON"
+            echo "- native PNG snapshots"
+            echo
+            echo "See scpf/docs/architecture.md for the required per-case sheet:"
+            echo "Intent -> Forge API -> Forge model -> SolidCraft lowering -> native expectation -> mutation -> evidence -> reference model."
+          } > "$report"
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scpf-qualification-${{ github.sha }}
+          path: |
+            output/qualification
+            output/*.json
+            output/native
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Build the lightweight library Pages site
         shell: bash
         run: |

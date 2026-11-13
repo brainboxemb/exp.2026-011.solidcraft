@@ -242,3 +242,109 @@ geometry bug fixed solely because Python unit tests pass.
 
 Further reading: the [API Guide](https://brainboxemb.github.io/lib.py.solidcraft/guide/)
 and the [CAD models and native verification results](https://brainboxemb.github.io/2026-011-02.cad.solidcraft/).
+
+
+## Forge qualification levels
+
+Forge changes are qualified in layers. A green Python test alone is never
+treated as proof that SolidCraft produced the intended CAD result.
+
+| Level | What is verified | Typical evidence |
+| --- | --- | --- |
+| Q1 — Python API | Public API behavior, validation, symbolic-expression handling and compiler invariants | `unittest` results |
+| Q2 — command contract | Complete example scripts compile to valid, inspectable SolidCraft command JSON | generated `*.json`, command counts |
+| Q3 — native build | Official SolidCraft `0.30.1` accepts the command plan and creates a saved editable design | `results.json`, `model.sc`, STEP |
+| Q4 — native measurement | Actual bodies/timeline are evaluated after construction | `measurements.json`, bounding-box assertions |
+| Q5 — parametric mutation | A saved design is edited with `parameters.change`; dependent geometry/joints must re-solve without recompiling Python | changed `*.sc` plus second measurement set |
+| Q6 — visual artifact | Native snapshots make orientation and placement regressions reviewable by a human | PNG snapshot |
+
+The CI qualification artifact must retain the generated commands and native
+results, not only a pass/fail flag. For assembly/anchor work in particular,
+the report should show both the generated `joint.create` parameters and the
+measured native result after at least one parameter mutation.
+
+### Qualification fixture rules
+
+Fixtures should isolate one concept at a time. Keep geometry deliberately
+simple unless geometry itself is the feature under test. For example, the
+`bracket` fixture is a plain extruded L-profile: no holes, fillets or shell
+operations. More complex assembly fixtures may reuse that component, but a
+failure in an attachment test must not be confounded by unrelated feature
+history.
+
+A new Forge API or lowering feature is not considered ready for CAD-project
+use until it has:
+
+1. a focused Q1 regression;
+2. a self-contained Q2 fixture;
+3. a Q3/Q4 native SolidCraft check;
+4. Q5 coverage when the feature claims associativity/parametric behavior;
+5. a Q6 snapshot when orientation or spatial placement is material.
+
+The HUB75 model is therefore a downstream integration consumer, not the place
+where Forge attachment semantics are discovered experimentally.
+
+
+### Qualification case sheet
+
+Every non-trivial Forge qualification case should explain the complete path,
+not only assert a final number. Use the following structure in test comments,
+fixture documentation or the generated qualification report:
+
+1. **Intent** — the user-level CAD operation being expressed.
+2. **Forge API** — the exact public Python calls used by the fixture.
+3. **Forge model** — the internal objects/relations that should result.
+4. **SolidCraft lowering** — the native command(s) and parameter fields that
+   Forge is expected to emit.
+5. **Native expectation** — the measurable geometry/placement SolidCraft must
+   create.
+6. **Parametric mutation** — which saved-design parameter is changed and which
+   native relation must update without rerunning Python.
+7. **Evidence** — command JSON, timeline/results, measurements and snapshot.
+8. **Reference model** — where useful, compare the concept with BOSL2,
+   OpenSCAD or PythonSCAD and state explicitly where Forge differs.
+
+The reference comparison is conceptual, not an API-compatibility promise.
+Forge should use familiar CAD vocabulary when it helps users understand the
+model, but its lowering must follow SolidCraft's native capabilities.
+
+#### BOSL2 as an anchor/attachment reference
+
+BOSL2 is particularly useful for terminology around **anchors** and
+**attachment frames**. Its attachable model separates several ideas that are
+also valuable in Forge:
+
+- an **anchor** selects a meaningful point/region on an object;
+- orientation is part of the attachment context rather than merely an XYZ
+  coordinate;
+- attachment is evaluated in the **local coordinate system at the parent
+  anchor**, not blindly in world coordinates;
+- named anchors may expose application-specific datums while generic anchors
+  cover common sides, edges and corners.
+
+Forge does not need to reproduce BOSL2's implementation. The comparison is a
+design check: when Forge uses the word `Anchor`, tests should make clear
+whether it means only a point, a point plus orientation, or a topology-backed
+native SolidCraft reference.
+
+Useful external references:
+
+- BOSL2 attachment overview:
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview
+- BOSL2 basic positioning (anchor, spin, orient):
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Basic-Positioning
+- BOSL2 attach behavior and parent-local coordinate system:
+  https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Attach
+
+#### OpenSCAD and PythonSCAD comparisons
+
+OpenSCAD remains useful as the baseline for explicit constructive geometry:
+translations, rotations, unions/differences and parameter-driven source are
+easy to reason about because transforms are visible in the program text.
+Qualification notes may show an equivalent OpenSCAD expression when that
+makes Forge semantics clearer.
+
+PythonSCAD comparisons are useful primarily for **Python API ergonomics**:
+how a Pythonic model represents transforms, reusable objects and composition.
+Forge should only adopt those patterns when they remain a thin, predictable
+translation to SolidCraft rather than becoming a second CAD kernel.

@@ -13,6 +13,8 @@ import shutil
 from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
+from qualification_cases import QUALIFICATION_CASES, QUALIFICATION_LEVELS, REFERENCE_URLS
+from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_URL = "https://github.com/brainboxemb/lib.py.solidcraft.forge"
@@ -142,8 +144,7 @@ def page(title, body, *, stylesheet, home, cheatsheet):
 <link rel="stylesheet" href="{escape(stylesheet)}"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="{escape(home)}">SCPF <span>Python library</span></a>
-<nav aria-label="Main"><a href="{escape(home)}">Examples</a><a href="{escape(home)}guide/">API Guide</a><a href="{escape(cheatsheet)}">Cheatsheet</a>
-<a href="{LIBRARY_URL}">Source</a></nav></div></header>
+<nav aria-label="Main"><a href="{escape(home)}">Examples</a><a href="{escape(home)}guide/">API Guide</a><a href="{escape(home)}qualification/">Qualification</a><a href="{escape(cheatsheet)}">Cheatsheet</a>\n<a href="{LIBRARY_URL}">Source</a></nav></div></header>
 {body}
 <footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
 <a href="{CAD_SITE}">Full SolidCraft CAD projects →</a></div></footer>
@@ -279,6 +280,243 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
              home="../", cheatsheet="../cheatsheet/"), encoding="utf-8"
     )
 
+    # Qualification pages explain the full contract for each native fixture:
+    # public API -> Forge model -> SolidCraft commands -> native evidence.
+    qualification_root = out / "qualification"
+    qualification_root.mkdir(exist_ok=True)
+    qualification_cards = []
+    qualification_manifest = {}
+
+    for case in QUALIFICATION_CASES:
+        slug = case["slug"]
+        source_path = ROOT / "examples" / slug / "scpf" / "model.py"
+        commands = run_script(source_path)
+        case_dir = qualification_root / slug
+        case_dir.mkdir(exist_ok=True)
+        source = text(source_path)
+        (case_dir / "model.py").write_text(source, encoding="utf-8")
+        (case_dir / "commands.json").write_text(
+            json.dumps(commands, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        joint_commands = [
+            command for command in commands["commands"]
+            if command["command"].startswith("joint.")
+        ]
+        lowering_detail = (
+            json.dumps(joint_commands, indent=2)
+            if joint_commands
+            else "\n".join(command["command"] for command in commands["commands"])
+        )
+
+        native_case = native_root / slug if verified else None
+        native_files = []
+        preview_html = (
+            '<div class="notice">No source-matched native verification was supplied '
+            'to this site build. The case sheet and command contract are still shown.</div>'
+        )
+        status = "Q1/Q2 documented"
+        if native_case is not None and native_case.is_dir():
+            snapshot = native_case / "model.png"
+            if not snapshot.is_file() or snapshot.stat().st_size == 0:
+                raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
+            shutil.copyfile(snapshot, case_dir / "model.png")
+            for pattern in ("results*.json", "measurements*.json", "change-*.json"):
+                for evidence in sorted(native_case.glob(pattern)):
+                    shutil.copyfile(evidence, case_dir / evidence.name)
+                    native_files.append(evidence.name)
+            preview_html = (
+                '<figure class="example-image"><img src="model.png" '
+                f'alt="{escape(case["title"])} native SolidCraft snapshot" loading="lazy">'
+                '<figcaption>Native SolidCraft 0.30.1 snapshot from this exact CI source commit.</figcaption></figure>'
+            )
+            status = "Q1–Q6 native verified"
+
+        reference_items = []
+        for label, description in case["references"]:
+            url = REFERENCE_URLS.get(label)
+            label_html = (
+                f'<a href="{escape(url)}">{escape(label)}</a>'
+                if url else escape(label)
+            )
+            reference_items.append(
+                f"<li><strong>{label_html}:</strong> {escape(description)}</li>"
+            )
+
+        evidence_items = [
+            '<li><a href="model.py">Fixture source</a></li>',
+            '<li><a href="commands.json">Generated command JSON</a></li>',
+        ]
+        evidence_items.extend(
+            f'<li><a href="{escape(name)}">{escape(name)}</a></li>'
+            for name in native_files
+        )
+        if native_case is not None and native_case.is_dir():
+            evidence_items.append('<li><a href="model.png">Native snapshot</a></li>')
+
+        case_body = f"""<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / {escape(case["title"])}</div>
+<section class="hero small"><p class="eyebrow">Forge qualification case · {escape(status)}</p>
+<h1>{escape(case["title"])}</h1><p>{escape(case["intent"])}</p></section>
+{preview_html}
+<div class="twocol">
+<section class="panel"><h2>1. Forge contract</h2>
+<h3>Public API</h3><p><code>{escape(case["forge_api"])}</code></p>
+<h3>Internal Forge model</h3><p>{escape(case["forge_model"])}</p>
+<h3>SolidCraft lowering</h3><p>{escape(case["lowering"])}</p>
+</section>
+<section class="panel"><h2>2. Native verification</h2>
+<h3>Expected result</h3><p>{escape(case["native_expectation"])}</p>
+<h3>Parametric mutation</h3><p>{escape(case["mutation"])}</p>
+<h3>Evidence</h3><ul>{"".join(evidence_items)}</ul>
+</section></div>
+<section class="panel"><h2>Generated native relationship/command path</h2>
+<pre><code>{escape(lowering_detail)}</code></pre></section>
+<section class="panel"><h2>Reference models</h2>
+<p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+<ul>{"".join(reference_items)}</ul></section>
+<section class="panel"><h2>Fixture source</h2><pre><code>{escape(source)}</code></pre></section>
+</main>"""
+        (case_dir / "index.html").write_text(
+            page(
+                f"Qualification · {case['title']}",
+                case_body,
+                stylesheet="../../style.css",
+                home="../../",
+                cheatsheet="../../cheatsheet/",
+            ),
+            encoding="utf-8",
+        )
+
+        qualification_manifest[slug] = {
+            "title": case["title"],
+            "status": status,
+            "command_count": len(commands["commands"]),
+            "native_evidence": native_files,
+        }
+        qualification_cards.append(
+            f'<article class="reference"><p class="eyebrow">{escape(status)}</p>'
+            f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
+            f'<p>{escape(case["intent"])}</p>'
+            f'<p><code>{escape(case["forge_api"])}</code></p>'
+            f'<a class="button" href="{escape(slug)}/">Open case sheet →</a></article>'
+        )
+
+    level_rows = "".join(
+        f"<tr><td><strong>{escape(level)}</strong></td><td>{escape(title)}</td>"
+        f"<td>{escape(description)}</td></tr>"
+        for level, title, description in QUALIFICATION_LEVELS
+    )
+    qualification_index = f"""<main class="wrap">
+<section class="hero small"><p class="eyebrow">SCPF Forge verification</p>
+<h1>Qualification</h1>
+<p>Every non-trivial Forge feature is traced from Python API through compiler
+representation and native SolidCraft behaviour. A green unit test alone is not
+treated as proof that the CAD result is correct.</p>
+<p class="meta">Source commit: <code>{escape(sha)}</code> · SolidCraft {TESTED_SOLIDCRAFT_VERSION}</p>
+</section>
+<section class="panel"><h2>Qualification levels</h2>
+<table><thead><tr><th>Level</th><th>Layer</th><th>What it proves</th></tr></thead>
+<tbody>{level_rows}</tbody></table></section>
+<section class="section-heading"><h2>Case sheets</h2>
+<p>Each case documents intent, Forge API, internal representation, SolidCraft
+lowering, native measurements, parameter mutation and relevant CAD references.</p></section>
+<div class="reference-grid">{"".join(qualification_cards)}</div>
+<section class="notice"><strong>Raw evidence:</strong> CI also retains the full
+saved .sc files and STEP exports in the qualification artifact. Pages publishes
+the command plans, measurement JSON and snapshots needed for normal review.</section>
+</main>"""
+    coverage_root = qualification_root / "coverage"
+    coverage_root.mkdir(exist_ok=True)
+    case_slugs = {case["slug"] for case in QUALIFICATION_CASES}
+
+    def coverage_case_links(cases):
+        links = []
+        for name in cases:
+            if name in case_slugs:
+                links.append(f'<a href="../{escape(name)}/">{escape(name)}</a>')
+            else:
+                links.append(escape(name))
+        return ", ".join(links) if links else "—"
+
+    export_rows = []
+    for api_name, (target, current, cases, note) in EXPORT_COVERAGE.items():
+        export_rows.append(
+            f"<tr><td><code>{escape(api_name)}</code></td>"
+            f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
+            f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
+        )
+
+    capability_rows = []
+    for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
+        capability_rows.append(
+            f"<tr><td>{escape(group)}</td><td><code>{escape(capability)}</code></td>"
+            f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
+            f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
+        )
+
+    gap_exports = sum(1 for row in EXPORT_COVERAGE.values() if row[1] == "GAP")
+    gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
+    coverage_body = f"""<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / API coverage</div>
+<section class="hero small"><p class="eyebrow">Declared coverage, including gaps</p>
+<h1>API & SolidCraft coverage matrix</h1>
+<p>This matrix is deliberately stricter than code coverage. It states the
+qualification level appropriate for each public API/capability and the highest
+dedicated level currently demonstrated.</p>
+<p class="meta">Public export gaps: {gap_exports} · capability gaps: {gap_capabilities}</p>
+</section>
+<section class="notice"><strong>Meaning of GAP:</strong> the API may already have
+unit tests or incidental use, but it does not yet have the dedicated
+qualification case required by its target level. The gap remains visible until
+that case exists.</section>
+<section class="panel"><h2>Public exports</h2>
+<table><thead><tr><th>API</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
+<tbody>{"".join(export_rows)}</tbody></table></section>
+<section class="panel"><h2>Behavioural capabilities</h2>
+<table><thead><tr><th>Area</th><th>Capability</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
+<tbody>{"".join(capability_rows)}</tbody></table></section>
+</main>"""
+    (coverage_root / "index.html").write_text(
+        page(
+            "Qualification coverage",
+            coverage_body,
+            stylesheet="../../style.css",
+            home="../../",
+            cheatsheet="../../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+
+    qualification_index = qualification_index.replace(
+        '<section class="section-heading"><h2>Case sheets</h2>',
+        '<p><a class="button" href="coverage/">Open API coverage matrix →</a></p>'
+        '<section class="section-heading"><h2>Case sheets</h2>',
+    )
+    (qualification_root / "index.html").write_text(
+        page(
+            "Qualification",
+            qualification_index,
+            stylesheet="../style.css",
+            home="../",
+            cheatsheet="../cheatsheet/",
+        ),
+        encoding="utf-8",
+    )
+    (qualification_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "library_commit": sha,
+                "solidcraft_version": TESTED_SOLIDCRAFT_VERSION,
+                "native_verified": verified,
+                "cases": qualification_manifest,
+            },
+            indent=2,
+        ) + "\n",
+        encoding="utf-8",
+    )
+
     sections = []
     for heading, items in CHEATSHEET:
         boxes = []
@@ -303,8 +541,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
     home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft.forge / Python Forge</p>
 <h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: {TESTED_SOLIDCRAFT_VERSION} · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
-<div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
-<a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
+<div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="qualification/">Qualification →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>\n<a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
 <section class="section-heading"><h2>Small public examples</h2><p>Each source produces its own native-command JSON.
 Source and commands are regenerated together by CI.</p></section>
 <div class="cards">{"".join(cards)}</div>
