@@ -121,6 +121,10 @@ jobs:
           solidcraft-cli eval output/native/four-corner-l/model-size-160x120.sc \
             --json-out output/native/four-corner-l/measurements-size-160x120.json
 
+          solidcraft-cli snapshot output/native/four-corner-l/model-size-160x120.sc \
+            --out output/native/four-corner-l/model-size-160x120.png --no-grid --no-axes
+          test -s output/native/four-corner-l/model-size-160x120.png
+
           solidcraft-cli run qualification/commands/four-corner-l/inspect-joints.json \
             --in output/native/four-corner-l/model-size-160x120.sc \
             --param-check strict --results \
