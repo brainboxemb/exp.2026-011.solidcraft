@@ -155,29 +155,36 @@ def _format_vector(values):
 
 
 def _qualification_status(result):
-    levels = result.get("levels", {})
-    passed = [
-        name.upper()
-        for name in ("q1", "q2", "q3", "q4", "q5", "q6")
-        if levels.get(name, {}).get("status") == "pass"
-    ]
-    not_required = [
-        name.upper()
-        for name in ("q1", "q2", "q3", "q4", "q5", "q6")
-        if levels.get(name, {}).get("status") == "not-required"
-    ]
-    detail = " ".join(passed)
-    if not_required:
-        detail += f" · {' '.join(not_required)} N/R"
-    overall = "PASS" if result.get("status") == "pass" else "FAIL"
-    return overall, detail
+    labels = {
+        "pass": "PASS",
+        "fail": "FAIL",
+        "review": "REVIEW",
+        "incomplete": "INCOMPLETE",
+        "missing": "MISSING",
+        "not-required": "N/R",
+    }
+    details = []
+    for name in ("q1", "q2", "q3", "q4", "q5", "q6"):
+        state = result.get("levels", {}).get(name, {}).get("status", "missing")
+        q = name.upper()
+        if state == "pass":
+            details.append(q)
+        elif state == "not-required":
+            details.append(f"{q} N/R")
+        else:
+            details.append(f"{q} {labels.get(state, state.upper())}")
+    overall_state = result.get("status", "incomplete")
+    return labels.get(overall_state, overall_state.upper()), " · ".join(details)
 
 
 def _qualification_status_html(overall, detail):
     status_class = {
         "PASS": "pass",
+        "FAIL": "fail",
+        "REVIEW": "review",
+        "INCOMPLETE": "incomplete",
         "NOT RUN": "not-run",
-    }.get(overall, "fail")
+    }.get(overall, "incomplete")
     return (
         '<div class="qualification-status-line">'
         f'<span class="qualification-status {status_class}">{escape(overall)}</span>'
@@ -466,8 +473,6 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 or qualification_result.get("solidcraft_version") != metadata.get("solidcraft_version")
             ):
                 raise ValueError(f"Qualification result does not match this build: {result_file}")
-            if qualification_result.get("status") != "pass":
-                raise ValueError(f"Qualification case is not complete: {slug}")
             snapshot = native_case / "model.png"
             if not snapshot.is_file() or snapshot.stat().st_size == 0:
                 raise ValueError(f"Qualification snapshot missing or empty: {snapshot}")
@@ -493,6 +498,8 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 "model*.step",
                 "export-*.json",
                 "qualification-result.json",
+                "validation.json",
+                "visual-validation.json",
             ):
                 for evidence in sorted(native_case.glob(pattern)):
                     shutil.copyfile(evidence, case_dir / evidence.name)
@@ -602,7 +609,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f'<article class="reference qualification-card">{card_image}'
             f'<div class="qualification-card-content">'
             + _qualification_status_html(status, status_detail)
-            f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
+            + f'<h2><a href="{escape(slug)}/">{escape(case["title"])}</a></h2>'
             f'<p>{escape(case["intent"])}</p>'
             f'<p><code>{escape(case["forge_api"])}</code></p>'
             + (
