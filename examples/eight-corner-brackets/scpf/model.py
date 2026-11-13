@@ -1,45 +1,47 @@
-"""Eight reusable L-brackets mounted outside a rectangular frame."""
+"""Eight simple L-brackets on the eight outer frame corners."""
 
 
 class FrameBlock:
-    _width = 120.0
-    _depth = 80.0
-    _height = 60.0
+    _width = 320.0
+    _depth = 120.0
+    _height = 160.0
 
     def build(self):
         return Box(self._width, self._depth, self._height)
 
 
-class LBracket:
-    ARM_LENGTH = 28.0
+class CornerBracket:
+    ARM_LENGTH = 36.0
     WALL = 8.0
-    THICKNESS = 4.0
+    THICKNESS = 8.0
 
     def build(self):
-        # Neutral reusable component in its own local XZ plane.
-        # The profile starts at its local corner and the material is extruded
-        # in local +Y. It has no front/rear/top/bottom frame knowledge.
+        # Qualification geometry only: one plain L polygon in local XZ.
+        # The local inside corner at (0, 0, 0) is the attachment datum.
+        # The inside corner is (0, 0). Material sits outside the
+        # parent corner: +X runs inward over one face, -Z runs inward over
+        # the adjacent face, while -X/+Z are the external wall thickness.
         profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
                 (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
-                (0, self.ARM_LENGTH),
+                (-self.WALL, self.WALL),
+                (-self.WALL, -self.ARM_LENGTH),
+                (0, -self.ARM_LENGTH),
             ],
             plane="XZ",
         )
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
 class EightCornerBrackets:
-    frame_width = 120.0
-    frame_depth = 80.0
-    frame_height = 60.0
+    frame_width = 320.0
+    frame_depth = 120.0
+    frame_height = 160.0
 
     def build(self):
         frame = FrameBlock(
@@ -47,69 +49,57 @@ class EightCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        bracket = CornerBracket()
 
-        # Placement belongs to this assembly. The same local bracket corner is
-        # used for all eight occurrences; SolidCraft's parent corner reference
-        # supplies the corner position/orientation on the front or rear face.
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
             z=FRONT,
             x=RIGHT,
         )
 
+        # Symmetric extrusion plus half-thickness outward gap makes the
+        # bracket touch the selected face without floating or cutting through.
+        outside_gap = CornerBracket.THICKNESS / 2
+
         front_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         front_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
-
         rear_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_TOP_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_TOP_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_BOTTOM_RIGHT,
+            child=bracket_corner, gap=outside_gap,
         )
         rear_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_LEFT,
-            child=bracket_corner
+            frame, parent=Anchor.BACK_BOTTOM_LEFT,
+            child=bracket_corner, gap=outside_gap,
         )
 
         return (
             frame
-            + front_top_left
-            + front_top_right
-            + front_bottom_right
-            + front_bottom_left
-            + rear_top_left
-            + rear_top_right
-            + rear_bottom_right
-            + rear_bottom_left
+            + front_top_left + front_top_right
+            + front_bottom_right + front_bottom_left
+            + rear_top_left + rear_top_right
+            + rear_bottom_right + rear_bottom_left
         )
 
 

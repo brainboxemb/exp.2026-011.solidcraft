@@ -1,7 +1,7 @@
 {
   "commands": [
-    {"command":"parameters.change","params":{"name":"case_width","expression":"160 mm"}},
-    {"command":"parameters.change","params":{"name":"case_depth","expression":"120 mm"}},
-    {"command":"parameters.change","params":{"name":"case_height","expression":"90 mm"}}
+    {"command":"parameters.change","params":{"name":"case_width","expression":"400 mm"}},
+    {"command":"parameters.change","params":{"name":"case_depth","expression":"160 mm"}},
+    {"command":"parameters.change","params":{"name":"case_height","expression":"400 mm"}}
   ]
 }

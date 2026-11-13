@@ -1,17 +1,1 @@
-{
-  "cadcraft_version":"0.20.1",
-  "title":"Four real HUB75 corner brackets",
-  "commands":[
-    {"command":"layer.new","params":{"name":"FRAME","color":8,"lineweight":0.35,"current":true}},
-    {"command":"rectang","params":{"p1":[-60,0],"p2":[60,60]}},
-    {"command":"layer.new","params":{"name":"BRACKET","color":3,"lineweight":0.5,"current":true}},
-    {"command":"pline","params":{"vertices":[[-60,60],[-12,60],[-12,48],[-48,48],[-48,0],[-60,0]],"closed":false}},
-    {"command":"pline","params":{"vertices":[[60,60],[12,60],[12,48],[48,48],[48,0],[60,0]],"closed":false}},
-    {"command":"pline","params":{"vertices":[[60,0],[12,0],[12,12],[48,12],[48,60],[60,60]],"closed":false}},
-    {"command":"pline","params":{"vertices":[[-60,0],[-12,0],[-12,12],[-48,12],[-48,60],[-60,60]],"closed":false}},
-    {"command":"layer.new","params":{"name":"TEXT","color":7,"current":true}},
-    {"command":"text","params":{"at":[-110,84],"text":"4 REAL HUB75 CORNER BRACKETS","height":5}},
-    {"command":"text","params":{"at":[-110,76],"text":"Real 60 mm CornerBracket + mount A/B datums","height":3}},
-    {"command":"text","params":{"at":[-110,-20],"text":"Front set only; next case adds the four rear brackets.","height":3}}
-  ]
-}
+{"cadcraft_version":"0.20.1","title":"Four middle-plane corner brackets","commands":[{"command":"layer.new","params":{"name":"FRAME","color":8,"lineweight":0.35,"current":true}},{"command":"rectang","params":{"p1":[-160,0],"p2":[160,160]}},{"command":"layer.new","params":{"name":"BRACKET","color":3,"lineweight":0.5,"current":true}},{"command":"circle","params":{"center":[-160,160],"radius":6}},{"command":"circle","params":{"center":[160,160],"radius":6}},{"command":"circle","params":{"center":[160,0],"radius":6}},{"command":"circle","params":{"center":[-160,0],"radius":6}},{"command":"layer.new","params":{"name":"TEXT","color":7,"current":true}},{"command":"text","params":{"at":[-160,185],"text":"4 L-BRACKETS AT Y=0","height":6}},{"command":"text","params":{"at":[-160,175],"text":"One simple Polygon2D CornerBracket","height":3}}]}

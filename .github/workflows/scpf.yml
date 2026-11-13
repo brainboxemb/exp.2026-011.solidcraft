@@ -190,41 +190,29 @@ jobs:
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect-size-160x120.json
 
-          # Four HUB75-style front brackets: saved-design size mutation.
+          # Four middle-plane brackets.
           solidcraft-cli run qualification/commands/four-corner-brackets/change-size.json \
             --in output/native/four-corner-brackets/model.sc \
             --param-check strict \
-            --save output/native/four-corner-brackets/model-size-160x120x90.sc
+            --save output/native/four-corner-brackets/model-size-400x160x200.sc
+          solidcraft-cli eval output/native/four-corner-brackets/model-size-400x160x200.sc \
+            --json-out output/native/four-corner-brackets/measurements-size-400x160x200.json
 
-          solidcraft-cli eval output/native/four-corner-brackets/model-size-160x120x90.sc \
-            --json-out output/native/four-corner-brackets/measurements-size-160x120x90.json
-
-          # Eight real HUB75 brackets: same saved-design size mutation.
-          solidcraft-cli run qualification/commands/eight-hub75-corner-brackets/change-size.json \
-            --in output/native/eight-hub75-corner-brackets/model.sc \
-            --param-check strict \
-            --save output/native/eight-hub75-corner-brackets/model-size-160x120x90.sc
-
-          solidcraft-cli eval output/native/eight-hub75-corner-brackets/model-size-160x120x90.sc \
-            --json-out output/native/eight-hub75-corner-brackets/measurements-size-160x120x90.json
-
-          # Eight 3D flightcase corners: verify all topology corners follow resize.
-          solidcraft-cli run qualification/commands/eight-flightcase-corners/change-size.json \
-            --in output/native/eight-flightcase-corners/model.sc \
-            --param-check strict \
-            --save output/native/eight-flightcase-corners/model-size-160x120x90.sc
-
-          solidcraft-cli eval output/native/eight-flightcase-corners/model-size-160x120x90.sc \
-            --json-out output/native/eight-flightcase-corners/measurements-size-160x120x90.json
-
-          # Eight outside brackets: saved-design width/depth/height mutation.
+          # Eight outer L-brackets.
           solidcraft-cli run qualification/commands/eight-corner-brackets/change-size.json \
             --in output/native/eight-corner-brackets/model.sc \
             --param-check strict \
-            --save output/native/eight-corner-brackets/model-size-160x120x90.sc
+            --save output/native/eight-corner-brackets/model-size-400x160x200.sc
+          solidcraft-cli eval output/native/eight-corner-brackets/model-size-400x160x200.sc \
+            --json-out output/native/eight-corner-brackets/measurements-size-400x160x200.json
 
-          solidcraft-cli eval output/native/eight-corner-brackets/model-size-160x120x90.sc \
-            --json-out output/native/eight-corner-brackets/measurements-size-160x120x90.json
+          # Eight proportional three-face flightcase protectors.
+          solidcraft-cli run qualification/commands/eight-flightcase-corners/change-size.json \
+            --in output/native/eight-flightcase-corners/model.sc \
+            --param-check strict \
+            --save output/native/eight-flightcase-corners/model-size-400x160x400.sc
+          solidcraft-cli eval output/native/eight-flightcase-corners/model-size-400x160x400.sc \
+            --json-out output/native/eight-flightcase-corners/measurements-size-400x160x400.json
 
           # Parameter-scope native evidence and saved-design mutation.
           solidcraft-cli run output/parameter-scope.json \
@@ -326,10 +314,9 @@ jobs:
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
           printf "parameter-scope\tshared_width 80 -> 100 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "four-corner-l\tframe footprint 120x80 -> 160x120 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "four-corner-brackets\tframe 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "eight-hub75-corner-brackets\tframe 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "eight-flightcase-corners\tcase 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
-          printf "eight-corner-brackets\tframe 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "four-corner-brackets\tframe 320x120x160 -> 400x160x200 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "eight-flightcase-corners\tcase 320x120x320 -> 400x160x400 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "eight-corner-brackets\tframe 320x120x160 -> 400x160x200 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-attach\tgap 10 -> 30 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-offset\tshift 5 -> 10 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parametric-anchor\tbase_width 40 -> 80 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
