@@ -40,7 +40,7 @@ class Attachment:
     target: "ModelInstance"
     parent: Anchor | str | AnchorFrame | AnchorTopology | None
     child: Anchor | str | AnchorFrame | AnchorTopology | None
-    offset: tuple[object, object, object]
+    offset: tuple[object, ...]
     gap: object = 0
     angle: float | None = None
     as_built: bool = False
@@ -426,8 +426,8 @@ class ModelInstance:
         child = _resolve_anchor_reference(self, child)
         if parent is Anchor.INNER_BOTTOM or child is Anchor.INNER_BOTTOM:
             raise ValueError("Anchor.INNER_BOTTOM is not an assembly face anchor")
-        if not isinstance(offset, (tuple, list)) or len(offset) != 3:
-            raise ValueError("component attach offset must be an (x, y, z) triple")
+        if not isinstance(offset, (tuple, list)) or len(offset) not in (2, 3):
+            raise ValueError("component attach offset must be an (u, v) pair or (x, y, z) triple")
         spatial_offset = tuple(offset)
         spatial_offset_values = tuple(pv(value) for value in spatial_offset)
         if not all(isfinite(value) for value in spatial_offset_values):
@@ -483,7 +483,7 @@ class AssemblyAnchor:
 
     target: ModelInstance
     reference: Anchor | str | AnchorFrame | AnchorTopology
-    offset: tuple[object, object, object] = (0, 0, 0)
+    offset: tuple[object, ...] = (0, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -529,8 +529,8 @@ class Assembly:
             raise TypeError("assembly anchor target must be a model object")
         if not any(instance is target for instance in self.instances):
             raise ValueError("assembly anchor target must belong to this assembly")
-        if not isinstance(offset, (tuple, list)) or len(offset) != 3:
-            raise ValueError("assembly anchor offset must be an (x, y, z) triple")
+        if not isinstance(offset, (tuple, list)) or len(offset) not in (2, 3):
+            raise ValueError("assembly anchor offset must be an (u, v) pair or (x, y, z) triple")
         if not all(isfinite(pv(value)) for value in offset):
             raise ValueError("assembly anchor offset must be finite")
         resolved = _resolve_anchor_reference(target, reference)
