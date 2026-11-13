@@ -448,6 +448,32 @@ components. <code>Anchor</code> selects the attachment reference: a supported
 face, or one of the eight rectangular corners such as
 <code>FRONT_TOP_RIGHT</code>. Corner anchors compile to native SolidCraft
 edge/corner origins, so they follow dimension changes in a saved design.</p>
+<h2 id="assembly-anchor">Assembly-owned named anchors</h2>
+<p>When a datum belongs to the meaning of an assembly rather than to a generic
+component, keep it on the assembly with <code>with_anchor()</code>. The anchor
+stores the target occurrence plus its attachment reference. Consumers resolve
+it by name with <code>anchor()</code>.</p>
+""" + code("""frame = (left + right + bottom).with_anchor(
+    "front_top_left",
+    left,
+    AnchorTopology(
+        edge=(-6, 0, 181),
+        on=(0, 0, 181),
+        corner=(-6, 0, 362),
+        z=(0, 0, -1),
+        x=(1, 0, 0),
+    ),
+)
+
+parent = frame.anchor("front_top_left")
+bracket = CornerBracket().attach(
+    parent.target,
+    parent=parent.reference,
+    child=bracket_reference,
+)""") + """
+<p>This keeps a generic <code>Board</code> or <code>CornerBracket</code> free
+of application-specific anchor names while a higher-level frame can expose
+semantic datums such as <code>front_top_left</code>.</p>
 <h2 id="anchor-frame">AnchorFrame: point plus orientation</h2>
 <p>An <code>AnchorFrame</code> describes one local attachment coordinate frame.
 <code>origin</code> gives the local point; <code>z</code> gives the attachment

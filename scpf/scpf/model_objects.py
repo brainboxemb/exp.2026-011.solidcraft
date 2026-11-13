@@ -472,14 +472,70 @@ class ModelInstance:
 
 
 @dataclass(frozen=True)
+class AssemblyAnchor:
+    """Named attachment reference owned by an assembly.
+
+    The target occurrence remains the real SolidCraft attachment target; the
+    reference is a standard/direct component anchor interpreted in that
+    occurrence. This lets an assembly expose semantic datums without putting
+    application-specific anchors on the reusable component definition.
+    """
+
+    target: ModelInstance
+    reference: Anchor | str | AnchorFrame | AnchorTopology
+
+
+@dataclass(frozen=True)
 class Assembly:
     """Ordered collection of reusable model occurrences."""
 
     instances: tuple[ModelInstance, ...]
+    anchors: tuple[tuple[str, AssemblyAnchor], ...] = ()
 
     def group(self, name):
         """Wrap these occurrences in a real nested native component."""
-        return Assembly(tuple(instance.group(name) for instance in self.instances))
+        grouped = tuple(instance.group(name) for instance in self.instances)
+        remap = {
+            id(original): replacement
+            for original, replacement in zip(self.instances, grouped)
+        }
+        anchors = tuple(
+            (
+                anchor_name,
+                AssemblyAnchor(
+                    target=remap[id(anchor.target)],
+                    reference=anchor.reference,
+                ),
+            )
+            for anchor_name, anchor in self.anchors
+        )
+        return Assembly(grouped, anchors)
+
+    def with_anchor(self, name, target, reference):
+        """Expose one named datum owned by this assembly."""
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("assembly anchor name must be non-empty text")
+        if any(existing == name for existing, _ in self.anchors):
+            raise ValueError(f"assembly anchor {name!r} already exists")
+        if not isinstance(target, ModelInstance):
+            raise TypeError("assembly anchor target must be a model object")
+        if not any(instance is target for instance in self.instances):
+            raise ValueError("assembly anchor target must belong to this assembly")
+        resolved = _resolve_anchor_reference(target, reference)
+        return replace(
+            self,
+            anchors=self.anchors + (
+                (name, AssemblyAnchor(target=target, reference=resolved)),
+            ),
+        )
+
+    def anchor(self, name):
+        """Return one named assembly-owned attachment datum."""
+        matches = [anchor for anchor_name, anchor in self.anchors
+                   if anchor_name == name]
+        if len(matches) != 1:
+            raise KeyError(f"assembly has no unique anchor named {name!r}")
+        return matches[0]
 
     def resolve(self, name):
         """Return one explicitly named occurrence."""
@@ -507,11 +563,31 @@ class Assembly:
                 "assembly object names must be unique: " + ", ".join(duplicates)
             )
 
+        anchor_names = [name for name, _ in self.anchors]
+        duplicate_anchors = sorted({
+            name for name in anchor_names if anchor_names.count(name) > 1
+        })
+        if duplicate_anchors:
+            raise ValueError(
+                "assembly anchor names must be unique: "
+                + ", ".join(duplicate_anchors)
+            )
+        for name, anchor in self.anchors:
+            if not isinstance(anchor, AssemblyAnchor):
+                raise TypeError(f"assembly anchor {name!r} is invalid")
+            if not any(instance is anchor.target for instance in self.instances):
+                raise ValueError(
+                    f"assembly anchor {name!r} target is not in this assembly"
+                )
+
     def __add__(self, other):
         if isinstance(other, ModelInstance):
-            return Assembly(self.instances + (other,))
+            return Assembly(self.instances + (other,), self.anchors)
         if isinstance(other, Assembly):
-            return Assembly(self.instances + other.instances)
+            return Assembly(
+                self.instances + other.instances,
+                self.anchors + other.anchors,
+            )
         return NotImplemented
 
     __or__ = __add__
