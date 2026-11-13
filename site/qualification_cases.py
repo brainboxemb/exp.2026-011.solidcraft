@@ -64,6 +64,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parameter-scope",
+        "q5_required": True,
         "group": "parameters",
         "title": "Implicit component parameters and shared dependencies",
         "intent": "Verify that public component defaults become editable native parameters automatically, while parent Parameters/Expressions are reused rather than duplicated in the child.",
@@ -93,6 +94,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-attach",
+        "q5_required": True,
         "group": "associativity",
         "title": "Editable distance between attached components",
         "intent": "Verify that distance along the attachment normal remains a native editable joint parameter.",
@@ -107,6 +109,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-offset",
+        "q5_required": True,
         "group": "associativity",
         "title": "Editable local offset at an attachment",
         "intent": "Verify the existing local (u,v) attachment-plane offset and make its coordinate semantics explicit.",
@@ -122,6 +125,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "parametric-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Face anchor follows parent geometry",
         "intent": "Verify that a standard face anchor remains tied to changing parent topology.",
@@ -136,6 +140,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "corner-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Topology-backed corner anchor",
         "intent": "Verify a corner reference that follows both parent width and height changes.",
@@ -150,6 +155,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "four-corner-l",
+        "q5_required": True,
         "group": "anchors",
         "verified_status": "Q1–Q6 native verified",
         "title": "One L-profile on all four front corners",
@@ -180,6 +186,7 @@ QUALIFICATION_CASES = [
     },
     {
         "slug": "xz-anchor",
+        "q5_required": True,
         "group": "anchors",
         "title": "Anchors on XZ-profile extrusion",
         "intent": "Verify standard corner anchors on geometry authored as an XZ polygon and extruded in Y.",
