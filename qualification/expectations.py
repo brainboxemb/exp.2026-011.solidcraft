@@ -45,7 +45,7 @@ EXPECTED_BOUNDS = {
     ],
     "anchor-topology-mutation": [
         {"label": "Board", "min": [-20, -10, 0], "max": [20, 10, 20]},
-        {"label": "Marker", "min": [-25, -15, 15], "max": [-15, -5, 25]},
+        {"label": "Marker", "min": [-25, -20, 15], "max": [-15, -10, 25]},
     ],
     "four-corner-l": [
         {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
@@ -97,7 +97,7 @@ EXPECTED_BOUNDS = {
 EXPECTED_MUTATION_BOUNDS = {
     "anchor-topology-mutation": [
         {"label": "Board", "min": [-40, -10, 0], "max": [40, 10, 40]},
-        {"label": "Marker", "min": [-45, -15, 35], "max": [-35, -5, 45]},
+        {"label": "Marker", "min": [-45, -20, 35], "max": [-35, -10, 45]},
     ],
     "parent-derived-child-size": [
         {"label": "ParentBlock", "min": [-80, -60, 0], "max": [80, 60, 10]},
