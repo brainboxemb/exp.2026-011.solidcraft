@@ -19,8 +19,11 @@ class HistoryPolicyCommandTests(unittest.TestCase):
             row for row in commands
             if row["command"] == "plastic.boss"
         ]
-        self.assertEqual(len(native_boss), 1)
-        self.assertEqual(native_boss[0]["params"]["position"], [-10.0, 0.0, 6.0])
+        self.assertEqual(len(native_boss), 2)
+        self.assertEqual(
+            [row["params"]["position"] for row in native_boss],
+            [[-10.0, 0.0, 6.0], [0.0, 15.0, 6.0]],
+        )
 
         sketches = [
             row["params"]["name"]

@@ -662,8 +662,8 @@ def validate_history_policy(root: Path) -> Validation:
         )
         v.check(
             "expected cylindrical feature faces",
-            b.get("face_types", {}).get("cylinder") == 5,
-            5,
+            b.get("face_types", {}).get("cylinder") == 7,
+            7,
             b.get("face_types", {}).get("cylinder"),
         )
 
@@ -675,6 +675,7 @@ def validate_history_policy(root: Path) -> Validation:
         ("Sketch", "HistoryPolicyBoss footprint"),
         ("ExtrudeFeature", "Extrude1"),
         ("BossFeature", "Boss1"),
+        ("BossFeature", "Boss2"),
         ("Sketch", "Boss"),
         ("ExtrudeFeature", "Boss"),
         ("Sketch", "Boss hole"),
