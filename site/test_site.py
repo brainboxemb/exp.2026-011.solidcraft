@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES, QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
-from capability_map import SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
+from capability_map import SOLIDCRAFT_CAPABILITIES
 import scpf
 
 
@@ -18,7 +18,6 @@ def check(site: Path, sha: str, require_native: bool = False):
         "case.html",
         "index.html",
         "results.html",
-        "capabilities.html",
         "coverage.html",
         "joint-anatomy.html",
         "report.md",
@@ -75,9 +74,11 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
         "Every public scpf.__all__ symbol must have a declared qualification row"
     )
-    assert "API & SolidCraft coverage matrix" in coverage_page
+    assert "SolidCraft functionality coverage" in coverage_page
     for api_name in scpf.__all__:
         assert f"<code>{api_name}</code>" in coverage_page, api_name
+    for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
+        assert capability in coverage_page, capability
     for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
         assert capability in coverage_page, capability
         assert target.startswith("Q")
@@ -128,14 +129,7 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert all(case["group"] in group_keys for case in QUALIFICATION_CASES)
     for _, title, _ in QUALIFICATION_GROUPS:
         assert title in qualification_index
-    capability_page = (
-        site / "qualification" / "capabilities" / "index.html"
-    ).read_text(encoding="utf-8")
-    assert "SolidCraft capability & Forge API map" in capability_page
-    for item in REFERENCE_MODELS:
-        assert item["name"] in capability_page
-    for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
-        assert capability in capability_page
+    assert not (site / "qualification" / "capabilities").exists()
     for case in QUALIFICATION_CASES:
         slug = case["slug"]
         page_text = (
