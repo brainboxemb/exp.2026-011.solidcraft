@@ -256,7 +256,7 @@ class SCPFExamples(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Cylinder axis"):
             Cylinder(d=12, h=30, axis="diagonal")
 
-    def test_cylinder_center_aligns_to_centered_csg_body(self):
+    def test_cylinder_at_places_center_on_centered_csg_body(self):
         from scpf.compiler import compile_model
         from scpf.core import Anchor, Axis, Box, Cylinder, Parameter, Sphere
 
@@ -265,9 +265,9 @@ class SCPFExamples(unittest.TestCase):
         diameter = size / 1.5
 
         holes = (
-            Cylinder(d=diameter, h=size, axis=Axis.X).align(body)
-            + Cylinder(d=diameter, h=size, axis=Axis.Y).align(body)
-            + Cylinder(d=diameter, h=size, axis=Axis.Z).align(body)
+            Cylinder(d=diameter, h=size, axis=Axis.X).at(body)
+            + Cylinder(d=diameter, h=size, axis=Axis.Y).at(body)
+            + Cylinder(d=diameter, h=size, axis=Axis.Z).at(body)
         )
         commands = compile_model(body - holes, "CsgCube")["commands"]
 
@@ -287,9 +287,9 @@ class SCPFExamples(unittest.TestCase):
         )
 
         with self.assertRaisesRegex(ValueError, "CENTER-to-CENTER"):
-            Cylinder(d=10, h=20).align(
+            Cylinder(d=10, h=20).at(
                 body,
-                parent=Anchor.TOP,
+                anchor=Anchor.TOP,
                 child=Anchor.CENTER,
             )
 
