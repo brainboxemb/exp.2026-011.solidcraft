@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "four-corner-l",
   "title": "Four centred vertical L-profiles",
-  "source_commit": "aff665951db73f8f634ab4b6434b1f29d8dd0c6e",
+  "source_commit": "b7bd0d8006a5546dfa82c7acb032d433d48fadf4",
   "solidcraft_version": "0.30.1",
   "status": "fail",
   "levels": {
