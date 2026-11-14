@@ -20,6 +20,25 @@ class Direction(str, Enum):
     SYMMETRIC = "symmetric"
 
 
+@dataclass(frozen=True)
+class _DirectionSelector:
+    """BOSL2-style cardinal selector used for faces, edges and anchors."""
+
+    vector: tuple[int, int, int]
+
+    def __post_init__(self):
+        if (
+            not isinstance(self.vector, (tuple, list))
+            or len(self.vector) != 3
+            or any(value not in (-1, 0, 1) for value in self.vector)
+        ):
+            raise ValueError("direction selector must contain three -1/0/1 values")
+        object.__setattr__(self, "vector", tuple(self.vector))
+
+    def __add__(self, other):
+        return _combine_direction_selectors(self, other)
+
+
 class Anchor(str, Enum):
     """Assembly attachment references and cardinal direction vectors."""
     CENTER = "center"
@@ -65,6 +84,37 @@ class Anchor(str, Enum):
         if self not in vectors:
             raise ValueError(f"Anchor.{self.name} has no direction vector")
         return vectors[self]
+
+    def __add__(self, other):
+        return _combine_direction_selectors(self, other)
+
+
+def _direction_selector(value):
+    if isinstance(value, _DirectionSelector):
+        return value
+    if isinstance(value, Anchor):
+        return _DirectionSelector(tuple(int(v) for v in value.vector))
+    if isinstance(value, str):
+        try:
+            return _direction_selector(Anchor(value))
+        except ValueError as exc:
+            raise ValueError(f"unknown direction selector: {value!r}") from exc
+    raise TypeError("direction selector must use TOP/BOTTOM/LEFT/RIGHT/FRONT/BACK")
+
+
+def _combine_direction_selectors(left, right):
+    left = _direction_selector(left)
+    right = _direction_selector(right)
+    combined = []
+    for a, b in zip(left.vector, right.vector):
+        if a and b:
+            raise ValueError("direction selectors cannot specify the same axis twice")
+        combined.append(a or b)
+    return _DirectionSelector(tuple(combined))
+
+
+def _selector_rank(value):
+    return sum(component != 0 for component in _direction_selector(value).vector)
 
 
 @dataclass(frozen=True)
@@ -424,6 +474,21 @@ def _dim_sub(left, right):
     return left - right
 
 
+def _box_corner_from_anchor(length, width, height, point, anchor):
+    """Return the native Box corner when one box anchor is placed at point."""
+    vector = _direction_selector(anchor).vector
+    dimensions = (length, width, height)
+    corner = []
+    for coordinate, dimension, side in zip(point, dimensions, vector):
+        if side < 0:
+            corner.append(coordinate)
+        elif side > 0:
+            corner.append(_dim_add(coordinate, -dimension))
+        else:
+            corner.append(_dim_add(coordinate, -(dimension / 2)))
+    return tuple(corner)
+
+
 def _shape_center(shape):
     """Return the nominal CENTER anchor of a direct CSG shape.
 
@@ -523,12 +588,37 @@ class Shape:
         return Shape("tapered_box", (self, from_z, inset))
 
     def fillet(self, radius, *, edges=Edges.VERTICAL):
-        if edges is not Edges.VERTICAL and not isinstance(edges, _ProfileEdgeSelection):
-            if not isinstance(edges, (list, tuple)) or not edges:
-                raise ValueError("fillet edges must be Edges.VERTICAL or 3D edge points")
-            for point in edges:
-                if len(point) != 3:
-                    raise ValueError("each fillet edge point must have x, y and z")
+        if edges is Edges.VERTICAL or isinstance(edges, _ProfileEdgeSelection):
+            return Shape("fillet", (self, radius, edges))
+
+        directional = (
+            isinstance(edges, (_DirectionSelector, Anchor))
+            or (
+                isinstance(edges, (list, tuple))
+                and edges
+                and all(isinstance(edge, (_DirectionSelector, Anchor)) for edge in edges)
+            )
+        )
+        if directional:
+            selectors = (
+                (edges,)
+                if isinstance(edges, (_DirectionSelector, Anchor))
+                else tuple(edges)
+            )
+            if any(_selector_rank(edge) != 2 for edge in selectors):
+                raise ValueError(
+                    "a Box edge selector must combine exactly two cardinal directions"
+                )
+            return Shape("fillet", (self, radius, selectors))
+
+        if not isinstance(edges, (list, tuple)) or not edges:
+            raise ValueError(
+                "fillet edges must be directional selectors, Edges.VERTICAL "
+                "or 3D edge points"
+            )
+        for point in edges:
+            if len(point) != 3:
+                raise ValueError("each fillet edge point must have x, y and z")
         return Shape("fillet", (self, radius, edges))
 
     def chamfer(self, distance, *, edges):
@@ -603,9 +693,15 @@ class Shape:
             )
             return Shape("translated", (self, delta))
 
+        if self.kind == "box":
+            if child is not Anchor.CENTER:
+                raise ValueError("child= is only valid for shape-to-shape at()")
+            selector = _direction_selector(anchor)
+            return Shape("placed_box", (self, x, y, z, selector.vector))
+
         if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
             raise ValueError(
-                "anchor/child are only valid for shape-to-shape at()"
+                "anchor/child are only valid for Box or shape-to-shape at()"
             )
         if self.kind not in (
             "circle", "rectangle", "polygon", "positioned", "cylinder", "hole",
@@ -890,3 +986,15 @@ def Rest(*, width, height, length=None, along=None, direction=None):
 
 
 X, Y, Z = _AxisRef("X"), _AxisRef("Y"), _AxisRef("Z")
+
+# BOSL2-style cardinal direction constants. These remain the same Anchor
+# values used by assemblies, but can also be added to form edge/corner
+# selectors such as BOTTOM + LEFT or TOP + RIGHT.
+TOP = Anchor.TOP
+BOTTOM = Anchor.BOTTOM
+LEFT = Anchor.LEFT
+RIGHT = Anchor.RIGHT
+FRONT = Anchor.FRONT
+BACK = Anchor.BACK
+UP = TOP
+DOWN = BOTTOM
