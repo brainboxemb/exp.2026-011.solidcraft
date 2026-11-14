@@ -1467,6 +1467,37 @@ class AssemblyTests(unittest.TestCase):
             },
         )
 
+    def test_composed_directions_are_valid_assembly_anchors(self):
+        from scpf import BOTTOM, FRONT, LEFT, TOP, Box
+        from scpf.assembly import compile_assembly
+        from scpf.runner import component
+
+        @component
+        class Block:
+            def build(self):
+                return Box(40, 30, 10)
+
+        base = Block(name="base")
+        child = Block(name="child")
+        child = child.attach(
+            base,
+            parent=FRONT + TOP + LEFT,
+            child=FRONT + BOTTOM + LEFT,
+        )
+
+        self.assertIs(child.attachment.parent, Anchor.FRONT_TOP_LEFT)
+        self.assertIs(child.attachment.child, Anchor.FRONT_BOTTOM_LEFT)
+
+        commands = compile_assembly(base + child, "DirectionalAttach")["commands"]
+        joint = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "joint.create"
+        )
+        self.assertEqual(joint["type"], "rigid")
+        self.assertIn("corner", joint["a"])
+        self.assertIn("corner", joint["b"])
+
     def test_corner_anchor_compiles_to_native_edge_and_corner_origins(self):
         commands = run_script(
             ROOT / "examples/corner-anchor/scpf/model.py"
