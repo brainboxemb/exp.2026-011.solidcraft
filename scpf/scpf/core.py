@@ -694,9 +694,13 @@ def Sphere(radius):
     return Shape("sphere", (radius,))
 
 
-def Cylinder(*, d, h):
-    """A cylinder based at z=0; use .at(x, y, z) for placement."""
-    return Shape("cylinder", (h, d))
+def Cylinder(*, d, h, axis=Axis.Z):
+    """A native cylinder on X, Y or Z; use .at(x, y, z) for its base point."""
+    try:
+        axis = Axis(axis)
+    except ValueError as exc:
+        raise ValueError("Cylinder axis must be Axis.X, Axis.Y or Axis.Z") from exc
+    return Shape("cylinder", (h, d, axis.value))
 
 
 def Hole(*, d, depth=Depth.THROUGH_ALL, direction=None,
