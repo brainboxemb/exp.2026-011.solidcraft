@@ -19,8 +19,14 @@ class RectangleSketchCommandTests(unittest.TestCase):
             row["params"]
             for row in commands
             if row["command"] == "sketch.rectangle.two_point"
-            and row["params"].get("p0") == [20, 15]
-            and row["params"].get("p1") == [60, 45]
+            and row["params"].get("p0") == [
+                "((-(base_width)) / 2) + (base_width / 2) + (-20 mm)",
+                "((-(base_depth)) / 2) + (base_depth / 2) + (-15 mm)",
+            ]
+            and row["params"].get("p1") == [
+                "((-(base_width)) / 2) + (base_width / 2) + (-20 mm) + (pad_width)",
+                "((-(base_depth)) / 2) + (base_depth / 2) + (-15 mm) + (pad_depth)",
+            ]
         ]
         self.assertEqual(len(rectangles), 1)
 
