@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Four centred L-profiles on corner lines · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Four centred L-profiles on corner lines</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Four centred L-profiles on corner lines</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Four centred L-profiles on corner lines expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Place one neutral XZ L-profile on each of the four vertical corner lines of a rounded rectangular frame. All four profiles sit at the middle of the frame depth; this is the simple 4-profile baseline before duplicating each corner line in the 8-profile case.</p>
+  <h3>Pass criteria</h3>
+  <p>One L-profile sits on each top-left, top-right, bottom-right and bottom-left XZ corner line. All four are centred in depth and their two arms follow the adjacent X/Z frame edges.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width/depth from 120x80 to 160x120 mm in the saved .sc design; the four profiles follow the wider X corner positions while remaining centred around Y=0.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Four reusable L-profiles centred on the four XZ corner lines.&quot;&quot;&quot;
+
+
+class FrameBlock:
+    _width = 120.0
+    _depth = 80.0
+    _height = 60.0
+
+    def build(self):
+        return Box(self._width, self._depth, self._height).fillet(8, edges=Edges.VERTICAL)
+
+
+class LBracket:
+    ARM_LENGTH = 28.0
+    WALL = 8.0
+    THICKNESS = 4.0
+
+    def build(self):
+        # Neutral reusable L-profile in its local XZ plane.
+        profile = Polygon2D(
+            [
+                (0, 0),
+                (self.ARM_LENGTH, 0),
+                (self.ARM_LENGTH, self.WALL),
+                (self.WALL, self.WALL),
+                (self.WALL, self.ARM_LENGTH),
+                (0, self.ARM_LENGTH),
+            ],
+            plane=&quot;XZ&quot;,
+        )
+        return profile.extrude(
+            self.THICKNESS,
+            direction=Direction.POSITIVE,
+        )
+
+
+class FourCornerL:
+    frame_width = 120.0
+    frame_depth = 80.0
+    frame_height = 60.0
+
+    def build(self):
+        frame = FrameBlock(
+            _width=self.frame_width,
+            _depth=self.frame_depth,
+            _height=self.frame_height,
+        )
+        bracket = LBracket()
+
+        # Use the same neutral child frame as the eight-profile case.
+        bracket_corner = AnchorFrame(
+            origin=(0, 0, 0),
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
+        )
+
+        # The FRONT topology gives us the four XZ corner identities. A
+        # parametric negative gap then moves each profile along that corner
+        # line to the middle of the frame depth. The profile&#x27;s 4 mm extrusion
+        # is centred around Y=0.
+        centre_gap = -(self.frame_depth / 2 + LBracket.THICKNESS / 2)
+
+        top_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner,
+            gap=centre_gap,
+        )
+        top_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner,
+            gap=centre_gap,
+        )
+        bottom_right = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner,
+            gap=centre_gap,
+        )
+        bottom_left = bracket.copy().attach(
+            frame,
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner,
+            gap=centre_gap,
+        )
+
+        return frame + top_left + top_right + bottom_right + bottom_left
+
+
+FourCornerL()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>LBracket + four standard FRONT corner anchors; a parametric gap moves each occurrence from the front topology reference to the Y-centre of the same corner line.</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One rounded parametric FrameBlock plus four occurrences of one neutral LBracket definition. The bracket owns only its local XZ polygon; the assembly owns which corner line and depth position each occurrence uses.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>Four rigid joint.create commands use the four FRONT XZ corner topology references and one symbolic normal offset derived from frame_depth. The offset keeps every 4 mm profile centred around Y=0 after native depth mutation.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          60.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
+        &quot;point&quot;: [
+          60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;edge&quot;: [
+          -60.0,
+          -40.0,
+          30.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -40.0,
+          30.0
+        ],
+        &quot;corner&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;point&quot;: [
+          -60.0,
+          -40.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;angle&quot;: 0.0
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable part stays local; the assembly selects a semantic corner and supplies the depth position.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The corner topology and symbolic joint offset remain native so saved-design mutation can re-solve the placement.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

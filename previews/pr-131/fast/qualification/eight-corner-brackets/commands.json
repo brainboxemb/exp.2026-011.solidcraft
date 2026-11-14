@@ -1,0 +1,670 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_width",
+        "expression": "120",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_depth",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_height",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "FrameBlock",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "FrameBlock footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-frame_width / 2",
+          "-frame_depth / 2"
+        ],
+        "p1": [
+          "frame_width / 2",
+          "frame_depth / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "frame_height",
+        "body_name": "FrameBlock"
+      }
+    },
+    {
+      "command": "solid.fillet",
+      "params": {
+        "edges": [
+          [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          [
+            60.0,
+            40.0,
+            30.0
+          ],
+          [
+            -60.0,
+            40.0,
+            30.0
+          ]
+        ],
+        "radius": 8,
+        "body": "FrameBlock"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "LBracket",
+        "grounded": false
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XZ",
+        "name": "Profile"
+      }
+    },
+    {
+      "command": "sketch.line",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            28.0,
+            0
+          ],
+          [
+            28.0,
+            8.0
+          ],
+          [
+            8.0,
+            8.0
+          ],
+          [
+            8.0,
+            28.0
+          ],
+          [
+            0,
+            28.0
+          ]
+        ],
+        "closed": true,
+        "ids": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 4.0,
+        "direction": "positive",
+        "body_name": "LBracket"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "LBracket"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:1",
+        "translate": [
+          -60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:2",
+        "translate": [
+          60.0,
+          -40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:3",
+        "translate": [
+          60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:4",
+        "translate": [
+          -60.0,
+          -40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:5",
+        "translate": [
+          -60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:6",
+        "translate": [
+          60.0,
+          40.0,
+          60.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:7",
+        "translate": [
+          60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "LBracket:8",
+        "translate": [
+          -60.0,
+          40.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:1 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:1",
+          "point": [
+            -60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:2 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:2",
+          "point": [
+            60.0,
+            -40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:3 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:3",
+          "point": [
+            60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:4 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            -40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            -40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:4",
+          "point": [
+            -60.0,
+            -40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:5 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:5",
+          "point": [
+            -60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:6 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            60.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:6",
+          "point": [
+            60.0,
+            40.0,
+            60.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:7 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:7",
+          "point": [
+            60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach LBracket:8 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "edge": [
+            -60.0,
+            40.0,
+            30.0
+          ],
+          "on": [
+            0.0,
+            40.0,
+            30.0
+          ],
+          "corner": [
+            -60.0,
+            40.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LBracket:8",
+          "point": [
+            -60.0,
+            40.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": -4.0,
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}
