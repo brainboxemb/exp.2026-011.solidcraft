@@ -27,6 +27,10 @@ EXPECTED_BOUNDS = {
         {"label": "left", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "right", "min": [20, -15, 0], "max": [60, 15, 10]},
     ],
+    "assembly-decorator": [
+        {"label": "left Post", "min": [-20, -5, 0], "max": [-10, 5, 20]},
+        {"label": "right Post", "min": [10, -5, 0], "max": [20, 5, 20]},
+    ],
     "attach-angle": [
         {"label": "Base", "min": [-30, -30, 0], "max": [30, 30, 10]},
         {"label": "Arm", "min": [-5, -15, 10], "max": [5, 15, 16]},

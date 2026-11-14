@@ -109,6 +109,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "assembly-decorator",
+        "group": "components",
+        "title": "Imported @assembly subassembly",
+        "intent": "Verify the public @assembly decorator on an imported reusable subassembly, independently of anchor or feature complexity.",
+        "forge_api": "@component class Post; @assembly class PostPair; root model imports and returns PostPair()",
+        "forge_model": "One reusable Post component definition plus two occurrences produced inside an imported @assembly factory. The root model treats the returned subassembly as ordinary assembly geometry.",
+        "lowering": "The Python-only @assembly wrapper disappears during lowering: Forge emits one Post component definition, one copied occurrence and native occurrence.move commands for the two placements.",
+        "native_expectation": "Two identical 10 x 10 x 20 mm posts stand at X=-15 and X=+15, proving that an imported @assembly result compiles and builds as native reusable occurrences.",
+        "mutation": "No saved-design mutation in this fixture; it isolates imported @assembly construction and native lowering.",
+        "references": [
+            ("PythonSCAD", "The public Python object/decorator layer should remain natural while still producing reusable native CAD structure."),
+            ("SolidCraft", "The resulting assembly must lower to native component/occurrence commands and build without special runtime handling."),
+        ],
+    },
+    {
         "slug": "attach-angle",
         "group": "associativity",
         "title": "Native attachment clocking angle",

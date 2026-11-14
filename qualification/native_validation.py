@@ -258,6 +258,28 @@ def validate_components(root: Path) -> Validation:
     return v
 
 
+
+def validate_assembly_decorator(root: Path) -> Validation:
+    v = Validation("assembly-decorator")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "assembly-decorator")
+    v.check("two native post bodies", d["body_count"] == 2, 2, d["body_count"])
+    actual = sorted(
+        (body["bbox"]["min"], body["bbox"]["max"])
+        for body in d["bodies"]
+    )
+    expected = sorted([
+        ([-20, -5, 0], [-10, 5, 20]),
+        ([10, -5, 0], [20, 5, 20]),
+    ])
+    v.check(
+        "imported assembly placement",
+        actual == expected,
+        expected,
+        actual,
+    )
+    return v
+
 def validate_attach_angle(root: Path) -> Validation:
     v = Validation("attach-angle")
     d = load(root / "measurements.json")
@@ -619,6 +641,7 @@ VALIDATORS = {
     "parameter-scope": validate_parameter_scope,
     "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
+    "assembly-decorator": validate_assembly_decorator,
     "attach-angle": validate_attach_angle,
     "as-built-attach": validate_as_built_attach,
     "parametric-attach": validate_parametric_attach,

@@ -38,7 +38,7 @@ EXPORT_COVERAGE = {
     "compile_model": ("Q2", "Q2", ["all command fixtures"], "Compiler entry point is a command-contract API."),
     "run_script": ("Q2", "Q2", ["all command fixtures"], "Runner entry point is exercised by every compiled fixture."),
     "component": ("Q6", "Q6", ["components", "custom-anchor", "parameter-scope"], "Reusable definitions/occurrences and implicit component-parameter semantics are native-qualified."),
-    "assembly": ("Q6", "GAP", [], "Decorator/nested assembly semantics need a dedicated native fixture."),
+    "assembly": ("Q6", "Q6", ["assembly-decorator"], "Imported @assembly subassembly construction is command-, native- and visual-qualified."),
     "ModelParameterWarning": ("Q1", "Q1", [], "Warning contract belongs to Python-level qualification."),
     "ModelError": ("Q1", "Q1", [], "Compiler validation/error contract belongs to Python-level qualification."),
 }
@@ -70,6 +70,7 @@ CAPABILITY_COVERAGE = [
     ("Occurrences", "copy + move + rotate", "Q6", "Q6", ["custom-anchor"], "Rotation plus attachment is native-qualified; broader placement fixture remains useful."),
     ("Occurrences", "group()", "Q6", "GAP", [], "Command tests exist; add native browser/hierarchy qualification."),
     ("Assemblies", "rigid attach()", "Q6", "Q6", ["components"], "Native rigid relationship."),
+    ("Assemblies", "@assembly imported subassembly", "Q6", "Q6", ["assembly-decorator"], "An imported @assembly factory returns reusable occurrences that compile and build natively."),
     ("Assemblies", "gap", "Q5", "Q6", ["parametric-attach"], "Saved-design mutation qualified."),
     ("Assemblies", "local planar offset=(u,v)", "Q5", "Q6", ["parametric-offset"], "Current semantics explicitly local to joint frame."),
     ("Assemblies", "angle", "Q6", "Q6", ["attach-angle"], "A non-square child is quarter-turned by the native rigid-joint angle and verified by bounds plus visual regression."),
