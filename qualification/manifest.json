@@ -1,5 +1,5 @@
 {
-  "library_commit": "cb475437432a08dbde80d4c66c8a37c087f0833d",
+  "library_commit": "72ea45e0e8308ab2894a6f81689e880743d25ca1",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -7,7 +7,7 @@
       "title": "Parameterized Box",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 7,
+      "command_count": 4,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -46,7 +46,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 7,
+          "commands": 4,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -207,7 +207,7 @@
       "title": "Implicit component parameters and shared dependencies",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 32,
+      "command_count": 20,
       "native_evidence": [
         "results.json",
         "measurements-shared-width-100.json",
@@ -251,7 +251,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 32,
+          "commands": 20,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -316,7 +316,7 @@
       "title": "Child dimensions derived from parent parameters",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 15,
+      "command_count": 9,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120.json",
@@ -357,7 +357,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 15,
+          "commands": 9,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -422,7 +422,7 @@
       "title": "Place one component relative to another",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 13,
+      "command_count": 10,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -461,7 +461,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 13,
+          "commands": 10,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -520,6 +520,208 @@
     },
     "assembly-decorator": {
       "title": "Imported @assembly subassembly",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
+      "command_count": 6,
+      "native_evidence": [
+        "results.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 6,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "not-required",
+          "required": false,
+          "mutation": null,
+          "evidence": []
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 2,
+      "parameter_count": 0
+    },
+    "group-hierarchy": {
+      "title": "Named native subassembly group",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
+      "command_count": 10,
+      "native_evidence": [
+        "results-bom.json",
+        "results.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 10,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements.json",
+            "results-bom.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "not-required",
+          "required": false,
+          "mutation": null,
+          "evidence": []
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 3,
+      "parameter_count": 0
+    },
+    "attach-angle": {
+      "title": "Native attachment clocking angle",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
       "command_count": 9,
@@ -618,213 +820,11 @@
       "body_count": 2,
       "parameter_count": 0
     },
-    "group-hierarchy": {
-      "title": "Named native subassembly group",
-      "status": "PASS",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 16,
-      "native_evidence": [
-        "results-bom.json",
-        "results.json",
-        "measurements.json",
-        "joint-inspect.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json",
-        "validation.json",
-        "visual-validation.json",
-        "camera-front.json",
-        "camera-iso.json",
-        "camera-right.json"
-      ],
-      "native_images": [
-        "model.png",
-        "model-front.png",
-        "goal-front.png",
-        "overlay-front.png",
-        "visual-diff-front.png",
-        "model-right.png",
-        "goal-right.png",
-        "overlay-right.png",
-        "visual-diff-right.png",
-        "model-iso.png",
-        "goal-iso.png",
-        "overlay-iso.png",
-        "visual-diff-iso.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 16,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "joint-inspect.json",
-            "measurements.json",
-            "results-bom.json",
-            "validation.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png",
-            "goal-front.png",
-            "goal-iso.png",
-            "goal-right.png",
-            "model-front.png",
-            "model-iso.png",
-            "model-right.png",
-            "overlay-front.png",
-            "overlay-iso.png",
-            "overlay-right.png",
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png"
-          ],
-          "evidence": [
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png",
-            "visual-validation.json"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 3,
-      "parameter_count": 0
-    },
-    "attach-angle": {
-      "title": "Native attachment clocking angle",
-      "status": "PASS",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 15,
-      "native_evidence": [
-        "results.json",
-        "measurements.json",
-        "joint-inspect.json",
-        "model.sc",
-        "model.step",
-        "qualification-result.json",
-        "validation.json",
-        "visual-validation.json",
-        "camera-front.json",
-        "camera-iso.json",
-        "camera-right.json"
-      ],
-      "native_images": [
-        "model.png",
-        "model-front.png",
-        "goal-front.png",
-        "overlay-front.png",
-        "visual-diff-front.png",
-        "model-right.png",
-        "goal-right.png",
-        "overlay-right.png",
-        "visual-diff-right.png",
-        "model-iso.png",
-        "goal-iso.png",
-        "overlay-iso.png",
-        "visual-diff-iso.png"
-      ],
-      "qualification_status": "pass",
-      "levels": {
-        "q1": {
-          "status": "pass",
-          "evidence": [
-            "q1-python-tests.txt"
-          ]
-        },
-        "q2": {
-          "status": "pass",
-          "commands": 15,
-          "evidence": [
-            "q2-python-qualification-tests.txt",
-            "q2-command-contract.tsv"
-          ]
-        },
-        "q3": {
-          "status": "pass",
-          "evidence": [
-            "model.sc",
-            "model.step",
-            "results.json"
-          ]
-        },
-        "q4": {
-          "status": "pass",
-          "evidence": [
-            "joint-inspect.json",
-            "measurements.json",
-            "validation.json"
-          ]
-        },
-        "q5": {
-          "status": "not-required",
-          "required": false,
-          "mutation": null,
-          "evidence": []
-        },
-        "q6": {
-          "status": "pass",
-          "images": [
-            "model.png",
-            "goal-front.png",
-            "goal-iso.png",
-            "goal-right.png",
-            "model-front.png",
-            "model-iso.png",
-            "model-right.png",
-            "overlay-front.png",
-            "overlay-iso.png",
-            "overlay-right.png",
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png"
-          ],
-          "evidence": [
-            "visual-diff-front.png",
-            "visual-diff-iso.png",
-            "visual-diff-right.png",
-            "visual-validation.json"
-          ]
-        }
-      },
-      "solidcraft_version": "0.30.1",
-      "body_count": 2,
-      "parameter_count": 0
-    },
     "as-built-attach": {
       "title": "As-built rigid relationship preserves pose",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 15,
+      "command_count": 9,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -863,7 +863,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 15,
+          "commands": 9,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -924,7 +924,7 @@
       "title": "Editable distance between attached components",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 16,
+      "command_count": 10,
       "native_evidence": [
         "results.json",
         "measurements-gap-30.json",
@@ -966,7 +966,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 16,
+          "commands": 10,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1032,7 +1032,7 @@
       "title": "Editable local offset at an attachment",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 16,
+      "command_count": 10,
       "native_evidence": [
         "results.json",
         "measurements-shift-10.json",
@@ -1074,7 +1074,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 16,
+          "commands": 10,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1140,7 +1140,7 @@
       "title": "Face anchor follows parent geometry",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 16,
+      "command_count": 10,
       "native_evidence": [
         "results.json",
         "measurements-width-80.json",
@@ -1182,7 +1182,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 16,
+          "commands": 10,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1248,7 +1248,7 @@
       "title": "Topology-backed corner anchor",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 17,
+      "command_count": 11,
       "native_evidence": [
         "results.json",
         "measurements-size-80x40.json",
@@ -1290,7 +1290,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 17,
+          "commands": 11,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1356,7 +1356,7 @@
       "title": "Explicit topology pick follows parent resize",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 14,
+      "command_count": 11,
       "native_evidence": [
         "results.json",
         "measurements-size-80x40.json",
@@ -1397,7 +1397,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 14,
+          "commands": 11,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1462,7 +1462,7 @@
       "title": "Assembly-owned named anchor",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 24,
+      "command_count": 15,
       "native_evidence": [
         "results.json",
         "measurements-size-80x40.json",
@@ -1503,7 +1503,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 24,
+          "commands": 15,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1568,7 +1568,7 @@
       "title": "Four centred vertical L-profiles",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 24,
+      "command_count": 21,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120.json",
@@ -1617,7 +1617,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 24,
+          "commands": 21,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1688,7 +1688,7 @@
       "title": "Eight vertical L-profiles: two per side corner",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 32,
+      "command_count": 29,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120x90.json",
@@ -1729,7 +1729,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 32,
+          "commands": 29,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1794,7 +1794,7 @@
       "title": "Eight flightcase corner protectors",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 31,
+      "command_count": 28,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120x90.json",
@@ -1835,7 +1835,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 31,
+          "commands": 28,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -1900,7 +1900,7 @@
       "title": "Named oriented AnchorFrame",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 17,
+      "command_count": 11,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -1939,7 +1939,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 17,
+          "commands": 11,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -2000,7 +2000,7 @@
       "title": "Anchors on XZ-profile extrusion",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 23,
+      "command_count": 20,
       "native_evidence": [
         "results.json",
         "measurements-size-80x40.json",
@@ -2042,7 +2042,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 23,
+          "commands": 20,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -2108,7 +2108,7 @@
       "title": "Native versus sketch history policy",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 19,
+      "command_count": 16,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -2147,7 +2147,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 19,
+          "commands": 16,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"
@@ -2308,7 +2308,7 @@
       "title": "Explicit rounded-rectangle sketch pad",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 N/R \u00b7 Q6",
-      "command_count": 15,
+      "command_count": 12,
       "native_evidence": [
         "results.json",
         "measurements.json",
@@ -2347,7 +2347,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 15,
+          "commands": 12,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"

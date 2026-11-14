@@ -79,17 +79,7 @@
   ],
   "body_count": 2,
   "params": [],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 3,
-      "name": "Post footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -98,25 +88,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.140998,
-      "name": "Post footprint",
+      "ms": 0.732255,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 4,
-      "ms": 0.606823,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

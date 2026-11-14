@@ -69,17 +69,7 @@
       "value": 10.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 1,
-      "name": "SimpleBox footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -88,25 +78,11 @@
       },
       "error": null,
       "id": 1,
-      "ms": 0.15895800000000002,
-      "name": "SimpleBox footprint",
+      "ms": 0.7665289999999999,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 2,
-      "ms": 0.661025,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

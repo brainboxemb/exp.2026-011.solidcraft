@@ -57,33 +57,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "RoundedRectangleSketch footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "base_width",
+        "width": "base_depth",
+        "height": "base_height",
+        "corner": [
           "-base_width / 2",
-          "-base_depth / 2"
+          "-base_depth / 2",
+          0
         ],
-        "p1": [
-          "base_width / 2",
-          "base_depth / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "base_height",
         "body_name": "RoundedRectangleSketch"
       }
     },

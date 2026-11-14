@@ -48,24 +48,25 @@ class Bracket:
     arm_height: float = 12
 
     def build(self):
-        profile = Polygon2D(
-            [
-                (0, 0),
-                (self.arm_length, 0),
-                (self.arm_length, self.arm_height),
-                (self.arm_height, self.arm_height),
-                (self.arm_height, self.arm_length),
-                (0, self.arm_length),
-            ],
-            plane=&quot;XZ&quot;,
-        )
-        return profile.extrude(self.width, direction=Direction.SYMMETRIC)
+        with Sketch(name=&quot;Profile&quot;, plane=&quot;XZ&quot;) as sketch:
+            Polygon2D(
+                [
+                    (0, 0),
+                    (self.arm_length, 0),
+                    (self.arm_length, self.arm_height),
+                    (self.arm_height, self.arm_height),
+                    (self.arm_height, self.arm_length),
+                    (0, self.arm_length),
+                ],
+                plane=&quot;XZ&quot;,
+            )
+        return sketch.extrude(self.width, direction=Direction.SYMMETRIC)
 
 
 Bracket()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>Polygon2D(..., plane=&#x27;XZ&#x27;).extrude(width, direction=Direction.SYMMETRIC)</code></p>
+  <p><code>with Sketch(plane=&#x27;XZ&#x27;): Polygon2D(..., plane=&#x27;XZ&#x27;); sketch.extrude(width, direction=Direction.SYMMETRIC)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One symbolic L profile extruded symmetrically through its width; no holes, fillets, anchors or secondary features.</p>
 </section>

@@ -28,24 +28,18 @@
           "references": [
             {
               "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:side:l2",
-              "role": "face",
-              "role_in_feature": "side:l2",
-              "sketch": {
-                "curve": "l2",
-                "curve_type": "line",
                 "id": 3,
-                "name": "Base footprint"
-              }
+                "name": "Box1",
+                "type": "BoxFeature"
+              },
+              "name": "F3:+x",
+              "role": "face",
+              "role_in_feature": "+x"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F4:side:l2",
+            "face": "F3:+x",
             "pick": [
               20.0,
               0.0,
@@ -61,7 +55,7 @@
         },
         "angle": 180.0,
         "b": {
-          "component": 5,
+          "component": 4,
           "component_name": "Block",
           "frame": {
             "origin": [
@@ -80,30 +74,24 @@
               0.0
             ]
           },
-          "occurrence": 6,
+          "occurrence": 5,
           "occurrence_name": "Block:1",
           "path": "Block:1",
           "references": [
             {
               "feature": {
-                "id": 8,
-                "name": "Extrude2",
-                "type": "ExtrudeFeature"
+                "id": 6,
+                "name": "Box2",
+                "type": "BoxFeature"
               },
-              "name": "F8:side:l4",
+              "name": "F6:-x",
               "role": "face",
-              "role_in_feature": "side:l4",
-              "sketch": {
-                "curve": "l4",
-                "curve_type": "line",
-                "id": 7,
-                "name": "Block footprint"
-              }
+              "role_in_feature": "-x"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F8:side:l4",
+            "face": "F6:-x",
             "pick": [
               -10.0,
               0.0,
@@ -124,7 +112,7 @@
           "offset": "gap"
         },
         "flip": false,
-        "id": 9,
+        "id": 7,
         "links": [],
         "name": "Attach Block:1 to Base:1",
         "offset": 10.0,

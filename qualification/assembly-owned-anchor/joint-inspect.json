@@ -30,90 +30,66 @@
               "faces": [
                 {
                   "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
                     "id": 3,
-                    "name": "Base footprint"
-                  }
+                    "name": "Box1",
+                    "type": "BoxFeature"
+                  },
+                  "name": "F3:+x",
+                  "role_in_feature": "+x"
                 },
                 {
                   "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l2",
-                  "role_in_feature": "side:l2",
-                  "sketch": {
-                    "curve": "l2",
-                    "curve_type": "line",
                     "id": 3,
-                    "name": "Base footprint"
-                  }
+                    "name": "Box1",
+                    "type": "BoxFeature"
+                  },
+                  "name": "F3:-y",
+                  "role_in_feature": "-y"
                 }
               ],
-              "name": "F4:side:l1|F4:side:l2",
+              "name": "F3:+x|F3:-y",
               "role": "edge"
             },
             {
               "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:side:l1",
-              "role": "face",
-              "role_in_feature": "side:l1",
-              "sketch": {
-                "curve": "l1",
-                "curve_type": "line",
                 "id": 3,
-                "name": "Base footprint"
-              }
+                "name": "Box1",
+                "type": "BoxFeature"
+              },
+              "name": "F3:-y",
+              "role": "face",
+              "role_in_feature": "-y"
             },
             {
               "faces": [
                 {
                   "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
-                  },
-                  "name": "F4:side:l1",
-                  "role_in_feature": "side:l1",
-                  "sketch": {
-                    "curve": "l1",
-                    "curve_type": "line",
                     "id": 3,
-                    "name": "Base footprint"
-                  }
+                    "name": "Box1",
+                    "type": "BoxFeature"
+                  },
+                  "name": "F3:+z",
+                  "role_in_feature": "+z"
                 },
                 {
                   "feature": {
-                    "id": 4,
-                    "name": "Extrude1",
-                    "type": "ExtrudeFeature"
+                    "id": 3,
+                    "name": "Box1",
+                    "type": "BoxFeature"
                   },
-                  "name": "F4:top",
-                  "role_in_feature": "top"
+                  "name": "F3:-y",
+                  "role_in_feature": "-y"
                 }
               ],
-              "name": "F4:side:l1|F4:top",
+              "name": "F3:+z|F3:-y",
               "role": "corner"
             }
           ],
           "resolves": true,
           "snap": {
-            "corner": "F4:side:l1|F4:top",
-            "edge": "F4:side:l1|F4:side:l2",
-            "face": "F4:side:l1",
+            "corner": "F3:+z|F3:-y",
+            "edge": "F3:+x|F3:-y",
+            "face": "F3:-y",
             "pick": [
               20.0,
               -15.0,
@@ -124,7 +100,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 9,
+          "component": 7,
           "component_name": "Marker",
           "frame": {
             "origin": [
@@ -143,7 +119,7 @@
               0.0
             ]
           },
-          "occurrence": 10,
+          "occurrence": 8,
           "occurrence_name": "Marker:1",
           "path": "Marker:1",
           "references": [],
@@ -171,7 +147,7 @@
         "dofs": [],
         "errors": [],
         "flip": false,
-        "id": 13,
+        "id": 10,
         "links": [],
         "name": "Attach Marker:1 to Base:1",
         "offset": 0.0,

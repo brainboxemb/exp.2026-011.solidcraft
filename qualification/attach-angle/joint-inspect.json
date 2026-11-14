@@ -28,18 +28,18 @@
           "references": [
             {
               "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
+                "id": 3,
+                "name": "Box1",
+                "type": "BoxFeature"
               },
-              "name": "F4:top",
+              "name": "F3:+z",
               "role": "face",
-              "role_in_feature": "top"
+              "role_in_feature": "+z"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F4:top",
+            "face": "F3:+z",
             "pick": [
               0.0,
               0.0,
@@ -55,7 +55,7 @@
         },
         "angle": 90.0,
         "b": {
-          "component": 5,
+          "component": 4,
           "component_name": "Arm",
           "frame": {
             "origin": [
@@ -74,24 +74,24 @@
               -1.0
             ]
           },
-          "occurrence": 6,
+          "occurrence": 5,
           "occurrence_name": "Arm:1",
           "path": "Arm:1",
           "references": [
             {
               "feature": {
-                "id": 8,
-                "name": "Extrude2",
-                "type": "ExtrudeFeature"
+                "id": 6,
+                "name": "Box2",
+                "type": "BoxFeature"
               },
-              "name": "F8:start",
+              "name": "F6:-z",
               "role": "face",
-              "role_in_feature": "start"
+              "role_in_feature": "-z"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F8:start",
+            "face": "F6:-z",
             "pick": [
               0.0,
               0.0,
@@ -109,7 +109,7 @@
         "dofs": [],
         "errors": [],
         "flip": false,
-        "id": 9,
+        "id": 7,
         "links": [],
         "name": "Attach Arm:1 to Base:1",
         "offset": 0.0,

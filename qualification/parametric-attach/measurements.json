@@ -89,26 +89,7 @@
       "value": 10.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 3,
-      "name": "Base footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 7,
-      "name": "Block footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -117,11 +98,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.12313999999999999,
-      "name": "Base footprint",
+      "ms": 0.764636,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -130,40 +111,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 4,
-      "ms": 0.609206,
-      "name": "Extrude1",
+      "id": 6,
+      "ms": 0.217138,
+      "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 7,
-      "ms": 0.07245700000000001,
-      "name": "Block footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 8,
-      "ms": 0.16889300000000002,
-      "name": "Extrude2",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

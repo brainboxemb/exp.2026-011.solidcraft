@@ -12,7 +12,7 @@
 </div></div>
 <main class="wrap"><div class="crumb"><a href="../../">← Examples</a> / 2 · Two holes</div>
 <section class="hero small"><p class="eyebrow">Small API regression fixture</p>
-<h1>2 · Two holes</h1><p>An extruded rectangle and two patterned through-holes.</p>
+<h1>2 · Two holes</h1><p>An explicit rectangle Sketch extrusion and two patterned through-holes.</p>
 <p class="meta"><span>Compiled: 13 native commands</span><span>Native SolidCraft 0.30.1 render, verified against this source commit.</span></p></section>
 <figure class="example-image"><img src="preview.png" alt="2 · Two holes: Native SolidCraft 0.30.1 render, verified against this source commit." loading="lazy">
 <figcaption>Native SolidCraft 0.30.1 render, verified against this source commit.</figcaption></figure>
@@ -26,7 +26,9 @@ class AnchoredHoles:
     spacing: float = 40
 
     def build(self):
-        plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
+        with Sketch(name=&quot;Base&quot;, plane=&quot;XY&quot;) as sketch:
+            Rectangle2D(self.width, self.depth)
+        plate = sketch.extrude(self.thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=self.spacing, axis=Axis.Y
         ).on(plate, face=Faces.TOP)

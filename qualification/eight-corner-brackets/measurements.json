@@ -376,18 +376,9 @@
   ],
   "sketches": [
     {
-      "curves": 4,
-      "dof": 0,
-      "id": 3,
-      "name": "FrameBlock footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
       "curves": 6,
       "dof": 10,
-      "id": 8,
+      "id": 7,
       "name": "Profile",
       "profiles": 1,
       "status": "solved",
@@ -402,11 +393,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.17846,
-      "name": "FrameBlock footprint",
+      "ms": 0.818674,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -416,21 +407,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.610259,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 5,
-      "ms": 39.787738000000004,
+      "ms": 53.925689999999996,
       "name": "Fillet1",
       "rolled_back": false,
       "suppressed": false,
@@ -443,8 +420,8 @@
         "truncated": false
       },
       "error": null,
-      "id": 8,
-      "ms": 0.131996,
+      "id": 7,
+      "ms": 0.17390999999999998,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -457,9 +434,9 @@
         "truncated": false
       },
       "error": null,
-      "id": 9,
-      "ms": 0.307804,
-      "name": "Extrude2",
+      "id": 8,
+      "ms": 0.36416200000000004,
+      "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
       "type": "ExtrudeFeature",

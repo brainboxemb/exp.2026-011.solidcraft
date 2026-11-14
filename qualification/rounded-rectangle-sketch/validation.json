@@ -93,7 +93,7 @@
       "actual": {
         "curves": 8,
         "dof": 0,
-        "id": 3,
+        "id": 2,
         "name": "Rounded pad",
         "profiles": 1,
         "status": "solved",
@@ -106,12 +106,8 @@
       "status": "pass",
       "expected": [
         [
-          "Sketch",
-          "RoundedRectangleSketch footprint"
-        ],
-        [
-          "ExtrudeFeature",
-          "Extrude1"
+          "BoxFeature",
+          "Box1"
         ],
         [
           "Sketch",
@@ -124,12 +120,8 @@
       ],
       "actual": [
         [
-          "Sketch",
-          "RoundedRectangleSketch footprint"
-        ],
-        [
-          "ExtrudeFeature",
-          "Extrude1"
+          "BoxFeature",
+          "Box1"
         ],
         [
           "Sketch",

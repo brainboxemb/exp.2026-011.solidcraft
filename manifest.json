@@ -1,11 +1,11 @@
 {
-  "library_commit": "cb475437432a08dbde80d4c66c8a37c087f0833d",
+  "library_commit": "72ea45e0e8308ab2894a6f81689e880743d25ca1",
   "qualifier": "command-generation",
   "examples": {
     "simple-box": {
       "source": "examples/simple-box/model.py",
       "commands": "examples/simple-box/commands.json",
-      "command_count": 7,
+      "command_count": 4,
       "preview": "examples/simple-box/preview.png",
       "preview_kind": "native-snapshot"
     },
@@ -19,21 +19,21 @@
     "components": {
       "source": "examples/components/model.py",
       "commands": "examples/components/commands.json",
-      "command_count": 13,
+      "command_count": 10,
       "preview": "examples/components/preview.png",
       "preview_kind": "native-snapshot"
     },
     "corner-anchor": {
       "source": "examples/corner-anchor/model.py",
       "commands": "examples/corner-anchor/commands.json",
-      "command_count": 17,
+      "command_count": 11,
       "preview": "examples/corner-anchor/preview.png",
       "preview_kind": "native-snapshot"
     },
     "custom-anchor": {
       "source": "examples/custom-anchor/model.py",
       "commands": "examples/custom-anchor/commands.json",
-      "command_count": 17,
+      "command_count": 11,
       "preview": "examples/custom-anchor/preview.png",
       "preview_kind": "native-snapshot"
     }

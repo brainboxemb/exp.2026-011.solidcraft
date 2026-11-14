@@ -25,73 +25,6 @@
     "parent": 0
   },
   {
-    "attachment": "fixed",
-    "created": {
-      "constraints": [],
-      "curves": [],
-      "dimensions": [],
-      "points": []
-    },
-    "name": "CaseBlock footprint",
-    "projected": null,
-    "sketch": 3
-  },
-  {
-    "constraints": [
-      "k1",
-      "k2",
-      "k3",
-      "k4"
-    ],
-    "corners": {
-      "bottom_left": "p1",
-      "bottom_right": "p2",
-      "top_left": "p4",
-      "top_right": "p3"
-    },
-    "created": {
-      "constraints": [
-        "k1",
-        "k2",
-        "k3",
-        "k4"
-      ],
-      "curves": [
-        "l1",
-        "l2",
-        "l3",
-        "l4"
-      ],
-      "dimensions": [],
-      "points": [
-        "p1",
-        "p2",
-        "p3",
-        "p4"
-      ]
-    },
-    "curves": [
-      "l1",
-      "l2",
-      "l3",
-      "l4"
-    ],
-    "sides": {
-      "bottom": "l1",
-      "left": "l4",
-      "right": "l2",
-      "top": "l3"
-    },
-    "sketch": {
-      "dof": 0,
-      "solved": true
-    }
-  },
-  {
-    "profiles": 1,
-    "sketch": 3
-  },
-  {
     "bodies": [
       "CaseBlock"
     ],
@@ -99,9 +32,9 @@
     "created_bodies": [
       "CaseBlock"
     ],
-    "feature": 4,
-    "ms": 0.717879,
-    "name": "Extrude1",
+    "feature": 3,
+    "ms": 1.002723,
+    "name": "Box1",
     "removed_bodies": [],
     "warning": null
   },
@@ -113,8 +46,8 @@
       "CaseBlock"
     ],
     "created_bodies": [],
-    "feature": 5,
-    "ms": 42.556994,
+    "feature": 4,
+    "ms": 53.330964,
     "name": "Fillet1",
     "removed_bodies": [],
     "warning": null
@@ -123,10 +56,10 @@
     "active": 0
   },
   {
-    "component": 6,
+    "component": 5,
     "grounded": false,
     "name": "FlightcaseCorner",
-    "occurrence": 7,
+    "occurrence": 6,
     "parent": 0
   },
   {
@@ -138,23 +71,8 @@
     "created_bodies": [
       "FlightcaseCorner"
     ],
-    "feature": 8,
-    "ms": 0.21849200000000002,
-    "name": "Box1",
-    "removed_bodies": [],
-    "warning": null
-  },
-  {
-    "bodies": [
-      "CaseBlock",
-      "FlightcaseCorner"
-    ],
-    "changed_bodies": [
-      "FlightcaseCorner"
-    ],
-    "created_bodies": [],
-    "feature": 9,
-    "ms": 3.827054,
+    "feature": 7,
+    "ms": 0.24117799999999998,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null
@@ -168,9 +86,24 @@
       "FlightcaseCorner"
     ],
     "created_bodies": [],
-    "feature": 10,
-    "ms": 5.09805,
+    "feature": 8,
+    "ms": 4.833975,
     "name": "Box3",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "CaseBlock",
+      "FlightcaseCorner"
+    ],
+    "changed_bodies": [
+      "FlightcaseCorner"
+    ],
+    "created_bodies": [],
+    "feature": 9,
+    "ms": 6.2124299999999995,
+    "name": "Box4",
     "removed_bodies": [],
     "warning": null
   },
@@ -178,32 +111,32 @@
     "active": 0
   },
   {
-    "component": 6,
+    "component": 5,
+    "occurrence": 10
+  },
+  {
+    "component": 5,
     "occurrence": 11
   },
   {
-    "component": 6,
+    "component": 5,
     "occurrence": 12
   },
   {
-    "component": 6,
+    "component": 5,
     "occurrence": 13
   },
   {
-    "component": 6,
+    "component": 5,
     "occurrence": 14
   },
   {
-    "component": 6,
+    "component": 5,
     "occurrence": 15
   },
   {
-    "component": 6,
+    "component": 5,
     "occurrence": 16
-  },
-  {
-    "component": 6,
-    "occurrence": 17
   },
   {
     "conflicts": [],
@@ -218,7 +151,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 6,
+        "occurrence": 10
       },
       {
         "dof": 6,
@@ -243,10 +180,6 @@
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -254,7 +187,7 @@
       0,
       2
     ],
-    "joint": 18,
+    "joint": 17,
     "name": "Attach FlightcaseCorner:1 to CaseBlock:1"
   },
   {
@@ -270,10 +203,14 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
       },
       {
         "dof": 3,
+        "occurrence": 10
+      },
+      {
+        "dof": 6,
         "occurrence": 11
       },
       {
@@ -295,10 +232,6 @@
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -306,7 +239,7 @@
       0,
       2
     ],
-    "joint": 19,
+    "joint": 18,
     "name": "Attach FlightcaseCorner:2 to CaseBlock:1"
   },
   {
@@ -322,14 +255,18 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
         "occurrence": 11
       },
       {
-        "dof": 3,
+        "dof": 6,
         "occurrence": 12
       },
       {
@@ -347,10 +284,6 @@
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -358,7 +291,7 @@
       0,
       2
     ],
-    "joint": 20,
+    "joint": 19,
     "name": "Attach FlightcaseCorner:3 to CaseBlock:1"
   },
   {
@@ -374,7 +307,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
@@ -385,7 +322,7 @@
         "occurrence": 12
       },
       {
-        "dof": 3,
+        "dof": 6,
         "occurrence": 13
       },
       {
@@ -399,10 +336,6 @@
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -410,7 +343,7 @@
       0,
       2
     ],
-    "joint": 21,
+    "joint": 20,
     "name": "Attach FlightcaseCorner:4 to CaseBlock:1"
   },
   {
@@ -426,7 +359,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
@@ -441,7 +378,7 @@
         "occurrence": 13
       },
       {
-        "dof": 3,
+        "dof": 6,
         "occurrence": 14
       },
       {
@@ -451,10 +388,6 @@
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -462,7 +395,7 @@
       0,
       2
     ],
-    "joint": 22,
+    "joint": 21,
     "name": "Attach FlightcaseCorner:5 to CaseBlock:1"
   },
   {
@@ -478,7 +411,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
@@ -497,16 +434,12 @@
         "occurrence": 14
       },
       {
-        "dof": 3,
+        "dof": 6,
         "occurrence": 15
       },
       {
         "dof": 6,
         "occurrence": 16
-      },
-      {
-        "dof": 6,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -514,7 +447,7 @@
       0,
       2
     ],
-    "joint": 23,
+    "joint": 22,
     "name": "Attach FlightcaseCorner:6 to CaseBlock:1"
   },
   {
@@ -530,7 +463,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
@@ -553,12 +490,8 @@
         "occurrence": 15
       },
       {
-        "dof": 3,
-        "occurrence": 16
-      },
-      {
         "dof": 6,
-        "occurrence": 17
+        "occurrence": 16
       }
     ],
     "errors": [],
@@ -566,7 +499,7 @@
       0,
       2
     ],
-    "joint": 24,
+    "joint": 23,
     "name": "Attach FlightcaseCorner:7 to CaseBlock:1"
   },
   {
@@ -582,7 +515,11 @@
       },
       {
         "dof": 3,
-        "occurrence": 7
+        "occurrence": 6
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
       },
       {
         "dof": 3,
@@ -607,10 +544,6 @@
       {
         "dof": 3,
         "occurrence": 16
-      },
-      {
-        "dof": 3,
-        "occurrence": 17
       }
     ],
     "errors": [],
@@ -618,7 +551,7 @@
       0,
       2
     ],
-    "joint": 25,
+    "joint": 24,
     "name": "Attach FlightcaseCorner:8 to CaseBlock:1"
   },
   {
@@ -626,14 +559,14 @@
     "visibility": {
       "hidden_bodies": [],
       "hidden_joints": [
+        17,
         18,
         19,
         20,
         21,
         22,
         23,
-        24,
-        25
+        24
       ],
       "hidden_occurrences": [],
       "hidden_origin": [],

@@ -32,33 +32,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Block footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "Block_length",
+        "width": "Block_width",
+        "height": "Block_height",
+        "corner": [
           "-Block_length / 2",
-          "-Block_width / 2"
+          "-Block_width / 2",
+          0
         ],
-        "p1": [
-          "Block_length / 2",
-          "Block_width / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "Block_height",
         "body_name": "Block"
       }
     },

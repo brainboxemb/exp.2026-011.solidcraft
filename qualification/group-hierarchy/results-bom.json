@@ -10,7 +10,7 @@
       {
         "bom_type": "normal",
         "components": [
-          8
+          7
         ],
         "count": 1,
         "definition": "Frame",
@@ -47,7 +47,7 @@
       {
         "bom_type": "normal",
         "components": [
-          8
+          7
         ],
         "count": 1,
         "definition": "Frame",

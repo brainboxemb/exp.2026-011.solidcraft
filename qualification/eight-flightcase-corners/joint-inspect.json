@@ -48,7 +48,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -67,7 +67,7 @@
               -1.0
             ]
           },
-          "occurrence": 7,
+          "occurrence": 6,
           "occurrence_name": "FlightcaseCorner:1",
           "path": "FlightcaseCorner:1",
           "references": [],
@@ -105,7 +105,7 @@
           ]
         },
         "flip": false,
-        "id": 18,
+        "id": 17,
         "links": [],
         "name": "Attach FlightcaseCorner:1 to CaseBlock:1",
         "offset": 0.0,
@@ -180,7 +180,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -199,7 +199,7 @@
               -1.0
             ]
           },
-          "occurrence": 11,
+          "occurrence": 10,
           "occurrence_name": "FlightcaseCorner:2",
           "path": "FlightcaseCorner:2",
           "references": [],
@@ -237,7 +237,7 @@
           ]
         },
         "flip": false,
-        "id": 19,
+        "id": 18,
         "links": [],
         "name": "Attach FlightcaseCorner:2 to CaseBlock:1",
         "offset": 0.0,
@@ -312,7 +312,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -331,7 +331,7 @@
               -1.0
             ]
           },
-          "occurrence": 12,
+          "occurrence": 11,
           "occurrence_name": "FlightcaseCorner:3",
           "path": "FlightcaseCorner:3",
           "references": [],
@@ -369,7 +369,7 @@
           ]
         },
         "flip": false,
-        "id": 20,
+        "id": 19,
         "links": [],
         "name": "Attach FlightcaseCorner:3 to CaseBlock:1",
         "offset": 0.0,
@@ -444,7 +444,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -463,7 +463,7 @@
               -1.0
             ]
           },
-          "occurrence": 13,
+          "occurrence": 12,
           "occurrence_name": "FlightcaseCorner:4",
           "path": "FlightcaseCorner:4",
           "references": [],
@@ -501,7 +501,7 @@
           ]
         },
         "flip": false,
-        "id": 21,
+        "id": 20,
         "links": [],
         "name": "Attach FlightcaseCorner:4 to CaseBlock:1",
         "offset": 0.0,
@@ -576,7 +576,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -595,7 +595,7 @@
               -1.0
             ]
           },
-          "occurrence": 14,
+          "occurrence": 13,
           "occurrence_name": "FlightcaseCorner:5",
           "path": "FlightcaseCorner:5",
           "references": [],
@@ -634,7 +634,7 @@
           ]
         },
         "flip": false,
-        "id": 22,
+        "id": 21,
         "links": [],
         "name": "Attach FlightcaseCorner:5 to CaseBlock:1",
         "offset": 60.0,
@@ -709,7 +709,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -728,7 +728,7 @@
               -1.0
             ]
           },
-          "occurrence": 15,
+          "occurrence": 14,
           "occurrence_name": "FlightcaseCorner:6",
           "path": "FlightcaseCorner:6",
           "references": [],
@@ -767,7 +767,7 @@
           ]
         },
         "flip": false,
-        "id": 23,
+        "id": 22,
         "links": [],
         "name": "Attach FlightcaseCorner:6 to CaseBlock:1",
         "offset": 60.0,
@@ -842,7 +842,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -861,7 +861,7 @@
               -1.0
             ]
           },
-          "occurrence": 16,
+          "occurrence": 15,
           "occurrence_name": "FlightcaseCorner:7",
           "path": "FlightcaseCorner:7",
           "references": [],
@@ -900,7 +900,7 @@
           ]
         },
         "flip": false,
-        "id": 24,
+        "id": 23,
         "links": [],
         "name": "Attach FlightcaseCorner:7 to CaseBlock:1",
         "offset": 60.0,
@@ -975,7 +975,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "FlightcaseCorner",
           "frame": {
             "origin": [
@@ -994,7 +994,7 @@
               -1.0
             ]
           },
-          "occurrence": 17,
+          "occurrence": 16,
           "occurrence_name": "FlightcaseCorner:8",
           "path": "FlightcaseCorner:8",
           "references": [],
@@ -1033,7 +1033,7 @@
           ]
         },
         "flip": false,
-        "id": 25,
+        "id": 24,
         "links": [],
         "name": "Attach FlightcaseCorner:8 to CaseBlock:1",
         "offset": 60.0,

@@ -374,17 +374,7 @@
       "value": 90.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 3,
-      "name": "CaseBlock footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -393,49 +383,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.193902,
-      "name": "CaseBlock footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 4,
-      "ms": 0.58915,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 5,
-      "ms": 37.354772000000004,
-      "name": "Fillet1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "FilletFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 8,
-      "ms": 0.240981,
+      "ms": 0.892471,
       "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
@@ -448,8 +396,22 @@
         "truncated": false
       },
       "error": null,
-      "id": 9,
-      "ms": 3.9097150000000003,
+      "id": 4,
+      "ms": 56.251191,
+      "name": "Fillet1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 0.229763,
       "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
@@ -462,9 +424,23 @@
         "truncated": false
       },
       "error": null,
-      "id": 10,
-      "ms": 5.068869,
+      "id": 8,
+      "ms": 4.812603,
       "name": "Box3",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 9,
+      "ms": 6.1969,
+      "name": "Box4",
       "rolled_back": false,
       "suppressed": false,
       "type": "BoxFeature",

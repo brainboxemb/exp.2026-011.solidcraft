@@ -81,7 +81,7 @@
       "actual": 1
     },
     {
-      "name": "direct circle extrusion remains native sketch/extrude history",
+      "name": "explicit circle Sketch remains native sketch/extrude history",
       "level": "q4",
       "status": "pass",
       "expected": [

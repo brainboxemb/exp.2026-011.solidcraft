@@ -79,26 +79,7 @@
   ],
   "body_count": 2,
   "params": [],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 3,
-      "name": "Arm footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 7,
-      "name": "Marker footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -107,11 +88,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.13933700000000002,
-      "name": "Arm footprint",
+      "ms": 0.799851,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -120,40 +101,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 4,
-      "ms": 0.523916,
-      "name": "Extrude1",
+      "id": 6,
+      "ms": 0.216667,
+      "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 7,
-      "ms": 0.067445,
-      "name": "Marker footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 8,
-      "ms": 0.19289,
-      "name": "Extrude2",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

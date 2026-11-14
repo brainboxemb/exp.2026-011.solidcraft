@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "eight-corner-brackets",
   "title": "Eight vertical L-profiles: two per side corner",
-  "source_commit": "cb475437432a08dbde80d4c66c8a37c087f0833d",
+  "source_commit": "72ea45e0e8308ab2894a6f81689e880743d25ca1",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
@@ -14,7 +14,7 @@
     },
     "q2": {
       "status": "pass",
-      "commands": 32,
+      "commands": 29,
       "evidence": [
         "q2-python-qualification-tests.txt",
         "q2-command-contract.tsv"

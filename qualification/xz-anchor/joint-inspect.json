@@ -159,7 +159,7 @@
         "dofs": [],
         "errors": [],
         "flip": false,
-        "id": 10,
+        "id": 9,
         "links": [],
         "name": "Attach Marker:1 to Board:1",
         "offset": 0.0,
@@ -298,7 +298,7 @@
               0.0
             ]
           },
-          "occurrence": 9,
+          "occurrence": 8,
           "occurrence_name": "Marker:2",
           "path": "Marker:2",
           "references": [],
@@ -326,7 +326,7 @@
         "dofs": [],
         "errors": [],
         "flip": false,
-        "id": 11,
+        "id": 10,
         "links": [],
         "name": "Attach Marker:2 to Board:1",
         "offset": 0.0,

@@ -48,7 +48,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "LProfile",
           "frame": {
             "origin": [
@@ -67,7 +67,7 @@
               -1.0
             ]
           },
-          "occurrence": 7,
+          "occurrence": 6,
           "occurrence_name": "LProfile:1",
           "path": "LProfile:1",
           "references": [],
@@ -106,7 +106,7 @@
           ]
         },
         "flip": false,
-        "id": 13,
+        "id": 12,
         "links": [],
         "name": "Attach LProfile:1 to FrameBlock:1",
         "offset": 22.0,
@@ -181,7 +181,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "LProfile",
           "frame": {
             "origin": [
@@ -200,7 +200,7 @@
               -1.0
             ]
           },
-          "occurrence": 10,
+          "occurrence": 9,
           "occurrence_name": "LProfile:2",
           "path": "LProfile:2",
           "references": [],
@@ -239,7 +239,7 @@
           ]
         },
         "flip": false,
-        "id": 14,
+        "id": 13,
         "links": [],
         "name": "Attach LProfile:2 to FrameBlock:1",
         "offset": 22.0,
@@ -314,7 +314,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "LProfile",
           "frame": {
             "origin": [
@@ -333,7 +333,7 @@
               -1.0
             ]
           },
-          "occurrence": 11,
+          "occurrence": 10,
           "occurrence_name": "LProfile:3",
           "path": "LProfile:3",
           "references": [],
@@ -372,7 +372,7 @@
           ]
         },
         "flip": false,
-        "id": 15,
+        "id": 14,
         "links": [],
         "name": "Attach LProfile:3 to FrameBlock:1",
         "offset": 22.0,
@@ -447,7 +447,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 6,
+          "component": 5,
           "component_name": "LProfile",
           "frame": {
             "origin": [
@@ -466,7 +466,7 @@
               -1.0
             ]
           },
-          "occurrence": 12,
+          "occurrence": 11,
           "occurrence_name": "LProfile:4",
           "path": "LProfile:4",
           "references": [],
@@ -505,7 +505,7 @@
           ]
         },
         "flip": false,
-        "id": 16,
+        "id": 15,
         "links": [],
         "name": "Attach LProfile:4 to FrameBlock:1",
         "offset": 22.0,

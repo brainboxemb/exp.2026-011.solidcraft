@@ -154,15 +154,6 @@
       "profiles": 1,
       "status": "solved",
       "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 7,
-      "name": "Marker footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
     }
   ],
   "timeline": [
@@ -173,7 +164,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.131884,
+      "ms": 0.17633100000000002,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -187,7 +178,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.6782739999999999,
+      "ms": 0.835409,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -201,25 +192,11 @@
       },
       "error": null,
       "id": 7,
-      "ms": 0.071208,
-      "name": "Marker footprint",
+      "ms": 0.238488,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 8,
-      "ms": 0.19756600000000002,
-      "name": "Extrude2",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

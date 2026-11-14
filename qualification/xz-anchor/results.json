@@ -78,7 +78,7 @@
       "Board"
     ],
     "feature": 4,
-    "ms": 0.768381,
+    "ms": 1.040984,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -106,73 +106,6 @@
     "parent": 0
   },
   {
-    "attachment": "fixed",
-    "created": {
-      "constraints": [],
-      "curves": [],
-      "dimensions": [],
-      "points": []
-    },
-    "name": "Marker footprint",
-    "projected": null,
-    "sketch": 7
-  },
-  {
-    "constraints": [
-      "k1",
-      "k2",
-      "k3",
-      "k4"
-    ],
-    "corners": {
-      "bottom_left": "p1",
-      "bottom_right": "p2",
-      "top_left": "p4",
-      "top_right": "p3"
-    },
-    "created": {
-      "constraints": [
-        "k1",
-        "k2",
-        "k3",
-        "k4"
-      ],
-      "curves": [
-        "l1",
-        "l2",
-        "l3",
-        "l4"
-      ],
-      "dimensions": [],
-      "points": [
-        "p1",
-        "p2",
-        "p3",
-        "p4"
-      ]
-    },
-    "curves": [
-      "l1",
-      "l2",
-      "l3",
-      "l4"
-    ],
-    "sides": {
-      "bottom": "l1",
-      "left": "l4",
-      "right": "l2",
-      "top": "l3"
-    },
-    "sketch": {
-      "dof": 4,
-      "solved": true
-    }
-  },
-  {
-    "profiles": 1,
-    "sketch": 7
-  },
-  {
     "bodies": [
       "Board",
       "Marker"
@@ -181,9 +114,9 @@
     "created_bodies": [
       "Marker"
     ],
-    "feature": 8,
-    "ms": 0.213053,
-    "name": "Extrude2",
+    "feature": 7,
+    "ms": 0.226906,
+    "name": "Box1",
     "removed_bodies": [],
     "warning": null
   },
@@ -192,7 +125,7 @@
   },
   {
     "component": 5,
-    "occurrence": 9
+    "occurrence": 8
   },
   {
     "occurrence": 6,
@@ -225,7 +158,7 @@
     ]
   },
   {
-    "occurrence": 9,
+    "occurrence": 8,
     "pending": false,
     "transform": [
       [
@@ -271,7 +204,7 @@
       },
       {
         "dof": 6,
-        "occurrence": 9
+        "occurrence": 8
       }
     ],
     "errors": [],
@@ -279,7 +212,7 @@
       0,
       2
     ],
-    "joint": 10,
+    "joint": 9,
     "name": "Attach Marker:1 to Board:1"
   },
   {
@@ -299,7 +232,7 @@
       },
       {
         "dof": 0,
-        "occurrence": 9
+        "occurrence": 8
       }
     ],
     "errors": [],
@@ -307,7 +240,7 @@
       0,
       2
     ],
-    "joint": 11,
+    "joint": 10,
     "name": "Attach Marker:2 to Board:1"
   },
   {
@@ -315,8 +248,8 @@
     "visibility": {
       "hidden_bodies": [],
       "hidden_joints": [
-        10,
-        11
+        9,
+        10
       ],
       "hidden_occurrences": [],
       "hidden_origin": [],

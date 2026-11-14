@@ -28,24 +28,18 @@
           "references": [
             {
               "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:side:l2",
-              "role": "face",
-              "role_in_feature": "side:l2",
-              "sketch": {
-                "curve": "l2",
-                "curve_type": "line",
                 "id": 3,
-                "name": "Block footprint"
-              }
+                "name": "Box1",
+                "type": "BoxFeature"
+              },
+              "name": "F3:+x",
+              "role": "face",
+              "role_in_feature": "+x"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F4:side:l2",
+            "face": "F3:+x",
             "pick": [
               20.0,
               0.0,
@@ -80,30 +74,24 @@
               0.0
             ]
           },
-          "occurrence": 5,
+          "occurrence": 4,
           "occurrence_name": "Block:2",
           "path": "Block:2",
           "references": [
             {
               "feature": {
-                "id": 4,
-                "name": "Extrude1",
-                "type": "ExtrudeFeature"
-              },
-              "name": "F4:side:l4",
-              "role": "face",
-              "role_in_feature": "side:l4",
-              "sketch": {
-                "curve": "l4",
-                "curve_type": "line",
                 "id": 3,
-                "name": "Block footprint"
-              }
+                "name": "Box1",
+                "type": "BoxFeature"
+              },
+              "name": "F3:-x",
+              "role": "face",
+              "role_in_feature": "-x"
             }
           ],
           "resolves": true,
           "snap": {
-            "face": "F4:side:l4",
+            "face": "F3:-x",
             "pick": [
               -20.0,
               0.0,
@@ -121,7 +109,7 @@
         "dofs": [],
         "errors": [],
         "flip": false,
-        "id": 6,
+        "id": 5,
         "links": [],
         "name": "Attach Block:2 to Block:1",
         "offset": 0.0,

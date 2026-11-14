@@ -98,17 +98,7 @@
       "value": 20.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 3,
-      "name": "Board footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -117,36 +107,22 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.14788099999999998,
-      "name": "Board footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 4,
-      "ms": 0.5552750000000001,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 7,
-      "ms": 0.18239999999999998,
+      "ms": 0.8219730000000001,
       "name": "Box1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BoxFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 6,
+      "ms": 0.22239699999999998,
+      "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
       "type": "BoxFeature",

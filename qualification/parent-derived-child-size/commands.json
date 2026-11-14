@@ -24,33 +24,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "ParentBlock footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "base_width",
+        "width": "base_depth",
+        "height": 10.0,
+        "corner": [
           "-base_width / 2",
-          "-base_depth / 2"
+          "-base_depth / 2",
+          0
         ],
-        "p1": [
-          "base_width / 2",
-          "base_depth / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 10.0,
         "body_name": "ParentBlock"
       }
     },
@@ -68,33 +51,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "DerivedChild footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "base_width / 2",
+        "width": "base_depth / 2",
+        "height": 6.0,
+        "corner": [
           "-(base_width / 2) / 2",
-          "-(base_depth / 2) / 2"
+          "-(base_depth / 2) / 2",
+          0
         ],
-        "p1": [
-          "(base_width / 2) / 2",
-          "(base_depth / 2) / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 6.0,
         "body_name": "DerivedChild"
       }
     },

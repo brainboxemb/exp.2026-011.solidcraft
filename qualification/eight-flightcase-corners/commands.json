@@ -32,33 +32,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "CaseBlock footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "case_width",
+        "width": "case_depth",
+        "height": "case_height",
+        "corner": [
           "-case_width / 2",
-          "-case_depth / 2"
+          "-case_depth / 2",
+          0
         ],
-        "p1": [
-          "case_width / 2",
-          "case_depth / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "case_height",
         "body_name": "CaseBlock"
       }
     },

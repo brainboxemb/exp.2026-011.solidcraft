@@ -17,33 +17,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Panel footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 10,
+        "width": 2,
+        "height": 20,
+        "corner": [
           -5.0,
-          -1.0
+          -1.0,
+          0
         ],
-        "p1": [
-          5.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 20,
         "body_name": "Panel"
       }
     },
@@ -78,33 +61,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Frame footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 35,
+        "width": 10,
+        "height": 40,
+        "corner": [
           -17.5,
-          -5.0
+          -5.0,
+          0
         ],
-        "p1": [
-          17.5,
-          5.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 40,
         "body_name": "Frame"
       }
     },

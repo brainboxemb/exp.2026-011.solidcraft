@@ -221,44 +221,7 @@
       "value": 80.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 3,
-      "name": "Panel footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 7,
-      "name": "Panel_2 footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 11,
-      "name": "Panel_3 footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 16,
-      "name": "Panel_4 footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -267,11 +230,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.13592300000000002,
-      "name": "Panel footprint",
+      "ms": 0.82544,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -280,12 +243,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 4,
-      "ms": 0.590848,
-      "name": "Extrude1",
+      "id": 6,
+      "ms": 0.218841,
+      "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -294,12 +257,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 7,
-      "ms": 0.07342399999999999,
-      "name": "Panel_2 footprint",
+      "id": 9,
+      "ms": 0.214462,
+      "name": "Box3",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -308,68 +271,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 8,
-      "ms": 0.206424,
-      "name": "Extrude2",
+      "id": 13,
+      "ms": 0.222337,
+      "name": "Box4",
       "rolled_back": false,
       "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 11,
-      "ms": 0.053748000000000004,
-      "name": "Panel_3 footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 12,
-      "ms": 0.15797399999999998,
-      "name": "Extrude3",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 16,
-      "ms": 0.029876999999999997,
-      "name": "Panel_4 footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 17,
-      "ms": 0.148144,
-      "name": "Extrude4",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

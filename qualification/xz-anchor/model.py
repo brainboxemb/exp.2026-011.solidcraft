@@ -5,17 +5,18 @@ class Board:
 
     def build(self):
         half = self.width / 2
-        profile = Polygon2D(
-            [
-                ("lower_left", (-half, 0)),
-                ("lower_right", (half, 0)),
-                ("upper_right", (half, self.height)),
-                ("upper_left", (-half, self.height)),
-            ],
-            plane="XZ",
-            world=True,
-        )
-        return profile.extrude(
+        with Sketch(name="Profile", plane="XZ") as sketch:
+            Polygon2D(
+                [
+                    ("lower_left", (-half, 0)),
+                    ("lower_right", (half, 0)),
+                    ("upper_right", (half, self.height)),
+                    ("upper_left", (-half, self.height)),
+                ],
+                plane="XZ",
+                world=True,
+            )
+        return sketch.extrude(
             self.depth,
             direction=Direction.POSITIVE,
         ).with_material(

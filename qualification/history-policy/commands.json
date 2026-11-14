@@ -9,33 +9,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "HistoryPolicyBoss footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "size",
+        "width": "size",
+        "height": 6.0,
+        "corner": [
           "-size / 2",
-          "-size / 2"
+          "-size / 2",
+          0
         ],
-        "p1": [
-          "size / 2",
-          "size / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 6.0,
         "body_name": "HistoryPolicyBoss"
       }
     },

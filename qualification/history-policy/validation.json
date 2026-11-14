@@ -86,12 +86,8 @@
       "status": "pass",
       "expected": [
         [
-          "Sketch",
-          "HistoryPolicyBoss footprint"
-        ],
-        [
-          "ExtrudeFeature",
-          "Extrude1"
+          "BoxFeature",
+          "Box1"
         ],
         [
           "BossFeature",
@@ -128,12 +124,8 @@
       ],
       "actual": [
         [
-          "Sketch",
-          "HistoryPolicyBoss footprint"
-        ],
-        [
-          "ExtrudeFeature",
-          "Extrude1"
+          "BoxFeature",
+          "Box1"
         ],
         [
           "BossFeature",

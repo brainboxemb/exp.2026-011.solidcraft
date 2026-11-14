@@ -32,33 +32,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "FrameBlock footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "frame_width",
+        "width": "frame_depth",
+        "height": "frame_height",
+        "corner": [
           "-frame_width / 2",
-          "-frame_depth / 2"
+          "-frame_depth / 2",
+          0
         ],
-        "p1": [
-          "frame_width / 2",
-          "frame_depth / 2"
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "frame_height",
         "body_name": "FrameBlock"
       }
     },

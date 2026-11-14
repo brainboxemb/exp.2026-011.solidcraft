@@ -22,18 +22,19 @@ class LProfile:
     def build(self):
         # A real angle profile around a vertical corner. Local +X/+Y is the
         # inside of the case; material sits just outside those two faces.
-        profile = Polygon2D(
-            [
-                (0, 0),
-                (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, -self.THICKNESS),
-                (-self.THICKNESS, -self.THICKNESS),
-                (-self.THICKNESS, self.ARM_LENGTH),
-                (0, self.ARM_LENGTH),
-            ],
-            plane="XY",
-        )
-        return profile.extrude(
+        with Sketch(name="Profile", plane="XY") as sketch:
+            Polygon2D(
+                [
+                    (0, 0),
+                    (self.ARM_LENGTH, 0),
+                    (self.ARM_LENGTH, -self.THICKNESS),
+                    (-self.THICKNESS, -self.THICKNESS),
+                    (-self.THICKNESS, self.ARM_LENGTH),
+                    (0, self.ARM_LENGTH),
+                ],
+                plane="XY",
+            )
+        return sketch.extrude(
             self.PROFILE_HEIGHT,
             direction=Direction.POSITIVE,
         )

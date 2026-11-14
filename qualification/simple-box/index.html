@@ -56,16 +56,13 @@ SimpleBox()
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>parameters.add for the public dimensions, followed by the native sketch/extrude commands used for Box.</p>
+  <p>parameters.add for the public dimensions, followed directly by native solid.box; no sketch is synthesized.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>parameters.add
 parameters.add
 parameters.add
-sketch.create
-sketch.rectangle.two_point
-sketch.finish
-solid.extrude</code></pre>
+solid.box</code></pre>
   </details>
 </section>
 

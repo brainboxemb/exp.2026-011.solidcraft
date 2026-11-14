@@ -44,7 +44,9 @@ class AnchoredHoles:
     spacing: float = 40
 
     def build(self):
-        plate = Rectangle2D(self.width, self.depth).extrude(self.thickness)
+        with Sketch(name=&quot;Base&quot;, plane=&quot;XY&quot;) as sketch:
+            Rectangle2D(self.width, self.depth)
+        plate = sketch.extrude(self.thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=self.spacing, axis=Axis.Y
         ).on(plate, face=Faces.TOP)
@@ -54,7 +56,7 @@ class AnchoredHoles:
 AnchoredHoles()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>Rectangle2D(...).extrude(...); Hole(...).pattern(...).on(..., face=Faces.TOP)</code></p>
+  <p><code>with Sketch(plane=&#x27;XY&#x27;): Rectangle2D(...); sketch.extrude(...); Hole(...).pattern(...).on(..., face=Faces.TOP)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>A feature-based plate plus a patterned Hole feature anchored to the plate&#x27;s TOP face.</p>
 </section>

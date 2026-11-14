@@ -41,17 +41,18 @@
 
     def build(self):
         half = self.width / 2
-        profile = Polygon2D(
-            [
-                (&quot;lower_left&quot;, (-half, 0)),
-                (&quot;lower_right&quot;, (half, 0)),
-                (&quot;upper_right&quot;, (half, self.height)),
-                (&quot;upper_left&quot;, (-half, self.height)),
-            ],
-            plane=&quot;XZ&quot;,
-            world=True,
-        )
-        return profile.extrude(
+        with Sketch(name=&quot;Profile&quot;, plane=&quot;XZ&quot;) as sketch:
+            Polygon2D(
+                [
+                    (&quot;lower_left&quot;, (-half, 0)),
+                    (&quot;lower_right&quot;, (half, 0)),
+                    (&quot;upper_right&quot;, (half, self.height)),
+                    (&quot;upper_left&quot;, (-half, self.height)),
+                ],
+                plane=&quot;XZ&quot;,
+                world=True,
+            )
+        return sketch.extrude(
             self.depth,
             direction=Direction.POSITIVE,
         ).with_material(
@@ -90,7 +91,7 @@ class XzAnchor:
 XzAnchor()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>Polygon2D(..., plane=&#x27;XZ&#x27;, world=True).extrude(...); standard corner Anchors</code></p>
+  <p><code>with Sketch(plane=&#x27;XZ&#x27;): Polygon2D(..., plane=&#x27;XZ&#x27;, world=True); sketch.extrude(...); standard corner Anchors</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>Forge recovers rectangular bounds/topology from the XZ profile while preserving symbolic width and height.</p>
 </section>

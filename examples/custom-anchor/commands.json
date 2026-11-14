@@ -8,33 +8,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Arm footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 40,
+        "width": 10,
+        "height": 10,
+        "corner": [
           -20.0,
-          -5.0
+          -5.0,
+          0
         ],
-        "p1": [
-          20.0,
-          5.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 10,
         "body_name": "Arm"
       }
     },
@@ -94,33 +77,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Marker footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 10,
+        "width": 10,
+        "height": 10,
+        "corner": [
           -5.0,
-          -5.0
+          -5.0,
+          0
         ],
-        "p1": [
-          5.0,
-          5.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 10,
         "body_name": "Marker"
       }
     },

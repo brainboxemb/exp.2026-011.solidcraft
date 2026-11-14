@@ -110,25 +110,16 @@
       "error": null,
       "expression": "radius",
       "model": true,
-      "name": "d3",
+      "name": "d5",
       "unit": "mm",
       "value": 5.0
     }
   ],
   "sketches": [
     {
-      "curves": 4,
-      "dof": 0,
-      "id": 1,
-      "name": "RoundedRectangleSketch footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
       "curves": 8,
       "dof": 0,
-      "id": 3,
+      "id": 2,
       "name": "Rounded pad",
       "profiles": 1,
       "status": "solved",
@@ -143,11 +134,11 @@
       },
       "error": null,
       "id": 1,
-      "ms": 0.17105599999999999,
-      "name": "RoundedRectangleSketch footprint",
+      "ms": 0.835118,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -157,21 +148,7 @@
       },
       "error": null,
       "id": 2,
-      "ms": 0.634722,
-      "name": "Extrude1",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 3,
-      "ms": 0.234326,
+      "ms": 0.312195,
       "name": "Rounded pad",
       "rolled_back": false,
       "suppressed": false,
@@ -184,8 +161,8 @@
         "truncated": false
       },
       "error": null,
-      "id": 4,
-      "ms": 22.000597,
+      "id": 3,
+      "ms": 29.775838999999998,
       "name": "Rounded pad",
       "rolled_back": false,
       "suppressed": false,

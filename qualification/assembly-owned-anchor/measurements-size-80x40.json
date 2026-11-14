@@ -136,35 +136,7 @@
       "value": 40.0
     }
   ],
-  "sketches": [
-    {
-      "curves": 4,
-      "dof": 0,
-      "id": 3,
-      "name": "Base footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 7,
-      "name": "Companion footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    },
-    {
-      "curves": 4,
-      "dof": 4,
-      "id": 11,
-      "name": "Marker footprint",
-      "profiles": 1,
-      "status": "solved",
-      "visible": false
-    }
-  ],
+  "sketches": [],
   "timeline": [
     {
       "boolean_diagnostics": {
@@ -173,11 +145,11 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.130904,
-      "name": "Base footprint",
+      "ms": 0.768868,
+      "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -186,12 +158,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 4,
-      "ms": 0.533713,
-      "name": "Extrude1",
+      "id": 6,
+      "ms": 0.219784,
+      "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     },
     {
@@ -200,54 +172,12 @@
         "truncated": false
       },
       "error": null,
-      "id": 7,
-      "ms": 0.07115199999999999,
-      "name": "Companion footprint",
+      "id": 9,
+      "ms": 0.197722,
+      "name": "Box3",
       "rolled_back": false,
       "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 8,
-      "ms": 0.164532,
-      "name": "Extrude2",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 11,
-      "ms": 0.03287,
-      "name": "Marker footprint",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "Sketch",
-      "warning": null
-    },
-    {
-      "boolean_diagnostics": {
-        "events": [],
-        "truncated": false
-      },
-      "error": null,
-      "id": 12,
-      "ms": 0.146399,
-      "name": "Extrude3",
-      "rolled_back": false,
-      "suppressed": false,
-      "type": "ExtrudeFeature",
+      "type": "BoxFeature",
       "warning": null
     }
   ],

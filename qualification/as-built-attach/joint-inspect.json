@@ -48,7 +48,7 @@
         },
         "angle": 0.0,
         "b": {
-          "component": 5,
+          "component": 4,
           "component_name": "Marker",
           "frame": {
             "origin": [
@@ -67,7 +67,7 @@
               1.0
             ]
           },
-          "occurrence": 6,
+          "occurrence": 5,
           "occurrence_name": "Marker:1",
           "path": "Marker:1",
           "references": [],
@@ -95,7 +95,7 @@
         "dofs": [],
         "errors": [],
         "flip": true,
-        "id": 9,
+        "id": 7,
         "links": [],
         "name": "Attach Marker:1 to Base:1",
         "offset": 0.0,

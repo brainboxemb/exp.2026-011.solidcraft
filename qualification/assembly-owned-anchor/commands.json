@@ -24,33 +24,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Base footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "base_width",
+        "width": 30.0,
+        "height": "base_height",
+        "corner": [
           "-base_width / 2",
-          -15.0
+          -15.0,
+          0
         ],
-        "p1": [
-          "base_width / 2",
-          15.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "base_height",
         "body_name": "Base"
       }
     },
@@ -68,33 +51,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Companion footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 10.0,
+        "width": 10.0,
+        "height": 10.0,
+        "corner": [
           -5.0,
-          -5.0
+          -5.0,
+          0
         ],
-        "p1": [
-          5.0,
-          5.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 10.0,
         "body_name": "Companion"
       }
     },
@@ -123,33 +89,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Marker footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": 10,
+        "width": 10,
+        "height": 10,
+        "corner": [
           -5.0,
-          -5.0
+          -5.0,
+          0
         ],
-        "p1": [
-          5.0,
-          5.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": 10,
         "body_name": "Marker"
       }
     },

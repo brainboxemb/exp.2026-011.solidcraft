@@ -7,73 +7,6 @@
     "parent": 0
   },
   {
-    "attachment": "fixed",
-    "created": {
-      "constraints": [],
-      "curves": [],
-      "dimensions": [],
-      "points": []
-    },
-    "name": "Post footprint",
-    "projected": null,
-    "sketch": 3
-  },
-  {
-    "constraints": [
-      "k1",
-      "k2",
-      "k3",
-      "k4"
-    ],
-    "corners": {
-      "bottom_left": "p1",
-      "bottom_right": "p2",
-      "top_left": "p4",
-      "top_right": "p3"
-    },
-    "created": {
-      "constraints": [
-        "k1",
-        "k2",
-        "k3",
-        "k4"
-      ],
-      "curves": [
-        "l1",
-        "l2",
-        "l3",
-        "l4"
-      ],
-      "dimensions": [],
-      "points": [
-        "p1",
-        "p2",
-        "p3",
-        "p4"
-      ]
-    },
-    "curves": [
-      "l1",
-      "l2",
-      "l3",
-      "l4"
-    ],
-    "sides": {
-      "bottom": "l1",
-      "left": "l4",
-      "right": "l2",
-      "top": "l3"
-    },
-    "sketch": {
-      "dof": 4,
-      "solved": true
-    }
-  },
-  {
-    "profiles": 1,
-    "sketch": 3
-  },
-  {
     "bodies": [
       "Post"
     ],
@@ -81,9 +14,9 @@
     "created_bodies": [
       "Post"
     ],
-    "feature": 4,
-    "ms": 0.8025260000000001,
-    "name": "Extrude1",
+    "feature": 3,
+    "ms": 0.957156,
+    "name": "Box1",
     "removed_bodies": [],
     "warning": null
   },
@@ -92,7 +25,7 @@
   },
   {
     "component": 1,
-    "occurrence": 5
+    "occurrence": 4
   },
   {
     "occurrence": 2,
@@ -125,7 +58,7 @@
     ]
   },
   {
-    "occurrence": 5,
+    "occurrence": 4,
     "pending": false,
     "transform": [
       [

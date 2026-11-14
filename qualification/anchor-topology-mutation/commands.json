@@ -24,33 +24,16 @@
       }
     },
     {
-      "command": "sketch.create",
+      "command": "solid.box",
       "params": {
-        "plane": "XY",
-        "name": "Board footprint"
-      }
-    },
-    {
-      "command": "sketch.rectangle.two_point",
-      "params": {
-        "p0": [
+        "length": "base_width",
+        "width": 20.0,
+        "height": "base_height",
+        "corner": [
           "-base_width / 2",
-          -10.0
+          -10.0,
+          0
         ],
-        "p1": [
-          "base_width / 2",
-          10.0
-        ]
-      }
-    },
-    {
-      "command": "sketch.finish",
-      "params": {}
-    },
-    {
-      "command": "solid.extrude",
-      "params": {
-        "distance": "base_height",
         "body_name": "Board"
       }
     },
