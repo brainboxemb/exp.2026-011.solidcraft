@@ -7,7 +7,7 @@ class FrameBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height)
+        return Box(self._width, self._depth, self._height).fillet(8, edges=Edges.VERTICAL)
 
 
 class LBracket:
