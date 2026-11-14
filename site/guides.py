@@ -169,19 +169,21 @@ plate = Box(80, 50, 8)
 pin = Cylinder(d=8, h=20).at(10, 10, 8)
 ball = Sphere(12)""") + """
 <h2 id="profiles">Draw a 2D profile, then extrude it</h2>
-<p>A <code>Rectangle2D</code> is a planar profile rather than a 3D body.
-<code>Polygon2D</code> can be placed on the XY, XZ or YZ plane.</p>
-""" + code("""from scpf import Rectangle2D, Polygon2D
+<p>A <code>Rectangle2D</code> is a planar profile rather than a 3D body. 2D geometry is authored inside an explicit <code>Sketch</code> scope. <code>Polygon2D</code> can be created on the XY, XZ or YZ plane.</p>
+""" + code("""from scpf import Sketch, Rectangle2D, Polygon2D
 
-plate = Rectangle2D(80, 50).extrude(8)
-side_profile = Polygon2D(
-    [(0, 0), (40, 0), (40, 8), (8, 8), (8, 30), (0, 30)],
-    plane="XZ",
-    world=True,
-)""") + """
-<p>A profile's plane affects where its axes go; changing the camera
-does not rotate its geometry. Use a supported extrusion direction to
-create 3D material.</p>
+with Sketch(plane="XY") as plate_sketch:
+    Rectangle2D(80, 50)
+plate = plate_sketch.extrude(8)
+
+with Sketch(plane="XZ") as side_sketch:
+    Polygon2D(
+        [(0, 0), (40, 0), (40, 8), (8, 8), (8, 30), (0, 30)],
+        plane="XZ",
+        world=True,
+    )
+side = side_sketch.extrude(10)""") + """
+<p>A sketch plane affects where its axes go; changing the camera does not rotate its geometry. Leave the <code>with Sketch(...)</code> scope, then call <code>sketch.extrude(...)</code> to create 3D material. Direct <code>Rectangle2D(...).extrude(...)</code> syntax is intentionally not supported.</p>
 <h2 id="boolean">Add, subtract and intersect</h2>
 """ + code("""body = Box(50, 50, 20)
 tool = Cylinder(d=12, h=22).at(0, 0, 0)
