@@ -1,0 +1,77 @@
+{
+  "commands": [
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Post",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Post footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          -5.0,
+          -5.0
+        ],
+        "p1": [
+          5.0,
+          5.0
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 20,
+        "body_name": "Post"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Post"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Post:1",
+        "translate": [
+          -15.0,
+          0.0,
+          0.0
+        ],
+        "move_grounded": true
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Post:2",
+        "translate": [
+          15.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ]
+}

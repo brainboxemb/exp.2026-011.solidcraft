@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>1 · Simple box · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap"><div class="crumb"><a href="../../">← Examples</a> / 1 · Simple box</div>
+<section class="hero small"><p class="eyebrow">Small API regression fixture</p>
+<h1>1 · Simple box</h1><p>A plain Python class with three dimensions and one Box.</p>
+<p class="meta"><span>Compiled: 7 native commands</span><span>Schematic illustration only; run the native CI job for a SolidCraft render.</span></p></section>
+<figure class="example-image"><img src="preview.svg" alt="1 · Simple box: Schematic illustration only; run the native CI job for a SolidCraft render." loading="lazy">
+<figcaption>Schematic illustration only; run the native CI job for a SolidCraft render.</figcaption></figure>
+<div class="twocol"><section class="panel"><h2>Python source</h2><pre><code>&quot;&quot;&quot;Smallest SCPF regression example: one parameterized, editable Box.&quot;&quot;&quot;
+
+
+class SimpleBox:
+    length = 40.0
+    width = 30.0
+    height = 10.0
+
+    def build(self):
+        return Box(self.length, self.width, self.height)
+
+
+SimpleBox()
+</code></pre>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge/blob/main/examples/simple-box/scpf/model.py">Open the editable source in GitHub →</a></section>
+<section class="panel"><h2>Generated command sequence</h2><ol class="commands"><li><code>parameters.add</code></li><li><code>parameters.add</code></li><li><code>parameters.add</code></li><li><code>sketch.create</code></li><li><code>sketch.rectangle.two_point</code></li><li><code>sketch.finish</code></li><li><code>solid.extrude</code></li></ol>
+<p><a class="button" href="commands.json">View command JSON →</a></p></section></div>
+<section class="notice">The generated JSON is automatically rebuilt and checked by CI for every relevant change.
+These examples are API smoke tests, not substitutes for a full mechanical CAD project or a native geometry certification.</section>
+<p><a href="../../cheatsheet/">Related SCPF syntax in the cheatsheet →</a></p></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
