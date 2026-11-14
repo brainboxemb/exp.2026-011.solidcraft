@@ -1,0 +1,421 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Front and rear outside L-bracket rows - depth view (contact shown)",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "WOOD",
+        "color": 8,
+        "lineweight": 1,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            1,
+            1
+          ],
+          [
+            119,
+            1
+          ],
+          [
+            1,
+            101
+          ],
+          [
+            119,
+            101
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          120,
+          102
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKETS",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            65
+          ],
+          [
+            1,
+            65
+          ],
+          [
+            -7,
+            101
+          ],
+          [
+            1,
+            101
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            1,
+            101
+          ],
+          [
+            37,
+            101
+          ],
+          [
+            1,
+            109
+          ],
+          [
+            37,
+            109
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -7,
+            65
+          ],
+          [
+            1,
+            65
+          ],
+          [
+            1,
+            101
+          ],
+          [
+            37,
+            101
+          ],
+          [
+            37,
+            109
+          ],
+          [
+            -7,
+            109
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            -7,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            -7,
+            37
+          ],
+          [
+            1,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            1,
+            -7
+          ],
+          [
+            37,
+            -7
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            37,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -7,
+            37
+          ],
+          [
+            1,
+            37
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            37,
+            1
+          ],
+          [
+            37,
+            -7
+          ],
+          [
+            -7,
+            -7
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            119,
+            65
+          ],
+          [
+            127,
+            65
+          ],
+          [
+            119,
+            101
+          ],
+          [
+            127,
+            101
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            83,
+            101
+          ],
+          [
+            119,
+            101
+          ],
+          [
+            83,
+            109
+          ],
+          [
+            119,
+            109
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            127,
+            65
+          ],
+          [
+            119,
+            65
+          ],
+          [
+            119,
+            101
+          ],
+          [
+            83,
+            101
+          ],
+          [
+            83,
+            109
+          ],
+          [
+            127,
+            109
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            119,
+            1
+          ],
+          [
+            127,
+            1
+          ],
+          [
+            119,
+            37
+          ],
+          [
+            127,
+            37
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            83,
+            -7
+          ],
+          [
+            119,
+            -7
+          ],
+          [
+            83,
+            1
+          ],
+          [
+            119,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            127,
+            37
+          ],
+          [
+            119,
+            37
+          ],
+          [
+            119,
+            1
+          ],
+          [
+            83,
+            1
+          ],
+          [
+            83,
+            -7
+          ],
+          [
+            127,
+            -7
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -3,
+          112
+        ],
+        "text": "FRONT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          123,
+          112
+        ],
+        "text": "REAR",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          60,
+          -14
+        ],
+        "text": "DEPTH",
+        "height": 5,
+        "justify": "C"
+      }
+    }
+  ]
+}
