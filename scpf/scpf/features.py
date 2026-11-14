@@ -738,7 +738,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
 
 
 def _to_commands(shape, name):
-    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
+    if shape.kind in ("box", "placed_box", "tapered_box", "sketch_base_extrusion"):
         return compile_base(shape, name)
     if shape.kind == "material_assignment":
         base_shape, material, density, color = shape.data
