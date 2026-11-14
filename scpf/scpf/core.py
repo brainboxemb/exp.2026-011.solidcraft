@@ -697,7 +697,7 @@ class Shape:
             if child is not Anchor.CENTER:
                 raise ValueError("child= is only valid for shape-to-shape at()")
             selector = _direction_selector(anchor)
-            return Shape("placed_box", (self, x, y, z, selector.vector))
+            return Shape("placed_box", (self, x, y, z, selector))
 
         if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
             raise ValueError(
