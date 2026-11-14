@@ -107,6 +107,9 @@ EXPECTED_BOUNDS = {
         {"label": "right Marker", "min": [10, -10, 10], "max": [20, 0, 20]},
         {"label": "left Marker", "min": [-20, -10, 10], "max": [-10, 0, 20]},
     ],
+    "history-policy": [
+        {"label": "HistoryPolicyBoss", "min": [-25, -25, 0], "max": [25, 25, 16]},
+    ],
     "primitive-csg": [
         {"label": "PrimitiveCsg", "min": [-20, -20, 0], "max": [25, 20, 20]},
     ],

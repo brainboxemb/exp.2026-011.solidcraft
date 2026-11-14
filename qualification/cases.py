@@ -339,6 +339,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "history-policy",
+        "group": "features",
+        "title": "Native versus sketch history policy",
+        "intent": "Verify that History/behavior policy changes persisted SolidCraft feature history rather than only changing Python-side implementation details.",
+        "forge_api": "Boss(...).attach(...); with behavior(history=History.SKETCH); explicit Sketch(...).add(Circle2D(...)).extrude(...)",
+        "forge_model": "One plate receives the same Boss intent twice: AUTO lowers one as a native plastic feature, SKETCH lowers the other through editable sketch/extrude/cut history; a separately named explicit sketch adds a circular pad.",
+        "lowering": "AUTO emits plastic.boss. History.SKETCH emits a Boss sketch plus join extrusion and a Boss-hole sketch plus cut extrusion. The explicit named Sketch remains a distinct sketch and join extrusion.",
+        "native_expectation": "SolidCraft 0.30.1 builds one plate body with both bosses and the explicit circular pad, while the saved timeline preserves the native-versus-sketch feature distinction.",
+        "mutation": "No saved-design mutation in this fixture; the contract is persisted native feature history and geometry.",
+        "references": [
+            ("SolidCraft", "The native timeline is the source of truth for whether feature history remains inspectable after Python compilation."),
+            ("PythonSCAD", "The Python context manager selects compilation policy while geometry remains expressed with ordinary Python objects."),
+        ],
+    },
+    {
         "slug": "primitive-csg",
         "group": "fundamentals",
         "title": "Primitive CSG",
