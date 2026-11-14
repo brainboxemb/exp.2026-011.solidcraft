@@ -338,11 +338,11 @@ def validate_anchor_topology_mutation(root: Path) -> Validation:
     _check_declared_bounds(v, d, "anchor-topology-mutation")
     v.check("two bodies", d["body_count"] == 2, 2, d["body_count"])
     v.check(
-        "marker centered on baseline topology corner",
+        "marker touches baseline topology corner outside front face",
         bbox_close(
             one_body(d, "Marker"),
-            [-25, -15, 15],
-            [-15, -5, 25],
+            [-25, -20, 15],
+            [-15, -10, 25],
         ),
         {"min": [-25, -20, 15], "max": [-15, -10, 25]},
         one_body(d, "Marker")["bbox"],
@@ -367,8 +367,8 @@ def validate_anchor_topology_mutation(root: Path) -> Validation:
         "fixed topology pick follows resized corner",
         bbox_close(
             one_body(m, "Marker"),
-            [-45, -15, 35],
-            [-35, -5, 45],
+            [-45, -20, 35],
+            [-35, -10, 45],
         ),
         {"min": [-45, -20, 35], "max": [-35, -10, 45]},
         one_body(m, "Marker")["bbox"],
