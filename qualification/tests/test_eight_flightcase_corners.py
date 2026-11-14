@@ -10,23 +10,13 @@ from scpf.runner import run_script
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
-EXPECTED_CORNERS = [
-    [-60.0, -40.0, 60.0],
-    [60.0, -40.0, 60.0],
-    [60.0, -40.0, 0.0],
-    [-60.0, -40.0, 0.0],
-    [-60.0, 40.0, 60.0],
-    [60.0, 40.0, 60.0],
-    [60.0, 40.0, 0.0],
-    [-60.0, 40.0, 0.0],
-]
-
 
 class EightFlightcaseCornersCommandTests(unittest.TestCase):
     def test_all_eight_3d_corners_reuse_one_component(self):
         commands = run_script(
             ROOT / "examples/eight-flightcase-corners/scpf/model.py"
         )["commands"]
+
         parameters = [
             row["params"]
             for row in commands
@@ -51,21 +41,70 @@ class EightFlightcaseCornersCommandTests(unittest.TestCase):
             7,
         )
 
+        fillets = [
+            row["params"]
+            for row in commands
+            if row["command"] == "solid.fillet"
+        ]
+        self.assertEqual(len(fillets), 1)
+        self.assertEqual(float(fillets[0]["radius"]), 8.0)
+
         joints = [
             row["params"] for row in commands
             if row["command"] == "joint.create"
         ]
         self.assertEqual(len(joints), 8)
-        for index, (joint, corner) in enumerate(zip(joints, EXPECTED_CORNERS), 1):
-            self.assertEqual(joint["type"], "rigid")
+
+        expected_xy = [
+            ("-(case_width / 2)", "-(case_depth / 2)"),
+            ("case_width / 2", "-(case_depth / 2)"),
+            ("case_width / 2", "case_depth / 2"),
+            ("-(case_width / 2)", "case_depth / 2"),
+            ("-(case_width / 2)", "-(case_depth / 2)"),
+            ("case_width / 2", "-(case_depth / 2)"),
+            ("case_width / 2", "case_depth / 2"),
+            ("-(case_width / 2)", "case_depth / 2"),
+        ]
+        expected_child_frames = [
+            ([0.0, 0.0, -1.0], [1.0, 0.0, 0.0]),
+            ([0.0, 0.0, -1.0], [0.0, -1.0, 0.0]),
+            ([0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]),
+            ([0.0, 0.0, -1.0], [0.0, 1.0, 0.0]),
+            ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]),
+            ([0.0, 0.0, 1.0], [-1.0, 0.0, 0.0]),
+            ([0.0, 0.0, 1.0], [0.0, -1.0, 0.0]),
+            ([0.0, 0.0, 1.0], [1.0, 0.0, 0.0]),
+        ]
+
+        for index, joint in enumerate(joints, 1):
+            self.assertEqual(joint["type"], "planar")
             self.assertEqual(joint["angle"], 0.0)
-            self.assertEqual(joint["a"]["corner"], corner)
+            self.assertEqual(
+                joint["a"],
+                {
+                    "occurrence": "CaseBlock:1",
+                    "point": [0.0, 0.0, 0.0],
+                    "z": [0.0, 0.0, 1.0],
+                    "x": [1.0, 0.0, 0.0],
+                },
+            )
+            self.assertEqual(
+                tuple(joint["values"][:2]),
+                expected_xy[index - 1],
+            )
+            self.assertEqual(joint["values"][2], 0.0)
             self.assertEqual(
                 joint["b"]["occurrence"],
                 f"FlightcaseCorner:{index}",
             )
-            self.assertEqual(joint["b"]["z"], [0.0, 1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [0.0, 0.0, -1.0])
+            z, x = expected_child_frames[index - 1]
+            self.assertEqual(joint["b"]["z"], z)
+            self.assertEqual(joint["b"]["x"], x)
+
+        for joint in joints[:4]:
+            self.assertNotIn("offset", joint)
+        for joint in joints[4:]:
+            self.assertEqual(joint["offset"], "case_height")
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
@@ -82,7 +121,7 @@ class EightFlightcaseCornersNativeTests(unittest.TestCase):
         self.assertEqual(len(protectors), 8)
         self.assertEqual(
             sorted(_body_size(body) for body in protectors),
-            [(34.0, 34.0, 34.0)] * 8,
+            [(24.0, 24.0, 24.0)] * 8,
         )
 
         actual = sorted(
@@ -93,14 +132,14 @@ class EightFlightcaseCornersNativeTests(unittest.TestCase):
             for body in protectors
         )
         expected = sorted([
-            ((-64.0, -44.0, 30.0), (-30.0, -10.0, 64.0)),
-            ((30.0, -44.0, 30.0), (64.0, -10.0, 64.0)),
-            ((30.0, -44.0, -4.0), (64.0, -10.0, 30.0)),
-            ((-64.0, -44.0, -4.0), (-30.0, -10.0, 30.0)),
-            ((-64.0, 10.0, 30.0), (-30.0, 44.0, 64.0)),
-            ((30.0, 10.0, 30.0), (64.0, 44.0, 64.0)),
-            ((30.0, 10.0, -4.0), (64.0, 44.0, 30.0)),
-            ((-64.0, 10.0, -4.0), (-30.0, 44.0, 30.0)),
+            ((-64.0, -44.0, -4.0), (-40.0, -20.0, 20.0)),
+            ((40.0, -44.0, -4.0), (64.0, -20.0, 20.0)),
+            ((40.0, 20.0, -4.0), (64.0, 44.0, 20.0)),
+            ((-64.0, 20.0, -4.0), (-40.0, 44.0, 20.0)),
+            ((-64.0, -44.0, 40.0), (-40.0, -20.0, 64.0)),
+            ((40.0, -44.0, 40.0), (64.0, -20.0, 64.0)),
+            ((40.0, 20.0, 40.0), (64.0, 44.0, 64.0)),
+            ((-64.0, 20.0, 40.0), (-40.0, 44.0, 64.0)),
         ])
         self.assertEqual(actual, expected)
 
@@ -130,7 +169,7 @@ class EightFlightcaseCornersNativeTests(unittest.TestCase):
         )
         self.assertEqual(
             sorted(_body_size(body) for body in _protectors(data)),
-            [(34.0, 34.0, 34.0)] * 8,
+            [(24.0, 24.0, 24.0)] * 8,
         )
 
 
