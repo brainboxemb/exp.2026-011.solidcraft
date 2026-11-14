@@ -332,6 +332,51 @@ def validate_corner_anchor(root: Path) -> Validation:
     return v
 
 
+def validate_anchor_topology_mutation(root: Path) -> Validation:
+    v = Validation("anchor-topology-mutation")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "anchor-topology-mutation")
+    v.check("two bodies", d["body_count"] == 2, 2, d["body_count"])
+    v.check(
+        "marker centered on baseline topology corner",
+        bbox_close(
+            one_body(d, "Marker"),
+            [-25, -15, 15],
+            [-15, -5, 25],
+        ),
+        {"min": [-25, -15, 15], "max": [-15, -5, 25]},
+        one_body(d, "Marker")["bbox"],
+    )
+
+    m = load(root / "measurements-size-80x40.json")
+    _check_declared_bounds(
+        v,
+        m,
+        "anchor-topology-mutation",
+        level="q5",
+        mutation=True,
+    )
+    v.check(
+        "parent dimensions changed",
+        params(m) == {"base_width": 80.0, "base_height": 40.0},
+        {"base_width": 80.0, "base_height": 40.0},
+        params(m),
+        "q5",
+    )
+    v.check(
+        "fixed topology pick follows resized corner",
+        bbox_close(
+            one_body(m, "Marker"),
+            [-45, -15, 35],
+            [-35, -5, 45],
+        ),
+        {"min": [-45, -15, 35], "max": [-35, -5, 45]},
+        one_body(m, "Marker")["bbox"],
+        "q5",
+    )
+    return v
+
+
 def validate_four_corner_l(root: Path) -> Validation:
     v = Validation("four-corner-l")
     d = load(root / "measurements.json")
@@ -494,6 +539,7 @@ VALIDATORS = {
     "parametric-offset": validate_parametric_offset,
     "parametric-anchor": validate_parametric_anchor,
     "corner-anchor": validate_corner_anchor,
+    "anchor-topology-mutation": validate_anchor_topology_mutation,
     "four-corner-l": validate_four_corner_l,
     "eight-flightcase-corners": validate_eight_flightcase_corners,
     "eight-corner-brackets": validate_eight_corner_brackets,
