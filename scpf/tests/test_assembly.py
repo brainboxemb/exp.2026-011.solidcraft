@@ -550,6 +550,7 @@ class AssemblyTests(unittest.TestCase):
 
     def test_private_component_build_input_can_bind_parent_parameter(self):
         from scpf.assembly import compile_assembly
+        from scpf import Sketch
         from scpf.core import Direction, Parameter, Polygon2D
         from scpf.runner import component
 
