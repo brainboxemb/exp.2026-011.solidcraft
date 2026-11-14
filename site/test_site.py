@@ -99,6 +99,10 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert capability in coverage_page, capability
         assert target.startswith("Q")
         assert current == "GAP" or current.startswith("Q")
+    assert "Functional qualification:</strong>" in coverage_page
+    assert "Qualification by area" in coverage_page
+    assert "At target" in coverage_page
+    assert "Below target" in coverage_page
 
     assert "Qualification" in home and "Qualification" in qualification_index
     assert 'href="joint-anatomy/"' in qualification_index
