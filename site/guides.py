@@ -164,9 +164,19 @@ face at Z=0. <code>Cylinder(d=…, h=…, axis=Axis.Z)</code> starts at its
 base point. Use <code>Axis.X</code> or <code>Axis.Y</code> for the other
 native principal directions. A sphere is specified by radius. These initial coordinate assumptions matter
 when locating holes or placing multiple components.</p>
-""" + code("""from scpf import Axis, Box, Cylinder, Sphere
+""" + code("""from scpf import (
+    BOTTOM, FRONT, LEFT, RIGHT,
+    Axis, Box, Cylinder, Sphere,
+)
 
 plate = Box(80, 50, 8)
+board = Box(80, 50, 12).at(
+    0, 0, 0,
+    anchor=FRONT + BOTTOM,
+).fillet(
+    4,
+    edges=[BOTTOM + LEFT, BOTTOM + RIGHT],
+)
 pin = Cylinder(d=8, h=20, axis=Axis.Z).at(10, 10, 8)
 side_pin = Cylinder(d=8, h=20, axis=Axis.X).at(-10, 0, 0)
 ball = Sphere(12)
