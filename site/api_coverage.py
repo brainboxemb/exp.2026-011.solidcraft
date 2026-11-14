@@ -72,7 +72,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "rigid attach()", "Q6", "Q6", ["components"], "Native rigid relationship."),
     ("Assemblies", "gap", "Q5", "Q6", ["parametric-attach"], "Saved-design mutation qualified."),
     ("Assemblies", "local planar offset=(u,v)", "Q5", "Q6", ["parametric-offset"], "Current semantics explicitly local to joint frame."),
-    ("Assemblies", "angle", "Q6", "GAP", [], "Needs native orientation fixture."),
+    ("Assemblies", "angle", "Q6", "Q6", ["attach-angle"], "A non-square child is quarter-turned by the native rigid-joint angle and verified by bounds plus visual regression."),
     ("Assemblies", "as_built=True", "Q6", "GAP", [], "Needs native fixed relationship fixture."),
     ("Assemblies", "standard face anchors", "Q5", "Q6", ["parametric-anchor"], "Parent topology mutation qualified."),
     ("Assemblies", "standard corner anchors", "Q5", "Q6", ["corner-anchor", "xz-anchor"], "Width/height mutation and mirrored corners qualified."),
