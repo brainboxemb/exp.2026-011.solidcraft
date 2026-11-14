@@ -39,8 +39,15 @@
   <p class="meta">Only after a capability exists in Forge do we ask how strongly it
   has been proven. Target is the intended qualification depth; Current is the
   highest dedicated Q-level demonstrated today.</p>
+  <p class="meta"><strong>Functional qualification:</strong> $qualification_at_target/$qualification_total at target · $qualification_below_target below target · $qualification_gap gaps</p>
+  <h3>Qualification by area</h3>
   <table>
-    <thead><tr><th>Area</th><th>Capability</th><th>Target qualification</th><th>Current qualification</th><th>Cases</th><th>Notes</th></tr></thead>
+    <thead><tr><th>Area</th><th>Total</th><th>At target</th><th>Below target</th><th>Gap</th></tr></thead>
+    <tbody>$qualification_summary_rows</tbody>
+  </table>
+  <h3>Qualification detail</h3>
+  <table>
+    <thead><tr><th>Area</th><th>Capability</th><th>Target qualification</th><th>Current qualification</th><th>Status</th><th>Cases</th><th>Notes</th></tr></thead>
     <tbody>$capability_rows</tbody>
   </table>
   <p class="meta">Qualification gaps: $gap_capabilities</p>
