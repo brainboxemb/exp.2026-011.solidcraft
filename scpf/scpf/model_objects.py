@@ -14,6 +14,7 @@ from .core import (
     Axis,
     Shape,
     _DirectionSelector,
+    _dim_add,
     _selector_anchor,
     parameters_in,
     pv,
@@ -356,24 +357,22 @@ class ModelInstance:
     def move(self, x=0, y=0, z=0):
         """Translate this occurrence without changing shared component geometry.
 
-        SolidCraft 0.30.1 occurrence translation is currently emitted as
-        concrete coordinates. Remember any symbolic inputs so the root model
-        can warn when a public parameter is only partly associative.
+        Keep Parameter/Expression values symbolic. SolidCraft occurrence.move
+        accepts native length expressions, so parameter-driven placement stays
+        associative instead of being flattened to the current Python value.
         """
         values = (x, y, z)
-        symbolic = tuple(parameter.name for parameter in parameters_in(*values))
-        flattened = tuple(dict.fromkeys(
-            (*self.flattened_parameters, *symbolic)
-        ))
-        delta = tuple(pv(v) for v in values)
-        if not all(isfinite(v) for v in delta):
+        concrete = tuple(pv(value) for value in values)
+        if not all(isfinite(value) for value in concrete):
             raise ValueError("model move() requires finite coordinates")
         current = self.translation
         return replace(
             self,
-            translation=tuple(current[i] + delta[i] for i in range(3)),
+            translation=tuple(
+                _dim_add(current[i], values[i])
+                for i in range(3)
+            ),
             attachment=None,
-            flattened_parameters=flattened,
         )
 
     def rotate(self, axis=(0, 0, 1), degrees=None):

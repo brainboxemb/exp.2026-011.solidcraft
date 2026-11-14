@@ -799,11 +799,11 @@ class AssemblyTests(unittest.TestCase):
         )
 
 
-    def test_root_warns_when_parameter_is_partly_flattened_by_occurrence_move(self):
+    def test_occurrence_move_preserves_parameter_expression(self):
         import warnings
 
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "partial.py"
+            path = Path(directory) / "parametric_move.py"
             path.write_text(
                 "class Panel:\n"
                 "    depth = 12.0\n"
@@ -820,15 +820,16 @@ class AssemblyTests(unittest.TestCase):
                 warnings.simplefilter("always")
                 document = run_script(path)
 
-        messages = [
-            str(item.message) for item in caught
-            if "no native SolidCraft dependency" in str(item.message)
-            or "occurrence placement" in str(item.message)
-        ]
-        self.assertEqual(len(messages), 1)
-        self.assertIn("remains native in some geometry", messages[0])
-        self.assertIn("only part of the model", messages[0])
-
+        self.assertFalse([
+            item for item in caught
+            if "parameter 'depth'" in str(item.message)
+        ])
+        move = next(
+            command["params"]
+            for command in document["commands"]
+            if command["command"] == "occurrence.move"
+        )
+        self.assertEqual(move["translate"], [0, "depth / 2", 0])
         names = [
             command["params"]["name"]
             for command in document["commands"]
@@ -836,7 +837,7 @@ class AssemblyTests(unittest.TestCase):
         ]
         self.assertEqual(names, ["depth"])
 
-    def test_root_warns_once_when_parameter_exists_only_in_occurrence_move(self):
+    def test_occurrence_move_adds_placement_only_parameter(self):
         import warnings
 
         with tempfile.TemporaryDirectory() as directory:
@@ -856,20 +857,23 @@ class AssemblyTests(unittest.TestCase):
                 warnings.simplefilter("always")
                 document = run_script(path)
 
-        messages = [
-            str(item.message) for item in caught
+        self.assertFalse([
+            item for item in caught
             if "parameter 'offset'" in str(item.message)
-        ]
-        self.assertEqual(len(messages), 1)
-        self.assertIn("occurrence placement", messages[0])
-        self.assertIn("no native SolidCraft dependency", messages[0])
-        self.assertFalse(
-            any(
-                command["command"] == "parameters.add"
-                and command["params"]["name"] == "offset"
-                for command in document["commands"]
-            )
+        ])
+        parameter = next(
+            command["params"]
+            for command in document["commands"]
+            if command["command"] == "parameters.add"
+            and command["params"]["name"] == "offset"
         )
+        self.assertEqual(parameter["expression"], "30 mm")
+        move = next(
+            command["params"]
+            for command in document["commands"]
+            if command["command"] == "occurrence.move"
+        )
+        self.assertEqual(move["translate"], ["offset", 0, 0])
 
     def test_parent_parameter_binding_reuses_existing_name_without_child_duplicate(self):
         from scpf.assembly import compile_assembly

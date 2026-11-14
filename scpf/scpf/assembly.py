@@ -18,8 +18,20 @@ from .compiler import compile_model
 _IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
 
 
+def _command_value(value):
+    """Lower symbolic dimensions recursively in assembly command parameters."""
+    if isinstance(value, dict):
+        return {key: _command_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_command_value(item) for item in value]
+    return command_value(value)
+
+
 def _command(command_name, **params):
-    return {"command": command_name, "params": params}
+    return {
+        "command": command_name,
+        "params": _command_value(params),
+    }
 
 
 def _component_slug(name):
@@ -274,13 +286,28 @@ def compile_assembly(value, name):
         # Each occurrence now starts at identity. SolidCraft itself applies
         # the requested translation and axis-angle rotation directly.
         # In 0.30.1 the supported keys are translate/axis/angle, not 'to'.
-        # The model's move() values are absolute from the component origin.
+        # occurrence.move accepts native length expressions, so preserve
+        # Parameter/Expression translations instead of flattening them.
         for instance, native_name in occurrences:
             if instance.rotation is None and not any(instance.translation):
                 continue
+            for parameter in parameters_in(*instance.translation):
+                if not any(
+                    command["command"] == "parameters.add"
+                    and command["params"]["name"] == parameter.name
+                    for command in commands
+                ):
+                    commands.append(_command(
+                        "parameters.add",
+                        name=parameter.name,
+                        expression=f"{parameter.value:g} mm",
+                    ))
             params = {
                 "occurrence": native_name,
-                "translate": list(instance.translation),
+                "translate": [
+                    command_value(value)
+                    for value in instance.translation
+                ],
             }
             if instance.rotation is not None:
                 axis, degrees = instance.rotation
