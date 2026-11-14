@@ -7,7 +7,9 @@ Python model. Currently supported anchor selectors are intentionally narrow:
 ## Working syntax
 
 ```python
-plate = Rectangle2D(80, 50).extrude(8)
+with Sketch(name="Base", plane="XY") as sketch:
+    Rectangle2D(80, 50)
+plate = sketch.extrude(8)
 boss = Cylinder(d=24, h=14).attach(
     plate, parent=Anchor.TOP, child=Anchor.BOTTOM)
 plate = plate + boss
