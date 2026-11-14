@@ -1468,7 +1468,7 @@ class AssemblyTests(unittest.TestCase):
         )
 
     def test_composed_directions_are_valid_assembly_anchors(self):
-        from scpf import BOTTOM, FRONT, LEFT, TOP, Box
+        from scpf import Anchor, BOTTOM, FRONT, LEFT, TOP, Box
         from scpf.assembly import compile_assembly
         from scpf.runner import component
 
