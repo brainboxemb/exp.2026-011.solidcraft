@@ -928,6 +928,13 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 links.append(escape(name))
         return ", ".join(links) if links else "—"
 
+    def coverage_status_badge(label):
+        css = label.lower().replace(" ", "-")
+        return (
+            f'<span class="coverage-status {escape(css)}">'
+            f'{escape(label)}</span>'
+        )
+
     solidcraft_rows = []
     forge_status_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
     group_titles = dict(CAPABILITY_GROUPS)
@@ -949,7 +956,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f"<tr><td>{escape(group_titles.get(group, group))}</td>"
             f"<td><strong>{escape(capability)}</strong></td>"
             f"<td>{escape(solidcraft)}</td>"
-            f"<td><strong>{escape(status)}</strong></td>"
+            f"<td>{coverage_status_badge(status)}</td>"
             f"<td>{escape(forge)}</td><td>{escape(need)}</td></tr>"
         )
 
@@ -998,7 +1005,7 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         capability_rows.append(
             f"<tr><td>{escape(group)}</td><td><code>{escape(capability)}</code></td>"
             f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
-            f"<td>{escape(qualification_status)}</td>"
+            f"<td>{coverage_status_badge(qualification_status)}</td>"
             f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
         )
 
