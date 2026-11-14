@@ -48,6 +48,13 @@ def widths(data: dict) -> list[float]:
     return sorted(round(body["bbox"]["max"][0] - body["bbox"]["min"][0], 6) for body in data["bodies"])
 
 
+def body_size(body: dict) -> tuple[float, float, float]:
+    return tuple(
+        round(float(hi) - float(lo), 6)
+        for lo, hi in zip(body["bbox"]["min"], body["bbox"]["max"])
+    )
+
+
 def _bounds_match(data: dict, expected: list[dict], tol: float = TOL) -> bool:
     actual = [
         (body["bbox"]["min"], body["bbox"]["max"])
@@ -298,6 +305,16 @@ def validate_eight_flightcase_corners(root: Path) -> Validation:
     _check_declared_bounds(v, d, "eight-flightcase-corners")
     v.check("nine bodies: case plus eight flightcase corners",
             d["body_count"] == 9, 9, d["body_count"])
+
+    baseline_corners = bodies_named(d, "FlightcaseCorner")
+    baseline_sizes = sorted(body_size(body) for body in baseline_corners)
+    v.check(
+        "eight fixed 34x34x34 protector envelopes",
+        baseline_sizes == [(34.0, 34.0, 34.0)] * 8,
+        [(34.0, 34.0, 34.0)] * 8,
+        baseline_sizes,
+    )
+
     m = load(root / "measurements-size-160x120x90.json")
     _check_declared_bounds(
         v,
@@ -308,6 +325,28 @@ def validate_eight_flightcase_corners(root: Path) -> Validation:
     )
     v.check("nine bodies after saved-design mutation",
             m["body_count"] == 9, 9, m["body_count"], "q5")
+    v.check(
+        "case dimensions changed",
+        params(m) == {
+            "case_width": 160.0,
+            "case_depth": 120.0,
+            "case_height": 90.0,
+        },
+        {"case_width": 160.0, "case_depth": 120.0, "case_height": 90.0},
+        params(m),
+        "q5",
+    )
+    mutated_sizes = sorted(
+        body_size(body)
+        for body in bodies_named(m, "FlightcaseCorner")
+    )
+    v.check(
+        "protector envelopes remain fixed after parent resize",
+        mutated_sizes == baseline_sizes == [(34.0, 34.0, 34.0)] * 8,
+        [(34.0, 34.0, 34.0)] * 8,
+        mutated_sizes,
+        "q5",
+    )
     return v
 
 
