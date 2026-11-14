@@ -43,7 +43,11 @@ class FrameBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height).fillet(8, edges=Edges.VERTICAL)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
 class LBracket:
@@ -52,7 +56,6 @@ class LBracket:
     THICKNESS = 4.0
 
     def build(self):
-        # Neutral reusable L-profile in its local XZ plane.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -64,9 +67,10 @@ class LBracket:
             ],
             plane=&quot;XZ&quot;,
         )
+        # Symmetric depth makes the profile naturally centre on a corner line.
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
@@ -83,42 +87,48 @@ class FourCornerL:
         )
         bracket = LBracket()
 
-        # Use the same neutral child frame as the eight-profile case.
-        bracket_corner = AnchorFrame(
+        # Assembly-local XZ plane through Y=0. It survives the rounded outer
+        # corners because placement is dimensional, not based on a sharp edge.
+        frame_xz = AnchorFrame(
+            origin=(0, 0, 0),
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
+        )
+        bracket_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=Anchor.FRONT,
             x=Anchor.RIGHT,
         )
 
-        # The FRONT topology gives us the four XZ corner identities. A
-        # parametric negative gap then moves each profile along that corner
-        # line to the middle of the frame depth. The profile&#x27;s 4 mm extrusion
-        # is centred around Y=0.
-        centre_gap = -(self.frame_depth / 2 + LBracket.THICKNESS / 2)
+        half_width = self.frame_width / 2
 
         top_left = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(-half_width, self.frame_height),
+            angle=270,
         )
         top_right = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(half_width, self.frame_height),
+            angle=180,
         )
         bottom_right = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(half_width, 0),
+            angle=90,
         )
         bottom_left = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(-half_width, 0),
+            angle=0,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left
@@ -127,46 +137,46 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>LBracket + four standard FRONT corner anchors; a parametric gap moves each occurrence from the front topology reference to the Y-centre of the same corner line.</code></p>
+  <p><code>LBracket + one assembly-local XZ AnchorFrame; four planar offsets select the X/Z corner lines and angle=0/90/180/270 clocks the neutral profile.</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One rounded parametric FrameBlock plus four occurrences of one neutral LBracket definition. The bracket owns only its local XZ polygon; the assembly owns which corner line and depth position each occurrence uses.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four rigid joint.create commands use the four FRONT XZ corner topology references and one symbolic normal offset derived from frame_depth. The offset keeps every 4 mm profile centred around Y=0 after native depth mutation.</p>
+  <p>Four planar joint.create commands share one parent XZ frame at Y=0. Symbolic X/Z offsets use frame_width/frame_height, while native joint clocking gives the four L orientations. No sharp corner edge is required, so the 8 mm frame fillets remain valid.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:1&quot;,
         &quot;point&quot;: [
-          -60.0,
-          -40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -179,39 +189,43 @@ FourCornerL()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;values&quot;: [
+        &quot;-(frame_width / 2)&quot;,
+        &quot;frame_height&quot;,
+        270.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:2&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
@@ -224,38 +238,42 @@ FourCornerL()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        &quot;frame_height&quot;,
+        180.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;LBracket:3&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -269,38 +287,24 @@ FourCornerL()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        0,
+        90.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
-          0.0,
-          -40.0,
-          30.0
-        ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
         &quot;point&quot;: [
-          -60.0,
-          -40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
@@ -314,7 +318,29 @@ FourCornerL()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;-(frame_depth / 2 + 2 mm)&quot;,
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;values&quot;: [
+        &quot;-(frame_width / 2)&quot;,
+        0,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   }

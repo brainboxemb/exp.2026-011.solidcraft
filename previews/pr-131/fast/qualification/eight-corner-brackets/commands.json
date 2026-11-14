@@ -159,7 +159,7 @@
       "command": "solid.extrude",
       "params": {
         "distance": 4.0,
-        "direction": "positive",
+        "direction": "symmetric",
         "body_name": "LBracket"
       }
     },
@@ -212,122 +212,34 @@
       }
     },
     {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:1",
-        "translate": [
-          -60.0,
-          -40.0,
-          60.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:2",
-        "translate": [
-          60.0,
-          -40.0,
-          60.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:3",
-        "translate": [
-          60.0,
-          -40.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:4",
-        "translate": [
-          -60.0,
-          -40.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:5",
-        "translate": [
-          -60.0,
-          40.0,
-          60.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:6",
-        "translate": [
-          60.0,
-          40.0,
-          60.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:7",
-        "translate": [
-          60.0,
-          40.0,
-          0.0
-        ]
-      }
-    },
-    {
-      "command": "occurrence.move",
-      "params": {
-        "occurrence": "LBracket:8",
-        "translate": [
-          -60.0,
-          40.0,
-          0.0
-        ]
-      }
-    },
-    {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:1 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            -40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            -60.0,
-            -40.0,
-            60.0
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:1",
           "point": [
-            -60.0,
-            -40.0,
-            60.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
@@ -340,39 +252,44 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "(frame_depth / 2) - 2 mm",
+        "values": [
+          "-(frame_width / 2)",
+          "frame_height",
+          270.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:2 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            -40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            60.0,
-            -40.0,
-            60.0
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:2",
           "point": [
-            60.0,
-            -40.0,
-            60.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
@@ -385,38 +302,43 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "-((frame_depth / 2) - 2 mm)",
+        "values": [
+          "-(frame_width / 2)",
+          "frame_height",
+          270.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:3 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            -40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            60.0,
-            -40.0,
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:3",
           "point": [
-            60.0,
-            -40.0,
+            0.0,
+            0.0,
             0.0
           ],
           "z": [
@@ -430,38 +352,43 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "(frame_depth / 2) - 2 mm",
+        "values": [
+          "frame_width / 2",
+          "frame_height",
+          180.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:4 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            -40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            -40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            -60.0,
-            -40.0,
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:4",
           "point": [
-            -60.0,
-            -40.0,
+            0.0,
+            0.0,
             0.0
           ],
           "z": [
@@ -475,39 +402,44 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "-((frame_depth / 2) - 2 mm)",
+        "values": [
+          "frame_width / 2",
+          "frame_height",
+          180.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:5 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            -60.0,
-            40.0,
-            60.0
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:5",
           "point": [
-            -60.0,
-            40.0,
-            60.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
@@ -520,39 +452,44 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "(frame_depth / 2) - 2 mm",
+        "values": [
+          "frame_width / 2",
+          0,
+          90.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:6 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            60.0,
-            40.0,
-            60.0
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:6",
           "point": [
-            60.0,
-            40.0,
-            60.0
+            0.0,
+            0.0,
+            0.0
           ],
           "z": [
             0.0,
@@ -565,38 +502,43 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "-((frame_depth / 2) - 2 mm)",
+        "values": [
+          "frame_width / 2",
+          0,
+          90.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:7 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
+          "point": [
             0.0,
-            40.0,
-            30.0
+            0.0,
+            0.0
           ],
-          "corner": [
-            60.0,
-            40.0,
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
             0.0
           ]
         },
         "b": {
           "occurrence": "LBracket:7",
           "point": [
-            60.0,
-            40.0,
+            0.0,
+            0.0,
             0.0
           ],
           "z": [
@@ -610,38 +552,25 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "offset": "(frame_depth / 2) - 2 mm",
+        "values": [
+          "-(frame_width / 2)",
+          0,
+          0.0
+        ],
         "angle": 0.0
       }
     },
     {
       "command": "joint.create",
       "params": {
-        "type": "rigid",
+        "type": "planar",
         "name": "Attach LBracket:8 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "edge": [
-            -60.0,
-            40.0,
-            30.0
-          ],
-          "on": [
-            0.0,
-            40.0,
-            30.0
-          ],
-          "corner": [
-            -60.0,
-            40.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "LBracket:8",
           "point": [
-            -60.0,
-            40.0,
+            0.0,
+            0.0,
             0.0
           ],
           "z": [
@@ -655,7 +584,30 @@
             0.0
           ]
         },
-        "offset": -4.0,
+        "b": {
+          "occurrence": "LBracket:8",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": "-((frame_depth / 2) - 2 mm)",
+        "values": [
+          "-(frame_width / 2)",
+          0,
+          0.0
+        ],
         "angle": 0.0
       }
     },

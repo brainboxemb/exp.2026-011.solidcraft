@@ -1,5 +1,5 @@
 {
-  "library_commit": "e38ceec4ffb63f3d78bf36d121df8dcd875044a7",
+  "library_commit": "0662ca568b8f415c4710af87b3e6cd0eea68da05",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -163,7 +163,7 @@
       "title": "Four centred L-profiles on corner lines",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
-      "command_count": 28,
+      "command_count": 24,
       "native_evidence": [],
       "native_images": [],
       "qualification_status": null,
@@ -176,7 +176,7 @@
       "title": "Eight L-profiles: two on each corner line",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
-      "command_count": 40,
+      "command_count": 32,
       "native_evidence": [],
       "native_images": [],
       "qualification_status": null,
