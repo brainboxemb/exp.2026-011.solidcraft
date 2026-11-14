@@ -27,7 +27,7 @@
       "Board"
     ],
     "feature": 3,
-    "ms": 0.935149,
+    "ms": 0.854554,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -52,7 +52,7 @@
       "Marker"
     ],
     "feature": 6,
-    "ms": 0.236705,
+    "ms": 0.25299699999999997,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null

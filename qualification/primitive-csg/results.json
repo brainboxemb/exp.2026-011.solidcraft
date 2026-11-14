@@ -8,7 +8,7 @@
       "PrimitiveCsg"
     ],
     "feature": 1,
-    "ms": 10.556640000000002,
+    "ms": 9.149319,
     "name": "Sphere1",
     "removed_bodies": [],
     "warning": null
@@ -22,7 +22,7 @@
     ],
     "created_bodies": [],
     "feature": 2,
-    "ms": 679.894151,
+    "ms": 594.8755620000001,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -36,7 +36,7 @@
     ],
     "created_bodies": [],
     "feature": 3,
-    "ms": 804.821608,
+    "ms": 731.5922419999999,
     "name": "Cylinder1",
     "removed_bodies": [],
     "warning": null
@@ -50,7 +50,7 @@
     ],
     "created_bodies": [],
     "feature": 4,
-    "ms": 2884.591993,
+    "ms": 2565.588203,
     "name": "Box2",
     "removed_bodies": [],
     "warning": "Boolean retry: tool displacement 1.546259e-4 mm, rotation 2.000000e-6 rad"
