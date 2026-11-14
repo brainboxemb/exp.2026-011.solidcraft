@@ -494,29 +494,6 @@ class Shape:
     def __sub__(self, other):
         return Shape("difference", (self, _shape(other)))
 
-    def align(self, target, *, parent=Anchor.CENTER, child=Anchor.CENTER):
-        """Align one direct CSG shape anchor to another without an assembly joint.
-
-        The first supported contract is CENTER-to-CENTER. Cylinder CENTER is
-        derived from its native axis and height, so the resulting translation
-        still lowers directly to solid.cylinder(base=..., axis=...).
-        """
-        try:
-            parent = Anchor(parent)
-            child = Anchor(child)
-        except ValueError as exc:
-            raise ValueError("align() requires valid Anchor values") from exc
-        if parent is not Anchor.CENTER or child is not Anchor.CENTER:
-            raise ValueError("align() currently supports CENTER-to-CENTER only")
-
-        target_center = _shape_center(target)
-        child_center = _shape_center(self)
-        delta = tuple(
-            _dim_sub(target_center[i], child_center[i])
-            for i in range(3)
-        )
-        return Shape("translated", (self, delta))
-
     def move(self, x=0, y=0, z=0):
         """Translate a CSG shape by millimetres.
 
@@ -594,13 +571,42 @@ class Shape:
             raise ValueError("material color must be a #RRGGBB hex string")
         return Shape("material_assignment", (self, name, density_g_cm3, color))
 
-    def at(self, x=0, y=0, z=0):
-        """Place a supported profile, primitive or feature at world coordinates.
+    def at(self, x=0, y=0, z=0, *, anchor=Anchor.CENTER, child=Anchor.CENTER):
+        """Place a shape at coordinates or at an anchor of another Shape.
 
-        For XY sketches, x and y locate the profile on its sketch plane and z
-        offsets that plane. For 3D and plastic features the point is the native
-        SolidCraft authoring position.
+        Coordinate form keeps the existing native placement semantics:
+        `shape.at(x, y, z)`.
+
+        Shape form places one anchor of this shape on an anchor of the target:
+        `shape.at(target, anchor=Anchor.CENTER, child=Anchor.CENTER)`.
+        The first supported shape-to-shape contract is CENTER-to-CENTER.
         """
+        if isinstance(x, Shape):
+            if y != 0 or z != 0:
+                raise ValueError(
+                    "at(target, ...) does not accept coordinate y/z arguments"
+                )
+            try:
+                anchor = Anchor(anchor)
+                child = Anchor(child)
+            except ValueError as exc:
+                raise ValueError("at() requires valid Anchor values") from exc
+            if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
+                raise ValueError(
+                    "shape-to-shape at() currently supports CENTER-to-CENTER only"
+                )
+            target_center = _shape_center(x)
+            child_center = _shape_center(self)
+            delta = tuple(
+                _dim_sub(target_center[i], child_center[i])
+                for i in range(3)
+            )
+            return Shape("translated", (self, delta))
+
+        if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
+            raise ValueError(
+                "anchor/child are only valid for shape-to-shape at()"
+            )
         if self.kind not in (
             "circle", "rectangle", "polygon", "positioned", "cylinder", "hole",
             "lip", "snap_fit", "boss", "rest",
