@@ -14,8 +14,9 @@ can then be reused by later anchor and orientation scenarios.
 ## Forge API
 
 ```python
-profile = Polygon2D(points, plane="XZ")
-return profile.extrude(width, direction=Direction.SYMMETRIC)
+with Sketch(name="Profile", plane="XZ") as sketch:
+    Polygon2D(points, plane="XZ")
+return sketch.extrude(width, direction=Direction.SYMMETRIC)
 ```
 
 ## Semantics
