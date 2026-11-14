@@ -10,20 +10,9 @@ from scpf.runner import run_script
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
-EXPECTED_CORNERS = [
-    [-60.0, -40.0, 60.0],
-    [60.0, -40.0, 60.0],
-    [60.0, -40.0, 0.0],
-    [-60.0, -40.0, 0.0],
-    [-60.0, 40.0, 60.0],
-    [60.0, 40.0, 60.0],
-    [60.0, 40.0, 0.0],
-    [-60.0, 40.0, 0.0],
-]
-
 
 class EightCornerBracketsCommandTests(unittest.TestCase):
-    def test_generated_eight_corner_relationship_contract(self):
+    def test_generated_two_profiles_per_corner_line_contract(self):
         document = run_script(
             ROOT / "examples/eight-corner-brackets/scpf/model.py"
         )
@@ -55,9 +44,14 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
             if row["command"] == "occurrence.copy"
         ]
         self.assertEqual(len(copies), 7)
-        self.assertTrue(
-            all(row["params"]["component"] == "LBracket" for row in copies)
-        )
+
+        fillets = [
+            row["params"]
+            for row in commands
+            if row["command"] == "solid.fillet"
+        ]
+        self.assertEqual(len(fillets), 1)
+        self.assertEqual(float(fillets[0]["radius"]), 8.0)
 
         joints = [
             row["params"]
@@ -66,18 +60,31 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 8)
 
-        for index, (joint, corner) in enumerate(
-            zip(joints, EXPECTED_CORNERS),
-            1,
-        ):
-            self.assertEqual(joint["type"], "rigid")
-            self.assertEqual(joint["angle"], 0)
-            self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
-            self.assertEqual(joint["a"]["corner"], corner)
+        expected_angles = [270, 270, 180, 180, 90, 90, 0, 0]
+        for index, joint in enumerate(joints, 1):
+            self.assertEqual(joint["type"], "planar")
+            self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(
+                joint["a"],
+                {
+                    "occurrence": "FrameBlock:1",
+                    "point": [0.0, 0.0, 0.0],
+                    "z": [0.0, -1.0, 0.0],
+                    "x": [1.0, 0.0, 0.0],
+                },
+            )
             self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
             self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
             self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
-            self.assertEqual(joint["offset"], -4.0)
+            self.assertEqual(joint["values"][2], expected_angles[index - 1])
+            self.assertIn("frame_depth", str(joint["offset"]))
+
+        # Each adjacent pair belongs to one XZ corner line and differs only in
+        # the sign of its depth offset.
+        for front, rear in zip(joints[0::2], joints[1::2]):
+            self.assertEqual(front["values"], rear["values"])
+            self.assertFalse(str(front["offset"]).startswith("-"))
+            self.assertTrue(str(rear["offset"]).startswith("-"))
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
