@@ -60,7 +60,7 @@ class FourCornerLCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 4)
 
-        expected_angles = [180, 270, 0, 90]
+        expected_angles = [0, 90, 180, 270]
         expected_xy = [
             ("-(frame_width / 2)", "-(frame_depth / 2)"),
             ("frame_width / 2", "-(frame_depth / 2)"),
@@ -85,7 +85,7 @@ class FourCornerLCommandTests(unittest.TestCase):
                 {
                     "occurrence": f"LProfile:{index}",
                     "point": [0.0, 0.0, 0.0],
-                    "z": [0.0, 0.0, 1.0],
+                    "z": [0.0, 0.0, -1.0],
                     "x": [1.0, 0.0, 0.0],
                 },
             )
