@@ -721,7 +721,7 @@ def validate_circle_negative_extrude(root: Path) -> Validation:
         ("ExtrudeFeature", "Extrude1"),
     ]
     v.check(
-        "direct circle extrusion remains native sketch/extrude history",
+        "explicit circle Sketch remains native sketch/extrude history",
         timeline == expected_timeline,
         expected_timeline,
         timeline,
