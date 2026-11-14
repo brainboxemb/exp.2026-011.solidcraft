@@ -103,6 +103,15 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert "Qualification by area" in coverage_page
     assert "At target" in coverage_page
     assert "Below target" in coverage_page
+    for status_class in (
+        "coverage-status supported",
+        "coverage-status partial",
+        "coverage-status missing",
+        "coverage-status at-target",
+        "coverage-status below-target",
+        "coverage-status gap",
+    ):
+        assert status_class in coverage_page, status_class
 
     assert "Qualification" in home and "Qualification" in qualification_index
     assert 'href="joint-anatomy/"' in qualification_index
