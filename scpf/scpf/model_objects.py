@@ -480,11 +480,17 @@ class ModelInstance:
 
         tangent = (0.0, 0.0, 0.0)
         normal = (0.0, 0.0, 0.0)
-        if isinstance(parent, Anchor):
+        if parent in (
+            Anchor.LEFT,
+            Anchor.RIGHT,
+            Anchor.FRONT,
+            Anchor.BACK,
+            Anchor.TOP,
+            Anchor.BOTTOM,
+            Anchor.CENTER,
+        ):
             tangent = _face_offset(parent, face_offset_values)
-            if parent in _CORNER_ANCHORS:
-                normal = _corner_normal(parent)
-            elif parent is not Anchor.CENTER:
+            if parent is not Anchor.CENTER:
                 normal = parent.vector
 
         target_world = tuple(
