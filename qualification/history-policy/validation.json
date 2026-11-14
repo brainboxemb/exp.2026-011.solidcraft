@@ -1,0 +1,173 @@
+{
+  "case": "history-policy",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "HistoryPolicyBoss",
+          "min": [
+            -25,
+            -25,
+            0
+          ],
+          "max": [
+            25,
+            25,
+            16
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -25.000000000000014,
+            -25.0,
+            0.0
+          ],
+          "max": [
+            25.000000000000004,
+            25.0,
+            16.000000000000007
+          ]
+        }
+      ]
+    },
+    {
+      "name": "single joined history-policy body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "combined history-policy bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -25,
+          -25,
+          0
+        ],
+        "max": [
+          25,
+          25,
+          16
+        ]
+      },
+      "actual": {
+        "max": [
+          25.000000000000004,
+          25.0,
+          16.000000000000007
+        ],
+        "min": [
+          -25.000000000000014,
+          -25.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "expected cylindrical feature faces",
+      "level": "q4",
+      "status": "pass",
+      "expected": 7,
+      "actual": 7
+    },
+    {
+      "name": "native versus sketch history is persisted",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        [
+          "Sketch",
+          "HistoryPolicyBoss footprint"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ],
+        [
+          "BossFeature",
+          "Boss1"
+        ],
+        [
+          "BossFeature",
+          "Boss2"
+        ],
+        [
+          "Sketch",
+          "Boss"
+        ],
+        [
+          "ExtrudeFeature",
+          "Boss"
+        ],
+        [
+          "Sketch",
+          "Boss hole"
+        ],
+        [
+          "ExtrudeFeature",
+          "Boss hole"
+        ],
+        [
+          "Sketch",
+          "Explicit pad"
+        ],
+        [
+          "ExtrudeFeature",
+          "Explicit pad"
+        ]
+      ],
+      "actual": [
+        [
+          "Sketch",
+          "HistoryPolicyBoss footprint"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ],
+        [
+          "BossFeature",
+          "Boss1"
+        ],
+        [
+          "BossFeature",
+          "Boss2"
+        ],
+        [
+          "Sketch",
+          "Boss"
+        ],
+        [
+          "ExtrudeFeature",
+          "Boss"
+        ],
+        [
+          "Sketch",
+          "Boss hole"
+        ],
+        [
+          "ExtrudeFeature",
+          "Boss hole"
+        ],
+        [
+          "Sketch",
+          "Explicit pad"
+        ],
+        [
+          "ExtrudeFeature",
+          "Explicit pad"
+        ]
+      ]
+    }
+  ]
+}

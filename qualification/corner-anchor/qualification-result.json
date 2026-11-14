@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "corner-anchor",
   "title": "Topology-backed corner anchor",
-  "source_commit": "1fe21e3c34063353d3fa71b9a5bb9a9e6510a9a1",
+  "source_commit": "d98ff69cfc41a0751afb2045892281b09560433e",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {

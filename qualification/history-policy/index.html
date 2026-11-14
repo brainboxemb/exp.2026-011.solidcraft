@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Native versus sketch history policy · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Native versus sketch history policy</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Native versus sketch history policy</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Native versus sketch history policy native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Native versus sketch history policy expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify that History/behavior policy changes persisted SolidCraft feature history rather than only changing Python-side implementation details.</p>
+  <h3>Pass criteria</h3>
+  <p>SolidCraft 0.30.1 builds one plate body with three bosses (AUTO, NATIVE and SKETCH) plus the explicit circular pad, while the saved timeline preserves both native BossFeatures and the forced-sketch feature chain.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>class HistoryPolicyBoss:
+    size = 50.0
+
+    def build(self):
+        body = Box(self.size, self.size, 6.0)
+
+        automatic = Boss(d=12.0, h=10.0, hole_d=4.0).attach(
+            body,
+            parent=Anchor.TOP,
+            offset=(X.MIN + 15.0, Y.CENTER),
+        )
+        body = body + automatic
+
+        with behavior(history=History.NATIVE):
+            native = Boss(d=12.0, h=10.0, hole_d=4.0).attach(
+                body,
+                parent=Anchor.TOP,
+                offset=(X.CENTER, Y.MAX - 10.0),
+            )
+        body = body + native
+
+        with behavior(history=History.SKETCH):
+            sketched = Boss(d=12.0, h=10.0, hole_d=4.0).attach(
+                body,
+                parent=Anchor.TOP,
+                offset=(X.MAX - 15.0, Y.CENTER),
+            )
+        body = body + sketched
+
+        with Sketch(name=&quot;Explicit pad&quot;, on=body, parent=Anchor.TOP) as sketch:
+            sketch.add(Circle2D(d=10.0), offset=(0.0, -15.0))
+
+        explicit = sketch.extrude(6.0)
+        body + explicit
+
+
+HistoryPolicyBoss()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Boss(...).attach(...); with behavior(history=History.SKETCH); explicit Sketch(...).add(Circle2D(...)).extrude(...)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One plate receives the same Boss intent three times: AUTO and explicit NATIVE lower as native plastic features, while SKETCH lowers through editable sketch/extrude/cut history; a separately named explicit sketch adds a circular pad.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>AUTO and History.NATIVE each emit plastic.boss. History.SKETCH emits a Boss sketch plus join extrusion and a Boss-hole sketch plus cut extrusion. The explicit named Sketch remains a distinct sketch and join extrusion.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>parameters.add
+sketch.create
+sketch.rectangle.two_point
+sketch.finish
+solid.extrude
+plastic.boss
+plastic.boss
+sketch.create
+sketch.circle.center
+sketch.finish
+solid.extrude
+sketch.create
+sketch.circle.center
+sketch.finish
+solid.extrude
+sketch.create
+sketch.circle.center
+sketch.finish
+solid.extrude</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>size</code></td><td>50.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>HistoryPolicyBoss</td><td><code>[-25, -25, 0]</code></td><td><code>[25, 25, 16]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;HistoryPolicyBoss&quot;, &quot;min&quot;: [-25, -25, 0], &quot;max&quot;: [25, 25, 16]}]</code></td><td><code>[{&quot;min&quot;: [-25.000000000000014, -25.0, 0.0], &quot;max&quot;: [25.000000000000004, 25.0, 16.000000000000007]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>single joined history-policy body</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>combined history-policy bounds</td><td><code>{&quot;min&quot;: [-25, -25, 0], &quot;max&quot;: [25, 25, 16]}</code></td><td><code>{&quot;max&quot;: [25.000000000000004, 25.0, 16.000000000000007], &quot;min&quot;: [-25.000000000000014, -25.0, 0.0]}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>expected cylindrical feature faces</td><td><code>7</code></td><td><code>7</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>native versus sketch history is persisted</td><td><code>[[&quot;Sketch&quot;, &quot;HistoryPolicyBoss footprint&quot;], [&quot;ExtrudeFeature&quot;, &quot;Extrude1&quot;], [&quot;BossFeature&quot;, &quot;Boss1&quot;], [&quot;BossFeature&quot;, &quot;Boss2&quot;], [&quot;Sketch&quot;, &quot;Boss&quot;], [&quot;ExtrudeFeature&quot;, &quot;Boss&quot;], [&quot;Sketch&quot;, &quot;Boss hole&quot;], [&quot;ExtrudeFeature&quot;, &quot;Boss hole&quot;], [&quot;Sketch&quot;, &quot;Explicit pad&quot;], [&quot;ExtrudeFeature&quot;, &quot;Explicit pad&quot;]]</code></td><td><code>[[&quot;Sketch&quot;, &quot;HistoryPolicyBoss footprint&quot;], [&quot;ExtrudeFeature&quot;, &quot;Extrude1&quot;], [&quot;BossFeature&quot;, &quot;Boss1&quot;], [&quot;BossFeature&quot;, &quot;Boss2&quot;], [&quot;Sketch&quot;, &quot;Boss&quot;], [&quot;ExtrudeFeature&quot;, &quot;Boss&quot;], [&quot;Sketch&quot;, &quot;Boss hole&quot;], [&quot;ExtrudeFeature&quot;, &quot;Boss hole&quot;], [&quot;Sketch&quot;, &quot;Explicit pad&quot;], [&quot;ExtrudeFeature&quot;, &quot;Explicit pad&quot;]]</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Native versus sketch history policy iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Native versus sketch history policy iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Native versus sketch history policy iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Native versus sketch history policy front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Native versus sketch history policy front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Native versus sketch history policy front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Native versus sketch history policy right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Native versus sketch history policy right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Native versus sketch history policy right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The native timeline is the source of truth for whether feature history remains inspectable after Python compilation.</li><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> The Python context manager selects compilation policy while geometry remains expressed with ordinary Python objects.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

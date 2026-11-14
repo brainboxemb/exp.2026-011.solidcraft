@@ -89,7 +89,7 @@
       "Panel"
     ],
     "feature": 6,
-    "ms": 0.940537,
+    "ms": 0.986253,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -215,7 +215,7 @@
       "Frame"
     ],
     "feature": 11,
-    "ms": 0.161724,
+    "ms": 0.255249,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null

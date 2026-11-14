@@ -1,0 +1,244 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 7896.422440347152,
+      "bbox": {
+        "max": [
+          25.000000000000004,
+          25.0,
+          16.000000000000007
+        ],
+        "min": [
+          -25.000000000000014,
+          -25.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        -7.751335408652288e-10,
+        0.4333325570444082,
+        4.457968179199039
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 26,
+      "face_types": {
+        "cylinder": 7,
+        "plane": 13
+      },
+      "faces": 20,
+      "kernel": {
+        "edges": 54,
+        "faces": 27,
+        "shells": 1,
+        "vertices": 36
+      },
+      "mass_g": 23.848199437204187,
+      "material": "Default",
+      "name": "HistoryPolicyBoss",
+      "vertices": 22,
+      "volume_mm3": 18486.976307910223
+    }
+  ],
+  "body_count": 1,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "50",
+      "model": false,
+      "name": "size",
+      "unit": "mm",
+      "value": 50.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 1,
+      "name": "HistoryPolicyBoss footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 1,
+      "dof": 3,
+      "id": 5,
+      "name": "Boss",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 1,
+      "dof": 3,
+      "id": 7,
+      "name": "Boss hole",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 1,
+      "dof": 1,
+      "id": 9,
+      "name": "Explicit pad",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 0.212048,
+      "name": "HistoryPolicyBoss footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 0.8548250000000001,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 98.058359,
+      "name": "Boss1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 61.208079999999995,
+      "name": "Boss2",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "BossFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 5,
+      "ms": 0.081083,
+      "name": "Boss",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 6,
+      "ms": 66.975189,
+      "name": "Boss",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 7,
+      "ms": 0.06701599999999999,
+      "name": "Boss hole",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 48.199805999999995,
+      "name": "Boss hole",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 9,
+      "ms": 0.07714499999999999,
+      "name": "Explicit pad",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 10,
+      "ms": 161.462333,
+      "name": "Explicit pad",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 7896.422440347152,
+    "edges": 26,
+    "faces": 20,
+    "mass_g": 23.848199437204187,
+    "open_bodies_skipped": 0,
+    "vertices": 22,
+    "volume_mm3": 18486.976307910223
+  }
+}
