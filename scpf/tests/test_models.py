@@ -8,6 +8,7 @@ from pathlib import Path
 
 from scpf.compiler import ModelError
 from scpf.runner import run_script
+from scpf import Sketch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -84,16 +85,16 @@ class SCPFExamples(unittest.TestCase):
         from scpf.compiler import compile_model
         self.assertEqual(Direction.POSITIVE.value, "positive")
         self.assertEqual(Direction.NEGATIVE.value, "negative")
-        shape = Circle2D(d=8).extrude(8, direction=Direction.NEGATIVE)
-        self.assertEqual(shape.data[2], "negative")
+        with Sketch(plane="XY") as sketch:
+            Circle2D(d=8)
+        shape = sketch.extrude(8, direction=Direction.NEGATIVE)
+        self.assertEqual(shape.data[-1], "negative")
         self.assertEqual(
-            Circle2D(d=8).extrude(8, direction="negative").data[2], "negative"
+            sketch.extrude(8, direction="negative").data[-1], "negative"
         )
-        self.assertEqual(
-            Circle2D(d=8).extrude(8).data[2], "positive"
-        )
+        self.assertEqual(sketch.extrude(8).data[-1], "positive")
         with self.assertRaises(ValueError):
-            Circle2D(d=8).extrude(8, direction="sideways")
+            sketch.extrude(8, direction="sideways")
 
     def test_anchor_directions_have_vectors_and_aliases(self):
         from scpf.core import Anchor, AnchorFrame
@@ -122,7 +123,9 @@ class SCPFExamples(unittest.TestCase):
         width = Parameter("width", 100)
         depth = Parameter("depth", 60)
         thickness = Parameter("thickness", 10)
-        plate = Rectangle2D(width, depth).extrude(thickness)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(width, depth)
+        plate = sketch.extrude(thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
             count=2, spacing=40, axis=Axis.Y
         ).on(plate, face=Faces.TOP)
@@ -144,7 +147,9 @@ class SCPFExamples(unittest.TestCase):
     def test_hole_on_starts_at_exterior_top(self):
         from scpf.core import Anchor, Faces, Hole, Rectangle2D
         from scpf.compiler import compile_model, ModelError
-        plate = Rectangle2D(80, 50).extrude(8)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(80, 50)
+        plate = sketch.extrude(8)
         attached = Hole(d=8).on(plate, face=Faces.TOP)
         commands = compile_model(plate + attached, "Plate")["commands"]
         self.assertEqual(commands[-1]["command"], "solid.extrude")
@@ -161,7 +166,11 @@ class SCPFExamples(unittest.TestCase):
     def test_on_uses_faces_without_exposing_assembly_anchors(self):
         from scpf.core import Anchor, Faces, Hole, Rectangle2D
 
-        plate = Rectangle2D(80, 50).extrude(8)
+        with Sketch(name="Base", plane="XY") as sketch:
+
+            Rectangle2D(80, 50)
+
+        plate = sketch.extrude(8)
         top = Hole(d=8).on(plate, face=Faces.TOP)
         bottom = Hole(d=8).on(plate, face=Faces.BOTTOM)
 
@@ -175,7 +184,9 @@ class SCPFExamples(unittest.TestCase):
     def test_symmetric_anchored_cylinder_pattern_follows_plate_dimensions(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D
         from scpf.compiler import compile_model
-        base = Rectangle2D(100, 60).extrude(10)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(100, 60)
+        base = sketch.extrude(10)
         holes = Cylinder(d=8, h=12).pattern(
             count=2, spacing=40, axis=Axis.Y
         ).attach(base, parent=Anchor.CENTER, child=Anchor.CENTER)
@@ -195,7 +206,9 @@ class SCPFExamples(unittest.TestCase):
             Parameter("width", 80), Parameter("depth", 50),
             Parameter("thickness", 8)
         )
-        base = Rectangle2D(width, depth).extrude(thickness)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(width, depth)
+        base = sketch.extrude(thickness)
         boss = Cylinder(d=24, h=14).on(base, face=Faces.TOP)
         commands = compile_model(base + boss, "Plate")["commands"]
         self.assertEqual(commands[-1]["command"], "solid.extrude")
@@ -210,7 +223,9 @@ class SCPFExamples(unittest.TestCase):
 
     def test_relative_anchor_rejects_unsupported_usage(self):
         from scpf.core import Anchor, Axis, Cylinder, Rectangle2D, Sphere
-        base = Rectangle2D(80, 50).extrude(8)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(80, 50)
+        base = sketch.extrude(8)
         with self.assertRaises(ValueError):
             Sphere(8).attach(base, parent=Anchor.TOP)
         with self.assertRaises(ValueError):
@@ -366,7 +381,9 @@ class SCPFExamples(unittest.TestCase):
         from scpf.compiler import compile_model
         from scpf.core import Box, Rectangle2D, Polygon2D, Direction, Hole, Faces
         box = Box(80, 50, 8)
-        rectangle = Rectangle2D(80, 50).extrude(8)
+        with Sketch(name="Base", plane="XY") as sketch:
+            Rectangle2D(80, 50)
+        rectangle = sketch.extrude(8)
         for model in (
             box + Hole(d=6).on(box, face=Faces.TOP),
             rectangle + Hole(d=6).on(rectangle, face=Faces.TOP),
@@ -376,9 +393,11 @@ class SCPFExamples(unittest.TestCase):
             self.assertEqual(commands[-1]["params"]["operation"], "cut")
             self.assertFalse(any(c["command"] == "solid.hole" for c in commands))
 
-        polygon = Polygon2D(
-            [(0, 0), (40, 0), (40, 6), (0, 6)], plane="XZ"
-        ).extrude(50, direction=Direction.NEGATIVE)
+        with Sketch(plane="XZ") as sketch:
+            Polygon2D(
+                [(0, 0), (40, 0), (40, 6), (0, 6)], plane="XZ"
+            )
+        polygon = sketch.extrude(50, direction=Direction.NEGATIVE)
         commands = compile_model(
             polygon + Hole(d=6).at(20, -25, 0), "Widget"
         )["commands"]
@@ -587,10 +606,12 @@ class SCPFExamples(unittest.TestCase):
         self.assertIs(inside.history, History.SKETCH)
         self.assertIsNone(outside.history)
 
-    def test_circle_profile_extrudes_without_an_explicit_sketch_object(self):
+    def test_circle_profile_extrudes_with_explicit_sketch(self):
         from scpf.compiler import compile_model
         from scpf.core import Circle2D
-        commands = compile_model(Circle2D(d=12).extrude(8), "Pin")["commands"]
+        with Sketch(plane="XY") as sketch:
+            Circle2D(d=12)
+        commands = compile_model(sketch.extrude(8), "Pin")["commands"]
         self.assertEqual([c["command"] for c in commands],
                          ["sketch.create", "sketch.circle.center",
                           "sketch.finish", "solid.extrude"])
