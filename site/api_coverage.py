@@ -21,7 +21,7 @@ EXPORT_COVERAGE = {
     "Polygon2D": ("Q6", "Q6", ["xz-anchor", "bracket"], "XZ Polygon2D authored inside explicit Sketch scopes is native-qualified for symmetric and positive extrusion."),
     "Shape": ("Q2", "Q6", ["simple-box", "anchored-holes", "bracket"], "Core composition node is exercised by many native cases."),
     "Parameter": ("Q5", "Q5", ["simple-box", "parameter-scope", "parent-derived-child-size", "parametric-attach", "parametric-offset", "parametric-anchor"], "Implicit component-local parameters, inherited bindings and parent-derived child expressions are native-qualified through saved-design mutation."),
-    "Direction": ("Q2", "Q6", ["xz-anchor", "bracket"], "Positive and symmetric extrusion directions are native-qualified; negative remains a capability gap."),
+    "Direction": ("Q2", "Q6", ["xz-anchor", "bracket", "circle-negative-extrude"], "Positive, symmetric and negative extrusion directions are native-qualified through explicit Sketch cases."),
     "Edges": ("Q6", "Q6", ["four-corner-l", "eight-corner-brackets", "eight-flightcase-corners"], "Edges.VERTICAL is native-qualified through rounded reference frames; profile-derived and explicit edge selections still need separate coverage."),
     "Faces": ("Q6", "Q6", ["anchored-holes"], "TOP face placement is qualified; other face selections need capability coverage."),
     "Anchor": ("Q6", "Q6", ["components", "parametric-anchor", "corner-anchor", "custom-anchor", "xz-anchor"], "Face/corner selectors and cardinal direction vectors are qualified through semantic anchors and AnchorFrame."),
