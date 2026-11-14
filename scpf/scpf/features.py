@@ -536,14 +536,16 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
 
     operations = []
     for primitive, position, refs in resolved:
-        height, diameter = primitive.data
+        height, diameter, axis = primitive.data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
+        if axis != "Z":
+            raise ModelError("attached Cylinder must use Axis.Z")
         params = dict(
             height=command_value(height),
             diameter=command_value(diameter),
             base=position,
-            axis="Z",
+            axis=axis,
             operation="join" if shape.kind == "union" else "cut",
             targets=[name],
         )
@@ -738,7 +740,7 @@ def _to_commands(shape, name):
                 primitive, x, y, z = added, 0, 0, 0
             if primitive.kind != "cylinder":
                 raise ModelError("boolean primitive requires Cylinder")
-            height, diameter = primitive.data
+            height, diameter, axis = primitive.data
             _require_positive(height, "cylinder height")
             _require_positive(diameter, "cylinder diameter")
             return steps + [
@@ -746,7 +748,7 @@ def _to_commands(shape, name):
                          height=command_value(height),
                          diameter=command_value(diameter),
                          base=[command_value(x), command_value(y), command_value(z)],
-                         axis="Z", operation="join" if shape.kind == "union" else "cut",
+                         axis=axis, operation="join" if shape.kind == "union" else "cut",
                          targets=[name]),
             ], base
         raise ModelError(f"unsupported CAD feature {added.kind}")
