@@ -1,7 +1,7 @@
 """Ordered CAD features -> native SolidCraft commands.
 
-Works on Box, Rectangle2D/Circle2D/Polygon2D extrusions. Every feature
-is compiled from its operation, not from a named example such as Plate.
+Works on Box and explicit Sketch extrusions. Every feature is compiled
+from its operation, not from a named example such as Plate.
 """
 from math import isfinite
 from fnmatch import fnmatchcase
@@ -19,11 +19,6 @@ def _is_feature_tree(shape):
         return False
     if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
         return True
-    if shape.kind == "extrusion":
-        profile = shape.data[0]
-        if profile.kind == "positioned":
-            profile = profile.data[0]
-        return profile.kind in ("rectangle", "circle", "polygon")
     if shape.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
     return False
@@ -741,7 +736,7 @@ def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
 
 
 def _to_commands(shape, name):
-    if shape.kind in ("box", "extrusion", "tapered_box", "sketch_base_extrusion"):
+    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
         return compile_base(shape, name)
     if shape.kind == "material_assignment":
         base_shape, material, density, color = shape.data
@@ -813,9 +808,6 @@ def _to_commands(shape, name):
                          axis="Z", operation="join" if shape.kind == "union" else "cut",
                          targets=[name]),
             ], base
-        if added.kind == "extrusion":
-            return steps + _circle_boolean_commands(
-                shape, added, name, feature_name=feature_name), base
         raise ModelError(f"unsupported CAD feature {added.kind}")
     raise ModelError(f"unsupported CAD solid {shape.kind}")
 
@@ -829,8 +821,13 @@ def compile_features(shape, name):
     root = shape
     while root.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         root = root.data[0]
-    if root.kind == "extrusion" and root.data[0].kind == "polygon":
-        parameters = _collect((root.data[1], shape))
+    if root.kind == "sketch_base_extrusion":
+        profiles = root.data[4]
+        profile = profiles[0][0] if len(profiles) == 1 else None
+        if profile is not None and profile.kind == "polygon":
+            parameters = _collect((root.data[5], shape))
+        else:
+            parameters = _collect(shape)
     else:
         parameters = _collect(shape)
     return _param_commands(parameters) + steps
