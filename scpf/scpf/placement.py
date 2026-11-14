@@ -34,8 +34,8 @@ def _base_rectangle(shape):
         if child.kind == "rectangle":
             return child.data, (x, y, z), None
     if shape.kind == "sketch_base_extrusion":
-        _, plane, origin, profiles, height, direction = shape.data
-        if plane != "XY" or origin is not None or direction != "positive":
+        _, plane, origin, plane_offset, profiles, height, direction = shape.data
+        if plane != "XY" or origin is not None or plane_offset is not None or direction != "positive":
             raise ValueError("anchoring requires a positive XY rectangular Sketch")
         if len(profiles) != 1 or profiles[0][0].kind != "rectangle":
             raise ValueError("anchoring requires one rectangular Sketch profile")
