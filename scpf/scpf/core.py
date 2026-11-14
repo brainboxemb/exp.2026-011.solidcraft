@@ -388,6 +388,15 @@ def pv(dim) -> float:
     raise TypeError(f"expected a CAD dimension, got {type(dim).__name__}")
 
 
+def is_positive(dim) -> bool:
+    """Safely test whether a CAD dimension's current value is above zero.
+
+    Intended for Python control flow around optional geometry. The original
+    Parameter/Expression remains symbolic when it is later passed to geometry.
+    """
+    return pv(dim) > 0
+
+
 def command_value(dim):
     return dim.expression if isinstance(dim, (Parameter, Expression)) else dim
 
