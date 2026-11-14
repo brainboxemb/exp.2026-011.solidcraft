@@ -219,7 +219,6 @@ QUALIFICATION_CASES = [
     {
         "slug": "four-corner-l",
         "q5_required": True,
-        "diagram": "four-corner-l.svg",
         "group": "anchors",
         "title": "Four centred L-profiles on corner lines",
         "intent": "Place one neutral XZ L-profile on each of the four vertical corner lines of a rounded rectangular frame. All four profiles sit at the middle of the frame depth; this is the simple 4-profile baseline before duplicating each corner line in the 8-profile case.",
@@ -236,7 +235,6 @@ QUALIFICATION_CASES = [
     {
         "slug": "eight-corner-brackets",
         "q5_required": True,
-        "diagram": "eight-corner-brackets.svg",
         "group": "anchors",
         "title": "Eight L-profiles: two on each corner line",
         "intent": "Extend the 4-profile baseline by placing two copies on each XZ corner line: one near the front end and one near the rear end of the frame depth. The eight profiles form four explicit corner pairs.",
