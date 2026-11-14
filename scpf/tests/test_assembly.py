@@ -31,12 +31,9 @@ class AssemblyTests(unittest.TestCase):
         placements = [c["params"] for c in commands if c["command"] == "occurrence.move"]
         self.assertEqual(placements[-1]["occurrence"], "Block:2")
         self.assertEqual(placements[-1]["translate"], [40.0, 0.0, 0.0])
-        rectangle = next(
-            c for c in commands
-            if c["command"] == "sketch.rectangle.two_point"
-        )
-        self.assertIn("Block_length", str(rectangle["params"]))
-        self.assertIn("Block_width", str(rectangle["params"]))
+        box = next(c for c in commands if c["command"] == "solid.box")
+        self.assertIn("Block_length", str(box["params"]))
+        self.assertIn("Block_width", str(box["params"]))
 
         joint = next(c for c in commands if c["command"] == "joint.create")
         self.assertEqual(joint["params"]["type"], "rigid")
@@ -508,7 +505,7 @@ class AssemblyTests(unittest.TestCase):
             ["width", "depth", "height"],
         )
         self.assertTrue(
-            any(command["command"] == "solid.extrude" for command in commands)
+            any(command["command"] == "solid.box" for command in commands)
         )
 
     def test_decorated_component_is_reused_without_second_wrapper(self):
@@ -695,12 +692,12 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual(parameter_names.count("frame_wood_thickness"), 1)
         self.assertNotIn("Board_width", parameter_names)
 
-        rectangle = next(
+        box = next(
             command for command in commands
-            if command["command"] == "sketch.rectangle.two_point"
+            if command["command"] == "solid.box"
         )
-        self.assertIn("opening_width", str(rectangle["params"]))
-        self.assertIn("frame_wood_thickness", str(rectangle["params"]))
+        self.assertIn("opening_width", str(box["params"]))
+        self.assertIn("frame_wood_thickness", str(box["params"]))
 
     def test_named_component_objects_resolve_directly_from_assembly(self):
         from scpf.core import Box
