@@ -1,0 +1,129 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_width",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_depth",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_height",
+        "expression": "5",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "pad_width",
+        "expression": "40",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "pad_depth",
+        "expression": "30",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "radius",
+        "expression": "5",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "pad_height",
+        "expression": "8",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "RoundedRectangleSketch footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          "-base_width / 2",
+          "-base_depth / 2"
+        ],
+        "p1": [
+          "base_width / 2",
+          "base_depth / 2"
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": "base_height",
+        "body_name": "RoundedRectangleSketch"
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Rounded pad",
+        "offset": "(base_height)"
+      }
+    },
+    {
+      "command": "sketch.rectangle.rounded",
+      "params": {
+        "p0": [
+          "((-(base_width)) / 2) + (base_width / 2) + (-20 mm)",
+          "((-(base_depth)) / 2) + (base_depth / 2) + (-15 mm)"
+        ],
+        "p1": [
+          "((-(base_width)) / 2) + (base_width / 2) + (-20 mm) + (pad_width)",
+          "((-(base_depth)) / 2) + (base_depth / 2) + (-15 mm) + (pad_depth)"
+        ],
+        "radius": "radius"
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "operation": "join",
+        "targets": [
+          "RoundedRectangleSketch"
+        ],
+        "name": "Rounded pad",
+        "distance": "pad_height",
+        "direction": "positive"
+      }
+    }
+  ]
+}
