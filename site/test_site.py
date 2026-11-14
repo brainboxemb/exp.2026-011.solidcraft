@@ -71,6 +71,9 @@ def check(site: Path, sha: str, require_native: bool = False):
         site / "qualification" / "results" / "index.html"
     ).read_text(encoding="utf-8")
     assert "Qualification results" in results_page
+    for page_text in (qualification_index, coverage_page, results_page):
+        assert "Development status — do not rely on this as a support guarantee." in page_text
+        assert "not a warranty" in page_text
     assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
         "Every public scpf.__all__ symbol must have a declared qualification row"
     )
