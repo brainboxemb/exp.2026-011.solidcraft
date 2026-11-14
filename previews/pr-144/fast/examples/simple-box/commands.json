@@ -1,0 +1,42 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "length",
+        "expression": "40",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "width",
+        "expression": "30",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "height",
+        "expression": "10",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": "length",
+        "width": "width",
+        "height": "height",
+        "corner": [
+          "-length / 2",
+          "-width / 2",
+          0
+        ],
+        "body_name": "SimpleBox"
+      }
+    }
+  ]
+}
