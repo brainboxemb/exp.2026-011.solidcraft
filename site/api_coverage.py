@@ -80,7 +80,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "four-corner topology follows parent width/height", "Q5", "Q5", ["four-corner-l"], "Saved-design 120x80 -> 160x120 mutation keeps all four bracket bboxes and solved corner-frame origins associative in SolidCraft 0.30.1."),
     ("Assemblies", "AnchorFrame", "Q6", "Q6", ["custom-anchor"], "Position + orientation on rotated parent."),
     ("Assemblies", "AnchorTopology", "Q5", "Q5", ["anchor-topology-mutation"], "A fixed explicit topology pick follows the selected parent corner after native saved-design resize."),
-    ("Assemblies", "assembly.with_anchor()/anchor()", "Q5", "GAP", [], "Needs dedicated native semantic-datum fixture."),
+    ("Assemblies", "assembly.with_anchor()/anchor()", "Q5", "Q5", ["assembly-owned-anchor"], "Assembly-owned semantic names lower to ordinary native topology-backed relationships and remain associative after saved-design mutation."),
     ("Parameters", "implicit component parameters and inherited bindings", "Q5", "Q5", ["parameter-scope"], "Native SolidCraft mutation proves local independence, shared bindings and derived expressions."),
     ("Parameters", "child dimensions derived from parent geometry", "Q5", "Q5", ["parent-derived-child-size"], "A reusable child keeps width/depth expressions derived from parent parameters and rebuilds natively after saved-design mutation."),
     ("CLI", "--out command generation", "Q2", "Q2", ["all command fixtures"], "Every CI fixture uses --out."),
