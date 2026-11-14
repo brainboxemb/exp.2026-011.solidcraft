@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "case": "parent-derived-child-size",
+  "title": "Child dimensions derived from parent parameters",
+  "source_commit": "3b6aa301ecd7e2b18b3fa611d8f352935cf7c555",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 15,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "joint-inspect.json",
+        "measurements-size-160x120.json",
+        "measurements.json",
+        "validation.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "parent 120x80 -> 160x120 mm; child follows 60x40 -> 80x60 mm",
+      "evidence": [
+        "measurements-size-160x120.json",
+        "model-size-160x120.sc"
+      ]
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png",
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png"
+      ],
+      "evidence": [
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png",
+        "visual-validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "joint-inspect.json",
+      "measurements-size-160x120.json",
+      "measurements.json",
+      "model-size-160x120.sc",
+      "model.sc",
+      "model.step",
+      "results.json",
+      "validation.json",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png",
+      "visual-validation.json"
+    ],
+    "images": [
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png"
+    ]
+  }
+}

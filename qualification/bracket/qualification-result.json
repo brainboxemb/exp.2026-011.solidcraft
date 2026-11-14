@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "bracket",
   "title": "Minimal L-profile",
-  "source_commit": "f37840a69b5b78ff16a4abd9e3bdfcd53716f7a0",
+  "source_commit": "3b6aa301ecd7e2b18b3fa611d8f352935cf7c555",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {

@@ -1,0 +1,216 @@
+{
+  "case": "parent-derived-child-size",
+  "q4": "pass",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "ParentBlock",
+          "min": [
+            -60,
+            -40,
+            0
+          ],
+          "max": [
+            60,
+            40,
+            10
+          ]
+        },
+        {
+          "label": "DerivedChild",
+          "min": [
+            -30,
+            -20,
+            20
+          ],
+          "max": [
+            30,
+            20,
+            26
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -60.0,
+            -40.0,
+            0.0
+          ],
+          "max": [
+            60.0,
+            40.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            -30.0,
+            -20.0,
+            20.0
+          ],
+          "max": [
+            30.0,
+            20.0,
+            26.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "baseline parent parameters",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "base_width": 120.0,
+        "base_depth": 80.0
+      },
+      "actual": {
+        "base_width": 120.0,
+        "base_depth": 80.0
+      }
+    },
+    {
+      "name": "child is half parent width/depth",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        [
+          60.0,
+          40.0,
+          6.0
+        ],
+        [
+          120.0,
+          80.0,
+          10.0
+        ]
+      ],
+      "actual": [
+        [
+          60.0,
+          40.0,
+          6.0
+        ],
+        [
+          120.0,
+          80.0,
+          10.0
+        ]
+      ]
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "ParentBlock",
+          "min": [
+            -80,
+            -60,
+            0
+          ],
+          "max": [
+            80,
+            60,
+            10
+          ]
+        },
+        {
+          "label": "DerivedChild",
+          "min": [
+            -40,
+            -30,
+            20
+          ],
+          "max": [
+            40,
+            30,
+            26
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -80.0,
+            -60.0,
+            0.0
+          ],
+          "max": [
+            80.0,
+            60.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            -40.0,
+            -30.0,
+            20.0
+          ],
+          "max": [
+            40.0,
+            30.0,
+            26.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "parent parameters changed",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "base_width": 160.0,
+        "base_depth": 120.0
+      },
+      "actual": {
+        "base_width": 160.0,
+        "base_depth": 120.0
+      }
+    },
+    {
+      "name": "child rebuilds from parent expressions",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        [
+          80.0,
+          60.0,
+          6.0
+        ],
+        [
+          160.0,
+          120.0,
+          10.0
+        ]
+      ],
+      "actual": [
+        [
+          80.0,
+          60.0,
+          6.0
+        ],
+        [
+          160.0,
+          120.0,
+          10.0
+        ]
+      ]
+    }
+  ]
+}
