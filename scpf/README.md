@@ -460,6 +460,12 @@ Use `shape.at(x, y, z)` for absolute placement. For direct CSG geometry,
 `solid.hole` features.
 The old positional constructor and 3D-suffixed aliases are not supported.
 
+For Python control flow around optional geometry, use
+`is_positive(value)` to test the current value of a CAD dimension without
+replacing the symbolic `Parameter` or `Expression` used by geometry.
+`pv(value)` remains the lower-level escape hatch when an actual Python
+number is required.
+
 ## Edge and face selection
 
 Use `Edges.VERTICAL` for automatic selection of vertical edges on supported
