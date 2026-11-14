@@ -452,17 +452,6 @@ class Shape:
             raise ValueError("taper inset must be below half the footprint")
         return Shape("tapered_box", (self, from_z, inset))
 
-    def extrude(self, distance, *, direction=Direction.POSITIVE):
-        if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
-            raise ValueError("extrude() requires a 2D profile")
-        try:
-            direction = Direction(direction)
-        except ValueError as exc:
-            raise ValueError(
-                "extrude direction must be POSITIVE, NEGATIVE or SYMMETRIC"
-            ) from exc
-        return Shape("extrusion", (self, distance, direction.value))
-
     def fillet(self, radius, *, edges=Edges.VERTICAL):
         if edges is not Edges.VERTICAL and not isinstance(edges, _ProfileEdgeSelection):
             if not isinstance(edges, (list, tuple)) or not edges:
