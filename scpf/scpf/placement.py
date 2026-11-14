@@ -41,12 +41,6 @@ def _base_rectangle(shape):
             raise ValueError("anchoring requires one rectangular Sketch profile")
         (width, depth), offset = profiles[0][0].data, profiles[0][1]
         return (width, depth), (offset[0], offset[1], 0), height
-    if shape.kind == "extrusion":
-        child, height, direction = shape.data
-        dimensions, origin, old_height = _base_rectangle(child)
-        if old_height is not None or direction != "positive":
-            raise ValueError("anchoring requires one positive XY base extrusion")
-        return dimensions, origin, height
     if shape.kind in ("fillet", "chamfer", "shell"):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
