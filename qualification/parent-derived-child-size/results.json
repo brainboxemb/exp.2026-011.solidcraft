@@ -94,7 +94,7 @@
       "ParentBlock"
     ],
     "feature": 4,
-    "ms": 0.9826539999999999,
+    "ms": 0.771684,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -186,7 +186,7 @@
       "DerivedChild"
     ],
     "feature": 8,
-    "ms": 0.32775099999999996,
+    "ms": 0.193783,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
