@@ -1,61 +1,62 @@
 {
   "bodies": [
     {
-      "area_mm2": 43200.0,
+      "area_mm2": 42265.84565773242,
       "bbox": {
         "max": [
-          60.0,
-          40.0,
-          60.0
+          60.00000000000001,
+          40.00000000000001,
+          60.00000000000003
         ],
         "min": [
-          -60.0,
+          -60.000000000000014,
           -40.0,
-          0.0
+          -9.365091704158134e-15
         ]
       },
       "center_of_mass": [
-        0.0,
-        0.0,
-        30.0
+        -2.3037717244535025e-15,
+        8.43128909529027e-15,
+        29.99999999999999
       ],
       "closed": true,
       "density_g_cm3": 1.29,
-      "edges": 12,
+      "edges": 24,
       "face_types": {
+        "cylinder": 4,
         "plane": 6
       },
-      "faces": 6,
+      "faces": 10,
       "kernel": {
-        "edges": 12,
-        "faces": 6,
+        "edges": 24,
+        "faces": 10,
         "shells": 1,
-        "vertices": 8
+        "vertices": 16
       },
-      "mass_g": 743.04,
+      "mass_g": 738.7850050610076,
       "material": "Default",
       "name": "CaseBlock",
-      "vertices": 8,
-      "volume_mm3": 576000.0
+      "vertices": 16,
+      "volume_mm3": 572701.5543108586
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
-          -30.0,
-          -10.0,
-          64.0
+          -40.0,
+          -20.0,
+          20.0
         ],
         "min": [
           -64.0,
           -44.0,
-          30.0
+          -4.0
         ]
       },
       "center_of_mass": [
-        -50.81984126984127,
-        -30.81984126984127,
-        50.33587301587301
+        -54.09123222748815,
+        -34.09123222748815,
+        6.204739336492891
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -70,30 +71,30 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
           64.0,
-          -10.0,
-          64.0
+          -20.0,
+          20.0
         ],
         "min": [
-          30.0,
+          40.0,
           -44.0,
-          30.0
+          -4.0
         ]
       },
       "center_of_mass": [
-        50.33587301587301,
-        -30.81984126984127,
-        50.81984126984127
+        54.09123222748815,
+        -34.09123222748815,
+        6.204739336492891
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -108,30 +109,30 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner (FlightcaseCorner:2)",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
           64.0,
-          -10.0,
-          30.0
+          44.0,
+          20.0
         ],
         "min": [
-          30.0,
-          -44.0,
+          40.0,
+          20.0,
           -4.0
         ]
       },
       "center_of_mass": [
-        50.81984126984127,
-        -30.81984126984127,
-        9.664126984126984
+        54.09123222748815,
+        34.09123222748815,
+        6.204739336492891
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -146,30 +147,68 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner (FlightcaseCorner:3)",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
-          -30.0,
-          -10.0,
-          30.0
+          -40.0,
+          44.0,
+          20.0
+        ],
+        "min": [
+          -64.0,
+          20.0,
+          -4.0
+        ]
+      },
+      "center_of_mass": [
+        -54.09123222748815,
+        34.09123222748815,
+        6.204739336492891
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 36,
+      "face_types": {
+        "plane": 15
+      },
+      "faces": 15,
+      "kernel": {
+        "edges": 36,
+        "faces": 15,
+        "shells": 1,
+        "vertices": 23
+      },
+      "mass_g": 6.80475,
+      "material": "Default",
+      "name": "FlightcaseCorner (FlightcaseCorner:4)",
+      "vertices": 23,
+      "volume_mm3": 5275.0
+    },
+    {
+      "area_mm2": 3368.0,
+      "bbox": {
+        "max": [
+          -40.0,
+          -20.0,
+          64.0
         ],
         "min": [
           -64.0,
           -44.0,
-          -4.0
+          40.0
         ]
       },
       "center_of_mass": [
-        -50.33587301587301,
-        -30.81984126984127,
-        9.18015873015873
+        -54.09123222748815,
+        -34.09123222748815,
+        53.79526066350711
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -184,52 +223,52 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
-      "material": "Default",
-      "name": "FlightcaseCorner (FlightcaseCorner:4)",
-      "vertices": 23,
-      "volume_mm3": 11812.5
-    },
-    {
-      "area_mm2": 6848.0,
-      "bbox": {
-        "max": [
-          -30.0,
-          44.0,
-          64.0
-        ],
-        "min": [
-          -64.0,
-          10.0,
-          30.0
-        ]
-      },
-      "center_of_mass": [
-        -50.33587301587301,
-        30.81984126984127,
-        50.81984126984127
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 36,
-      "face_types": {
-        "plane": 15
-      },
-      "faces": 15,
-      "kernel": {
-        "edges": 36,
-        "faces": 15,
-        "shells": 1,
-        "vertices": 23
-      },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner (FlightcaseCorner:5)",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
+      "bbox": {
+        "max": [
+          64.0,
+          -20.0,
+          64.0
+        ],
+        "min": [
+          40.0,
+          -44.0,
+          40.0
+        ]
+      },
+      "center_of_mass": [
+        54.09123222748815,
+        -34.09123222748815,
+        53.79526066350711
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 36,
+      "face_types": {
+        "plane": 15
+      },
+      "faces": 15,
+      "kernel": {
+        "edges": 36,
+        "faces": 15,
+        "shells": 1,
+        "vertices": 23
+      },
+      "mass_g": 6.80475,
+      "material": "Default",
+      "name": "FlightcaseCorner (FlightcaseCorner:6)",
+      "vertices": 23,
+      "volume_mm3": 5275.0
+    },
+    {
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
           64.0,
@@ -237,15 +276,15 @@
           64.0
         ],
         "min": [
-          30.0,
-          10.0,
-          30.0
+          40.0,
+          20.0,
+          40.0
         ]
       },
       "center_of_mass": [
-        50.81984126984127,
-        30.81984126984127,
-        50.33587301587301
+        54.09123222748815,
+        34.09123222748815,
+        53.79526066350711
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -260,68 +299,30 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
-      "material": "Default",
-      "name": "FlightcaseCorner (FlightcaseCorner:6)",
-      "vertices": 23,
-      "volume_mm3": 11812.5
-    },
-    {
-      "area_mm2": 6848.0,
-      "bbox": {
-        "max": [
-          64.0,
-          44.0,
-          30.0
-        ],
-        "min": [
-          30.0,
-          10.0,
-          -4.0
-        ]
-      },
-      "center_of_mass": [
-        50.33587301587301,
-        30.81984126984127,
-        9.18015873015873
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 36,
-      "face_types": {
-        "plane": 15
-      },
-      "faces": 15,
-      "kernel": {
-        "edges": 36,
-        "faces": 15,
-        "shells": 1,
-        "vertices": 23
-      },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner (FlightcaseCorner:7)",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     },
     {
-      "area_mm2": 6848.0,
+      "area_mm2": 3368.0,
       "bbox": {
         "max": [
-          -30.0,
+          -40.0,
           44.0,
-          30.0
+          64.0
         ],
         "min": [
           -64.0,
-          10.0,
-          -4.0
+          20.0,
+          40.0
         ]
       },
       "center_of_mass": [
-        -50.81984126984127,
-        30.81984126984127,
-        9.664126984126984
+        -54.09123222748815,
+        34.09123222748815,
+        53.79526066350711
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -336,11 +337,11 @@
         "shells": 1,
         "vertices": 23
       },
-      "mass_g": 15.238125,
+      "mass_g": 6.80475,
       "material": "Default",
       "name": "FlightcaseCorner (FlightcaseCorner:8)",
       "vertices": 23,
-      "volume_mm3": 11812.5
+      "volume_mm3": 5275.0
     }
   ],
   "body_count": 9,
@@ -392,7 +393,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.22579,
+      "ms": 0.18913600000000003,
       "name": "CaseBlock footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -406,7 +407,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.750058,
+      "ms": 0.814201,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -419,8 +420,22 @@
         "truncated": false
       },
       "error": null,
-      "id": 7,
-      "ms": 0.19358099999999998,
+      "id": 5,
+      "ms": 55.615255000000005,
+      "name": "Fillet1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 0.245051,
       "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
@@ -433,8 +448,8 @@
         "truncated": false
       },
       "error": null,
-      "id": 8,
-      "ms": 4.7743009999999995,
+      "id": 9,
+      "ms": 4.85476,
       "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
@@ -447,8 +462,8 @@
         "truncated": false
       },
       "error": null,
-      "id": 9,
-      "ms": 5.055105,
+      "id": 10,
+      "ms": 6.1612469999999995,
       "name": "Box3",
       "rolled_back": false,
       "suppressed": false,
@@ -457,12 +472,12 @@
     }
   ],
   "total": {
-    "area_mm2": 97984.0,
-    "edges": 300,
-    "faces": 126,
-    "mass_g": 864.9449999999997,
+    "area_mm2": 69209.84565773243,
+    "edges": 312,
+    "faces": 130,
+    "mass_g": 793.2230050610077,
     "open_bodies_skipped": 0,
-    "vertices": 192,
-    "volume_mm3": 670500.0
+    "vertices": 200,
+    "volume_mm3": 614901.5543108586
   }
 }

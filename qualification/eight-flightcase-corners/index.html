@@ -23,18 +23,18 @@
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight flightcase corner protectors expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Eight flightcase corner protectors expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
   <h3>Test goal</h3>
-  <p>Qualify a genuinely three-dimensional corner component: one neutral trihedral protector reused on all eight outside corners of a rectangular case.</p>
+  <p>Qualify a genuinely three-dimensional corner component: one smaller trihedral protector reused on all eight corners of the same rounded reference case used by the 4/8 profile progression.</p>
   <h3>Pass criteria</h3>
-  <p>Each protector physically wraps its case corner on three adjacent faces. All eight occurrences remain instances of one component definition and point inward along the case edges.</p>
-  <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every fixed-size protector must follow its moved topology corner without rerunning Python. The protector itself must not resize.</p>
+  <p>Each of the eight case corners is wrapped by three connected plates: one horizontal and two vertical. The protector outer envelope is a fixed 24x24x24 mm at every corner.</p>
+  <h3>Mutation criterion</h3><p>Change case_width/depth/height from 120x80x60 to 160x120x90 mm; all protectors follow the moved corners without rerunning Python, while every protector remains exactly 24x24x24 mm.</p>
 </section>
 
 <section class="panel">
   <h2>2. Implementation under test</h2>
   <h3>Fixture source</h3>
-  <pre><code>&quot;&quot;&quot;Eight trihedral flightcase corner protectors around one case.&quot;&quot;&quot;
+  <pre><code>&quot;&quot;&quot;Eight trihedral flightcase corner protectors around one rounded case.&quot;&quot;&quot;
 
 
 class CaseBlock:
@@ -43,14 +43,17 @@ class CaseBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
 class FlightcaseCorner:
     # Fixed representative dimensions for this orientation qualification.
-    # They deliberately do not depend on CaseBlock dimensions; testing a
-    # child component sized from its parent belongs in a separate case.
-    ARM = 30.0
+    # These values intentionally do not depend on CaseBlock dimensions.
+    ARM = 20.0
     THICKNESS = 4.0
     OVERLAP = 0.5
 
@@ -59,31 +62,25 @@ class FlightcaseCorner:
         t = self.THICKNESS
         overlap = self.OVERLAP
 
-        # Neutral outside corner cap for FRONT_TOP_LEFT.
-        # The case extends inward along +X, +Y and -Z.
-        #
-        # Three square plates meet at the same corner:
-        #   top plate   : +X / +Y, thickness outward in +Z
-        #   front plate : +X / -Z, thickness outward in -Y
-        #   side plate  : +Y / -Z, thickness outward in -X
-        top = Box(arm, arm, t).move(
+        # Neutral protector for a bottom/front/left corner.
+        # The case interior is local +X/+Y/+Z; the three plates sit outside
+        # the bottom, front and left faces and overlap slightly inside the cap.
+        bottom = Box(arm, arm, t).move(
             x=arm / 2,
             y=arm / 2,
-            z=t / 2,
+            z=-t / 2,
         )
-        # A tiny internal overlap keeps the three native box joins robust.
-        # It is entirely inside the cap and does not change the outer bounds.
         front = Box(arm, t + overlap, arm + overlap).move(
             x=arm / 2,
             y=(overlap - t) / 2,
-            z=(overlap - arm) / 2,
+            z=(arm - overlap) / 2,
         )
         side = Box(t + overlap, arm, arm + overlap).move(
             x=(overlap - t) / 2,
             y=arm / 2,
-            z=(overlap - arm) / 2,
+            z=(arm - overlap) / 2,
         )
-        return top + front + side
+        return bottom + front + side
 
 
 class EightFlightcaseCorners:
@@ -99,412 +96,480 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral trihedral protector is reused at all eight topology
-        # corners. Its three plates must always wrap the outside corner and
-        # extend inward over the three adjacent case faces.
-        corner_frame = AnchorFrame(
+        case_xy = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.BACK,
-            x=Anchor.DOWN,
+            z=Anchor.UP,
+            x=Anchor.RIGHT,
         )
 
-        front_top_left = protector.copy().attach(
-            case, parent=Anchor.FRONT_TOP_LEFT, child=corner_frame,
+        # These child frames are rotations of one neutral trihedral component.
+        # Bottom corners keep local +Z upward; top corners map local +Z down
+        # so the same protector wraps inward while its bottom plate becomes
+        # the outside top plate.
+        bottom_front_left = AnchorFrame(z=Anchor.DOWN, x=Anchor.RIGHT)
+        bottom_front_right = AnchorFrame(z=Anchor.DOWN, x=Anchor.FRONT)
+        bottom_rear_right = AnchorFrame(z=Anchor.DOWN, x=Anchor.LEFT)
+        bottom_rear_left = AnchorFrame(z=Anchor.DOWN, x=Anchor.BACK)
+
+        top_front_left = AnchorFrame(z=Anchor.UP, x=Anchor.BACK)
+        top_front_right = AnchorFrame(z=Anchor.UP, x=Anchor.LEFT)
+        top_rear_right = AnchorFrame(z=Anchor.UP, x=Anchor.FRONT)
+        top_rear_left = AnchorFrame(z=Anchor.UP, x=Anchor.RIGHT)
+
+        half_width = self.case_width / 2
+        half_depth = self.case_depth / 2
+
+        def placed(x, y, z, child_frame):
+            return protector.copy().attach(
+                case,
+                parent=case_xy,
+                child=child_frame,
+                offset=(x, y),
+                gap=z,
+            )
+
+        front_bottom_left = placed(
+            -half_width, -half_depth, 0, bottom_front_left,
         )
-        front_top_right = protector.copy().attach(
-            case, parent=Anchor.FRONT_TOP_RIGHT, child=corner_frame,
+        front_bottom_right = placed(
+            half_width, -half_depth, 0, bottom_front_right,
         )
-        front_bottom_right = protector.copy().attach(
-            case, parent=Anchor.FRONT_BOTTOM_RIGHT, child=corner_frame,
+        rear_bottom_right = placed(
+            half_width, half_depth, 0, bottom_rear_right,
         )
-        front_bottom_left = protector.copy().attach(
-            case, parent=Anchor.FRONT_BOTTOM_LEFT, child=corner_frame,
+        rear_bottom_left = placed(
+            -half_width, half_depth, 0, bottom_rear_left,
         )
-        rear_top_left = protector.copy().attach(
-            case, parent=Anchor.BACK_TOP_LEFT, child=corner_frame,
+
+        front_top_left = placed(
+            -half_width, -half_depth, self.case_height, top_front_left,
         )
-        rear_top_right = protector.copy().attach(
-            case, parent=Anchor.BACK_TOP_RIGHT, child=corner_frame,
+        front_top_right = placed(
+            half_width, -half_depth, self.case_height, top_front_right,
         )
-        rear_bottom_right = protector.copy().attach(
-            case, parent=Anchor.BACK_BOTTOM_RIGHT, child=corner_frame,
+        rear_top_right = placed(
+            half_width, half_depth, self.case_height, top_rear_right,
         )
-        rear_bottom_left = protector.copy().attach(
-            case, parent=Anchor.BACK_BOTTOM_LEFT, child=corner_frame,
+        rear_top_left = placed(
+            -half_width, half_depth, self.case_height, top_rear_left,
         )
 
         return (
             case
-            + front_top_left + front_top_right
-            + front_bottom_right + front_bottom_left
-            + rear_top_left + rear_top_right
+            + front_bottom_left + front_bottom_right
             + rear_bottom_right + rear_bottom_left
+            + front_top_left + front_top_right
+            + rear_top_right + rear_top_left
         )
 
 
 EightFlightcaseCorners()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>FlightcaseCorner + AnchorFrame(z=Anchor.BACK, x=Anchor.DOWN) attached to all eight FRONT/BACK corner anchors.</code></p>
+  <p><code>FlightcaseCorner + one assembly-local XY AnchorFrame; symbolic X/Y offsets and Z gap place eight occurrences, while explicit child AnchorFrames provide the eight 3D orientations.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One CaseBlock plus eight occurrences of one trihedral protector made from three fixed-size 30 mm plates. The reusable component owns only its local outside-corner geometry; its size is deliberately independent of the case dimensions in this qualification.</p>
+  <p>One rounded CaseBlock plus eight occurrences of one neutral trihedral protector. The protector is built from three fixed 20 mm plates with 4 mm thickness and deliberately does not derive its size from the case.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid topology-backed corner joints place one shared 3D component at the eight case corners. No occurrence-specific geometry or frozen world-coordinate placement is authored.</p>
+  <p>Eight planar joint.create relationships use one parent XY frame instead of sharp topology corners. Bottom occurrences use z=0; top occurrences use case_height. Child frame z/x directions rotate the same trihedral component onto the correct three outside faces.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:1 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:1&quot;,
         &quot;point&quot;: [
-          -60.0,
-          -40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          0.0,
           0.0,
           -1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
+      &quot;values&quot;: [
+        &quot;-(case_width / 2)&quot;,
+        &quot;-(case_depth / 2)&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:2 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:2&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          -1.0
         ],
         &quot;x&quot;: [
           0.0,
-          0.0,
-          -1.0
+          -1.0,
+          0.0
         ]
       },
+      &quot;values&quot;: [
+        &quot;case_width / 2&quot;,
+        &quot;-(case_depth / 2)&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:3 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          -40.0,
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:3&quot;,
         &quot;point&quot;: [
-          60.0,
-          -40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          0.0,
           0.0,
           -1.0
+        ],
+        &quot;x&quot;: [
+          -1.0,
+          0.0,
+          0.0
         ]
       },
+      &quot;values&quot;: [
+        &quot;case_width / 2&quot;,
+        &quot;case_depth / 2&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:4 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          -40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          -40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          -60.0,
-          -40.0,
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:4&quot;,
         &quot;point&quot;: [
-          -60.0,
-          -40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          -1.0
         ],
         &quot;x&quot;: [
           0.0,
-          0.0,
-          -1.0
+          1.0,
+          0.0
         ]
       },
+      &quot;values&quot;: [
+        &quot;-(case_width / 2)&quot;,
+        &quot;case_depth / 2&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:5 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          -60.0,
-          40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:5&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           0.0,
-          0.0,
-          -1.0
+          1.0,
+          0.0
         ]
       },
+      &quot;offset&quot;: &quot;case_height&quot;,
+      &quot;values&quot;: [
+        &quot;-(case_width / 2)&quot;,
+        &quot;-(case_depth / 2)&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:6 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          40.0,
-          60.0
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:6&quot;,
         &quot;point&quot;: [
-          60.0,
-          40.0,
-          60.0
+          0.0,
+          0.0,
+          0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
+          -1.0,
           0.0,
-          0.0,
-          -1.0
+          0.0
         ]
       },
+      &quot;offset&quot;: &quot;case_height&quot;,
+      &quot;values&quot;: [
+        &quot;case_width / 2&quot;,
+        &quot;-(case_depth / 2)&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:7 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          60.0,
-          40.0,
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:7&quot;,
         &quot;point&quot;: [
-          60.0,
-          40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           0.0,
-          0.0,
-          -1.0
+          -1.0,
+          0.0
         ]
       },
+      &quot;offset&quot;: &quot;case_height&quot;,
+      &quot;values&quot;: [
+        &quot;case_width / 2&quot;,
+        &quot;case_depth / 2&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   },
   {
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
-      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;type&quot;: &quot;planar&quot;,
       &quot;name&quot;: &quot;Attach FlightcaseCorner:8 to CaseBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;CaseBlock:1&quot;,
-        &quot;edge&quot;: [
-          -60.0,
-          40.0,
-          30.0
-        ],
-        &quot;on&quot;: [
+        &quot;point&quot;: [
           0.0,
-          40.0,
-          30.0
+          0.0,
+          0.0
         ],
-        &quot;corner&quot;: [
-          -60.0,
-          40.0,
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
           0.0
         ]
       },
       &quot;b&quot;: {
         &quot;occurrence&quot;: &quot;FlightcaseCorner:8&quot;,
         &quot;point&quot;: [
-          -60.0,
-          40.0,
+          0.0,
+          0.0,
           0.0
         ],
         &quot;z&quot;: [
           0.0,
-          1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
+          1.0,
           0.0,
-          0.0,
-          -1.0
+          0.0
         ]
       },
+      &quot;offset&quot;: &quot;case_height&quot;,
+      &quot;values&quot;: [
+        &quot;-(case_width / 2)&quot;,
+        &quot;case_depth / 2&quot;,
+        0.0
+      ],
       &quot;angle&quot;: 0.0
     }
   }
@@ -512,7 +577,7 @@ EightFlightcaseCorners()
   </details>
 </section>
 
-<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120x90</strong> · 9 bodies · <a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>case_width</code></td><td>160.0</td></tr><tr><td><code>case_depth</code></td><td>120.0</td></tr><tr><td><code>case_height</code></td><td>90.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>CaseBlock</td><td><code>[-80, -60, 0]</code></td><td><code>[80, 60, 90]</code></td></tr><tr><td>FlightcaseCorner</td><td><code>[-84, -64, 60]</code></td><td><code>[-50, -30, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:2)</td><td><code>[50, -64, 60]</code></td><td><code>[84, -30, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:3)</td><td><code>[50, -64, -4]</code></td><td><code>[84, -30, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:4)</td><td><code>[-84, -64, -4]</code></td><td><code>[-50, -30, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:5)</td><td><code>[-84, 30, 60]</code></td><td><code>[-50, 64, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:6)</td><td><code>[50, 30, 60]</code></td><td><code>[84, 64, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:7)</td><td><code>[50, 30, -4]</code></td><td><code>[84, 64, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:8)</td><td><code>[-84, 30, -4]</code></td><td><code>[-50, 64, 30]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 9 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>case_width</code></td><td>120.0</td></tr><tr><td><code>case_depth</code></td><td>80.0</td></tr><tr><td><code>case_height</code></td><td>60.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>CaseBlock</td><td><code>[-60, -40, 0]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>FlightcaseCorner</td><td><code>[-64, -44, 30]</code></td><td><code>[-30, -10, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:2)</td><td><code>[30, -44, 30]</code></td><td><code>[64, -10, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:3)</td><td><code>[30, -44, -4]</code></td><td><code>[64, -10, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:4)</td><td><code>[-64, -44, -4]</code></td><td><code>[-30, -10, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:5)</td><td><code>[-64, 10, 30]</code></td><td><code>[-30, 44, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:6)</td><td><code>[30, 10, 30]</code></td><td><code>[64, 44, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:7)</td><td><code>[30, 10, -4]</code></td><td><code>[64, 44, 30]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:8)</td><td><code>[-64, 10, -4]</code></td><td><code>[-30, 44, 30]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;CaseBlock&quot;, &quot;min&quot;: [-60, -40, 0], &quot;max&quot;: [60, 40, 60]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-64, -44, 30], &quot;max&quot;: [-30, -10, 64]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [30, -44, 30], &quot;max&quot;: [64, -10, 64]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [30, -44, -4], &quot;max&quot;: [64, -10, 30]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-64, -44, -4], &quot;max&quot;: [-30, -10, 30]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-64, 10, 30], &quot;max&quot;: [-30, 44, 64]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [30, 10, 30], &quot;max&quot;: [64, 44, 64]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [30, 10, -4], &quot;max&quot;: [64, 44, 30]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-64, 10, -4], &quot;max&quot;: [-30, 44, 30]}]</code></td><td><code>[{&quot;min&quot;: [-60.0, -40.0, 0.0], &quot;max&quot;: [60.0, 40.0, 60.0]}, {&quot;min&quot;: [-64.0, -44.0, 30.0], &quot;max&quot;: [-30.0, -10.0, 64.0]}, {&quot;min&quot;: [30.0, -44.0, 30.0], &quot;max&quot;: [64.0, -10.0, 64.0]}, {&quot;min&quot;: [30.0, -44.0, -4.0], &quot;max&quot;: [64.0, -10.0, 30.0]}, {&quot;min&quot;: [-64.0, -44.0, -4.0], &quot;max&quot;: [-30.0, -10.0, 30.0]}, {&quot;min&quot;: [-64.0, 10.0, 30.0], &quot;max&quot;: [-30.0, 44.0, 64.0]}, {&quot;min&quot;: [30.0, 10.0, 30.0], &quot;max&quot;: [64.0, 44.0, 64.0]}, {&quot;min&quot;: [30.0, 10.0, -4.0], &quot;max&quot;: [64.0, 44.0, 30.0]}, {&quot;min&quot;: [-64.0, 10.0, -4.0], &quot;max&quot;: [-30.0, 44.0, 30.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>nine bodies: case plus eight flightcase corners</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>eight fixed 34x34x34 protector envelopes</td><td><code>[[34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0]]</code></td><td><code>[[34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0]]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;CaseBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 90]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-84, -64, 60], &quot;max&quot;: [-50, -30, 94]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [50, -64, 60], &quot;max&quot;: [84, -30, 94]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [50, -64, -4], &quot;max&quot;: [84, -30, 30]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-84, -64, -4], &quot;max&quot;: [-50, -30, 30]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-84, 30, 60], &quot;max&quot;: [-50, 64, 94]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [50, 30, 60], &quot;max&quot;: [84, 64, 94]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [50, 30, -4], &quot;max&quot;: [84, 64, 30]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-84, 30, -4], &quot;max&quot;: [-50, 64, 30]}]</code></td><td><code>[{&quot;min&quot;: [-80.0, -60.0, 0.0], &quot;max&quot;: [80.0, 60.0, 90.0]}, {&quot;min&quot;: [-84.0, -64.0, 60.0], &quot;max&quot;: [-50.0, -30.0, 94.0]}, {&quot;min&quot;: [50.0, -64.0, 60.0], &quot;max&quot;: [84.0, -30.0, 94.0]}, {&quot;min&quot;: [50.0, -64.0, -4.0], &quot;max&quot;: [84.0, -30.0, 30.0]}, {&quot;min&quot;: [-84.0, -64.0, -4.0], &quot;max&quot;: [-50.0, -30.0, 30.0]}, {&quot;min&quot;: [-84.0, 30.0, 60.0], &quot;max&quot;: [-50.0, 64.0, 94.0]}, {&quot;min&quot;: [50.0, 30.0, 60.0], &quot;max&quot;: [84.0, 64.0, 94.0]}, {&quot;min&quot;: [50.0, 30.0, -4.0], &quot;max&quot;: [84.0, 64.0, 30.0]}, {&quot;min&quot;: [-84.0, 30.0, -4.0], &quot;max&quot;: [-50.0, 64.0, 30.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>nine bodies after saved-design mutation</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>case dimensions changed</td><td><code>{&quot;case_width&quot;: 160.0, &quot;case_depth&quot;: 120.0, &quot;case_height&quot;: 90.0}</code></td><td><code>{&quot;case_width&quot;: 160.0, &quot;case_depth&quot;: 120.0, &quot;case_height&quot;: 90.0}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>protector envelopes remain fixed after parent resize</td><td><code>[[34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0]]</code></td><td><code>[[34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0], [34.0, 34.0, 34.0]]</code></td></tr></tbody></table></section>
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 160x120x90</strong> · 9 bodies · <a href="measurements-size-160x120x90.json">measurements-size-160x120x90.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>case_width</code></td><td>160.0</td></tr><tr><td><code>case_depth</code></td><td>120.0</td></tr><tr><td><code>case_height</code></td><td>90.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>CaseBlock</td><td><code>[-80, -60, -3.61232e-15]</code></td><td><code>[80, 60, 90]</code></td></tr><tr><td>FlightcaseCorner</td><td><code>[-84, -64, -4]</code></td><td><code>[-60, -40, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:2)</td><td><code>[60, -64, -4]</code></td><td><code>[84, -40, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:3)</td><td><code>[60, 40, -4]</code></td><td><code>[84, 64, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:4)</td><td><code>[-84, 40, -4]</code></td><td><code>[-60, 64, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:5)</td><td><code>[-84, -64, 70]</code></td><td><code>[-60, -40, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:6)</td><td><code>[60, -64, 70]</code></td><td><code>[84, -40, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:7)</td><td><code>[60, 40, 70]</code></td><td><code>[84, 64, 94]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:8)</td><td><code>[-84, 40, 70]</code></td><td><code>[-60, 64, 94]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 9 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>case_width</code></td><td>120.0</td></tr><tr><td><code>case_depth</code></td><td>80.0</td></tr><tr><td><code>case_height</code></td><td>60.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>CaseBlock</td><td><code>[-60, -40, -9.36509e-15]</code></td><td><code>[60, 40, 60]</code></td></tr><tr><td>FlightcaseCorner</td><td><code>[-64, -44, -4]</code></td><td><code>[-40, -20, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:2)</td><td><code>[40, -44, -4]</code></td><td><code>[64, -20, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:3)</td><td><code>[40, 20, -4]</code></td><td><code>[64, 44, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:4)</td><td><code>[-64, 20, -4]</code></td><td><code>[-40, 44, 20]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:5)</td><td><code>[-64, -44, 40]</code></td><td><code>[-40, -20, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:6)</td><td><code>[40, -44, 40]</code></td><td><code>[64, -20, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:7)</td><td><code>[40, 20, 40]</code></td><td><code>[64, 44, 64]</code></td></tr><tr><td>FlightcaseCorner (FlightcaseCorner:8)</td><td><code>[-64, 20, 40]</code></td><td><code>[-40, 44, 64]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;CaseBlock&quot;, &quot;min&quot;: [-60, -40, 0], &quot;max&quot;: [60, 40, 60]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-64, -44, -4], &quot;max&quot;: [-40, -20, 20]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [40, -44, -4], &quot;max&quot;: [64, -20, 20]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [40, 20, -4], &quot;max&quot;: [64, 44, 20]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-64, 20, -4], &quot;max&quot;: [-40, 44, 20]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-64, -44, 40], &quot;max&quot;: [-40, -20, 64]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [40, -44, 40], &quot;max&quot;: [64, -20, 64]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [40, 20, 40], &quot;max&quot;: [64, 44, 64]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-64, 20, 40], &quot;max&quot;: [-40, 44, 64]}]</code></td><td><code>[{&quot;min&quot;: [-60.000000000000014, -40.0, -9.365091704158134e-15], &quot;max&quot;: [60.00000000000001, 40.00000000000001, 60.00000000000003]}, {&quot;min&quot;: [-64.0, -44.0, -4.0], &quot;max&quot;: [-40.0, -20.0, 20.0]}, {&quot;min&quot;: [40.0, -44.0, -4.0], &quot;max&quot;: [64.0, -20.0, 20.0]}, {&quot;min&quot;: [40.0, 20.0, -4.0], &quot;max&quot;: [64.0, 44.0, 20.0]}, {&quot;min&quot;: [-64.0, 20.0, -4.0], &quot;max&quot;: [-40.0, 44.0, 20.0]}, {&quot;min&quot;: [-64.0, -44.0, 40.0], &quot;max&quot;: [-40.0, -20.0, 64.0]}, {&quot;min&quot;: [40.0, -44.0, 40.0], &quot;max&quot;: [64.0, -20.0, 64.0]}, {&quot;min&quot;: [40.0, 20.0, 40.0], &quot;max&quot;: [64.0, 44.0, 64.0]}, {&quot;min&quot;: [-64.0, 20.0, 40.0], &quot;max&quot;: [-40.0, 44.0, 64.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>nine bodies: case plus eight flightcase corners</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>eight fixed 24x24x24 protector envelopes</td><td><code>[[24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0]]</code></td><td><code>[[24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0]]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;CaseBlock&quot;, &quot;min&quot;: [-80, -60, 0], &quot;max&quot;: [80, 60, 90]}, {&quot;label&quot;: &quot;front bottom-left&quot;, &quot;min&quot;: [-84, -64, -4], &quot;max&quot;: [-60, -40, 20]}, {&quot;label&quot;: &quot;front bottom-right&quot;, &quot;min&quot;: [60, -64, -4], &quot;max&quot;: [84, -40, 20]}, {&quot;label&quot;: &quot;rear bottom-right&quot;, &quot;min&quot;: [60, 40, -4], &quot;max&quot;: [84, 64, 20]}, {&quot;label&quot;: &quot;rear bottom-left&quot;, &quot;min&quot;: [-84, 40, -4], &quot;max&quot;: [-60, 64, 20]}, {&quot;label&quot;: &quot;front top-left&quot;, &quot;min&quot;: [-84, -64, 70], &quot;max&quot;: [-60, -40, 94]}, {&quot;label&quot;: &quot;front top-right&quot;, &quot;min&quot;: [60, -64, 70], &quot;max&quot;: [84, -40, 94]}, {&quot;label&quot;: &quot;rear top-right&quot;, &quot;min&quot;: [60, 40, 70], &quot;max&quot;: [84, 64, 94]}, {&quot;label&quot;: &quot;rear top-left&quot;, &quot;min&quot;: [-84, 40, 70], &quot;max&quot;: [-60, 64, 94]}]</code></td><td><code>[{&quot;min&quot;: [-80.00000000000001, -60.0, -3.612322827805546e-15], &quot;max&quot;: [80.00000000000001, 60.00000000000003, 90.00000000000004]}, {&quot;min&quot;: [-84.0, -64.0, -4.0], &quot;max&quot;: [-60.0, -40.0, 20.0]}, {&quot;min&quot;: [60.0, -64.0, -4.0], &quot;max&quot;: [84.0, -40.0, 20.0]}, {&quot;min&quot;: [60.0, 40.0, -4.0], &quot;max&quot;: [84.0, 64.0, 20.0]}, {&quot;min&quot;: [-84.0, 40.0, -4.0], &quot;max&quot;: [-60.0, 64.0, 20.0]}, {&quot;min&quot;: [-84.0, -64.0, 70.0], &quot;max&quot;: [-60.0, -40.0, 94.0]}, {&quot;min&quot;: [60.0, -64.0, 70.0], &quot;max&quot;: [84.0, -40.0, 94.0]}, {&quot;min&quot;: [60.0, 40.0, 70.0], &quot;max&quot;: [84.0, 64.0, 94.0]}, {&quot;min&quot;: [-84.0, 40.0, 70.0], &quot;max&quot;: [-60.0, 64.0, 94.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>nine bodies after saved-design mutation</td><td><code>9</code></td><td><code>9</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>case dimensions changed</td><td><code>{&quot;case_width&quot;: 160.0, &quot;case_depth&quot;: 120.0, &quot;case_height&quot;: 90.0}</code></td><td><code>{&quot;case_width&quot;: 160.0, &quot;case_depth&quot;: 120.0, &quot;case_height&quot;: 90.0}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>protector envelopes remain fixed after parent resize</td><td><code>[[24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0]]</code></td><td><code>[[24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0], [24.0, 24.0, 24.0]]</code></td></tr></tbody></table></section>
 
 <section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Eight flightcase corner protectors iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Eight flightcase corner protectors iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Eight flightcase corner protectors iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Eight flightcase corner protectors front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Eight flightcase corner protectors front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Eight flightcase corner protectors front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Eight flightcase corner protectors right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Eight flightcase corner protectors right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Eight flightcase corner protectors right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
 
@@ -529,7 +594,7 @@ EightFlightcaseCorners()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The case demonstrates topology-backed 3D corner attachment with one reusable component definition.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The same local trihedral component is reoriented by the assembly at all eight semantic corners.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Assembly-local frames keep placement associative even though the visible case corners are rounded and no sharp corner edge exists.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> One neutral trihedral part is reused in eight orientations; position/orientation belongs to the assembly rather than the component.</li></ul>
     </div>
   </div>
 </section>

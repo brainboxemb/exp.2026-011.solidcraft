@@ -1,5 +1,5 @@
 {
-  "library_commit": "ec5424f1ea91b5ee37dce9d49e7b133c8eb0b979",
+  "library_commit": "aff665951db73f8f634ab4b6434b1f29d8dd0c6e",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -1492,7 +1492,7 @@
       "title": "Eight flightcase corner protectors",
       "status": "PASS",
       "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
-      "command_count": 38,
+      "command_count": 31,
       "native_evidence": [
         "results.json",
         "measurements-size-160x120x90.json",
@@ -1533,7 +1533,7 @@
         },
         "q2": {
           "status": "pass",
-          "commands": 38,
+          "commands": 31,
           "evidence": [
             "q2-python-qualification-tests.txt",
             "q2-command-contract.tsv"

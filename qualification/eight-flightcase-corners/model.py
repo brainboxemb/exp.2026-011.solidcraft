@@ -1,4 +1,4 @@
-"""Eight trihedral flightcase corner protectors around one case."""
+"""Eight trihedral flightcase corner protectors around one rounded case."""
 
 
 class CaseBlock:
@@ -7,14 +7,17 @@ class CaseBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
 class FlightcaseCorner:
     # Fixed representative dimensions for this orientation qualification.
-    # They deliberately do not depend on CaseBlock dimensions; testing a
-    # child component sized from its parent belongs in a separate case.
-    ARM = 30.0
+    # These values intentionally do not depend on CaseBlock dimensions.
+    ARM = 20.0
     THICKNESS = 4.0
     OVERLAP = 0.5
 
@@ -23,31 +26,25 @@ class FlightcaseCorner:
         t = self.THICKNESS
         overlap = self.OVERLAP
 
-        # Neutral outside corner cap for FRONT_TOP_LEFT.
-        # The case extends inward along +X, +Y and -Z.
-        #
-        # Three square plates meet at the same corner:
-        #   top plate   : +X / +Y, thickness outward in +Z
-        #   front plate : +X / -Z, thickness outward in -Y
-        #   side plate  : +Y / -Z, thickness outward in -X
-        top = Box(arm, arm, t).move(
+        # Neutral protector for a bottom/front/left corner.
+        # The case interior is local +X/+Y/+Z; the three plates sit outside
+        # the bottom, front and left faces and overlap slightly inside the cap.
+        bottom = Box(arm, arm, t).move(
             x=arm / 2,
             y=arm / 2,
-            z=t / 2,
+            z=-t / 2,
         )
-        # A tiny internal overlap keeps the three native box joins robust.
-        # It is entirely inside the cap and does not change the outer bounds.
         front = Box(arm, t + overlap, arm + overlap).move(
             x=arm / 2,
             y=(overlap - t) / 2,
-            z=(overlap - arm) / 2,
+            z=(arm - overlap) / 2,
         )
         side = Box(t + overlap, arm, arm + overlap).move(
             x=(overlap - t) / 2,
             y=arm / 2,
-            z=(overlap - arm) / 2,
+            z=(arm - overlap) / 2,
         )
-        return top + front + side
+        return bottom + front + side
 
 
 class EightFlightcaseCorners:
@@ -63,46 +60,70 @@ class EightFlightcaseCorners:
         )
         protector = FlightcaseCorner()
 
-        # One neutral trihedral protector is reused at all eight topology
-        # corners. Its three plates must always wrap the outside corner and
-        # extend inward over the three adjacent case faces.
-        corner_frame = AnchorFrame(
+        case_xy = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.BACK,
-            x=Anchor.DOWN,
+            z=Anchor.UP,
+            x=Anchor.RIGHT,
         )
 
-        front_top_left = protector.copy().attach(
-            case, parent=Anchor.FRONT_TOP_LEFT, child=corner_frame,
+        # These child frames are rotations of one neutral trihedral component.
+        # Bottom corners keep local +Z upward; top corners map local +Z down
+        # so the same protector wraps inward while its bottom plate becomes
+        # the outside top plate.
+        bottom_front_left = AnchorFrame(z=Anchor.DOWN, x=Anchor.RIGHT)
+        bottom_front_right = AnchorFrame(z=Anchor.DOWN, x=Anchor.FRONT)
+        bottom_rear_right = AnchorFrame(z=Anchor.DOWN, x=Anchor.LEFT)
+        bottom_rear_left = AnchorFrame(z=Anchor.DOWN, x=Anchor.BACK)
+
+        top_front_left = AnchorFrame(z=Anchor.UP, x=Anchor.BACK)
+        top_front_right = AnchorFrame(z=Anchor.UP, x=Anchor.LEFT)
+        top_rear_right = AnchorFrame(z=Anchor.UP, x=Anchor.FRONT)
+        top_rear_left = AnchorFrame(z=Anchor.UP, x=Anchor.RIGHT)
+
+        half_width = self.case_width / 2
+        half_depth = self.case_depth / 2
+
+        def placed(x, y, z, child_frame):
+            return protector.copy().attach(
+                case,
+                parent=case_xy,
+                child=child_frame,
+                offset=(x, y),
+                gap=z,
+            )
+
+        front_bottom_left = placed(
+            -half_width, -half_depth, 0, bottom_front_left,
         )
-        front_top_right = protector.copy().attach(
-            case, parent=Anchor.FRONT_TOP_RIGHT, child=corner_frame,
+        front_bottom_right = placed(
+            half_width, -half_depth, 0, bottom_front_right,
         )
-        front_bottom_right = protector.copy().attach(
-            case, parent=Anchor.FRONT_BOTTOM_RIGHT, child=corner_frame,
+        rear_bottom_right = placed(
+            half_width, half_depth, 0, bottom_rear_right,
         )
-        front_bottom_left = protector.copy().attach(
-            case, parent=Anchor.FRONT_BOTTOM_LEFT, child=corner_frame,
+        rear_bottom_left = placed(
+            -half_width, half_depth, 0, bottom_rear_left,
         )
-        rear_top_left = protector.copy().attach(
-            case, parent=Anchor.BACK_TOP_LEFT, child=corner_frame,
+
+        front_top_left = placed(
+            -half_width, -half_depth, self.case_height, top_front_left,
         )
-        rear_top_right = protector.copy().attach(
-            case, parent=Anchor.BACK_TOP_RIGHT, child=corner_frame,
+        front_top_right = placed(
+            half_width, -half_depth, self.case_height, top_front_right,
         )
-        rear_bottom_right = protector.copy().attach(
-            case, parent=Anchor.BACK_BOTTOM_RIGHT, child=corner_frame,
+        rear_top_right = placed(
+            half_width, half_depth, self.case_height, top_rear_right,
         )
-        rear_bottom_left = protector.copy().attach(
-            case, parent=Anchor.BACK_BOTTOM_LEFT, child=corner_frame,
+        rear_top_left = placed(
+            -half_width, half_depth, self.case_height, top_rear_left,
         )
 
         return (
             case
-            + front_top_left + front_top_right
-            + front_bottom_right + front_bottom_left
-            + rear_top_left + rear_top_right
+            + front_bottom_left + front_bottom_right
             + rear_bottom_right + rear_bottom_left
+            + front_top_left + front_top_right
+            + rear_top_right + rear_top_left
         )
 
 
