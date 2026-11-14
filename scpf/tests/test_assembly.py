@@ -1600,6 +1600,26 @@ class AssemblyTests(unittest.TestCase):
         self.assertEqual([joint["type"] for joint in joints], ["rigid", "rigid"])
         self.assertEqual([joint["angle"] for joint in joints], [0, 90])
 
+    def test_attach_seed_includes_current_offset_and_gap_values(self):
+        from scpf.core import Anchor, Box, Parameter
+        from scpf.model_objects import ModelDefinition, ModelInstance
+
+        definition = ModelDefinition("Block", (), Box(40, 30, 10))
+        base = ModelInstance(definition)
+        gap = Parameter("gap", 5)
+
+        child = ModelInstance(definition).attach(
+            base,
+            parent=Anchor.TOP,
+            child=Anchor.BOTTOM,
+            offset=(10, -2),
+            gap=gap,
+        )
+
+        self.assertEqual(child.translation, (10.0, -2.0, 15.0))
+        self.assertIs(child.attachment.gap, gap)
+        self.assertEqual(child.attachment.offset, (10, -2))
+
     def test_parametric_attach_keeps_in_plane_offset_expression(self):
         from scpf.assembly import compile_assembly
         from scpf.core import Anchor, Box, Parameter
@@ -1614,6 +1634,7 @@ class AssemblyTests(unittest.TestCase):
             child=Anchor.LEFT,
             offset=(0, -wood + 12),
         )
+        self.assertEqual(right.translation, (40.0, 0.0, -6.0))
 
         commands = compile_assembly(left + right, "ParametricOffset")["commands"]
         parameter = next(
