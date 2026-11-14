@@ -99,7 +99,7 @@ def compile_base(shape, name):
                        "origin": (-length / 2, -width / 2, 0)}
 
     if shape.kind == "sketch_base_extrusion":
-        sketch_name, plane, origin, profiles, distance, direction = shape.data
+        sketch_name, plane, origin, plane_offset, profiles, distance, direction = shape.data
         _require_positive(distance, "sketch extrusion distance")
         if plane not in ("XY", "XZ", "YZ"):
             raise ModelError("standalone Sketch requires an XY, XZ or YZ plane")
@@ -108,7 +108,10 @@ def compile_base(shape, name):
         profile, (ox, oy) = profiles[0]
         if origin is not None:
             raise ModelError("standalone Sketch origin is not supported yet")
-        sketch = [_command("sketch.create", plane=plane, name=sketch_name)]
+        sketch_params = {"plane": plane, "name": sketch_name}
+        if plane_offset is not None:
+            sketch_params["offset"] = command_value(plane_offset)
+        sketch = [_command("sketch.create", **sketch_params)]
         if profile.kind == "rectangle":
             width, depth = profile.data
             _require_positive(width, "rectangle width")
@@ -137,7 +140,8 @@ def compile_base(shape, name):
                 closed=True, ids=list(ids) if ids is not None else
                 [f"edge_{i}" for i in range(len(points))]))
             meta = {"profile": "polygon", "sketch_plane": plane,
-                    "sketch_plane_offset": 0, "thickness": distance,
+                    "sketch_plane_offset": plane_offset if plane_offset is not None else 0,
+                    "thickness": distance,
                     "extrusion_direction": direction,
                     "profile_points": points, "profile_ids": ids}
         else:
