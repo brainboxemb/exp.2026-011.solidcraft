@@ -53,10 +53,141 @@ empty one before the model batch is sent. Leave it off when you deliberately
 want to add commands to the current design. Neither form saves the design.
 The CAD project also provides a separate native CLI qualification workflow.</p>
 <h2 id="next">Where to continue</h2>
-<p>Read <a href="../model-objects/">Model objects</a> to understand the difference
-between a shape definition and a placed component occurrence. The
-<a href="../transformations/">Transformations</a> chapter covers coordinate axes,
-rotation and the common “my panel is lying flat” problem.</p>""",
+<p>Continue with <a href="../mental-model/">How to think about Forge</a>.
+That chapter introduces parts, components, occurrences, assemblies, anchors
+and attachments without assuming CAD experience. The later chapters then
+describe the Python API in detail.</p>""",
+    },
+    {
+        "slug": "mental-model",
+        "title": "How to think about Forge",
+        "summary": "The small set of concepts you need before learning the API.",
+        "body": """
+<h2 id="goal">Start with the thing you want to build</h2>
+<p>You do not need to think in SolidCraft commands, transformation matrices or
+joint internals to use Forge. Start by asking a simpler question:
+<strong>what are the physical parts, and how are they related?</strong></p>
+<p>For a small frame with four corner brackets, for example, you might have:</p>
+<ul>
+<li>two side boards;</li>
+<li>a top and bottom board;</li>
+<li>one reusable corner-bracket design;</li>
+<li>eight placed copies of that bracket.</li>
+</ul>
+<p>Forge turns that description into native SolidCraft geometry and assembly
+relationships.</p>
+
+<h2 id="model">Model: one thing you can build</h2>
+<p>A <strong>model</strong> is a Python class with a <code>build()</code>
+method. It describes one piece of geometry or one composed result.</p>
+""" + code("""class Plate:
+    width = 100.0
+    height = 60.0
+    thickness = 10.0
+
+    def build(self):
+        return Box(self.width, self.height, self.thickness)""") + """
+<p>The public dimensions can become editable CAD parameters. You normally do
+not need to write SolidCraft commands yourself.</p>
+
+<h2 id="component">Component: a reusable physical part</h2>
+<p>A <strong>component</strong> is a model that represents a reusable part.
+Think of a bracket, panel, beam or PCB enclosure. If you need the same part
+five times, you still want one definition of the part.</p>
+""" + code("""@component
+class Bracket:
+    def build(self):
+        return Box(40, 20, 10)""") + """
+<p>Changing the component definition changes what every occurrence of that
+part represents.</p>
+
+<h2 id="occurrence">Occurrence: one placed copy of a component</h2>
+<p>An <strong>occurrence</strong> is one use of a component inside a larger
+design. It has its own position and orientation, while sharing the same
+component definition.</p>
+""" + code("""first = Bracket()
+second = first.copy().move(x=80)""") + """
+<p>This is similar to putting two identical purchased brackets on a workbench:
+they are two physical instances of the same part design.</p>
+
+<h2 id="assembly">Assembly: parts that belong together</h2>
+<p>An <strong>assembly</strong> combines component occurrences into a larger
+construction. An assembly is not one fused blob of geometry. The parts remain
+separate, reusable objects with relationships between them.</p>
+""" + code("""@assembly
+class Frame:
+    def build(self):
+        left = SideBoard()
+        right = left.copy().move(x=800)
+        return left + right""") + """
+<p>An assembly can itself expose useful attachment locations for something
+that will be mounted to the complete frame.</p>
+
+<h2 id="anchor">Anchor: a meaningful place and direction</h2>
+<p>An <strong>anchor</strong> tells Forge where a relationship belongs.
+A simple anchor can mean “the right face” or “the front-top-left corner”.
+More advanced anchors can also describe orientation.</p>
+""" + code("""parent=Anchor.FRONT_TOP_LEFT
+child=Anchor.BACK_TOP_RIGHT""") + """
+<p>This is more useful than saying “put it at X=412, Y=-6, Z=362”, because a
+semantic anchor can keep referring to the same face or corner when dimensions
+change.</p>
+<div class="notice"><strong>Important:</strong> an anchor should be thought of
+as a local attachment reference, not merely a world XYZ point. For oriented
+attachments, its local directions matter too.</div>
+
+<h2 id="attachment">Attachment: the relationship between two anchors</h2>
+<p><code>attach()</code> says that one component occurrence belongs relative
+to another one. You choose a parent anchor and a child anchor; Forge converts
+that relationship into the appropriate native SolidCraft representation.</p>
+""" + code("""bracket = Bracket().attach(
+    side,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)""") + """
+<p>From a user point of view, the important statement is simply:
+“attach this bracket here using this side of the bracket.” You should not need
+to design the underlying SolidCraft joint yourself.</p>
+
+<h2 id="relationship-values">Gap, offset and orientation are different ideas</h2>
+<p>Once two anchors are related, additional values may refine that
+relationship. Keep these concepts separate:</p>
+<table><thead><tr><th>Concept</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>gap</code></td><td>Distance along the attachment normal</td></tr>
+<tr><td><code>offset=(u,v)</code></td><td>Displacement inside the local attachment plane</td></tr>
+<tr><td>orientation / frame</td><td>Which way the attached part faces</td></tr>
+<tr><td>world move</td><td>Explicit placement in assembly X/Y/Z coordinates</td></tr>
+</tbody></table>
+<p>These are intentionally not interchangeable. A local attachment offset is
+not automatically a world-X or world-Z movement.</p>
+
+<h2 id="parameters">Parameters: dimensions you expect to edit later</h2>
+<p>A parameter is a value that should remain meaningful after the Python model
+has been compiled. If a frame width changes from 800 to 900 mm, an attached
+part should ideally follow its semantic anchor rather than keep an old
+hard-coded coordinate.</p>
+<p>This is why Forge qualification tests do more than check the initial
+picture: important cases also edit the saved SolidCraft parameters and verify
+that relationships still solve correctly.</p>
+
+<h2 id="solidcraft">What SolidCraft does underneath</h2>
+<p>Forge is a description and compilation layer. SolidCraft remains the CAD
+engine. Forge may lower your intent to sketches, extrusions, component
+occurrences, joint origins or native joints, but those are implementation
+details unless you are debugging or extending Forge.</p>
+<p>The later chapters explain those details where they are useful. For normal
+model writing, keep the simpler hierarchy in mind:</p>
+""" + code("""model
+  └─ component definition
+       └─ occurrences
+            └─ assembly
+                 └─ anchors
+                      └─ attachments""") + """
+<h2 id="next">Where to go next</h2>
+<p>Read <a href="../model-objects/">Model objects and parameters</a> for the
+Python rules behind models and components, then
+<a href="../components/">Components and assemblies</a> for placement,
+anchors and attachments.</p>""",
     },
     {
         "slug": "model-objects",
@@ -152,6 +283,149 @@ At present one shared definition cannot be split among different groups.</p>
 <p>Associative attachment is supported for a limited set of rectangular
 component faces. General mates, arbitrary face queries and rotational
 constraints are not implemented as a complete assembly solver.</p>""",
+    },
+    {
+        "slug": "parameters-associativity",
+        "title": "Parameters and associativity",
+        "summary": "Understand which values stay editable and which relationships must follow later dimension changes.",
+        "body": """
+<h2 id="scenario">The practical question</h2>
+<p>Suppose a frame is 800 mm wide today, but you expect to change it to
+900 mm later. You want two things to happen:</p>
+<ul>
+<li>the frame geometry becomes wider;</li>
+<li>parts attached to the right side move with that side.</li>
+</ul>
+<p>The first is a <strong>parameter</strong> problem. The second is an
+<strong>associativity</strong> problem. They are related, but they are not the
+same thing.</p>
+
+<h2 id="parameter">Parameter: a value that should remain editable</h2>
+<p>For a plain Forge model, public lower-case numeric attributes are intended
+to become editable SolidCraft parameters:</p>
+""" + code("""class Frame:
+    width = 800.0
+    height = 400.0
+    wood_thickness = 12.0""") + """
+<p>Those values are part of the model's design intent. They are different from
+temporary Python calculations used only while building the command plan.</p>
+
+<h2 id="intent">Make parameter intent visible in the name</h2>
+<table><thead><tr><th>Python name</th><th>Meaning</th><th>Native editable parameter?</th></tr></thead><tbody>
+<tr><td><code>width = 800.0</code></td><td>Design dimension</td><td>Yes</td></tr>
+<tr><td><code>_panel_pitch = 160.0</code></td><td>Forge/build-time helper</td><td>No</td></tr>
+<tr><td><code>PANEL_COUNT = 5</code></td><td>Fixed constant</td><td>No</td></tr>
+</tbody></table>
+<p>This naming convention prevents a Python implementation detail from looking
+like a promise that the value remains editable in the saved CAD design.</p>
+
+<h2 id="expressions">Derived dimensions should remain symbolic where possible</h2>
+<p>Simple arithmetic on parameters can stay symbolic:</p>
+""" + code("""class Frame:
+    width = 800.0
+
+    def build(self):
+        half_width = self.width / 2
+        return SideBoard().move(x=half_width)""") + """
+<p>However, not every Python operation can or should become a CAD expression.
+If Forge needs a concrete number for Python control flow, it may use
+<code>pv()</code>. At that moment the value is being evaluated during the
+Forge run.</p>
+
+<h2 id="flattening">A parameter can be accidentally flattened</h2>
+<p>This is the important trap: geometry may remain parameterized while one
+placement is calculated only once in Python.</p>
+""" + code("""x = pv(self.width) / 2
+right = SideBoard().move(x=x)""") + """
+<p>If the saved SolidCraft parameter later changes, that one-time placement
+cannot automatically know that it should move too. Forge emits
+<code>ModelParameterWarning</code> for supported cases where a public parameter
+is partly flattened in this way.</p>
+<div class="notice"><strong>Rule of thumb:</strong> if you expect a relationship
+to update after editing the saved SolidCraft design, the relationship itself
+must be represented natively or symbolically. Keeping only the source
+dimension parametric is not enough.</div>
+
+<h2 id="associativity">Associativity: relationships that survive edits</h2>
+<p>An associative model expresses <em>why</em> geometry belongs somewhere.
+For example:</p>
+""" + code("""block = Block().attach(
+    base,
+    parent=Anchor.RIGHT,
+    child=Anchor.LEFT,
+)""") + """
+<p>If the parent width changes, the semantic <code>RIGHT</code> face should
+move and the child should follow it. The attachment is therefore more useful
+than calculating the original right-face X coordinate once.</p>
+
+<h2 id="gap">Parametric relationship values</h2>
+<p>A relationship value can itself be a parameter:</p>
+""" + code("""class Mount:
+    gap = 10.0
+
+    def build(self):
+        return Block().attach(
+            base,
+            parent=Anchor.RIGHT,
+            child=Anchor.LEFT,
+            gap=self.gap,
+        )""") + """
+<p>For supported attachments, Forge keeps the gap as a native joint value.
+Changing the saved <code>gap</code> parameter can then re-solve the
+relationship without rerunning Python.</p>
+
+<h2 id="shared">Share one design parameter across components</h2>
+<p>Several reusable parts may depend on one assembly-level design value. Pass
+the symbolic parent parameter into those components instead of creating
+unrelated duplicates:</p>
+""" + code("""bottom = BottomBoard(corner_radius=self.corner_radius)
+roof = RoofBoard(corner_radius=self.corner_radius)
+bracket = CornerBracket(
+    inside_corner_radius=self.corner_radius,
+)""") + """
+<p>All three uses express one design decision: the same corner radius.</p>
+
+<h2 id="build-time">Not every useful value should be parametric</h2>
+<p>Some values genuinely belong only to the Forge build process. Examples can
+include a loop count, an intermediate lookup, a temporary placement used to
+construct a non-associative reference model or a choice between two source
+branches.</p>
+<p>Use an underscore or constant when the model is intentionally rebuilt from
+Python after changing that value. Do not pretend every Python number is a
+native CAD parameter.</p>
+
+<h2 id="verification">How Forge proves associativity</h2>
+<p>Initial geometry is not enough evidence. A parametric qualification case
+should:</p>
+<ol>
+<li>build and save the native SolidCraft design;</li>
+<li>measure the initial result;</li>
+<li>change the native parameter with <code>parameters.change</code>;</li>
+<li>evaluate the saved design again without rerunning the Python model;</li>
+<li>measure that the dependent geometry or attachment moved correctly.</li>
+</ol>
+<p>This is qualification level Q5 in the Forge test system.</p>
+
+<h2 id="example">Example: wood thickness and a bracket</h2>
+<p>If a bracket must stay aligned when <code>wood_thickness</code> changes,
+there are two independent questions:</p>
+<ul>
+<li>does SolidCraft still know the new board geometry?</li>
+<li>is the bracket relationship expressed in a way that follows that geometry
+and preserves any intended local correction?</li>
+</ul>
+<p>Changing the parameter successfully while the bracket remains frozen is
+therefore a failed associative use case, even if the board itself updates.</p>
+
+<h2 id="decision">A simple decision guide</h2>
+<table><thead><tr><th>You want...</th><th>Use...</th></tr></thead><tbody>
+<tr><td>A dimension editable in SolidCraft</td><td>Public model parameter</td></tr>
+<tr><td>A fixed source/build constant</td><td><code>UPPER_CASE</code></td></tr>
+<tr><td>A Python-only helper/input</td><td><code>_lower_case</code></td></tr>
+<tr><td>A child to follow a face/corner after edits</td><td>Associative anchor + attachment</td></tr>
+<tr><td>A relationship distance editable later</td><td>Supported symbolic/native relationship value</td></tr>
+</tbody></table>
+""",
     },
     {
         "slug": "geometry",
@@ -384,36 +658,97 @@ Do not assume every curved or lofted surface supports it.</p>""",
     {
         "slug": "components",
         "title": "Components and assemblies",
-        "summary": "Reusable definitions, occurrence transforms, grouping and attachments.",
+        "summary": "Describe reusable parts, placed copies and how they belong together.",
         "body": """
-<h2 id="definition">One definition, several occurrences</h2>
-""" + code("""from scpf import Box, assembly, component
+<h2 id="scenario">Start from a real build</h2>
+<p>Suppose you are making a wooden display frame with eight identical corner
+brackets. You do <strong>not</strong> want to model eight unrelated brackets.
+You want to describe:</p>
+<ul>
+<li>what one bracket looks like;</li>
+<li>where eight physical copies of that bracket are used;</li>
+<li>which boards and brackets together form the frame;</li>
+<li>how each bracket is related to the frame.</li>
+</ul>
+<p>Those four questions correspond directly to Forge's component, occurrence,
+assembly and attachment concepts.</p>
+
+<h2 id="component">Component: the reusable part design</h2>
+<p>A <strong>component</strong> describes one kind of physical part. A bracket,
+panel, side board or PCB enclosure is a good component candidate when you may
+use it more than once or want to edit it independently.</p>
+""" + code("""from scpf import Box, component
 
 @component
-class Beam:
-    length = 100.0
+class CornerBracket:
+    width = 24.0
 
     def build(self):
-        return Box(self.length, 20, 20)
+        return Box(40, self.width, 40)""") + """
+<p>This defines the bracket design. It does not mean that only one bracket
+exists in the final assembly.</p>
+
+<h2 id="occurrence">Occurrence: one physical use of that component</h2>
+<p>Every placed copy is an <strong>occurrence</strong>. Eight brackets in the
+frame means eight occurrences, while all eight still share one component
+definition.</p>
+""" + code("""first = CornerBracket()
+second = first.copy().move(x=100)""") + """
+<p>Think of buying eight identical metal brackets: there is one product design,
+but eight physical pieces. This distinction matters because changing the
+component definition should not require rebuilding eight independent models.</p>
+
+<h2 id="assembly">Assembly: the construction made from parts</h2>
+<p>An <strong>assembly</strong> describes how component occurrences form a
+larger object. The parts remain separate; an assembly is not automatically a
+Boolean union.</p>
+""" + code("""from scpf import assembly
 
 @assembly
-class BeamPair:
-    spacing = 120.0
-
+class Frame:
     def build(self):
-        left = Beam()
-        right = left.copy().move(x=self.spacing)
-        return (left + right).group("Beams")
+        left = SideBoard()
+        right = left.copy().move(x=800)
+        return left + right""") + """
+<p>The assembly can later grow to include top/bottom boards, panels and corner
+brackets without turning those parts into one inseparable solid.</p>
 
-pair = BeamPair()""") + """
-<p><code>@component</code> marks a reusable physical part whose
-<code>build()</code> returns one Shape. <code>@assembly</code> marks a class
-whose <code>build()</code> composes component occurrences. Both decorators
-return callable model objects, so normal model code stays readable as
-<code>Beam()</code> and <code>BeamPair()</code>.</p>
-<p>SolidCraft receives one reusable definition and multiple occurrences.
-A group is a native parent component in the browser, not a Boolean
-fusion of its children.</p>
+<h2 id="move-or-attach">Move or attach?</h2>
+<p>Use <code>move()</code> when you deliberately know an occurrence's assembly
+position. Use <code>attach()</code> when the important fact is a
+<strong>relationship between parts</strong>.</p>
+<table><thead><tr><th>Question</th><th>Prefer</th></tr></thead><tbody>
+<tr><td>“Put this reference object 200 mm to the right.”</td><td><code>move()</code></td></tr>
+<tr><td>“Keep this bracket on the top-left corner of the side board.”</td><td><code>attach()</code></td></tr>
+<tr><td>“Make five copies on a fixed pitch.”</td><td><code>copy().move(...)</code></td></tr>
+<tr><td>“This child must follow a parent face when its size changes.”</td><td><code>attach()</code></td></tr>
+</tbody></table>
+
+<h2 id="simple-attachment">Attachment: describe why the child belongs there</h2>
+""" + code("""bracket = CornerBracket().attach(
+    side_board,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)""") + """
+<p>The parent anchor says <em>where on the side board</em> the relationship
+belongs. The child anchor says <em>which part of the bracket</em> is placed
+there. Forge then maps that intent to SolidCraft.</p>
+<p>From the user's point of view this is the important API contract. Native
+SolidCraft joints are an implementation detail unless you are debugging or
+extending Forge.</p>
+
+<h2 id="component-vs-assembly-knowledge">Where should knowledge live?</h2>
+<p>A reusable component should know facts that are intrinsic to that part.
+An assembly should know facts that only make sense in one construction.</p>
+<table><thead><tr><th>Knowledge</th><th>Best owner</th></tr></thead><tbody>
+<tr><td>Bracket width, hole positions, intrinsic mounting face</td><td>Component</td></tr>
+<tr><td>“This is the frame's front-top-left mounting point”</td><td>Assembly</td></tr>
+<tr><td>One sensor connector's local orientation</td><td>Component anchor</td></tr>
+<tr><td>Which of eight brackets is used in one frame corner</td><td>Assembly</td></tr>
+</tbody></table>
+<p>This separation keeps generic components reusable instead of filling them
+with names and coordinates that only make sense in one project.</p>
+
 <h2 id="component-parameters">Component parameter visibility</h2>
 <p>Public lower-case numeric component defaults are editable automatically.
 Forge namespaces component-local parameter names when necessary, so normal
@@ -583,6 +918,151 @@ per shared definition, expected <code>occurrence.copy</code> counts,
 and native <code>translate</code>, <code>axis</code> and <code>angle</code>
 parameters for rotated occurrences. Separately verify native SolidCraft
 geometry and its bounding dimensions before trusting an assembly image.</p>""",
+    },
+    {
+        "slug": "anchors-attachments",
+        "title": "Anchors and attachments",
+        "summary": "Describe where parts connect, which way they face and which relationship should remain associative.",
+        "body": """
+<h2 id="why">Why anchors exist</h2>
+<p>If you place every part with absolute X/Y/Z coordinates, the model may look
+correct once but becomes fragile as soon as dimensions change. An
+<strong>anchor</strong> gives a part a meaningful attachment reference such as
+“right face”, “front-top-left corner” or a named mounting frame.</p>
+<p>The important idea is not the coordinate value itself. The important idea is
+<strong>what place on the part this coordinate represents</strong> and, for
+oriented attachments, <strong>which way the local attachment frame points</strong>.</p>
+
+<h2 id="parent-child">An attachment relates two anchors</h2>
+<p><code>attach()</code> always describes a relationship between a parent
+reference and a child reference:</p>
+""" + code("""bracket = Bracket().attach(
+    frame,
+    parent=Anchor.FRONT_TOP_LEFT,
+    child=Anchor.BACK_TOP_RIGHT,
+)""") + """
+<p>Read this as:</p>
+<ul>
+<li>find the parent's front-top-left attachment reference;</li>
+<li>take the child's back-top-right attachment reference;</li>
+<li>place the child so those references form the requested relationship.</li>
+</ul>
+<p>You should not need to calculate the final world coordinates yourself.</p>
+
+<h2 id="standard">Standard anchors</h2>
+<p>For simple rectangular parts, Forge provides semantic anchors for common
+faces and corners:</p>
+""" + code("""Anchor.LEFT
+Anchor.RIGHT
+Anchor.TOP
+Anchor.BOTTOM
+Anchor.FRONT
+Anchor.BACK
+
+Anchor.FRONT_TOP_LEFT
+Anchor.FRONT_TOP_RIGHT
+Anchor.FRONT_BOTTOM_LEFT
+Anchor.FRONT_BOTTOM_RIGHT
+Anchor.BACK_TOP_LEFT
+Anchor.BACK_TOP_RIGHT
+Anchor.BACK_BOTTOM_LEFT
+Anchor.BACK_BOTTOM_RIGHT""") + """
+<p>These names describe the part from its own local coordinate system. A corner
+anchor should continue to mean the same corner when a parameter changes the
+part's width or height.</p>
+
+<h2 id="local-frame">An anchor is more than a world point</h2>
+<p>A reliable attachment needs a local frame. Conceptually that frame contains:</p>
+<ul>
+<li>an origin — where the attachment is;</li>
+<li>a normal/direction — which way it faces;</li>
+<li>a rotation reference around that normal.</li>
+</ul>
+<p>This is why the same numeric adjustment can behave differently at different
+corners if it is interpreted in the anchor's local coordinate system. A local
+attachment offset is not automatically a world-X, world-Y or world-Z move.</p>
+<div class="notice"><strong>Design rule:</strong> Forge should make the coordinate
+space explicit. The user should never have to guess whether an offset is local
+to the anchor or global to the assembly.</div>
+
+<h2 id="gap-offset">Gap and offset describe different parts of the relationship</h2>
+<table><thead><tr><th>Value</th><th>Meaning</th><th>Coordinate space</th></tr></thead><tbody>
+<tr><td><code>gap</code></td><td>Distance away from/toward the parent along the attachment normal</td><td>Local normal</td></tr>
+<tr><td><code>offset=(u,v)</code></td><td>Movement within the attachment plane</td><td>Local anchor plane</td></tr>
+<tr><td><code>move(x,y,z)</code></td><td>Explicit occurrence translation</td><td>Assembly/world axes</td></tr>
+<tr><td>orientation</td><td>Which way the child faces</td><td>Anchor/component frame</td></tr>
+</tbody></table>
+<p>Keeping these concepts separate is important for parametric models. If an
+offset is local, Forge should preserve it as a local relationship instead of
+flattening it into one-time global coordinates.</p>
+
+<h2 id="anchorframe">AnchorFrame: define a custom oriented mounting frame</h2>
+<p>Use <code>AnchorFrame</code> when the attachment location is not one of the
+standard faces/corners, or when the orientation must be stated explicitly.</p>
+""" + code("""mount = AnchorFrame(
+    origin=(0, 0, -12),
+    z=BACK,
+    x=DOWN,
+)""") + """
+<p>Here:</p>
+<ul>
+<li><code>origin</code> is the component-local mounting point;</li>
+<li><code>z</code> is the local attachment direction;</li>
+<li><code>x</code> fixes the rotation around that direction.</li>
+<li>For principal axes, use <code>RIGHT</code>, <code>LEFT</code>,
+<code>FRONT</code>, <code>BACK</code>, <code>UP</code> or
+<code>DOWN</code> instead of spelling the vector manually.</li>
+</ul>
+<p>This is conceptually close to BOSL2's attachable model: a useful anchor has
+both a location and local orientation. Forge does not need to copy BOSL2's API,
+but that mental model is a good check for clear semantics.</p>
+
+<h2 id="topology">AnchorTopology: follow real model topology</h2>
+<p>Sometimes a datum should follow a real edge/corner in SolidCraft instead of
+remaining at a free local coordinate. <code>AnchorTopology</code> describes
+selection picks for an edge, adjacent face and optional endpoint.</p>
+""" + code("""mount = AnchorTopology(
+    edge=(-20, 50, 5),
+    on=(-20, 50, 10),
+    corner=(-20, 0, 5),
+)""") + """
+<p>Those coordinates are used to identify native topology. The intention is
+that SolidCraft keeps following that selected edge/corner when the underlying
+dimensions change.</p>
+
+<h2 id="ownership">Who should own an anchor?</h2>
+<p>An anchor belongs where its meaning originates:</p>
+<table><thead><tr><th>Example</th><th>Owner</th></tr></thead><tbody>
+<tr><td>A sensor connector position that is intrinsic to the sensor</td><td>Component</td></tr>
+<tr><td>The top-left mounting datum of one particular frame assembly</td><td>Assembly</td></tr>
+<tr><td>A generic rectangular face or corner</td><td>Standard <code>Anchor</code></td></tr>
+</tbody></table>
+<p>This prevents a generic component from accumulating project-specific names
+and offsets.</p>
+
+<h2 id="parametric">What should happen when dimensions change?</h2>
+<p>A good associative attachment is judged by its behaviour after an edit, not
+only by its initial picture. For example:</p>
+<ol>
+<li>a frame width changes from 800 to 900 mm;</li>
+<li>the semantic top-right corner moves;</li>
+<li>the child attached to that corner follows it;</li>
+<li>its local gap/offset still mean the same thing;</li>
+<li>no Python recompilation is needed for a saved-design parameter edit where
+the relationship is supported natively.</li>
+</ol>
+<p>This is why Forge qualification cases explicitly edit saved SolidCraft
+parameters and measure the native result.</p>
+
+<h2 id="current-boundaries">Current API boundaries</h2>
+<p>Forge currently supports standard rectangular anchors, named
+<code>AnchorFrame</code> values, topology-backed references and native rigid or
+planar attachment lowering for documented cases. It is not yet a general mate
+solver for arbitrary faces and every possible 3D relationship.</p>
+<p>When we add a new attachment capability, its coordinate space and
+associativity must first be described here, then implemented and qualified in
+an isolated use scenario before it is used in a larger CAD project.</p>
+""",
     },
     {
         "slug": "verification",
