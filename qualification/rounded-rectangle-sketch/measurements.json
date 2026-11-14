@@ -1,0 +1,205 @@
+{
+  "bodies": [
+    {
+      "area_mm2": 12051.316147948268,
+      "bbox": {
+        "max": [
+          40.0,
+          30.0,
+          13.000000000000005
+        ],
+        "min": [
+          -40.0,
+          -30.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        1.6740347217192516e-15,
+        -1.1023958282993962e-15,
+        4.333282307834714
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 36,
+      "face_types": {
+        "cylinder": 4,
+        "plane": 11
+      },
+      "faces": 15,
+      "kernel": {
+        "edges": 36,
+        "faces": 15,
+        "shells": 1,
+        "vertices": 24
+      },
+      "mass_g": 43.12238563511902,
+      "material": "Default",
+      "name": "RoundedRectangleSketch",
+      "vertices": 24,
+      "volume_mm3": 33428.20591869691
+    }
+  ],
+  "body_count": 1,
+  "params": [
+    {
+      "comment": "",
+      "error": null,
+      "expression": "80",
+      "model": false,
+      "name": "base_width",
+      "unit": "mm",
+      "value": 80.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "60",
+      "model": false,
+      "name": "base_depth",
+      "unit": "mm",
+      "value": 60.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "5",
+      "model": false,
+      "name": "base_height",
+      "unit": "mm",
+      "value": 5.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "40",
+      "model": false,
+      "name": "pad_width",
+      "unit": "mm",
+      "value": 40.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "30",
+      "model": false,
+      "name": "pad_depth",
+      "unit": "mm",
+      "value": 30.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "5",
+      "model": false,
+      "name": "radius",
+      "unit": "mm",
+      "value": 5.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "8",
+      "model": false,
+      "name": "pad_height",
+      "unit": "mm",
+      "value": 8.0
+    },
+    {
+      "comment": "",
+      "error": null,
+      "expression": "radius",
+      "model": true,
+      "name": "d3",
+      "unit": "mm",
+      "value": 5.0
+    }
+  ],
+  "sketches": [
+    {
+      "curves": 4,
+      "dof": 0,
+      "id": 1,
+      "name": "RoundedRectangleSketch footprint",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    },
+    {
+      "curves": 8,
+      "dof": 0,
+      "id": 3,
+      "name": "Rounded pad",
+      "profiles": 1,
+      "status": "solved",
+      "visible": false
+    }
+  ],
+  "timeline": [
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 1,
+      "ms": 0.17105599999999999,
+      "name": "RoundedRectangleSketch footprint",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 2,
+      "ms": 0.634722,
+      "name": "Extrude1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 3,
+      "ms": 0.234326,
+      "name": "Rounded pad",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "Sketch",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 4,
+      "ms": 22.000597,
+      "name": "Rounded pad",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "ExtrudeFeature",
+      "warning": null
+    }
+  ],
+  "total": {
+    "area_mm2": 12051.316147948268,
+    "edges": 36,
+    "faces": 15,
+    "mass_g": 43.12238563511902,
+    "open_bodies_skipped": 0,
+    "vertices": 24,
+    "volume_mm3": 33428.20591869691
+  }
+}

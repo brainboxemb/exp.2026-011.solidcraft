@@ -1,0 +1,254 @@
+[
+  {
+    "display_value": 80.0,
+    "name": "base_width",
+    "unit": "mm",
+    "value": 80.0
+  },
+  {
+    "display_value": 60.0,
+    "name": "base_depth",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
+    "display_value": 5.0,
+    "name": "base_height",
+    "unit": "mm",
+    "value": 5.0
+  },
+  {
+    "display_value": 40.0,
+    "name": "pad_width",
+    "unit": "mm",
+    "value": 40.0
+  },
+  {
+    "display_value": 30.0,
+    "name": "pad_depth",
+    "unit": "mm",
+    "value": 30.0
+  },
+  {
+    "display_value": 5.0,
+    "name": "radius",
+    "unit": "mm",
+    "value": 5.0
+  },
+  {
+    "display_value": 8.0,
+    "name": "pad_height",
+    "unit": "mm",
+    "value": 8.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "RoundedRectangleSketch footprint",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "RoundedRectangleSketch"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "RoundedRectangleSketch"
+    ],
+    "feature": 2,
+    "ms": 0.702965,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Rounded pad",
+    "projected": null,
+    "sketch": 3
+  },
+  {
+    "arcs": [
+      "a1",
+      "a2",
+      "a3",
+      "a4"
+    ],
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4",
+      "k7",
+      "k8",
+      "k9",
+      "k10",
+      "k11",
+      "k12",
+      "k15",
+      "k16",
+      "k17",
+      "k18",
+      "k19",
+      "k20"
+    ],
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4",
+        "k5",
+        "k6",
+        "k7",
+        "k8",
+        "k10",
+        "k11",
+        "k12",
+        "k13",
+        "k14",
+        "k15",
+        "k16",
+        "k17",
+        "k18",
+        "k19",
+        "k20"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4",
+        "a1",
+        "a2",
+        "a3",
+        "a4"
+      ],
+      "dimensions": [
+        "k9"
+      ],
+      "points": [
+        "corner1",
+        "corner2",
+        "p5",
+        "p6",
+        "a1.center",
+        "p7",
+        "p8",
+        "a2.center",
+        "p9",
+        "p10",
+        "a3.center",
+        "p11",
+        "p12",
+        "a4.center"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4",
+      "a1",
+      "a2",
+      "a3",
+      "a4"
+    ],
+    "param": "d3",
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 3
+  },
+  {
+    "bodies": [
+      "RoundedRectangleSketch"
+    ],
+    "changed_bodies": [
+      "RoundedRectangleSketch"
+    ],
+    "created_bodies": [],
+    "feature": 4,
+    "ms": 22.057565,
+    "name": "Rounded pad",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

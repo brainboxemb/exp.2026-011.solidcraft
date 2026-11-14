@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Explicit rounded-rectangle sketch pad · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Explicit rounded-rectangle sketch pad</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Explicit rounded-rectangle sketch pad</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Explicit rounded-rectangle sketch pad native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Explicit rounded-rectangle sketch pad expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Qualify RoundedRectangle2D in the explicit named Sketch API using true native rounded-rectangle sketch geometry.</p>
+  <h3>Pass criteria</h3>
+  <p>One joined body spans 80 x 60 x 13 mm; the saved Rounded pad sketch remains a single closed profile built from four lines and four circular arcs.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Qualification: RoundedRectangle2D in an explicit named Sketch.&quot;&quot;&quot;
+
+
+class RoundedRectangleSketch:
+    base_width = 80.0
+    base_depth = 60.0
+    base_height = 5.0
+    pad_width = 40.0
+    pad_depth = 30.0
+    radius = 5.0
+    pad_height = 8.0
+
+    def build(self):
+        body = Box(self.base_width, self.base_depth, self.base_height)
+
+        with Sketch(name=&quot;Rounded pad&quot;, on=body) as pad:
+            pad.add(
+                RoundedRectangle2D(
+                    self.pad_width,
+                    self.pad_depth,
+                    self.radius,
+                ),
+                offset=(-20, -15),
+            )
+
+        return body + pad.extrude(self.pad_height)
+
+
+RoundedRectangleSketch()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>with Sketch(name=&#x27;Rounded pad&#x27;, on=body): add(RoundedRectangle2D(...)); body + sketch.extrude(...)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One 80 x 60 x 5 mm base plate plus a centered 40 x 30 mm rounded-rectangle pad with 5 mm corner radius and 8 mm height.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>The named explicit Sketch emits one sketch.rectangle.rounded with true arc corners, then a native solid.extrude(operation=&#x27;join&#x27;).</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>parameters.add
+parameters.add
+parameters.add
+parameters.add
+parameters.add
+parameters.add
+parameters.add
+sketch.create
+sketch.rectangle.two_point
+sketch.finish
+solid.extrude
+sketch.create
+sketch.rectangle.rounded
+sketch.finish
+solid.extrude</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 1 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>base_width</code></td><td>80.0</td></tr><tr><td><code>base_depth</code></td><td>60.0</td></tr><tr><td><code>base_height</code></td><td>5.0</td></tr><tr><td><code>pad_width</code></td><td>40.0</td></tr><tr><td><code>pad_depth</code></td><td>30.0</td></tr><tr><td><code>radius</code></td><td>5.0</td></tr><tr><td><code>pad_height</code></td><td>8.0</td></tr><tr><td><code>d3</code></td><td>5.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>RoundedRectangleSketch</td><td><code>[-40, -30, 0]</code></td><td><code>[40, 30, 13]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;RoundedRectangleSketch&quot;, &quot;min&quot;: [-40, -30, 0], &quot;max&quot;: [40, 30, 13]}]</code></td><td><code>[{&quot;min&quot;: [-40.0, -30.0, 0.0], &quot;max&quot;: [40.0, 30.0, 13.000000000000005]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>single joined rounded-pad body</td><td><code>1</code></td><td><code>1</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>rounded sketch pad bounds</td><td><code>{&quot;min&quot;: [-40, -30, 0], &quot;max&quot;: [40, 30, 13]}</code></td><td><code>{&quot;max&quot;: [40.0, 30.0, 13.000000000000005], &quot;min&quot;: [-40.0, -30.0, 0.0]}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>four true rounded corner faces</td><td><code>4</code></td><td><code>4</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>rounded pad sketch remains one solved eight-curve profile</td><td><code>{&quot;curves&quot;: 8, &quot;profiles&quot;: 1, &quot;status&quot;: &quot;solved&quot;, &quot;dof&quot;: 0}</code></td><td><code>{&quot;curves&quot;: 8, &quot;dof&quot;: 0, &quot;id&quot;: 3, &quot;name&quot;: &quot;Rounded pad&quot;, &quot;profiles&quot;: 1, &quot;status&quot;: &quot;solved&quot;, &quot;visible&quot;: false}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>explicit rounded sketch remains distinct native history</td><td><code>[[&quot;Sketch&quot;, &quot;RoundedRectangleSketch footprint&quot;], [&quot;ExtrudeFeature&quot;, &quot;Extrude1&quot;], [&quot;Sketch&quot;, &quot;Rounded pad&quot;], [&quot;ExtrudeFeature&quot;, &quot;Rounded pad&quot;]]</code></td><td><code>[[&quot;Sketch&quot;, &quot;RoundedRectangleSketch footprint&quot;], [&quot;ExtrudeFeature&quot;, &quot;Extrude1&quot;], [&quot;Sketch&quot;, &quot;Rounded pad&quot;], [&quot;ExtrudeFeature&quot;, &quot;Rounded pad&quot;]]</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Explicit rounded-rectangle sketch pad iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Explicit rounded-rectangle sketch pad iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Explicit rounded-rectangle sketch pad iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Explicit rounded-rectangle sketch pad front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Explicit rounded-rectangle sketch pad front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Explicit rounded-rectangle sketch pad front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Explicit rounded-rectangle sketch pad right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Explicit rounded-rectangle sketch pad right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Explicit rounded-rectangle sketch pad right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Native rounded sketch rectangles preserve true arc geometry and remain inspectable in the saved sketch.</li><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> The explicit Sketch scope keeps 2D profile authoring separate from the subsequent 3D extrusion.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

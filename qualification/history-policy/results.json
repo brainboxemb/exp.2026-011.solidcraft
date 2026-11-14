@@ -81,7 +81,7 @@
       "HistoryPolicyBoss"
     ],
     "feature": 2,
-    "ms": 0.882738,
+    "ms": 0.7890389999999999,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -95,7 +95,7 @@
     ],
     "created_bodies": [],
     "feature": 3,
-    "ms": 93.100911,
+    "ms": 69.78703399999999,
     "name": "Boss1",
     "removed_bodies": [],
     "warning": null
@@ -109,7 +109,7 @@
     ],
     "created_bodies": [],
     "feature": 4,
-    "ms": 58.994347000000005,
+    "ms": 42.687760999999995,
     "name": "Boss2",
     "removed_bodies": [],
     "warning": null
@@ -159,7 +159,7 @@
     ],
     "created_bodies": [],
     "feature": 6,
-    "ms": 65.814578,
+    "ms": 49.089762,
     "name": "Boss",
     "removed_bodies": [],
     "warning": null
@@ -209,7 +209,7 @@
     ],
     "created_bodies": [],
     "feature": 8,
-    "ms": 46.212496,
+    "ms": 33.644545,
     "name": "Boss hole",
     "removed_bodies": [],
     "warning": null
@@ -259,7 +259,7 @@
     ],
     "created_bodies": [],
     "feature": 10,
-    "ms": 160.398773,
+    "ms": 115.469222,
     "name": "Explicit pad",
     "removed_bodies": [],
     "warning": null

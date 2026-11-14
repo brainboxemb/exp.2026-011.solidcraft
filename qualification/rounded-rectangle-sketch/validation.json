@@ -1,0 +1,145 @@
+{
+  "case": "rounded-rectangle-sketch",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "RoundedRectangleSketch",
+          "min": [
+            -40,
+            -30,
+            0
+          ],
+          "max": [
+            40,
+            30,
+            13
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -30.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            30.0,
+            13.000000000000005
+          ]
+        }
+      ]
+    },
+    {
+      "name": "single joined rounded-pad body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "rounded sketch pad bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -40,
+          -30,
+          0
+        ],
+        "max": [
+          40,
+          30,
+          13
+        ]
+      },
+      "actual": {
+        "max": [
+          40.0,
+          30.0,
+          13.000000000000005
+        ],
+        "min": [
+          -40.0,
+          -30.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "four true rounded corner faces",
+      "level": "q4",
+      "status": "pass",
+      "expected": 4,
+      "actual": 4
+    },
+    {
+      "name": "rounded pad sketch remains one solved eight-curve profile",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "curves": 8,
+        "profiles": 1,
+        "status": "solved",
+        "dof": 0
+      },
+      "actual": {
+        "curves": 8,
+        "dof": 0,
+        "id": 3,
+        "name": "Rounded pad",
+        "profiles": 1,
+        "status": "solved",
+        "visible": false
+      }
+    },
+    {
+      "name": "explicit rounded sketch remains distinct native history",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        [
+          "Sketch",
+          "RoundedRectangleSketch footprint"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ],
+        [
+          "Sketch",
+          "Rounded pad"
+        ],
+        [
+          "ExtrudeFeature",
+          "Rounded pad"
+        ]
+      ],
+      "actual": [
+        [
+          "Sketch",
+          "RoundedRectangleSketch footprint"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ],
+        [
+          "Sketch",
+          "Rounded pad"
+        ],
+        [
+          "ExtrudeFeature",
+          "Rounded pad"
+        ]
+      ]
+    }
+  ]
+}

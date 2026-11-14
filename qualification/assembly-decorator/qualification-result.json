@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "assembly-decorator",
   "title": "Imported @assembly subassembly",
-  "source_commit": "4ea22173d1ed260762f05a7d74978894accad726",
+  "source_commit": "cb475437432a08dbde80d4c66c8a37c087f0833d",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
