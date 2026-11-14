@@ -57,7 +57,7 @@ class EightCornerBrackets:
         )
         profile_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.UP,
+            z=Anchor.DOWN,
             x=Anchor.RIGHT,
         )
 
@@ -77,17 +77,17 @@ class EightCornerBrackets:
 
         # Two short vertical angle profiles on each of the four rounded
         # side corners: one at the bottom and one at the top.
-        front_left_bottom = placed(-half_width, -half_depth, 180, 0)
-        front_left_top = placed(-half_width, -half_depth, 180, top_height)
+        front_left_bottom = placed(-half_width, -half_depth, 0, 0)
+        front_left_top = placed(-half_width, -half_depth, 0, top_height)
 
-        front_right_bottom = placed(half_width, -half_depth, 270, 0)
-        front_right_top = placed(half_width, -half_depth, 270, top_height)
+        front_right_bottom = placed(half_width, -half_depth, 90, 0)
+        front_right_top = placed(half_width, -half_depth, 90, top_height)
 
-        rear_right_bottom = placed(half_width, half_depth, 0, 0)
-        rear_right_top = placed(half_width, half_depth, 0, top_height)
+        rear_right_bottom = placed(half_width, half_depth, 180, 0)
+        rear_right_top = placed(half_width, half_depth, 180, top_height)
 
-        rear_left_bottom = placed(-half_width, half_depth, 90, 0)
-        rear_left_top = placed(-half_width, half_depth, 90, top_height)
+        rear_left_bottom = placed(-half_width, half_depth, 270, 0)
+        rear_left_top = placed(-half_width, half_depth, 270, top_height)
 
         return (
             frame
