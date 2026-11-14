@@ -101,26 +101,27 @@ def _unwrap_rectangular_shape(shape):
 def _xz_polygon_rectangle_bounds(shape):
     """Bounds for one rectangular XZ polygon extrusion.
 
-    Polygon2D stores XZ sketch-local coordinates as (x, -z). A positioned
-    XZ profile may shift only its Y sketch plane, matching the native sketch
-    compiler. This helper validates the four corners instead of treating an
-    arbitrary polygon bbox as a rectangular attachment target.
+    Polygon2D stores XZ sketch-local coordinates as (x, -z). The explicit
+    Sketch may shift its XZ plane along world Y through Sketch(offset=...).
+    This helper validates the four corners instead of treating an arbitrary
+    polygon bbox as a rectangular attachment target.
     """
     shape = _unwrap_rectangular_shape(shape)
-    if shape.kind != "extrusion":
-        raise ValueError("not an XZ polygon extrusion")
-    profile, distance, direction = shape.data
-    plane_y = 0.0
-    if profile.kind == "positioned":
-        child, x, y, z = profile.data
-        if child.kind != "polygon" or child.data[1] != "XZ":
-            raise ValueError("not a positioned XZ polygon")
-        if pv(x) != 0 or pv(z) != 0:
-            raise ValueError("positioned XZ rectangles may shift only in Y")
-        plane_y = pv(y)
-        profile = child
+    if shape.kind != "sketch_base_extrusion":
+        raise ValueError("not an XZ Sketch extrusion")
+
+    _, plane, origin, plane_offset, profiles, distance, direction = shape.data
+    if plane != "XZ" or origin is not None:
+        raise ValueError("not a supported XZ Sketch extrusion")
+    if len(profiles) != 1:
+        raise ValueError("XZ attachment rectangle requires one profile")
+
+    profile, profile_offset = profiles[0]
     if profile.kind != "polygon" or profile.data[1] != "XZ":
         raise ValueError("not an XZ polygon")
+    if any(pv(value) != 0 for value in profile_offset):
+        raise ValueError("XZ attachment polygon must use the Sketch origin")
+    plane_y = 0.0 if plane_offset is None else pv(plane_offset)
 
     points = profile.data[0]
     if len(points) != 4:
