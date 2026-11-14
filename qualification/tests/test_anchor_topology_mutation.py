@@ -52,7 +52,13 @@ class AnchorTopologyMutationCommandTests(unittest.TestCase):
             },
         )
         self.assertEqual(joint["b"]["occurrence"], "Marker:1")
-        self.assertEqual(joint["b"]["point"], [0.0, 0.0, 0.0])
+        # attach() pre-positions the child occurrence on the selected
+        # parent corner. The child's local AnchorFrame origin is therefore
+        # already expressed at that world pick in the native joint command.
+        self.assertEqual(joint["b"]["point"], [-20.0, -10.0, 20.0])
+        self.assertEqual(joint["b"]["z"], [0.0, 0.0, 1.0])
+        self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
+        self.assertEqual(joint["angle"], 0.0)
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
