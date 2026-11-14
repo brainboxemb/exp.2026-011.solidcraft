@@ -177,6 +177,43 @@ EXPECTED_VISUAL_BOXES["four-corner-l"] = [
     {"label": "BL arm Y", "min": [-60, 32, -30], "max": [-32, 40, 0]},
 ]
 
+EXPECTED_VISUAL_BOXES["eight-flightcase-corners"] = [
+    {"label": "CaseBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
+
+    # Front top left: three thin plates wrap the X-, Y- and Z-facing sides.
+    {"label": "FTL top", "min": [-60, -40, 60], "max": [-30, -10, 64]},
+    {"label": "FTL front", "min": [-60, -44, 30], "max": [-30, -40, 60]},
+    {"label": "FTL side", "min": [-64, -40, 30], "max": [-60, -10, 60]},
+
+    {"label": "FTR top", "min": [30, -40, 60], "max": [60, -10, 64]},
+    {"label": "FTR front", "min": [30, -44, 30], "max": [60, -40, 60]},
+    {"label": "FTR side", "min": [60, -40, 30], "max": [64, -10, 60]},
+
+    {"label": "FBR bottom", "min": [30, -40, -4], "max": [60, -10, 0]},
+    {"label": "FBR front", "min": [30, -44, 0], "max": [60, -40, 30]},
+    {"label": "FBR side", "min": [60, -40, 0], "max": [64, -10, 30]},
+
+    {"label": "FBL bottom", "min": [-60, -40, -4], "max": [-30, -10, 0]},
+    {"label": "FBL front", "min": [-60, -44, 0], "max": [-30, -40, 30]},
+    {"label": "FBL side", "min": [-64, -40, 0], "max": [-60, -10, 30]},
+
+    {"label": "RTL top", "min": [-60, 10, 60], "max": [-30, 40, 64]},
+    {"label": "RTL rear", "min": [-60, 40, 30], "max": [-30, 44, 60]},
+    {"label": "RTL side", "min": [-64, 10, 30], "max": [-60, 40, 60]},
+
+    {"label": "RTR top", "min": [30, 10, 60], "max": [60, 40, 64]},
+    {"label": "RTR rear", "min": [30, 40, 30], "max": [60, 44, 60]},
+    {"label": "RTR side", "min": [60, 10, 30], "max": [64, 40, 60]},
+
+    {"label": "RBR bottom", "min": [30, 10, -4], "max": [60, 40, 0]},
+    {"label": "RBR rear", "min": [30, 40, 0], "max": [60, 44, 30]},
+    {"label": "RBR side", "min": [60, 10, 0], "max": [64, 40, 30]},
+
+    {"label": "RBL bottom", "min": [-60, 10, -4], "max": [-30, 40, 0]},
+    {"label": "RBL rear", "min": [-60, 40, 0], "max": [-30, 44, 30]},
+    {"label": "RBL side", "min": [-64, 10, 0], "max": [-60, 40, 30]},
+]
+
 EXPECTED_VISUAL_BOXES["eight-corner-brackets"] = [
     {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
 
