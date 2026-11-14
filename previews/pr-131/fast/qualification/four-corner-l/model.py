@@ -75,7 +75,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(-half_width, -half_depth),
             gap=centre_height,
-            angle=0,
+            angle=180,
         )
         front_right = profile.copy().attach(
             frame,
@@ -83,7 +83,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(half_width, -half_depth),
             gap=centre_height,
-            angle=90,
+            angle=270,
         )
         rear_right = profile.copy().attach(
             frame,
@@ -91,7 +91,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(half_width, half_depth),
             gap=centre_height,
-            angle=180,
+            angle=0,
         )
         rear_left = profile.copy().attach(
             frame,
@@ -99,7 +99,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(-half_width, half_depth),
             gap=centre_height,
-            angle=270,
+            angle=90,
         )
 
         return frame + front_left + front_right + rear_right + rear_left
