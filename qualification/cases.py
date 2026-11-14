@@ -369,6 +369,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "rounded-rectangle-sketch",
+        "group": "features",
+        "title": "Explicit rounded-rectangle sketch pad",
+        "intent": "Qualify RoundedRectangle2D in the explicit named Sketch API using true native rounded-rectangle sketch geometry.",
+        "forge_api": "with Sketch(name='Rounded pad', on=body): add(RoundedRectangle2D(...)); body + sketch.extrude(...)",
+        "forge_model": "One 80 x 60 x 5 mm base plate plus a centered 40 x 30 mm rounded-rectangle pad with 5 mm corner radius and 8 mm height.",
+        "lowering": "The named explicit Sketch emits one sketch.rectangle.rounded with true arc corners, then a native solid.extrude(operation='join').",
+        "native_expectation": "One joined body spans 80 x 60 x 13 mm; the saved Rounded pad sketch remains a single closed profile built from four lines and four circular arcs.",
+        "mutation": "No saved-design mutation in this fixture; it isolates explicit rounded-rectangle sketch geometry and native join extrusion.",
+        "references": [
+            ("SolidCraft", "Native rounded sketch rectangles preserve true arc geometry and remain inspectable in the saved sketch."),
+            ("PythonSCAD", "The explicit Sketch scope keeps 2D profile authoring separate from the subsequent 3D extrusion."),
+        ],
+    },
+    {
         "slug": "primitive-csg",
         "group": "fundamentals",
         "title": "Primitive CSG",

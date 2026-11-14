@@ -728,6 +728,60 @@ def validate_circle_negative_extrude(root: Path) -> Validation:
     )
     return v
 
+
+def validate_rounded_rectangle_sketch(root: Path) -> Validation:
+    v = Validation("rounded-rectangle-sketch")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "rounded-rectangle-sketch", tol=0.01)
+    v.check("single joined rounded-pad body", d["body_count"] == 1, 1, d["body_count"])
+    if d["bodies"]:
+        b = d["bodies"][0]
+        v.check(
+            "rounded sketch pad bounds",
+            bbox_close(b, [-40, -30, 0], [40, 30, 13], 0.01),
+            {"min": [-40, -30, 0], "max": [40, 30, 13]},
+            b["bbox"],
+        )
+        v.check(
+            "four true rounded corner faces",
+            b.get("face_types", {}).get("cylinder") == 4,
+            4,
+            b.get("face_types", {}).get("cylinder"),
+        )
+
+    rounded = next(
+        (row for row in d.get("sketches", []) if row.get("name") == "Rounded pad"),
+        None,
+    )
+    v.check(
+        "rounded pad sketch remains one solved eight-curve profile",
+        rounded is not None
+        and rounded.get("curves") == 8
+        and rounded.get("profiles") == 1
+        and rounded.get("status") == "solved"
+        and rounded.get("dof") == 0,
+        {"curves": 8, "profiles": 1, "status": "solved", "dof": 0},
+        rounded,
+    )
+
+    timeline = [
+        (row.get("type"), row.get("name"))
+        for row in d.get("timeline", [])
+    ]
+    expected_timeline = [
+        ("Sketch", "RoundedRectangleSketch footprint"),
+        ("ExtrudeFeature", "Extrude1"),
+        ("Sketch", "Rounded pad"),
+        ("ExtrudeFeature", "Rounded pad"),
+    ]
+    v.check(
+        "explicit rounded sketch remains distinct native history",
+        timeline == expected_timeline,
+        expected_timeline,
+        timeline,
+    )
+    return v
+
 def validate_primitive_csg(root: Path) -> Validation:
     v = Validation("primitive-csg")
     d = load(root / "measurements.json")
@@ -777,6 +831,7 @@ VALIDATORS = {
     "xz-anchor": validate_xz_anchor,
     "history-policy": validate_history_policy,
     "circle-negative-extrude": validate_circle_negative_extrude,
+    "rounded-rectangle-sketch": validate_rounded_rectangle_sketch,
     "primitive-csg": validate_primitive_csg,
     "bracket": validate_bracket,
 }
