@@ -49,7 +49,9 @@ class Plate:
     thickness: float = 10
 
     def build(self):
-        Rectangle2D(self.width, 60).extrude(self.thickness)
+        with Sketch(plane="XY") as sketch:
+            Rectangle2D(self.width, 60)
+        return sketch.extrude(self.thickness)
 
 Plate()
 ```
@@ -61,9 +63,10 @@ on them. That suggests separate objects for reusable `Sketch` /
 `PartDefinition`, ordered `Feature` operations, workplanes and
 later assemblies.
 
-A **domain Sketch** is not a call to the SolidCraft command
-`sketch.create`: it describes a 2D object and local coordinate space.
-The SolidCraft adapter decides how to create and finish an actual sketch.
+A **domain Sketch** is explicit authoring intent, not a raw call to the
+SolidCraft command `sketch.create`. It describes a 2D object and local
+coordinate space; the SolidCraft adapter lowers that scope to the native
+create/draw/finish command sequence.
 
 ### 4. Separate definition from CAD execution
 

@@ -452,17 +452,6 @@ class Shape:
             raise ValueError("taper inset must be below half the footprint")
         return Shape("tapered_box", (self, from_z, inset))
 
-    def extrude(self, distance, *, direction=Direction.POSITIVE):
-        if self.kind not in ("polygon", "rectangle", "circle", "positioned", "union"):
-            raise ValueError("extrude() requires a 2D profile")
-        try:
-            direction = Direction(direction)
-        except ValueError as exc:
-            raise ValueError(
-                "extrude direction must be POSITIVE, NEGATIVE or SYMMETRIC"
-            ) from exc
-        return Shape("extrusion", (self, distance, direction.value))
-
     def fillet(self, radius, *, edges=Edges.VERTICAL):
         if edges is not Edges.VERTICAL and not isinstance(edges, _ProfileEdgeSelection):
             if not isinstance(edges, (list, tuple)) or not edges:
@@ -618,12 +607,14 @@ def Text2D(text, *, height=6.0, font="DejaVu Sans Bold"):
         raise ValueError("Text2D requires a font family")
     if pv(height) <= 0:
         raise ValueError("Text2D height must be positive")
-    return Shape("text", (text, height, font))
+    from .explicit_sketch import register_profile
+    return register_profile(Shape("text", (text, height, font)))
 
 
 def Rectangle2D(width, depth):
     """An XY rectangle with its lower-left corner at the origin."""
-    return Shape("rectangle", (width, depth))
+    from .explicit_sketch import register_profile
+    return register_profile(Shape("rectangle", (width, depth)))
 
 
 def RoundedRectangle2D(width, depth, radius):
@@ -636,14 +627,16 @@ def RoundedRectangle2D(width, depth, radius):
         raise ValueError("RoundedRectangle2D width and depth must be positive")
     if not 0 < pv(radius) * 2 < min(pv(width), pv(depth)):
         raise ValueError("RoundedRectangle2D radius must be below half the shorter side")
-    return Shape("rounded_rectangle", (width, depth, radius))
+    from .explicit_sketch import register_profile
+    return register_profile(Shape("rounded_rectangle", (width, depth, radius)))
 
 
 def Circle2D(*, d=None, r=None):
     """An XY circle with diameter d or radius r."""
     if (d is None) == (r is None):
         raise ValueError("Circle2D requires exactly one of d= or r=")
-    return Shape("circle", (d if d is not None else r * 2,))
+    from .explicit_sketch import register_profile
+    return register_profile(Shape("circle", (d if d is not None else r * 2,)))
 
 
 def Polygon2D(points, *, plane="XY", ids=None, world=False):
@@ -689,7 +682,8 @@ def Polygon2D(points, *, plane="XY", ids=None, world=False):
         if len(set(ids)) != len(ids):
             raise ValueError("polygon ids must be unique")
         ids = tuple(ids)
-    return Shape("polygon", (coordinates, plane, ids))
+    from .explicit_sketch import register_profile
+    return register_profile(Shape("polygon", (coordinates, plane, ids)))
 
 
 def Box(length, width, thickness):

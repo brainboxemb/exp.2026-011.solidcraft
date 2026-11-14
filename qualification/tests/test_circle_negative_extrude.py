@@ -1,4 +1,4 @@
-"""Qualification contract for direct negative Circle2D extrusion."""
+"""Qualification contract for explicit Sketch negative Circle2D extrusion."""
 
 from pathlib import Path
 import unittest
@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class CircleNegativeExtrudeCommandTests(unittest.TestCase):
-    def test_direct_circle_extrude_preserves_negative_direction(self):
+    def test_explicit_circle_sketch_preserves_negative_direction(self):
         commands = run_script(
             ROOT / "examples/circle-negative-extrude/scpf/model.py"
         )["commands"]

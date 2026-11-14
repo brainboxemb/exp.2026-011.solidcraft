@@ -1,7 +1,7 @@
 """Ordered CAD features -> native SolidCraft commands.
 
-Works on Box, Rectangle2D/Circle2D/Polygon2D extrusions. Every feature
-is compiled from its operation, not from a named example such as Plate.
+Works on Box and explicit Sketch extrusions. Every feature is compiled
+from its operation, not from a named example such as Plate.
 """
 from math import isfinite
 from fnmatch import fnmatchcase
@@ -11,19 +11,14 @@ from .compiler import ModelError, _command, _collect, _param_commands, _require_
 from .placement import (
     _anchored_features, _base_rectangle, _combine, _shell_thickness,
 )
-from .sketches import compile_base, _circle_profiles
+from .sketches import compile_base
 
 
 def _is_feature_tree(shape):
     if not isinstance(shape, Shape):
         return False
-    if shape.kind in ("box", "tapered_box"):
+    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
         return True
-    if shape.kind == "extrusion":
-        profile = shape.data[0]
-        if profile.kind == "positioned":
-            profile = profile.data[0]
-        return profile.kind in ("rectangle", "circle", "polygon")
     if shape.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
     return False
@@ -544,43 +539,19 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
         height, diameter = primitive.data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
-        if child.kind != "cylinder":
-            params = dict(height=command_value(height),
-                          diameter=command_value(diameter), base=position,
-                          axis="Z",
-                          operation="join" if shape.kind == "union" else "cut",
-                          targets=[name])
-            if refs:
-                params["references"] = refs
-            operations.append(_command("solid.cylinder", **params))
-            continue
-        (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
-        if shape.kind == "union" and child_anchor is Anchor.BOTTOM:
-            sketch_z = thickness if parent_anchor is Anchor.TOP else origin_z
-            direction = "positive"
-        elif shape.kind == "difference" and child_anchor is Anchor.BOTTOM:
-            anchor_z = origin_z if parent_anchor is Anchor.BOTTOM else thickness
-            sketch_z = (height if pv(anchor_z) == 0
-                        else _combine(anchor_z, height))
-            direction = "negative"
-        else:
-            raise ModelError("single attached Cylinder requires a bottom-anchored join/cut")
-        # Name by CAD feature intent; no example/model-specific switch.
-        label = feature_name or ("Boss" if shape.kind == "union" else "Cut")
-        plane = dict(plane="XY", name=label)
-        if pv(sketch_z):
-            plane["offset"] = command_value(sketch_z)
-        operations.extend([
-            _command("sketch.create", **plane),
-            _command("sketch.circle.center",
-                     center=position[:2], diameter=command_value(diameter)),
-            _command("sketch.finish"),
-            _command("solid.extrude", distance=command_value(height),
-                     direction=direction,
-                     operation="join" if shape.kind == "union" else "cut",
-                     targets=[name],
-                     name=label),
-        ])
+        params = dict(
+            height=command_value(height),
+            diameter=command_value(diameter),
+            base=position,
+            axis="Z",
+            operation="join" if shape.kind == "union" else "cut",
+            targets=[name],
+        )
+        if refs:
+            params["references"] = refs
+        if feature_name is not None:
+            params["name"] = feature_name
+        operations.append(_command("solid.cylinder", **params))
     return operations
 
 
@@ -705,43 +676,8 @@ def _explicit_sketch_commands(shape, original, feature, name):
     return commands
 
 
-def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
-    profiles, distance, direction = cutter.data
-    try:
-        circles = _circle_profiles(profiles)
-    except ValueError as exc:
-        raise ModelError("boolean sketch requires Circle2D profiles") from exc
-    if not circles:
-        raise ModelError("empty circular cutter sketch")
-    z_values = [pv(z) for _, _, z, _ in circles]
-    if len(set(z_values)) != 1:
-        raise ModelError("a sketch cannot mix circles on different Z planes")
-    if shape.kind == "union" and direction != "positive":
-        raise ModelError("joining circles must extrude upward")
-    label = feature_name or ("Join" if shape.kind == "union" else "Cut")
-    plane = dict(plane="XY", name=label)
-    z = circles[0][2]
-    if pv(z):
-        plane["offset"] = command_value(z)
-    result = [_command("sketch.create", **plane)]
-    for x, y, _, diameter in circles:
-        _require_positive(diameter, "circle diameter")
-        result.append(_command("sketch.circle.center",
-                               center=[command_value(x), command_value(y)],
-                               diameter=command_value(diameter)))
-    result.extend([
-        _command("sketch.finish"),
-        _command("solid.extrude", distance=command_value(distance),
-                 direction=direction,
-                 operation="join" if shape.kind == "union" else "cut",
-                 targets=[name],
-                 name=label),
-    ])
-    return result
-
-
 def _to_commands(shape, name):
-    if shape.kind in ("box", "extrusion", "tapered_box"):
+    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
         return compile_base(shape, name)
     if shape.kind == "material_assignment":
         base_shape, material, density, color = shape.data
@@ -813,9 +749,6 @@ def _to_commands(shape, name):
                          axis="Z", operation="join" if shape.kind == "union" else "cut",
                          targets=[name]),
             ], base
-        if added.kind == "extrusion":
-            return steps + _circle_boolean_commands(
-                shape, added, name, feature_name=feature_name), base
         raise ModelError(f"unsupported CAD feature {added.kind}")
     raise ModelError(f"unsupported CAD solid {shape.kind}")
 
@@ -829,8 +762,13 @@ def compile_features(shape, name):
     root = shape
     while root.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         root = root.data[0]
-    if root.kind == "extrusion" and root.data[0].kind == "polygon":
-        parameters = _collect((root.data[1], shape))
+    if root.kind == "sketch_base_extrusion":
+        profiles = root.data[4]
+        profile = profiles[0][0] if len(profiles) == 1 else None
+        if profile is not None and profile.kind == "polygon":
+            parameters = _collect((root.data[5], shape))
+        else:
+            parameters = _collect(shape)
     else:
         parameters = _collect(shape)
     return _param_commands(parameters) + steps

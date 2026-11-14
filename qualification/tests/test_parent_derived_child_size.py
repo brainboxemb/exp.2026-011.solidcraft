@@ -31,34 +31,21 @@ class ParentDerivedChildSizeCommandTests(unittest.TestCase):
             ],
         )
 
-        rectangles = [
+        boxes = [
             row["params"]
             for row in commands
-            if row["command"] == "sketch.rectangle.two_point"
+            if row["command"] == "solid.box"
         ]
-        self.assertEqual(len(rectangles), 2)
+        self.assertEqual(len(boxes), 2)
 
-        expressions = {
-            (row["p0"][0], row["p1"][0], row["p0"][1], row["p1"][1])
-            for row in rectangles
+        dimensions = {
+            (row["length"], row["width"], row["height"])
+            for row in boxes
         }
+        self.assertIn(("base_width", "base_depth", 10.0), dimensions)
         self.assertIn(
-            (
-                "-base_width / 2",
-                "base_width / 2",
-                "-base_depth / 2",
-                "base_depth / 2",
-            ),
-            expressions,
-        )
-        self.assertIn(
-            (
-                "-(base_width / 2) / 2",
-                "(base_width / 2) / 2",
-                "-(base_depth / 2) / 2",
-                "(base_depth / 2) / 2",
-            ),
-            expressions,
+            ("base_width / 2", "base_depth / 2", 6.0),
+            dimensions,
         )
 
         components = [

@@ -672,8 +672,7 @@ def validate_history_policy(root: Path) -> Validation:
         for row in d.get("timeline", [])
     ]
     expected_timeline = [
-        ("Sketch", "HistoryPolicyBoss footprint"),
-        ("ExtrudeFeature", "Extrude1"),
+        ("BoxFeature", "Box1"),
         ("BossFeature", "Boss1"),
         ("BossFeature", "Boss2"),
         ("Sketch", "Boss"),
@@ -721,7 +720,7 @@ def validate_circle_negative_extrude(root: Path) -> Validation:
         ("ExtrudeFeature", "Extrude1"),
     ]
     v.check(
-        "direct circle extrusion remains native sketch/extrude history",
+        "explicit circle Sketch remains native sketch/extrude history",
         timeline == expected_timeline,
         expected_timeline,
         timeline,
@@ -769,8 +768,7 @@ def validate_rounded_rectangle_sketch(root: Path) -> Validation:
         for row in d.get("timeline", [])
     ]
     expected_timeline = [
-        ("Sketch", "RoundedRectangleSketch footprint"),
-        ("ExtrudeFeature", "Extrude1"),
+        ("BoxFeature", "Box1"),
         ("Sketch", "Rounded pad"),
         ("ExtrudeFeature", "Rounded pad"),
     ]

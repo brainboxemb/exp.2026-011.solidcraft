@@ -394,7 +394,7 @@ The compiler is divided by **responsibility**, not by example model:
 
 - `core.py`: user-facing Python shapes, parameters, anchors, operations.
 - `compiler.py`: small entry point and parameter collection.
-- `sketches.py`: native sketch and base-extrusion commands for 2D profiles and Box.
+- `sketches.py`: native base-body lowering for `Box` and explicit `Sketch` extrusions.
 - `features.py`: generic Fillet, Hole, Cylinder additions/cuts and feature order.
 - `placement.py`: relative anchors and parametric edge references.
 - `csg.py`: primitive solids and Boolean operations for CSG compositions.
@@ -409,8 +409,8 @@ function is selected by the model's name.
 - Supported 3D objects include `Box`, `Cylinder`, `Sphere`, plus the
   native plastic building blocks `Lip`, `SnapFit`, `Boss` and `Rest`;
   there is no `Cube` constructor or `Cylinder3D` alias.
-- Supported profiles: `Rectangle2D`, `Circle2D`, `Polygon2D`, extruded
-  implicitly through native SolidCraft sketches.
+- Supported profiles: `Rectangle2D`, `Circle2D`, `Polygon2D`; 2D geometry is
+  authored inside an explicit `with Sketch(...)` scope and extruded from that sketch.
 - Native CAD modifiers include `Hole` (blind or through-all), `.fillet()`,
   `.shell()` and positive/negative extrusion. Plastic objects compile to
   SolidCraft's native `plastic.*` features.
@@ -478,7 +478,9 @@ For a rectangular XY plate, placement can reference the plate rather than
 hard-coded world coordinates:
 
 ```python
-plate = Rectangle2D(100, 60).extrude(10)
+with Sketch(plane="XY") as sketch:
+    Rectangle2D(100, 60)
+plate = sketch.extrude(10)
 holes = Cylinder(d=8, h=12).pattern(
     count=2, spacing=40, axis=Axis.Y
 ).attach(plate, parent=Anchor.CENTER, child=Anchor.CENTER)
@@ -487,7 +489,7 @@ plate - holes
 
 `attach(target, parent=Anchor.TOP, child=Anchor.BOTTOM)` connects two
 explicit anchors. `offset=(dx, dy)` is measured along the local XY axes.
-Currently supported: Box or Rectangle2D extrusion bases; `Anchor.CENTER`,
+Currently supported: Box or explicit rectangular Sketch extrusion bases; `Anchor.CENTER`,
 `Anchor.TOP`, `Anchor.BOTTOM`; `Anchor.INNER_BOTTOM` for the inner floor
 of a shelled rectangular body; and XY linear patterns of cylinders.
 
@@ -566,20 +568,28 @@ track changing component geometry.
 
 ## Sketches versus direct features
 
-SCPF currently handles sketches **implicitly**. `Rectangle2D(...).extrude(...)`
-compiles to native `sketch.create`, rectangle curves, `sketch.finish`,
-and `solid.extrude`. Likewise, `Circle2D` profiles in an extruded
-cut create a native sketch and subtractive extrusion. Those sketches
-are preserved in SolidCraft's feature history, where they can be edited.
+SCPF does **not** synthesize sketches for 3D primitives. `Box(...)` lowers
+directly to SolidCraft's native `solid.box` command; the same principle applies
+to other native 3D primitives.
 
-An attached `Hole` is compiled to an editable sketch plus cut extrusion
-for the supported rectangular feature chain. A patterned Hole becomes one
-sketch containing all circle profiles, not separate loose Hole features.
+2D geometry is intentionally explicit. Create profiles inside a `Sketch`
+scope, leave the scope, and extrude the sketch:
 
-The user-facing Python model does **not** need to create `Sketch` objects.
-The adapter creates sketches where SolidCraft requires them; they remain
-editable in the native design. Full sketch constraints and arbitrary
-workplanes are separate capabilities, not prerequisites for this API.
+```python
+with Sketch(plane="XY") as sketch:
+    Rectangle2D(100, 60)
+
+plate = sketch.extrude(10)
+```
+
+This produces native `sketch.create`, profile geometry, `sketch.finish` and
+`solid.extrude` history. Direct `Rectangle2D(...).extrude(...)`,
+`Circle2D(...).extrude(...)` and `Polygon2D(...).extrude(...)` are not part
+of the Forge API.
+
+An attached `Hole` may still lower to editable sketch/cut history where that
+is the selected SolidCraft feature strategy; that is feature lowering, not an
+implicit user sketch.
 
 ## Rear-plane sketches on tapered solids
 
@@ -595,4 +605,4 @@ with Sketch(name="Rear bay", on=panel, parent=Anchor.TOP) as sketch:
 panel = panel - sketch.extrude(12.5, direction=Direction.NEGATIVE)
 ```
 
-The new primitive is supported inside explicit named sketches; direct `RoundedRectangle2D(...).extrude(...)` is not enabled yet.
+Like all 2D profiles, `RoundedRectangle2D` is authored inside an explicit `Sketch`; direct profile `.extrude()` syntax is not part of the API.

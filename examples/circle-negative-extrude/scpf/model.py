@@ -1,4 +1,4 @@
-"""Qualification: direct Circle2D extrusion in the negative Z direction."""
+"""Qualification: explicitly sketched Circle2D extrusion in negative Z."""
 
 
 class NegativeCircleExtrude:
@@ -6,7 +6,9 @@ class NegativeCircleExtrude:
     height = 30.0
 
     def build(self):
-        return Circle2D(d=self.diameter).extrude(
+        with Sketch(plane="XY") as sketch:
+            Circle2D(d=self.diameter)
+        return sketch.extrude(
             self.height,
             direction=Direction.NEGATIVE,
         )
