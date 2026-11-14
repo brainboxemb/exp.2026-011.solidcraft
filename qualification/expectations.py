@@ -47,6 +47,11 @@ EXPECTED_BOUNDS = {
         {"label": "Board", "min": [-20, -10, 0], "max": [20, 10, 20]},
         {"label": "Marker", "min": [-25, -20, 15], "max": [-15, -10, 25]},
     ],
+    "assembly-owned-anchor": [
+        {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 20]},
+        {"label": "Companion", "min": [65, -5, 0], "max": [75, 5, 10]},
+        {"label": "Marker", "min": [10, -25, 10], "max": [20, -15, 20]},
+    ],
     "four-corner-l": [
         {"label": "FrameBlock", "min": [-60, -40, 0], "max": [60, 40, 60]},
         {"label": "front-left foot", "min": [-60, -40, -30], "max": [-32, -12, 0]},
@@ -95,6 +100,11 @@ EXPECTED_BOUNDS = {
 
 
 EXPECTED_MUTATION_BOUNDS = {
+    "assembly-owned-anchor": [
+        {"label": "Base", "min": [-40, -15, 0], "max": [40, 15, 40]},
+        {"label": "Companion", "min": [65, -5, 0], "max": [75, 5, 10]},
+        {"label": "Marker", "min": [30, -25, 30], "max": [40, -15, 40]},
+    ],
     "anchor-topology-mutation": [
         {"label": "Board", "min": [-40, -10, 0], "max": [40, 10, 40]},
         {"label": "Marker", "min": [-45, -20, 35], "max": [-35, -10, 45]},
