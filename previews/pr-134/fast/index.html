@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Examples &amp; cheatsheet · SCPF Python library</title>
+<link rel="stylesheet" href="style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="./">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="./">Examples</a><a href="./guide/">API Guide</a><a href="./qualification/">Qualification</a><a href="cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft.forge / Python Forge</p>
+<h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: 0.30.1 · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
+This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
+<div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>
+<a class="button" href="qualification/">Qualification →</a>
+<a class="button" href="cheatsheet/">Quick cheatsheet →</a>
+<a class="button" href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">See real CAD models →</a></div></section>
+<section class="section-heading"><h2>Small public examples</h2><p>Each source produces its own native-command JSON.
+Source and commands are regenerated together by CI.</p></section>
+<div class="cards"><article class="card"><a href="examples/simple-box/" class="card-image" aria-label="View 1 · Simple box"><img src="examples/simple-box/preview.svg" alt="1 · Simple box preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
+<h2><a href="examples/simple-box/">1 · Simple box</a></h2>
+<p>A plain Python class with three dimensions and one Box.</p><div class="tags"><span class="tag">Box</span><span class="tag">build()</span><span class="tag">parameters</span></div>
+<p class="meta">7 generated SolidCraft commands</p>
+<a class="button" href="examples/simple-box/">View source and command steps →</a></div></article><article class="card"><a href="examples/anchored-holes/" class="card-image" aria-label="View 2 · Two holes"><img src="examples/anchored-holes/preview.svg" alt="2 · Two holes preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
+<h2><a href="examples/anchored-holes/">2 · Two holes</a></h2>
+<p>An extruded rectangle and two patterned through-holes.</p><div class="tags"><span class="tag">Rectangle2D</span><span class="tag">extrude</span><span class="tag">Hole</span><span class="tag">pattern</span><span class="tag">attach</span></div>
+<p class="meta">13 generated SolidCraft commands</p>
+<a class="button" href="examples/anchored-holes/">View source and command steps →</a></div></article><article class="card"><a href="examples/components/" class="card-image" aria-label="View 3 · Reuse a component"><img src="examples/components/preview.svg" alt="3 · Reuse a component preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
+<h2><a href="examples/components/">3 · Reuse a component</a></h2>
+<p>Two instances of one Block definition, placed relative to meaningful component references.</p><div class="tags"><span class="tag">component</span><span class="tag">occurrence</span><span class="tag">Anchor</span><span class="tag">attach</span></div>
+<p class="meta">13 generated SolidCraft commands</p>
+<a class="button" href="examples/components/">View source and command steps →</a></div></article><article class="card"><a href="examples/corner-anchor/" class="card-image" aria-label="View 4 · Associative corner anchor"><img src="examples/corner-anchor/preview.svg" alt="4 · Associative corner anchor preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
+<h2><a href="examples/corner-anchor/">4 · Associative corner anchor</a></h2>
+<p>Attach one reusable component to a named corner that follows parent size changes.</p><div class="tags"><span class="tag">Anchor</span><span class="tag">attach</span><span class="tag">corner</span><span class="tag">associative placement</span></div>
+<p class="meta">17 generated SolidCraft commands</p>
+<a class="button" href="examples/corner-anchor/">View source and command steps →</a></div></article><article class="card"><a href="examples/custom-anchor/" class="card-image" aria-label="View 5 · Named attachment frame"><img src="examples/custom-anchor/preview.svg" alt="5 · Named attachment frame preview" loading="lazy"></a><div class="card-content"><p class="eyebrow">Regression example</p>
+<h2><a href="examples/custom-anchor/">5 · Named attachment frame</a></h2>
+<p>Expose a named local AnchorFrame from a component when the datum belongs to that reusable part.</p><div class="tags"><span class="tag">AnchorFrame</span><span class="tag">anchors()</span><span class="tag">attach</span><span class="tag">named datum</span></div>
+<p class="meta">17 generated SolidCraft commands</p>
+<a class="button" href="examples/custom-anchor/">View source and command steps →</a></div></article></div>
+<div class="twocol"><section class="panel"><h2>Developing the library</h2>
+<pre><code>python -m pip install -e ./scpf
+python -m unittest discover -s scpf/tests -v
+python -m scpf examples/simple-box/scpf/model.py --out output/box.json</code></pre>
+<p>API and command tests stay here; mechanical assembly and render qualification live in the CAD project.</p></section>
+<section class="panel"><h2>Continue with the real CAD project</h2><p>Corner Bracket, HUB75, enclosures and native
+STEP/SC/PNG renders are maintained independently in <strong>2026-011-02.cad.solidcraft</strong>,
+using the library as a pinned external dependency.</p><p><a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Open the CAD project website →</a></p></section></div>
+<p class="source-stamp">Library source commit: <code>65f0a66fe3cd9c9d12e5a92c206bfdcfed7bae27</code></p></main>
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
