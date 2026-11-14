@@ -277,6 +277,26 @@ def validate_attach_angle(root: Path) -> Validation:
     return v
 
 
+def validate_as_built_attach(root: Path) -> Validation:
+    v = Validation("as-built-attach")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "as-built-attach")
+    v.check("two bodies", d["body_count"] == 2, 2, d["body_count"])
+    v.check(
+        "base remains at authored pose",
+        bbox_close(one_body(d, "Base"), [-20, -15, 0], [20, 15, 10]),
+        {"min": [-20, -15, 0], "max": [20, 15, 10]},
+        one_body(d, "Base")["bbox"],
+    )
+    v.check(
+        "as-built child keeps translated 90-degree pose",
+        bbox_close(one_body(d, "Marker"), [45, 5, 15], [55, 35, 23]),
+        {"min": [45, 5, 15], "max": [55, 35, 23]},
+        one_body(d, "Marker")["bbox"],
+    )
+    return v
+
+
 def validate_parametric_attach(root: Path) -> Validation:
     v = Validation("parametric-attach")
     d = load(root / "measurements.json")
@@ -600,6 +620,7 @@ VALIDATORS = {
     "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
     "attach-angle": validate_attach_angle,
+    "as-built-attach": validate_as_built_attach,
     "parametric-attach": validate_parametric_attach,
     "parametric-offset": validate_parametric_offset,
     "parametric-anchor": validate_parametric_anchor,
