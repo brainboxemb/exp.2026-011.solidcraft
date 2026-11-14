@@ -59,7 +59,7 @@ class FourCornerL:
         )
         profile_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.UP,
+            z=Anchor.DOWN,
             x=Anchor.RIGHT,
         )
 
@@ -75,7 +75,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(-half_width, -half_depth),
             gap=centre_height,
-            angle=180,
+            angle=0,
         )
         front_right = profile.copy().attach(
             frame,
@@ -83,7 +83,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(half_width, -half_depth),
             gap=centre_height,
-            angle=270,
+            angle=90,
         )
         rear_right = profile.copy().attach(
             frame,
@@ -91,7 +91,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(half_width, half_depth),
             gap=centre_height,
-            angle=0,
+            angle=180,
         )
         rear_left = profile.copy().attach(
             frame,
@@ -99,7 +99,7 @@ class FourCornerL:
             child=profile_origin,
             offset=(-half_width, half_depth),
             gap=centre_height,
-            angle=90,
+            angle=270,
         )
 
         return frame + front_left + front_right + rear_right + rear_left
