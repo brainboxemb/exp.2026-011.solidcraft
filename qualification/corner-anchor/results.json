@@ -27,7 +27,7 @@
       "Base"
     ],
     "feature": 3,
-    "ms": 0.886972,
+    "ms": 0.829549,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -52,7 +52,7 @@
       "Marker"
     ],
     "feature": 6,
-    "ms": 0.213033,
+    "ms": 0.127241,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null

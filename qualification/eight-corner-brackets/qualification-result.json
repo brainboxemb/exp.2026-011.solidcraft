@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "eight-corner-brackets",
   "title": "Eight vertical L-profiles: two per side corner",
-  "source_commit": "32180485472f1beddb98c8760764eae33233f5f7",
+  "source_commit": "c821e15286a9e9311116bc261398b39dd3bf1f04",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {

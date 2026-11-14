@@ -21,7 +21,7 @@
       "Base"
     ],
     "feature": 3,
-    "ms": 0.930482,
+    "ms": 0.831111,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -46,7 +46,7 @@
       "Block"
     ],
     "feature": 6,
-    "ms": 0.233236,
+    "ms": 0.127602,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null
