@@ -26,9 +26,15 @@ def compile_base(shape, name):
     if shape.kind in ("box", "placed_box"):
         if shape.kind == "box":
             length, width, height = shape.data
-            corner = (_half(length, True), _half(width, True), 0)
+            origin = (-length / 2, -width / 2, 0)
+            command_corner = (
+                _half(length, True),
+                _half(width, True),
+                0,
+            )
         else:
-            (length, width), corner, height = _base_rectangle(shape)
+            (length, width), origin, height = _base_rectangle(shape)
+            command_corner = tuple(command_value(value) for value in origin)
 
         _require_positive(length, "box length")
         _require_positive(width, "box width")
@@ -40,7 +46,7 @@ def compile_base(shape, name):
                 length=command_value(length),
                 width=command_value(width),
                 height=command_value(height),
-                corner=[command_value(value) for value in corner],
+                corner=list(command_corner),
                 body_name=name,
             ),
         ]
@@ -50,7 +56,7 @@ def compile_base(shape, name):
             "width": length,
             "depth": width,
             "thickness": height,
-            "origin": corner,
+            "origin": origin,
         }
 
     if shape.kind == "sketch_base_extrusion":
