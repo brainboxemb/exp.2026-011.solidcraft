@@ -387,7 +387,9 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
                     and boss_parent_anchor is Anchor.TOP
                     and boss_child_anchor is Anchor.BOTTOM
                     and all(pv(v) == 0 for v in boss_offset)):
-                boss_height, _ = boss.data
+                boss_height, _, boss_axis = boss.data
+                if boss_axis != "Z":
+                    raise ModelError("attached boss Cylinder must use Axis.Z")
                 entry_z = (base_top + boss_height
                            if isinstance(boss_height, (int, float))
                            else _combine(base_top, boss_height))
