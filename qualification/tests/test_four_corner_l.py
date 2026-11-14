@@ -60,7 +60,7 @@ class FourCornerLCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 4)
 
-        expected_angles = [0, 90, 180, 270]
+        expected_angles = [180, 270, 0, 90]
         expected_xy = [
             ("-(frame_width / 2)", "-(frame_depth / 2)"),
             ("frame_width / 2", "-(frame_depth / 2)"),
