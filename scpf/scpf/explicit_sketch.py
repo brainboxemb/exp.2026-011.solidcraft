@@ -21,7 +21,7 @@ def register_profile(profile):
 class Sketch:
     """Prototype named XY sketch attached to a supported parent face."""
 
-    def __init__(self, *, name="Profile", on=None, parent=Anchor.TOP, plane=None, origin=None):
+    def __init__(self, *, name="Profile", on=None, parent=Anchor.TOP, plane=None, origin=None, offset=None):
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Sketch name must be non-empty")
         if on is not None and not isinstance(on, Shape):
@@ -45,6 +45,11 @@ class Sketch:
             for coordinate in origin:
                 pv(coordinate)
         self.origin = tuple(origin) if origin is not None else None
+        if offset is not None:
+            if on is not None or origin is not None:
+                raise ValueError("Sketch offset requires a standalone plane")
+            pv(offset)
+        self.offset = offset
         self.plane = plane
         self._profiles = []
         self._closed = False
@@ -95,7 +100,7 @@ class Sketch:
                 raise ValueError("standalone Sketch requires a finite extrusion distance")
             return Shape(
                 "sketch_base_extrusion",
-                (self.name, self.plane, self.origin, tuple(self._profiles), distance, direction.value),
+                (self.name, self.plane, self.origin, self.offset, tuple(self._profiles), distance, direction.value),
             )
         return Shape(
             "explicit_sketch_extrusion",
