@@ -124,6 +124,20 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "as-built-attach",
+        "group": "components",
+        "title": "As-built rigid relationship preserves pose",
+        "intent": "Verify that attach(as_built=True) records a rigid native assembly relationship without re-positioning or re-orienting a child occurrence that already has an authored pose.",
+        "forge_api": "Marker().move(x=50, y=20, z=15).rotate(axis=(0,0,1), degrees=90).attach(base, as_built=True)",
+        "forge_model": "One Base and one non-square Marker occurrence. The Marker already owns a translation and rotation before the Attachment is added; the as-built relationship carries no parent/child anchor, offset, gap or angle.",
+        "lowering": "Forge emits occurrence.move for the existing Marker pose first, then joint.as_built(type='rigid', a='Base:1', b='Marker:1'). No joint.create or anchor-origin solve is involved.",
+        "native_expectation": "The Base remains at [-20,-15,0]..[20,15,10]. The 30x10 Marker remains quarter-turned to a 10x30 footprint at [45,5,15]..[55,35,23] after the native as-built joint is created.",
+        "mutation": "Not required: an as-built relationship intentionally captures the current relative pose rather than defining a parameter-driven placement rule.",
+        "references": [
+            ("SolidCraft", "The native as-built rigid relationship constrains two already-positioned occurrences without solving a new mating position."),
+        ],
+    },
+    {
         "slug": "parametric-attach",
         "q5_required": True,
         "group": "associativity",

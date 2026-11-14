@@ -104,6 +104,7 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert "At target" in coverage_page
     assert "Below target" in coverage_page
     assert "Basic vertical-edge fillet is command-, native- and visual-qualified" in coverage_page
+    assert "Native joint.as_built preserves an already translated and rotated child pose" in coverage_page
     assert "<code>Edges</code>" in coverage_page
     for status_class in (
         "coverage-status supported",

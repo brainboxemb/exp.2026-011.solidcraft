@@ -73,7 +73,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "gap", "Q5", "Q6", ["parametric-attach"], "Saved-design mutation qualified."),
     ("Assemblies", "local planar offset=(u,v)", "Q5", "Q6", ["parametric-offset"], "Current semantics explicitly local to joint frame."),
     ("Assemblies", "angle", "Q6", "Q6", ["attach-angle"], "A non-square child is quarter-turned by the native rigid-joint angle and verified by bounds plus visual regression."),
-    ("Assemblies", "as_built=True", "Q6", "GAP", [], "Needs native fixed relationship fixture."),
+    ("Assemblies", "as_built=True", "Q6", "Q6", ["as-built-attach"], "Native joint.as_built preserves an already translated and rotated child pose without re-solving attachment geometry."),
     ("Assemblies", "standard face anchors", "Q5", "Q6", ["parametric-anchor"], "Parent topology mutation qualified."),
     ("Assemblies", "standard corner anchors", "Q5", "Q6", ["corner-anchor", "xz-anchor"], "Width/height mutation and mirrored corners qualified."),
     ("Assemblies", "eight profiles as two per vertical side corner", "Q6", "Q6", ["eight-corner-brackets"], "The 4-profile baseline is duplicated in Z so each rounded vertical side corner has one lower and one upper angle profile."),

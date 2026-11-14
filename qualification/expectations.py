@@ -31,6 +31,10 @@ EXPECTED_BOUNDS = {
         {"label": "Base", "min": [-30, -30, 0], "max": [30, 30, 10]},
         {"label": "Arm", "min": [-5, -15, 10], "max": [5, 15, 16]},
     ],
+    "as-built-attach": [
+        {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 10]},
+        {"label": "Marker", "min": [45, 5, 15], "max": [55, 35, 23]},
+    ],
     "parametric-attach": [
         {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "Block", "min": [30, -10, 0], "max": [50, 10, 10]},
