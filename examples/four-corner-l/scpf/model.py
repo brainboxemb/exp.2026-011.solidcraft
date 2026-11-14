@@ -7,7 +7,11 @@ class FrameBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height).fillet(8, edges=Edges.VERTICAL)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
 class LBracket:
@@ -16,7 +20,6 @@ class LBracket:
     THICKNESS = 4.0
 
     def build(self):
-        # Neutral reusable L-profile in its local XZ plane.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -28,9 +31,10 @@ class LBracket:
             ],
             plane="XZ",
         )
+        # Symmetric depth makes the profile naturally centre on a corner line.
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
@@ -47,42 +51,48 @@ class FourCornerL:
         )
         bracket = LBracket()
 
-        # Use the same neutral child frame as the eight-profile case.
-        bracket_corner = AnchorFrame(
+        # Assembly-local XZ plane through Y=0. It survives the rounded outer
+        # corners because placement is dimensional, not based on a sharp edge.
+        frame_xz = AnchorFrame(
+            origin=(0, 0, 0),
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
+        )
+        bracket_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=Anchor.FRONT,
             x=Anchor.RIGHT,
         )
 
-        # The FRONT topology gives us the four XZ corner identities. A
-        # parametric negative gap then moves each profile along that corner
-        # line to the middle of the frame depth. The profile's 4 mm extrusion
-        # is centred around Y=0.
-        centre_gap = -(self.frame_depth / 2 + LBracket.THICKNESS / 2)
+        half_width = self.frame_width / 2
 
         top_left = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(-half_width, self.frame_height),
+            angle=270,
         )
         top_right = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(half_width, self.frame_height),
+            angle=180,
         )
         bottom_right = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(half_width, 0),
+            angle=90,
         )
         bottom_left = bracket.copy().attach(
             frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
-            gap=centre_gap,
+            parent=frame_xz,
+            child=bracket_origin,
+            offset=(-half_width, 0),
+            angle=0,
         )
 
         return frame + top_left + top_right + bottom_right + bottom_left
