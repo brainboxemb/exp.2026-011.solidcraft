@@ -77,11 +77,12 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
             self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
             self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
             self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
+            self.assertEqual(joint["offset"], -4.0)
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
 class EightCornerBracketsNativeTests(unittest.TestCase):
-    def test_native_bounding_boxes_match_all_eight_outside_corners(self):
+    def test_native_bounding_boxes_match_two_profiles_on_each_corner_line(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "eight-corner-brackets"
@@ -114,14 +115,14 @@ class EightCornerBracketsNativeTests(unittest.TestCase):
             for body in brackets
         )
         expected = sorted([
-            ((-60.0, -44.0, 32.0), (-32.0, -40.0, 60.0)),
-            ((32.0, -44.0, 32.0), (60.0, -40.0, 60.0)),
-            ((32.0, -44.0, 0.0), (60.0, -40.0, 28.0)),
-            ((-60.0, -44.0, 0.0), (-32.0, -40.0, 28.0)),
-            ((-60.0, 40.0, 32.0), (-32.0, 44.0, 60.0)),
-            ((32.0, 40.0, 32.0), (60.0, 44.0, 60.0)),
-            ((32.0, 40.0, 0.0), (60.0, 44.0, 28.0)),
-            ((-60.0, 40.0, 0.0), (-32.0, 44.0, 28.0)),
+            ((-60.0, -40.0, 32.0), (-32.0, -36.0, 60.0)),
+            ((32.0, -40.0, 32.0), (60.0, -36.0, 60.0)),
+            ((32.0, -40.0, 0.0), (60.0, -36.0, 28.0)),
+            ((-60.0, -40.0, 0.0), (-32.0, -36.0, 28.0)),
+            ((-60.0, 36.0, 32.0), (-32.0, 40.0, 60.0)),
+            ((32.0, 36.0, 32.0), (60.0, 40.0, 60.0)),
+            ((32.0, 36.0, 0.0), (60.0, 40.0, 28.0)),
+            ((-60.0, 36.0, 0.0), (-32.0, 40.0, 28.0)),
         ])
         self.assertEqual(actual, expected)
 
@@ -153,14 +154,14 @@ class EightCornerBracketsNativeTests(unittest.TestCase):
             for body in brackets
         )
         expected = sorted([
-            ((-80.0, -64.0, 62.0), (-52.0, -60.0, 90.0)),
-            ((52.0, -64.0, 62.0), (80.0, -60.0, 90.0)),
-            ((52.0, -64.0, 0.0), (80.0, -60.0, 28.0)),
-            ((-80.0, -64.0, 0.0), (-52.0, -60.0, 28.0)),
-            ((-80.0, 60.0, 62.0), (-52.0, 64.0, 90.0)),
-            ((52.0, 60.0, 62.0), (80.0, 64.0, 90.0)),
-            ((52.0, 60.0, 0.0), (80.0, 64.0, 28.0)),
-            ((-80.0, 60.0, 0.0), (-52.0, 64.0, 28.0)),
+            ((-80.0, -60.0, 62.0), (-52.0, -56.0, 90.0)),
+            ((52.0, -60.0, 62.0), (80.0, -56.0, 90.0)),
+            ((52.0, -60.0, 0.0), (80.0, -56.0, 28.0)),
+            ((-80.0, -60.0, 0.0), (-52.0, -56.0, 28.0)),
+            ((-80.0, 56.0, 62.0), (-52.0, 60.0, 90.0)),
+            ((52.0, 56.0, 62.0), (80.0, 60.0, 90.0)),
+            ((52.0, 56.0, 0.0), (80.0, 60.0, 28.0)),
+            ((-80.0, 56.0, 0.0), (-52.0, 60.0, 28.0)),
         ])
         self.assertEqual(actual, expected)
 
