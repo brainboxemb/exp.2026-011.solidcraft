@@ -15,7 +15,16 @@ def _half(dim, negative=False):
 
 
 def _shift(offset, delta):
-    return tuple(a + b for a, b in zip(offset, delta))
+    """Combine CSG offsets without polluting symbolic expressions with + 0."""
+    result = []
+    for current, added in zip(offset, delta):
+        if current == 0:
+            result.append(added)
+        elif added == 0:
+            result.append(current)
+        else:
+            result.append(current + added)
+    return tuple(result)
 
 
 def _add_offset(coord, offset):
