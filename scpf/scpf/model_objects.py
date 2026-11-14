@@ -471,20 +471,33 @@ class ModelInstance:
         if not all(isfinite(value) for value in face_offset_values):
             raise ValueError("component attach offset must be finite")
 
+        gap_value = pv(gap)
+        if not isfinite(gap_value):
+            raise ValueError("component attach gap must be finite")
+
         target_local = _anchor_local_point(target, parent)
         child_local = _anchor_local_point(self, child)
+
         tangent = (0.0, 0.0, 0.0)
+        normal = (0.0, 0.0, 0.0)
+        if isinstance(parent, Anchor):
+            tangent = _face_offset(parent, face_offset_values)
+            if parent in _CORNER_ANCHORS:
+                normal = _corner_normal(parent)
+            elif parent is not Anchor.CENTER:
+                normal = parent.vector
+
         target_world = tuple(
-            target_local[i] + target.translation[i] + tangent[i]
+            target_local[i]
+            + target.translation[i]
+            + tangent[i]
+            + normal[i] * gap_value
             for i in range(3)
         )
         translation = tuple(
             target_world[i] - child_local[i]
             for i in range(3)
         )
-        gap_value = pv(gap)
-        if not isfinite(gap_value):
-            raise ValueError("component attach gap must be finite")
         angle_value = None
         if angle is not None:
             angle_value = pv(angle)
