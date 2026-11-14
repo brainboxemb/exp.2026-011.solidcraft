@@ -14,8 +14,9 @@ part originated from the usual XY Box path or an XZ sketch/extrusion.
 ## Forge API
 
 ```python
-profile = Polygon2D(points, plane="XZ", world=True)
-board = profile.extrude(depth, direction=Direction.POSITIVE)
+with Sketch(name="Profile", plane="XZ") as sketch:
+    Polygon2D(points, plane="XZ", world=True)
+board = sketch.extrude(depth, direction=Direction.POSITIVE)
 
 right = Marker().attach(
     board,
