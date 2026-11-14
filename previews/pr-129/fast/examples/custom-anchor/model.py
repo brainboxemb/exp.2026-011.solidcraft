@@ -1,0 +1,40 @@
+class Arm:
+    def anchors(self):
+        return {
+            "tip": AnchorFrame(
+                origin=(20, 0, 5),
+                z=Anchor.RIGHT,
+                x=Anchor.UP,
+            ),
+        }
+
+    def build(self):
+        return Box(40, 10, 10)
+
+
+class Marker:
+    def anchors(self):
+        return {
+            "mount": AnchorFrame(
+                origin=(0, 0, 5),
+                z=Anchor.LEFT,
+                x=Anchor.UP,
+            ),
+        }
+
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class CustomAnchor:
+    def build(self):
+        arm = Arm().rotate(Axis.Z, 90)
+        marker = Marker().attach(
+            arm,
+            parent="tip",
+            child="mount",
+        )
+        return arm + marker
+
+
+CustomAnchor()
