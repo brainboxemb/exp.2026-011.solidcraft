@@ -1,5 +1,5 @@
 {
-  "library_commit": "a34f270cc877fd55501dbe045ec4ae8dd34e0fcc",
+  "library_commit": "67649b68051ed57d79a8cb1c99f2eccbd4a7b742",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -1364,8 +1364,8 @@
     },
     "four-corner-l": {
       "title": "Four centred vertical L-profiles",
-      "status": "FAIL",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 FAIL",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 24,
       "native_evidence": [
         "results.json",
@@ -1405,7 +1405,7 @@
         "model-size-160x120-right.png",
         "model-size-160x120.png"
       ],
-      "qualification_status": "fail",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -1450,7 +1450,7 @@
           ]
         },
         "q6": {
-          "status": "fail",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
@@ -1484,8 +1484,8 @@
     },
     "eight-corner-brackets": {
       "title": "Eight vertical L-profiles: two per side corner",
-      "status": "FAIL",
-      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6 FAIL",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
       "command_count": 32,
       "native_evidence": [
         "results.json",
@@ -1517,7 +1517,7 @@
         "overlay-iso.png",
         "visual-diff-iso.png"
       ],
-      "qualification_status": "fail",
+      "qualification_status": "pass",
       "levels": {
         "q1": {
           "status": "pass",
@@ -1560,7 +1560,7 @@
           ]
         },
         "q6": {
-          "status": "fail",
+          "status": "pass",
           "images": [
             "model.png",
             "goal-front.png",
