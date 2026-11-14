@@ -186,6 +186,22 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "assembly-owned-anchor",
+        "q5_required": True,
+        "group": "anchors",
+        "title": "Assembly-owned named anchor",
+        "intent": "Verify that an assembly can publish a semantic attachment name without putting that application-specific datum on the reusable component, and that a consumer of the name still lowers to an associative native relationship.",
+        "forge_api": "(base + companion).with_anchor('inspection_corner', base, Anchor.FRONT_TOP_RIGHT); datum = frame.anchor('inspection_corner'); Marker().attach(datum.target, parent=datum.reference, ...)",
+        "forge_model": "The assembly stores a name mapped to an existing target occurrence plus a normal Forge anchor reference. The reusable Base knows nothing about the semantic name.",
+        "lowering": "with_anchor()/anchor() are Forge-side semantic indirection only. The resulting native joint is the same topology-backed FRONT_TOP_RIGHT relationship that a direct attach would emit; no extra native helper object is required.",
+        "native_expectation": "The marker sits on the base front-top-right corner while an unrelated companion occurrence remains part of the same assembly.",
+        "mutation": "Change base_width/base_height from 40x20 to 80x40 mm in the saved .sc design; the marker created through the assembly-owned name must follow the moved corner without rerunning Python.",
+        "references": [
+            ("BOSL2", "Semantic attachment names belong naturally to the assembly that owns their meaning rather than to a generic reusable component."),
+            ("SolidCraft", "The semantic name disappears during lowering; the persisted native relationship remains topology-backed and associative."),
+        ],
+    },
+    {
         "slug": "four-corner-l",
         "q5_required": True,
         "diagram": "four-corner-l.svg",

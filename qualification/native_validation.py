@@ -332,6 +332,51 @@ def validate_corner_anchor(root: Path) -> Validation:
     return v
 
 
+def validate_assembly_owned_anchor(root: Path) -> Validation:
+    v = Validation("assembly-owned-anchor")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "assembly-owned-anchor")
+    v.check("three bodies", d["body_count"] == 3, 3, d["body_count"])
+    v.check(
+        "named anchor reaches baseline corner",
+        bbox_close(
+            one_body(d, "Marker"),
+            [10, -25, 10],
+            [20, -15, 20],
+        ),
+        {"min": [10, -25, 10], "max": [20, -15, 20]},
+        one_body(d, "Marker")["bbox"],
+    )
+
+    m = load(root / "measurements-size-80x40.json")
+    _check_declared_bounds(
+        v,
+        m,
+        "assembly-owned-anchor",
+        level="q5",
+        mutation=True,
+    )
+    v.check(
+        "base dimensions changed",
+        params(m) == {"base_width": 80.0, "base_height": 40.0},
+        {"base_width": 80.0, "base_height": 40.0},
+        params(m),
+        "q5",
+    )
+    v.check(
+        "named anchor keeps native corner associativity",
+        bbox_close(
+            one_body(m, "Marker"),
+            [30, -25, 30],
+            [40, -15, 40],
+        ),
+        {"min": [30, -25, 30], "max": [40, -15, 40]},
+        one_body(m, "Marker")["bbox"],
+        "q5",
+    )
+    return v
+
+
 def validate_anchor_topology_mutation(root: Path) -> Validation:
     v = Validation("anchor-topology-mutation")
     d = load(root / "measurements.json")
@@ -539,6 +584,7 @@ VALIDATORS = {
     "parametric-offset": validate_parametric_offset,
     "parametric-anchor": validate_parametric_anchor,
     "corner-anchor": validate_corner_anchor,
+    "assembly-owned-anchor": validate_assembly_owned_anchor,
     "anchor-topology-mutation": validate_anchor_topology_mutation,
     "four-corner-l": validate_four_corner_l,
     "eight-flightcase-corners": validate_eight_flightcase_corners,

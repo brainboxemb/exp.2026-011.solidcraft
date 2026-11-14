@@ -163,6 +163,15 @@ jobs:
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect.json
 
+          # Assembly-owned semantic anchor: native corner relationship must remain associative.
+          solidcraft-cli run qualification/commands/assembly-owned-anchor/change-size.json \
+            --in output/native/assembly-owned-anchor/model.sc \
+            --param-check strict \
+            --save output/native/assembly-owned-anchor/model-size-80x40.sc
+
+          solidcraft-cli eval output/native/assembly-owned-anchor/model-size-80x40.sc \
+            --json-out output/native/assembly-owned-anchor/measurements-size-80x40.json
+
           # Explicit AnchorTopology: fixed initial pick must follow resized topology.
           solidcraft-cli run qualification/commands/anchor-topology-mutation/change-size.json \
             --in output/native/anchor-topology-mutation/model.sc \
@@ -326,6 +335,7 @@ jobs:
           printf "case\tmutation\tstatus\n" > output/qualification/q5-parametric-mutation.tsv
           printf "parameter-scope\tshared_width 80 -> 100 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "parent-derived-child-size\tparent 120x80 -> 160x120 mm; child follows 60x40 -> 80x60 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
+          printf "assembly-owned-anchor\tbase 40x20 -> 80x40 mm; named semantic anchor follows corner\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "anchor-topology-mutation\tboard 40x20 -> 80x40 mm; fixed topology pick follows corner\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "four-corner-l\tframe footprint 120x80 -> 160x120 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
           printf "eight-flightcase-corners\tcase 120x80x60 -> 160x120x90 mm\tPRODUCED\n" >> output/qualification/q5-parametric-mutation.tsv
