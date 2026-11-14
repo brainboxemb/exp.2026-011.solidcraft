@@ -5,7 +5,19 @@ from its operation, not from a named example such as Plate.
 """
 from math import isfinite
 from fnmatch import fnmatchcase
-from .core import Shape, Edges, Faces, Depth, Anchor, Parameter, _ProfileEdgeSelection, pv, command_value
+from .core import (
+    Shape,
+    Edges,
+    Faces,
+    Depth,
+    Anchor,
+    Parameter,
+    _DirectionSelector,
+    _ProfileEdgeSelection,
+    _dim_add,
+    pv,
+    command_value,
+)
 from .history import History
 from .compiler import ModelError, _command, _collect, _param_commands, _require_positive
 from .placement import (
@@ -17,7 +29,7 @@ from .sketches import compile_base
 def _is_feature_tree(shape):
     if not isinstance(shape, Shape):
         return False
-    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
+    if shape.kind in ("box", "placed_box", "tapered_box", "sketch_base_extrusion"):
         return True
     if shape.kind in ("fillet", "chamfer", "shell", "union", "difference", "material_assignment"):
         return _is_feature_tree(shape.data[0])
@@ -193,6 +205,51 @@ def _resolve_profile_edges(base, selection):
                 y,
                 -(pv(a[1]) + pv(b[1])) / 2,
             ))
+    return picks
+
+
+def _resolve_direction_edges(base, selection):
+    """Resolve BOSL2-style direction pairs to stable edge pick points."""
+    if isinstance(selection, _DirectionSelector):
+        selectors = (selection,)
+    elif (
+        isinstance(selection, (tuple, list))
+        and selection
+        and all(isinstance(item, _DirectionSelector) for item in selection)
+    ):
+        selectors = tuple(selection)
+    else:
+        return selection
+
+    if base.get("profile") != "rectangle":
+        raise ModelError("direction edge selectors require a rectangular solid")
+
+    origin = base["origin"]
+    dimensions = (
+        base["width"],
+        base["depth"],
+        base["thickness"],
+    )
+
+    picks = []
+    for selector in selectors:
+        if sum(component != 0 for component in selector.vector) != 2:
+            raise ModelError(
+                "an edge selector must combine exactly two cardinal directions"
+            )
+        point = []
+        for minimum, dimension, side in zip(
+            origin,
+            dimensions,
+            selector.vector,
+        ):
+            if side < 0:
+                point.append(minimum)
+            elif side > 0:
+                point.append(_dim_add(minimum, dimension))
+            else:
+                point.append(_dim_add(minimum, dimension / 2))
+        picks.append(tuple(point))
     return picks
 
 
@@ -681,7 +738,7 @@ def _explicit_sketch_commands(shape, original, feature, name):
 
 
 def _to_commands(shape, name):
-    if shape.kind in ("box", "tapered_box", "sketch_base_extrusion"):
+    if shape.kind in ("box", "placed_box", "tapered_box", "sketch_base_extrusion"):
         return compile_base(shape, name)
     if shape.kind == "material_assignment":
         base_shape, material, density, color = shape.data
@@ -700,7 +757,9 @@ def _to_commands(shape, name):
     if shape.kind == "fillet":
         original, radius, edges = shape.data
         steps, base = _to_commands(original, name)
-        return steps + [_fillet_command(base, radius, _resolve_profile_edges(base, edges), name)], base
+        resolved = _resolve_profile_edges(base, edges)
+        resolved = _resolve_direction_edges(base, resolved)
+        return steps + [_fillet_command(base, radius, resolved, name)], base
     if shape.kind == "chamfer":
         original, distance, edges = shape.data
         steps, base = _to_commands(original, name)

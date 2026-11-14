@@ -3,7 +3,13 @@
 Anchor resolution is shared by Box and extruded Rectangle2D models.
 It is not a geometry engine: SolidCraft owns actual face identity.
 """
-from .core import Shape, _BoundOffset, pv, command_value
+from .core import (
+    Shape,
+    _BoundOffset,
+    _box_corner_from_anchor,
+    pv,
+    command_value,
+)
 
 def _is_centered_box(shape):
     while shape.kind in ("fillet", "shell", "union", "difference"):
@@ -23,6 +29,19 @@ def _base_rectangle(shape):
         length, width, height = shape.data
         # Box uses the SolidCraft convention: centered in XY, bottom at Z=0.
         return (length, width), (-length / 2, -width / 2, 0), height
+    if shape.kind == "placed_box":
+        box, x, y, z, anchor = shape.data
+        if box.kind != "box":
+            raise ValueError("placed_box must wrap a Box")
+        length, width, height = box.data
+        corner = _box_corner_from_anchor(
+            length,
+            width,
+            height,
+            (x, y, z),
+            anchor,
+        )
+        return (length, width), corner, height
     if shape.kind == "tapered_box":
         # A tapered Box keeps its original front XY footprint and Z datum.
         # Explicit rear-plane sketches use this nominal reference, NOT the

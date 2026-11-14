@@ -462,9 +462,29 @@ The old positional constructor and 3D-suffixed aliases are not supported.
 
 ## Edge and face selection
 
-Use `Edges.VERTICAL` for automatic selection of vertical edges on supported
-rectangular bodies, or supply a list of explicit 3D edge points for a
-specific edge.
+Cardinal directions use one shared BOSL2-style vocabulary:
+`TOP`, `BOTTOM`, `LEFT`, `RIGHT`, `FRONT` and `BACK`.
+Add two directions to identify one rectangular-solid edge, for example
+`BOTTOM + LEFT` or `TOP + RIGHT`.
+
+A native Box can also be positioned by one of those anchors:
+
+```python
+board = Box(width, depth, height).at(
+    x,
+    y,
+    z,
+    anchor=FRONT + BOTTOM,
+)
+board = board.fillet(
+    radius,
+    edges=[BOTTOM + LEFT, BOTTOM + RIGHT],
+)
+```
+
+This remains a native `solid.box`; Forge does not synthesize a Sketch.
+`Edges.VERTICAL` remains available for selecting all vertical edges on
+supported rectangular bodies, and explicit 3D edge points remain supported.
 
 Face selection is also used for simple within-component placement:
 `feature.on(body, face=Faces.TOP)`. The same `Faces` values select geometry

@@ -5,6 +5,7 @@ Feature operations (Hole, Fillet, join, cut) are handled separately.
 """
 from math import isfinite
 from .core import Shape, command_value, pv
+from .placement import _base_rectangle
 
 
 def _combine_dimension(a, b):
@@ -22,26 +23,41 @@ from .csg import _half
 
 def compile_base(shape, name):
     """Create a native editable base body, regardless of example/model name."""
-    if shape.kind == "box":
-        length, width, height = shape.data
+    if shape.kind in ("box", "placed_box"):
+        if shape.kind == "box":
+            length, width, height = shape.data
+            origin = (-length / 2, -width / 2, 0)
+            command_corner = (
+                _half(length, True),
+                _half(width, True),
+                0,
+            )
+        else:
+            (length, width), origin, height = _base_rectangle(shape)
+            command_corner = tuple(command_value(value) for value in origin)
+
         _require_positive(length, "box length")
         _require_positive(width, "box width")
         _require_positive(height, "box height")
         # Native 3D primitives must not synthesize a 2D sketch.
-        # Match the historical centered XY / bottom Z=0 Box placement.
         steps = [
             _command(
                 "solid.box",
                 length=command_value(length),
                 width=command_value(width),
                 height=command_value(height),
-                corner=[_half(length, True), _half(width, True), 0],
+                corner=list(command_corner),
                 body_name=name,
             ),
         ]
-        return steps, {"profile": "rectangle", "width": length,
-                       "depth": width, "thickness": height,
-                       "origin": (-length / 2, -width / 2, 0)}
+        return steps, {
+            "profile": "rectangle",
+            "primitive": "box",
+            "width": length,
+            "depth": width,
+            "thickness": height,
+            "origin": origin,
+        }
 
     if shape.kind == "sketch_base_extrusion":
         sketch_name, plane, origin, plane_offset, profiles, distance, direction = shape.data
