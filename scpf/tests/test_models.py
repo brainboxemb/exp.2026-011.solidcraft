@@ -46,7 +46,7 @@ class SCPFExamples(unittest.TestCase):
                 command_plan = run_script("model.py")
                 names = [row["command"] for row in command_plan["commands"]]
                 self.assertEqual(names.count("component.create"), 1)
-                self.assertIn("solid.extrude", names)
+                self.assertIn("solid.box", names)
                 self.assertEqual(sys.path, original_paths)
             finally:
                 os.chdir(original_cwd)
@@ -413,16 +413,13 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(
             [c["command"] for c in commands],
             [
-                "sketch.create",
-                "sketch.rectangle.two_point",
-                "sketch.finish",
-                "solid.extrude",
+                "solid.box",
                 "solid.shell",
             ],
         )
-        self.assertEqual(commands[0]["params"]["name"], "Enclosure footprint")
-        self.assertEqual(commands[4]["params"]["faces"], [[0, 0, 30]])
-        self.assertEqual(commands[4]["params"]["thickness"], 2)
+        self.assertEqual(commands[0]["params"]["body_name"], "Enclosure")
+        self.assertEqual(commands[1]["params"]["faces"], [[0, 0, 30]])
+        self.assertEqual(commands[1]["params"]["thickness"], 2)
         with self.assertRaises(ValueError):
             Box(80, 50, 30).shell(2, open=Faces.TOP).move(x=10)
 
@@ -489,10 +486,7 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(
             [c["command"] for c in feature_commands],
             [
-                "sketch.create",
-                "sketch.rectangle.two_point",
-                "sketch.finish",
-                "solid.extrude",
+                "solid.box",
                 "plastic.boss",
                 "plastic.boss",
                 "sketch.create",
@@ -513,7 +507,6 @@ class SCPFExamples(unittest.TestCase):
             [c["params"].get("name") for c in feature_commands
              if c["command"] == "sketch.create"],
             [
-                "HistoryPolicyBoss footprint",
                 "Boss",
                 "Boss hole",
                 "Explicit pad",
@@ -707,7 +700,7 @@ class SCPFExamples(unittest.TestCase):
             ["width"],
         )
         self.assertTrue(
-            any(command["command"] == "solid.extrude"
+            any(command["command"] == "solid.box"
                 for command in generated["commands"])
         )
 
