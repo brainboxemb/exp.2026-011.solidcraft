@@ -113,6 +113,9 @@ EXPECTED_BOUNDS = {
     "circle-negative-extrude": [
         {"label": "NegativeCircleExtrude", "min": [-10, -10, -30], "max": [10, 10, 0]},
     ],
+    "rounded-rectangle-sketch": [
+        {"label": "RoundedRectangleSketch", "min": [-40, -30, 0], "max": [40, 30, 13]},
+    ],
     "primitive-csg": [
         {"label": "PrimitiveCsg", "min": [-20, -20, 0], "max": [25, 20, 20]},
     ],
