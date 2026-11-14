@@ -49,9 +49,11 @@ class EightCornerBrackets:
         )
         bracket = LBracket()
 
-        # Placement belongs to this assembly. The same local bracket corner is
-        # used for all eight occurrences; SolidCraft's parent corner reference
-        # supplies the corner position/orientation on the front or rear face.
+        # Placement belongs to this assembly. Think in four XZ corner lines:
+        # each line receives two occurrences, one near each end of the depth.
+        # The FRONT/BACK topology identifies those ends, while a negative gap
+        # moves the 4 mm profile inward so it sits on the side/corner line
+        # rather than outside the front or rear face.
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
             z=Anchor.FRONT,
@@ -61,43 +63,51 @@ class EightCornerBrackets:
         front_top_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         front_top_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         front_bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         front_bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
 
         rear_top_left = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_TOP_LEFT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         rear_top_right = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_TOP_RIGHT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         rear_bottom_right = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
         rear_bottom_left = bracket.copy().attach(
             frame,
             parent=Anchor.BACK_BOTTOM_LEFT,
-            child=bracket_corner
+            child=bracket_corner,
+            gap=-LBracket.THICKNESS,
         )
 
         return (
