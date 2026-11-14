@@ -163,6 +163,13 @@ jobs:
             --param-check strict --results \
             --json-out output/native/four-corner-l/joint-inspect.json
 
+          # Named group hierarchy: ask native SolidCraft to report both the
+          # direct root children and the flattened subassembly contents.
+          solidcraft-cli run qualification/commands/group-hierarchy/inspect-bom.json \
+            --in output/native/group-hierarchy/model.sc \
+            --param-check strict --results \
+            --json-out output/native/group-hierarchy/results-bom.json
+
           # Assembly-owned semantic anchor: native corner relationship must remain associative.
           solidcraft-cli run qualification/commands/assembly-owned-anchor/change-size.json \
             --in output/native/assembly-owned-anchor/model.sc \

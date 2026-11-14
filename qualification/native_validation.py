@@ -280,6 +280,43 @@ def validate_assembly_decorator(root: Path) -> Validation:
     )
     return v
 
+
+def validate_group_hierarchy(root: Path) -> Validation:
+    v = Validation("group-hierarchy")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "group-hierarchy")
+    v.check("three native bodies", d["body_count"] == 3, 3, d["body_count"])
+
+    bom = load(root / "results-bom.json")
+    v.check("two native BOM inspections", len(bom) == 2, 2, len(bom))
+    if len(bom) == 2:
+        top, flat = bom
+        top_rows = {
+            row["definition"]: row["count"]
+            for row in top.get("rows", [])
+        }
+        flat_rows = {
+            row["definition"]: row["count"]
+            for row in flat.get("rows", [])
+        }
+        v.check(
+            "top BOM preserves named subassembly",
+            top.get("levels") == "top"
+            and top_rows == {"Frame": 1, "PanelGroup": 1}
+            and top.get("total_occurrences") == 2,
+            {"Frame": 1, "PanelGroup": 1, "total_occurrences": 2},
+            {**top_rows, "total_occurrences": top.get("total_occurrences")},
+        )
+        v.check(
+            "flat BOM expands grouped panel occurrences",
+            flat.get("levels") == "flat"
+            and flat_rows == {"Frame": 1, "Panel": 2}
+            and flat.get("total_occurrences") == 3,
+            {"Frame": 1, "Panel": 2, "total_occurrences": 3},
+            {**flat_rows, "total_occurrences": flat.get("total_occurrences")},
+        )
+    return v
+
 def validate_attach_angle(root: Path) -> Validation:
     v = Validation("attach-angle")
     d = load(root / "measurements.json")
@@ -642,6 +679,7 @@ VALIDATORS = {
     "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
     "assembly-decorator": validate_assembly_decorator,
+    "group-hierarchy": validate_group_hierarchy,
     "attach-angle": validate_attach_angle,
     "as-built-attach": validate_as_built_attach,
     "parametric-attach": validate_parametric_attach,

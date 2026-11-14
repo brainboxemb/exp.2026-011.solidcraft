@@ -124,6 +124,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "group-hierarchy",
+        "group": "components",
+        "title": "Named native subassembly group",
+        "intent": "Verify that group(name) creates a real nested native component rather than a Python-only label.",
+        "forge_api": "(left + right).group('PanelGroup'); group + Frame()",
+        "forge_model": "Two Panel occurrences share one definition under a named PanelGroup component, while Frame remains a direct root child.",
+        "lowering": "Forge emits component.create(name='PanelGroup'), creates Panel with parent='PanelGroup', copies its occurrence, and creates Frame at the design root.",
+        "native_expectation": "Two 10 x 2 x 20 mm panels remain nested under PanelGroup and one 35 x 10 x 40 mm frame remains at root; native BOM inspection must preserve that hierarchy.",
+        "mutation": "No saved-design mutation in this fixture; it isolates persisted native grouping and hierarchy.",
+        "references": [
+            ("SolidCraft", "Native components form a tree; top-level BOM inspection exposes direct children while flat BOM inspection expands subassemblies."),
+            ("PythonSCAD", "Python-side composition should lower to inspectable native CAD structure rather than remain a transient wrapper."),
+        ],
+    },
+    {
         "slug": "attach-angle",
         "group": "associativity",
         "title": "Native attachment clocking angle",
