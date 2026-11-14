@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "case": "group-hierarchy",
+  "title": "Named native subassembly group",
+  "source_commit": "1fe21e3c34063353d3fa71b9a5bb9a9e6510a9a1",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 16,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "joint-inspect.json",
+        "measurements.json",
+        "results-bom.json",
+        "validation.json"
+      ]
+    },
+    "q5": {
+      "status": "not-required",
+      "required": false,
+      "mutation": null,
+      "evidence": []
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png",
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png"
+      ],
+      "evidence": [
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png",
+        "visual-validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "joint-inspect.json",
+      "measurements.json",
+      "model.sc",
+      "model.step",
+      "results-bom.json",
+      "results.json",
+      "validation.json",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png",
+      "visual-validation.json"
+    ],
+    "images": [
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png"
+    ]
+  }
+}

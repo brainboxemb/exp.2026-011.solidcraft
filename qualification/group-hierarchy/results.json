@@ -1,0 +1,256 @@
+[
+  {
+    "component": 1,
+    "grounded": true,
+    "name": "PanelGroup",
+    "occurrence": 2,
+    "parent": 0
+  },
+  {
+    "component": 3,
+    "grounded": false,
+    "name": "Panel",
+    "occurrence": 4,
+    "parent": 1
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Panel footprint",
+    "projected": null,
+    "sketch": 5
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 4,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 5
+  },
+  {
+    "bodies": [
+      "Panel"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Panel"
+    ],
+    "feature": 6,
+    "ms": 0.940537,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "active": 0
+  },
+  {
+    "component": 3,
+    "occurrence": 7
+  },
+  {
+    "occurrence": 7,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        11.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  {
+    "component": 8,
+    "grounded": false,
+    "name": "Frame",
+    "occurrence": 9,
+    "parent": 0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Frame footprint",
+    "projected": null,
+    "sketch": 10
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+    ],
+    "corners": {
+      "bottom_left": "p1",
+      "bottom_right": "p2",
+      "top_left": "p4",
+      "top_right": "p3"
+    },
+    "created": {
+      "constraints": [
+        "k1",
+        "k2",
+        "k3",
+        "k4"
+      ],
+      "curves": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "dimensions": [],
+      "points": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ]
+    },
+    "curves": [
+      "l1",
+      "l2",
+      "l3",
+      "l4"
+    ],
+    "sides": {
+      "bottom": "l1",
+      "left": "l4",
+      "right": "l2",
+      "top": "l3"
+    },
+    "sketch": {
+      "dof": 4,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 10
+  },
+  {
+    "bodies": [
+      "Panel",
+      "Frame"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "Frame"
+    ],
+    "feature": 11,
+    "ms": 0.161724,
+    "name": "Extrude2",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "active": 0
+  },
+  {
+    "occurrence": 9,
+    "pending": false,
+    "transform": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        20.0,
+        0.0,
+        1.0
+      ]
+    ]
+  }
+]

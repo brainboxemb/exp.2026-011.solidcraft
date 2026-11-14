@@ -1,0 +1,76 @@
+[
+  {
+    "component": 0,
+    "group_by": [
+      "definition"
+    ],
+    "group_children": false,
+    "levels": "top",
+    "rows": [
+      {
+        "bom_type": "normal",
+        "components": [
+          8
+        ],
+        "count": 1,
+        "definition": "Frame",
+        "description": "",
+        "item": 1,
+        "part_number": "",
+        "properties": {},
+        "revision": ""
+      },
+      {
+        "bom_type": "normal",
+        "components": [
+          1
+        ],
+        "count": 1,
+        "definition": "PanelGroup",
+        "description": "",
+        "item": 2,
+        "part_number": "",
+        "properties": {},
+        "revision": ""
+      }
+    ],
+    "total_occurrences": 2
+  },
+  {
+    "component": 0,
+    "group_by": [
+      "definition"
+    ],
+    "group_children": false,
+    "levels": "flat",
+    "rows": [
+      {
+        "bom_type": "normal",
+        "components": [
+          8
+        ],
+        "count": 1,
+        "definition": "Frame",
+        "description": "",
+        "item": 1,
+        "part_number": "",
+        "properties": {},
+        "revision": ""
+      },
+      {
+        "bom_type": "normal",
+        "components": [
+          3
+        ],
+        "count": 2,
+        "definition": "Panel",
+        "description": "",
+        "item": 2,
+        "part_number": "",
+        "properties": {},
+        "revision": ""
+      }
+    ],
+    "total_occurrences": 3
+  }
+]

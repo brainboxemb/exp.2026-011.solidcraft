@@ -1,0 +1,135 @@
+{
+  "case": "group-hierarchy",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "left Panel",
+          "min": [
+            -5,
+            -1,
+            0
+          ],
+          "max": [
+            5,
+            1,
+            20
+          ]
+        },
+        {
+          "label": "right Panel",
+          "min": [
+            6,
+            -1,
+            0
+          ],
+          "max": [
+            16,
+            1,
+            20
+          ]
+        },
+        {
+          "label": "root Frame",
+          "min": [
+            -17.5,
+            15,
+            0
+          ],
+          "max": [
+            17.5,
+            25,
+            40
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -17.5,
+            15.0,
+            0.0
+          ],
+          "max": [
+            17.5,
+            25.0,
+            40.0
+          ]
+        },
+        {
+          "min": [
+            -5.0,
+            -1.0,
+            0.0
+          ],
+          "max": [
+            5.0,
+            1.0,
+            20.0
+          ]
+        },
+        {
+          "min": [
+            6.0,
+            -1.0,
+            0.0
+          ],
+          "max": [
+            16.0,
+            1.0,
+            20.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three native bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "two native BOM inspections",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "top BOM preserves named subassembly",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "Frame": 1,
+        "PanelGroup": 1,
+        "total_occurrences": 2
+      },
+      "actual": {
+        "Frame": 1,
+        "PanelGroup": 1,
+        "total_occurrences": 2
+      }
+    },
+    {
+      "name": "flat BOM expands grouped panel occurrences",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "Frame": 1,
+        "Panel": 2,
+        "total_occurrences": 3
+      },
+      "actual": {
+        "Frame": 1,
+        "Panel": 2,
+        "total_occurrences": 3
+      }
+    }
+  ]
+}
