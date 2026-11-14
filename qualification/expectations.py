@@ -31,6 +31,11 @@ EXPECTED_BOUNDS = {
         {"label": "left Post", "min": [-20, -5, 0], "max": [-10, 5, 20]},
         {"label": "right Post", "min": [10, -5, 0], "max": [20, 5, 20]},
     ],
+    "group-hierarchy": [
+        {"label": "left Panel", "min": [-5, -1, 0], "max": [5, 1, 20]},
+        {"label": "right Panel", "min": [6, -1, 0], "max": [16, 1, 20]},
+        {"label": "root Frame", "min": [-17.5, 15, 0], "max": [17.5, 25, 40]},
+    ],
     "attach-angle": [
         {"label": "Base", "min": [-30, -30, 0], "max": [30, 30, 10]},
         {"label": "Arm", "min": [-5, -15, 10], "max": [5, 15, 16]},

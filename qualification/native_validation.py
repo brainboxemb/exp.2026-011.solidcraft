@@ -280,6 +280,14 @@ def validate_assembly_decorator(root: Path) -> Validation:
     )
     return v
 
+
+def validate_group_hierarchy(root: Path) -> Validation:
+    v = Validation("group-hierarchy")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "group-hierarchy")
+    v.check("three native bodies", d["body_count"] == 3, 3, d["body_count"])
+    return v
+
 def validate_attach_angle(root: Path) -> Validation:
     v = Validation("attach-angle")
     d = load(root / "measurements.json")
@@ -642,6 +650,7 @@ VALIDATORS = {
     "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
     "assembly-decorator": validate_assembly_decorator,
+    "group-hierarchy": validate_group_hierarchy,
     "attach-angle": validate_attach_angle,
     "as-built-attach": validate_as_built_attach,
     "parametric-attach": validate_parametric_attach,
