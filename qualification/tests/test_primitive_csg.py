@@ -30,10 +30,10 @@ class PrimitiveCsgCommandTests(unittest.TestCase):
         self.assertEqual(joined_box["center"], [18.0, 0.0, 10.0])
 
         self.assertEqual(cylinder["operation"], "cut")
-        self.assertEqual(cylinder["axis"], "Z")
+        self.assertEqual(cylinder["axis"], "X")
         self.assertEqual(cylinder["diameter"], 8)
         self.assertEqual(cylinder["height"], 60)
-        self.assertEqual(cylinder["base"], [0.0, 0.0, -30.0])
+        self.assertEqual(cylinder["base"], [-30, 0, 0])
 
         self.assertEqual(clipped_box["operation"], "intersect")
         self.assertEqual(clipped_box["center"], [0.0, 0.0, 15.0])

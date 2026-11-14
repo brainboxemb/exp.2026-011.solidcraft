@@ -45,13 +45,13 @@ def _csg_primitive(shape, body_name, operation, *, offset=(0, 0, 0)):
                       operation=operation)
         command = "solid.sphere"
     elif kind == "cylinder":
-        height, diameter = data
+        height, diameter, axis = data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
                       base=list(offset),
-                      axis="Z", operation=operation)
+                      axis=axis, operation=operation)
         command = "solid.cylinder"
     else:
         raise ModelError(f"not a supported CSG primitive: {kind}")
@@ -64,6 +64,14 @@ def _csg_primitive(shape, body_name, operation, *, offset=(0, 0, 0)):
 
 
 def _csg_apply(shape, name, operation, offset=(0, 0, 0)):
+    if shape.kind == "placed3d":
+        child, x, y, z = shape.data
+        if child.kind != "cylinder":
+            raise ModelError("Only Cylinder supports 3D CSG placement")
+        return _csg_apply(
+            child, name, operation,
+            (command_value(x), command_value(y), command_value(z)),
+        )
     if shape.kind == "translated":
         child, delta = shape.data
         return _csg_apply(child, name, operation, _shift(offset, delta))

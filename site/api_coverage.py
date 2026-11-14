@@ -7,7 +7,7 @@ the highest dedicated coverage currently available.
 
 EXPORT_COVERAGE = {
     "Box": ("Q6", "Q6", ["simple-box"], "Native primitive and parameter baseline."),
-    "Cylinder": ("Q6", "Q6", ["primitive-csg"], "Simple Z-axis primitive is native-qualified in SolidCraft 0.30.1 after removing the type-specific orient shortcut."),
+    "Cylinder": ("Q6", "Q6", ["primitive-csg"], "Native principal-axis Cylinder is qualified with explicit Axis.X in SolidCraft 0.30.1; Axis.Y/Z use the same primitive field."),
     "Sphere": ("Q6", "Q6", ["primitive-csg"], "Primitive CSG creation is native-qualified in SolidCraft 0.30.1."),
     "Hole": ("Q6", "Q6", ["anchored-holes"], "Through-hole feature is native-qualified; directional/countersink variants need separate capability rows."),
     "Lip": ("Q6", "GAP", [], "Plastic feature needs a dedicated native fixture."),
@@ -46,13 +46,13 @@ EXPORT_COVERAGE = {
 
 CAPABILITY_COVERAGE = [
     ("Primitive objects", "Box", "Q6", "Q6", ["simple-box"], "Native parameterized box baseline."),
-    ("Primitive objects", "Cylinder", "Q6", "Q6", ["primitive-csg"], "Basic Z-axis cylinder passed native build, measurement and visual qualification."),
+    ("Primitive objects", "Cylinder(axis=Axis.X/Y/Z)", "Q6", "Q6", ["primitive-csg"], "Principal-axis native cylinder lowering passed native build, measurement and visual qualification."),
     ("Primitive objects", "Sphere", "Q6", "Q6", ["primitive-csg"], "Sphere passed native build, measurement and visual qualification."),
     ("Primitive objects", "Cone", "Q6", "GAP", [], "Not yet exposed through the public Forge API."),
     ("Primitive objects", "Torus", "Q6", "GAP", [], "Not yet exposed through the public Forge API."),
     ("Primitive CSG", "union / difference / intersection", "Q6", "Q6", ["primitive-csg"], "All three Boolean operators passed native SolidCraft qualification."),
     ("Shape transforms", "Shape.move(x,y,z)", "Q6", "Q6", ["primitive-csg"], "Translated primitive passed native SolidCraft qualification."),
-    ("Shape transforms", "General primitive rotation/orientation", "Q6", "GAP", [], "Design one general transform/direction API; do not add type-specific multi-axis shortcuts."),
+    ("Shape transforms", "General arbitrary primitive rotation", "Q6", "GAP", [], "Principal Cylinder axes are native; arbitrary primitive rotation remains a separate transform capability."),
     ("Profiles", "with Sketch(...): Circle2D; sketch.extrude()", "Q6", "Q6", ["circle-negative-extrude"], "Explicit circle Sketch compiles to a native Sketch plus ExtrudeFeature and is measured/visually qualified."),
     ("Profiles", "Extrude Direction.NEGATIVE", "Q6", "Q6", ["circle-negative-extrude"], "Explicit negative extrusion is qualified by persisted native history and Z bounds from -30 to 0 mm."),
     ("Features", "fillet()", "Q6", "Q6", ["four-corner-l", "eight-corner-brackets", "eight-flightcase-corners"], "Basic vertical-edge fillet is command-, native- and visual-qualified; richer edge-selection modes remain separate gaps."),

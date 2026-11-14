@@ -160,13 +160,15 @@ constraints are not implemented as a complete assembly solver.</p>""",
         "body": """
 <h2 id="solids">Start with a solid</h2>
 <p><code>Box(length, width, height)</code> is centred in X/Y, with its lower
-face at Z=0. <code>Cylinder(d=…, h=…)</code> starts at its bottom face.
-A sphere is specified by radius. These initial coordinate assumptions matter
+face at Z=0. <code>Cylinder(d=…, h=…, axis=Axis.Z)</code> starts at its
+base point. Use <code>Axis.X</code> or <code>Axis.Y</code> for the other
+native principal directions. A sphere is specified by radius. These initial coordinate assumptions matter
 when locating holes or placing multiple components.</p>
-""" + code("""from scpf import Box, Cylinder, Sphere
+""" + code("""from scpf import Axis, Box, Cylinder, Sphere
 
 plate = Box(80, 50, 8)
-pin = Cylinder(d=8, h=20).at(10, 10, 8)
+pin = Cylinder(d=8, h=20, axis=Axis.Z).at(10, 10, 8)
+side_pin = Cylinder(d=8, h=20, axis=Axis.X).at(-10, 0, 0)
 ball = Sphere(12)""") + """
 <h2 id="profiles">Draw a 2D profile, then extrude it</h2>
 <p>A <code>Rectangle2D</code> is a planar profile rather than a 3D body. 2D geometry is authored inside an explicit <code>Sketch</code> scope. <code>Polygon2D</code> can be created on the XY, XZ or YZ plane.</p>

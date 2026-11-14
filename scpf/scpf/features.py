@@ -387,7 +387,9 @@ def _attached_hole_commands(child, target, parent_anchor, resolved, name):
                     and boss_parent_anchor is Anchor.TOP
                     and boss_child_anchor is Anchor.BOTTOM
                     and all(pv(v) == 0 for v in boss_offset)):
-                boss_height, _ = boss.data
+                boss_height, _, boss_axis = boss.data
+                if boss_axis != "Z":
+                    raise ModelError("attached boss Cylinder must use Axis.Z")
                 entry_z = (base_top + boss_height
                            if isinstance(boss_height, (int, float))
                            else _combine(base_top, boss_height))
@@ -536,14 +538,16 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
 
     operations = []
     for primitive, position, refs in resolved:
-        height, diameter = primitive.data
+        height, diameter, axis = primitive.data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
+        if axis != "Z":
+            raise ModelError("attached Cylinder must use Axis.Z")
         params = dict(
             height=command_value(height),
             diameter=command_value(diameter),
             base=position,
-            axis="Z",
+            axis=axis,
             operation="join" if shape.kind == "union" else "cut",
             targets=[name],
         )
@@ -738,7 +742,7 @@ def _to_commands(shape, name):
                 primitive, x, y, z = added, 0, 0, 0
             if primitive.kind != "cylinder":
                 raise ModelError("boolean primitive requires Cylinder")
-            height, diameter = primitive.data
+            height, diameter, axis = primitive.data
             _require_positive(height, "cylinder height")
             _require_positive(diameter, "cylinder diameter")
             return steps + [
@@ -746,7 +750,7 @@ def _to_commands(shape, name):
                          height=command_value(height),
                          diameter=command_value(diameter),
                          base=[command_value(x), command_value(y), command_value(z)],
-                         axis="Z", operation="join" if shape.kind == "union" else "cut",
+                         axis=axis, operation="join" if shape.kind == "union" else "cut",
                          targets=[name]),
             ], base
         raise ModelError(f"unsupported CAD feature {added.kind}")

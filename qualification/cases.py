@@ -387,10 +387,10 @@ QUALIFICATION_CASES = [
         "slug": "primitive-csg",
         "group": "fundamentals",
         "title": "Primitive CSG",
-        "intent": "Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one ordinary Cylinder cut and intersection.",
-        "forge_api": "Sphere(); Box(...).move(...); Cylinder(...).move(...); + / - / &",
+        "intent": "Qualify direct primitive/CSG modelling independently of feature-history geometry: Sphere and Box union, translated primitives, one native X-axis Cylinder cut and intersection.",
+        "forge_api": "Sphere(); Box(...).move(...); Cylinder(..., axis=Axis.X).at(...); + / - / &",
         "forge_model": "A Shape CSG tree rooted in Sphere so Forge deliberately selects the direct CSG compiler instead of the feature-history Box compiler.",
-        "lowering": "solid.sphere(new), solid.box(join), one Z-axis solid.cylinder(cut), then solid.box(intersect).",
+        "lowering": "solid.sphere(new), solid.box(join), one X-axis solid.cylinder(cut), then solid.box(intersect).",
         "native_expectation": "SolidCraft accepts the complete CSG command path, produces one valid clipped body and evaluates the native timeline without errors.",
         "mutation": "No saved-design mutation in this case; it isolates primitive CSG lowering. Parametric edits are covered by dedicated Q5 cases.",
         "references": [

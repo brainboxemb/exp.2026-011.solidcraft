@@ -240,6 +240,22 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(Cylinder(d=24, h=14).kind, "cylinder")
         self.assertEqual(Cylinder(d=24, h=14).at(40, 25, 8).kind, "placed3d")
 
+    def test_cylinder_axis_lowers_directly_to_native_axis(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Axis, Cylinder
+
+        commands = compile_model(
+            Cylinder(d=12, h=30, axis=Axis.X).at(-15, 0, 0),
+            "Pin",
+        )["commands"]
+        cylinder = commands[-1]
+        self.assertEqual(cylinder["command"], "solid.cylinder")
+        self.assertEqual(cylinder["params"]["axis"], "X")
+        self.assertEqual(cylinder["params"]["base"], [-15, 0, 0])
+
+        with self.assertRaisesRegex(ValueError, "Cylinder axis"):
+            Cylinder(d=12, h=30, axis="diagonal")
+
     def test_cylinder_standalone_native_command(self):
         with tempfile.TemporaryDirectory() as directory:
             script = Path(directory) / "model.py"
