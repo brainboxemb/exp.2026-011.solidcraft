@@ -22,6 +22,8 @@ nav{display:flex;flex-wrap:wrap;gap:25px}nav a{color:#34445a;font-weight:600}
 pre{white-space:pre;overflow:auto;background:#0d1f33;border-radius:8px;color:#e6eef9;font:13px/1.5 Consolas,monospace;padding:16px}
 code{font-family:Consolas,'Courier New',monospace}.reference h3 code{font-size:.95rem;white-space:normal;overflow-wrap:anywhere}
 .crumb{margin:20px 0;color:var(--muted);font-size:.9rem}.notice{background:#eaf3ff;border-left:4px solid #4c92e5;padding:15px 20px;border-radius:7px;margin:27px 0}
+.development-warning{background:#fff0f0;border:1px solid #e7a6a6;border-left:5px solid #b42323;color:#7a1f1f!important;box-shadow:0 2px 8px #0000000b}
+.development-warning strong{color:#8f1d1d}.hero .development-warning{color:#7a1f1f!important}.hero .development-warning strong{color:#8f1d1d}
 .reference-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:14px;margin-bottom:38px}
 .reference pre{font-size:12px}.tip{font-size:.87rem}.commands{max-height:385px;overflow:auto;padding-left:25px}.commands li{padding:4px 0}
 main{padding-bottom:18px}.source-stamp{font-size:.83rem;color:var(--muted)}
