@@ -1,0 +1,131 @@
+{
+  "case": "as-built-attach",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            10
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            45,
+            5,
+            15
+          ],
+          "max": [
+            55,
+            35,
+            23
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            45.0,
+            5.0,
+            15.0
+          ],
+          "max": [
+            55.0,
+            35.0,
+            23.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "base remains at authored pose",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -20,
+          -15,
+          0
+        ],
+        "max": [
+          20,
+          15,
+          10
+        ]
+      },
+      "actual": {
+        "max": [
+          20.0,
+          15.0,
+          10.0
+        ],
+        "min": [
+          -20.0,
+          -15.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "name": "as-built child keeps translated 90-degree pose",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          45,
+          5,
+          15
+        ],
+        "max": [
+          55,
+          35,
+          23
+        ]
+      },
+      "actual": {
+        "max": [
+          55.0,
+          35.0,
+          23.0
+        ],
+        "min": [
+          45.0,
+          5.0,
+          15.0
+        ]
+      }
+    }
+  ]
+}

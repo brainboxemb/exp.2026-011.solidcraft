@@ -94,7 +94,7 @@
       "Base"
     ],
     "feature": 4,
-    "ms": 1.1577169999999999,
+    "ms": 0.8857440000000001,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -186,7 +186,7 @@
       "Marker"
     ],
     "feature": 8,
-    "ms": 0.309436,
+    "ms": 0.266731,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null

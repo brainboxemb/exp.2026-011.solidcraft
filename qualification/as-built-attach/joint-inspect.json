@@ -1,0 +1,109 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Base",
+          "frame": {
+            "origin": [
+              50.0,
+              20.0,
+              15.0
+            ],
+            "x": [
+              6.123233995736766e-17,
+              1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Base:1",
+          "path": "Base:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "origin": [
+              50.0,
+              20.0,
+              15.0
+            ],
+            "type": "frame",
+            "x": [
+              6.123233995736766e-17,
+              1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Marker",
+          "frame": {
+            "origin": [
+              50.0,
+              20.0,
+              15.0
+            ],
+            "x": [
+              6.123233995736766e-17,
+              1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Marker:1",
+          "path": "Marker:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "frame",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": true,
+        "id": 9,
+        "links": [],
+        "name": "Attach Marker:1 to Base:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

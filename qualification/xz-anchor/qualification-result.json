@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "xz-anchor",
   "title": "Anchors on XZ-profile extrusion",
-  "source_commit": "49127ef8619e7664d52402636c1bebc298f635c2",
+  "source_commit": "a34f270cc877fd55501dbe045ec4ae8dd34e0fcc",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
