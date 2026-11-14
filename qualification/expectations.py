@@ -19,9 +19,17 @@ EXPECTED_BOUNDS = {
         {"label": "shared_b", "min": [300, -10, 0], "max": [380, 10, 10]},
         {"label": "derived", "min": [440, -10, 0], "max": [480, 10, 10]},
     ],
+    "parent-derived-child-size": [
+        {"label": "ParentBlock", "min": [-60, -40, 0], "max": [60, 40, 10]},
+        {"label": "DerivedChild", "min": [-30, -20, 20], "max": [30, 20, 26]},
+    ],
     "components": [
         {"label": "left", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "right", "min": [20, -15, 0], "max": [60, 15, 10]},
+    ],
+    "parent-derived-child-size": [
+        {"label": "ParentBlock", "min": [-80, -60, 0], "max": [80, 60, 10]},
+        {"label": "DerivedChild", "min": [-40, -30, 20], "max": [40, 30, 26]},
     ],
     "parametric-attach": [
         {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 10]},
