@@ -1,0 +1,102 @@
+{
+  "case": "attach-angle",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -30,
+            -30,
+            0
+          ],
+          "max": [
+            30,
+            30,
+            10
+          ]
+        },
+        {
+          "label": "Arm",
+          "min": [
+            -5,
+            -15,
+            10
+          ],
+          "max": [
+            5,
+            15,
+            16
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -30.0,
+            -30.0,
+            0.0
+          ],
+          "max": [
+            30.0,
+            30.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            -5.000000000000001,
+            -15.0,
+            10.0
+          ],
+          "max": [
+            5.000000000000001,
+            15.0,
+            16.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "90 degree joint swaps 30x10 footprint to 10x30",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -5,
+          -15,
+          10
+        ],
+        "max": [
+          5,
+          15,
+          16
+        ]
+      },
+      "actual": {
+        "max": [
+          5.000000000000001,
+          15.0,
+          16.0
+        ],
+        "min": [
+          -5.000000000000001,
+          -15.0,
+          10.0
+        ]
+      }
+    }
+  ]
+}

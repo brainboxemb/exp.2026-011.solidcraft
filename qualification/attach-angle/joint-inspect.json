@@ -1,0 +1,123 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Base",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              10.0
+            ],
+            "x": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Base:1",
+          "path": "Base:1",
+          "references": [
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:top",
+              "role": "face",
+              "role_in_feature": "top"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "face": "F4:top",
+            "pick": [
+              0.0,
+              0.0,
+              10.0
+            ],
+            "type": "face_center",
+            "x": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        "angle": 90.0,
+        "b": {
+          "component": 5,
+          "component_name": "Arm",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              10.0
+            ],
+            "x": [
+              -1.0,
+              6.123233995736766e-17,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Arm:1",
+          "path": "Arm:1",
+          "references": [
+            {
+              "feature": {
+                "id": 8,
+                "name": "Extrude2",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F8:start",
+              "role": "face",
+              "role_in_feature": "start"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "face": "F8:start",
+            "pick": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "face_center",
+            "x": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 9,
+        "links": [],
+        "name": "Attach Arm:1 to Base:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]

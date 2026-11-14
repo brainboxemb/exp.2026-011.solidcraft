@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "anchor-topology-mutation",
   "title": "Explicit topology pick follows parent resize",
-  "source_commit": "c42c58545ff7e2bd771b2276c0b6d7d46605d528",
+  "source_commit": "bc334b83d4b2866b40c8ec6062325dba8ac988f6",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Native attachment clocking angle · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Native attachment clocking angle</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 N/R · Q6</span></div>
+  <h1>Native attachment clocking angle</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Native attachment clocking angle native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Native attachment clocking angle expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify that attach(angle=...) remains a native rigid-joint turn rather than being pre-baked into child geometry or an occurrence rotation.</p>
+  <h3>Pass criteria</h3>
+  <p>The Arm sits on the Base TOP face and its 30x10 footprint is quarter-turned to 10x30 in world XY.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Qualification: attach(angle=...) is a native joint clocking value.&quot;&quot;&quot;
+
+
+class Base:
+    WIDTH = 60.0
+    DEPTH = 60.0
+    HEIGHT = 10.0
+
+    def build(self):
+        return Box(self.WIDTH, self.DEPTH, self.HEIGHT)
+
+
+class Arm:
+    LENGTH = 30.0
+    WIDTH = 10.0
+    HEIGHT = 6.0
+
+    def build(self):
+        return Box(self.LENGTH, self.WIDTH, self.HEIGHT)
+
+
+class AttachAngle:
+    def build(self):
+        base = Base()
+        arm = Arm().attach(
+            base,
+            parent=Anchor.TOP,
+            child=Anchor.BOTTOM,
+            angle=90,
+        )
+        return base + arm
+
+
+AttachAngle()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>Arm().attach(base, parent=Anchor.TOP, child=Anchor.BOTTOM, angle=90)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One square Base and one non-square 30x10 Arm. The child definition stays neutral; only the attachment carries the quarter-turn.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>joint.create(type=&#x27;rigid&#x27;, angle=90) is the only authored clocking relationship. Forge does not rotate the Arm occurrence separately.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Arm:1 to Base:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;Base:1&quot;,
+        &quot;face&quot;: [
+          0.0,
+          0.0,
+          10.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Arm:1&quot;,
+        &quot;face&quot;: [
+          0.0,
+          0.0,
+          10.0
+        ]
+      },
+      &quot;angle&quot;: 90.0
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details open><summary><strong>Baseline</strong> · 2 bodies · <a href="measurements.json">measurements.json</a></summary><p>No editable parameters in this result.</p><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Base</td><td><code>[-30, -30, 0]</code></td><td><code>[30, 30, 10]</code></td></tr><tr><td>Arm</td><td><code>[-5, -15, 10]</code></td><td><code>[5, 15, 16]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;Base&quot;, &quot;min&quot;: [-30, -30, 0], &quot;max&quot;: [30, 30, 10]}, {&quot;label&quot;: &quot;Arm&quot;, &quot;min&quot;: [-5, -15, 10], &quot;max&quot;: [5, 15, 16]}]</code></td><td><code>[{&quot;min&quot;: [-30.0, -30.0, 0.0], &quot;max&quot;: [30.0, 30.0, 10.0]}, {&quot;min&quot;: [-5.000000000000001, -15.0, 10.0], &quot;max&quot;: [5.000000000000001, 15.0, 16.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>two bodies</td><td><code>2</code></td><td><code>2</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>90 degree joint swaps 30x10 footprint to 10x30</td><td><code>{&quot;min&quot;: [-5, -15, 10], &quot;max&quot;: [5, 15, 16]}</code></td><td><code>{&quot;max&quot;: [5.000000000000001, 15.0, 16.0], &quot;min&quot;: [-5.000000000000001, -15.0, 10.0]}</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Native attachment clocking angle iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Native attachment clocking angle iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Native attachment clocking angle iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Native attachment clocking angle front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Native attachment clocking angle front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Native attachment clocking angle front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Native attachment clocking angle right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Native attachment clocking angle right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Native attachment clocking angle right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The joint angle is the persisted native relationship value that clocks the child about the attachment normal.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Conceptually comparable to spin/clocking around an attachment normal, while the child geometry remains reusable and neutral.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
