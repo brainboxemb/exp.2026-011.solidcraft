@@ -344,7 +344,7 @@ def validate_anchor_topology_mutation(root: Path) -> Validation:
             [-25, -15, 15],
             [-15, -5, 25],
         ),
-        {"min": [-25, -15, 15], "max": [-15, -5, 25]},
+        {"min": [-25, -20, 15], "max": [-15, -10, 25]},
         one_body(d, "Marker")["bbox"],
     )
 
@@ -370,7 +370,7 @@ def validate_anchor_topology_mutation(root: Path) -> Validation:
             [-45, -15, 35],
             [-35, -5, 45],
         ),
-        {"min": [-45, -15, 35], "max": [-35, -5, 45]},
+        {"min": [-45, -20, 35], "max": [-35, -10, 45]},
         one_body(m, "Marker")["bbox"],
         "q5",
     )
