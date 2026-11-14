@@ -27,10 +27,6 @@ EXPECTED_BOUNDS = {
         {"label": "left", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "right", "min": [20, -15, 0], "max": [60, 15, 10]},
     ],
-    "parent-derived-child-size": [
-        {"label": "ParentBlock", "min": [-80, -60, 0], "max": [80, 60, 10]},
-        {"label": "DerivedChild", "min": [-40, -30, 20], "max": [40, 30, 26]},
-    ],
     "parametric-attach": [
         {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "Block", "min": [30, -10, 0], "max": [50, 10, 10]},
@@ -95,6 +91,10 @@ EXPECTED_BOUNDS = {
 
 
 EXPECTED_MUTATION_BOUNDS = {
+    "parent-derived-child-size": [
+        {"label": "ParentBlock", "min": [-80, -60, 0], "max": [80, 60, 10]},
+        {"label": "DerivedChild", "min": [-40, -30, 20], "max": [40, 30, 26]},
+    ],
     "parameter-scope": [
         {"label": "local", "min": [-20, -10, 0], "max": [20, 10, 10]},
         {"label": "override", "min": [70, -10, 0], "max": [130, 10, 10]},
