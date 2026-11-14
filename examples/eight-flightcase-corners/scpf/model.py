@@ -11,6 +11,9 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
+    # Fixed representative dimensions for this orientation qualification.
+    # They deliberately do not depend on CaseBlock dimensions; testing a
+    # child component sized from its parent belongs in a separate case.
     ARM = 30.0
     THICKNESS = 4.0
     OVERLAP = 0.5
