@@ -12,8 +12,8 @@ class Bracket:
     arm_height: float = 12
 
     def build(self):
-        with Sketch(plane="XZ") as sketch:
-    profile = Polygon2D(
+        with Sketch(name="Profile", plane="XZ") as sketch:
+            Polygon2D(
                 [
                     (0, 0),
                     (self.arm_length, 0),
@@ -24,7 +24,6 @@ class Bracket:
                 ],
                 plane="XZ",
             )
-            sketch.add(profile)
         return sketch.extrude(self.width, direction=Direction.SYMMETRIC)
 
 
