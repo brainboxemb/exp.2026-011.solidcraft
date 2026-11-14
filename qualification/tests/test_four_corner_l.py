@@ -1,4 +1,4 @@
-"""Qualification tests for four reusable L-profiles centred on XZ corner lines."""
+"""Qualification tests for four vertical L-profiles on rounded side corners."""
 import json
 import os
 from pathlib import Path
@@ -10,16 +10,9 @@ from scpf.runner import run_script
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
-EXPECTED_CORNERS = [
-    [-60.0, -40.0, 60.0],
-    [60.0, -40.0, 60.0],
-    [60.0, -40.0, 0.0],
-    [-60.0, -40.0, 0.0],
-]
-
 
 class FourCornerLCommandTests(unittest.TestCase):
-    def test_generated_central_xz_placement_contract(self):
+    def test_generated_vertical_corner_profile_contract(self):
         document = run_script(
             ROOT / "examples/four-corner-l/scpf/model.py"
         )
@@ -44,7 +37,7 @@ class FourCornerLCommandTests(unittest.TestCase):
             for row in commands
             if row["command"] == "component.create"
         ]
-        self.assertEqual(components, ["FrameBlock", "LBracket"])
+        self.assertEqual(components, ["FrameBlock", "LProfile"])
 
         copies = [
             row for row in commands
@@ -67,45 +60,46 @@ class FourCornerLCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 4)
 
-        expected_angles = [270, 180, 90, 0]
-        expected_u_signs = [-1, 1, 1, -1]
-        expected_v = ["frame_height", "frame_height", 0, 0]
+        expected_angles = [0, 90, 180, 270]
+        expected_xy = [
+            ("-(frame_width / 2)", "-(frame_depth / 2)"),
+            ("frame_width / 2", "-(frame_depth / 2)"),
+            ("frame_width / 2", "frame_depth / 2"),
+            ("-(frame_width / 2)", "frame_depth / 2"),
+        ]
 
         for index, joint in enumerate(joints, 1):
             self.assertEqual(joint["type"], "planar")
+            self.assertEqual(joint["angle"], 0.0)
             self.assertEqual(
                 joint["a"],
                 {
                     "occurrence": "FrameBlock:1",
                     "point": [0.0, 0.0, 0.0],
-                    "z": [0.0, -1.0, 0.0],
+                    "z": [0.0, 0.0, 1.0],
                     "x": [1.0, 0.0, 0.0],
                 },
             )
             self.assertEqual(
                 joint["b"],
                 {
-                    "occurrence": f"LBracket:{index}",
+                    "occurrence": f"LProfile:{index}",
                     "point": [0.0, 0.0, 0.0],
-                    "z": [0.0, -1.0, 0.0],
+                    "z": [0.0, 0.0, 1.0],
                     "x": [1.0, 0.0, 0.0],
                 },
             )
-            self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(
+                tuple(joint["values"][:2]),
+                expected_xy[index - 1],
+            )
             self.assertEqual(joint["values"][2], expected_angles[index - 1])
-            self.assertEqual(joint["values"][1], expected_v[index - 1])
-            u = str(joint["values"][0])
-            self.assertIn("frame_width", u)
-            if expected_u_signs[index - 1] < 0:
-                self.assertTrue(u.startswith("-"), u)
-            else:
-                self.assertFalse(u.startswith("-"), u)
-            self.assertNotIn("offset", joint)
+            self.assertIn("frame_height", str(joint["offset"]))
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
 class FourCornerLNativeTests(unittest.TestCase):
-    def test_native_bounding_boxes_match_four_centered_profiles(self):
+    def test_native_bounding_boxes_match_four_centered_vertical_profiles(self):
         data = _load(
             Path(NATIVE_ROOT) / "four-corner-l" / "measurements.json"
         )
@@ -123,28 +117,28 @@ class FourCornerLNativeTests(unittest.TestCase):
             },
         )
 
-        brackets = [
+        profiles = [
             body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
+            if body["name"].startswith("LProfile")
         ]
-        self.assertEqual(len(brackets), 4)
+        self.assertEqual(len(profiles), 4)
 
         actual = sorted(
             (
                 tuple(_rounded_bbox(body)["min"]),
                 tuple(_rounded_bbox(body)["max"]),
             )
-            for body in brackets
+            for body in profiles
         )
         expected = sorted([
-            ((-60.0, -2.0, 32.0), (-32.0, 2.0, 60.0)),
-            ((32.0, -2.0, 32.0), (60.0, 2.0, 60.0)),
-            ((32.0, -2.0, 0.0), (60.0, 2.0, 28.0)),
-            ((-60.0, -2.0, 0.0), (-32.0, 2.0, 28.0)),
+            ((-64.0, -44.0, 22.0), (-32.0, -12.0, 38.0)),
+            ((32.0, -44.0, 22.0), (64.0, -12.0, 38.0)),
+            ((32.0, 12.0, 22.0), (64.0, 44.0, 38.0)),
+            ((-64.0, 12.0, 22.0), (-32.0, 44.0, 38.0)),
         ])
         self.assertEqual(actual, expected)
 
-    def test_saved_size_mutation_keeps_profiles_centered(self):
+    def test_saved_size_mutation_moves_profiles_but_keeps_mid_height(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "four-corner-l"
@@ -160,22 +154,22 @@ class FourCornerLNativeTests(unittest.TestCase):
             },
         )
 
-        brackets = [
+        profiles = [
             body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
+            if body["name"].startswith("LProfile")
         ]
         actual = sorted(
             (
                 tuple(_rounded_bbox(body)["min"]),
                 tuple(_rounded_bbox(body)["max"]),
             )
-            for body in brackets
+            for body in profiles
         )
         expected = sorted([
-            ((-80.0, -2.0, 32.0), (-52.0, 2.0, 60.0)),
-            ((52.0, -2.0, 32.0), (80.0, 2.0, 60.0)),
-            ((52.0, -2.0, 0.0), (80.0, 2.0, 28.0)),
-            ((-80.0, -2.0, 0.0), (-52.0, 2.0, 28.0)),
+            ((-84.0, -64.0, 22.0), (-52.0, -32.0, 38.0)),
+            ((52.0, -64.0, 22.0), (84.0, -32.0, 38.0)),
+            ((52.0, 32.0, 22.0), (84.0, 64.0, 38.0)),
+            ((-84.0, 32.0, 22.0), (-52.0, 64.0, 38.0)),
         ])
         self.assertEqual(actual, expected)
 
