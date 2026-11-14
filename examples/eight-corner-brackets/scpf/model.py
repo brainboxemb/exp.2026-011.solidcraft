@@ -20,8 +20,8 @@ class LProfile:
     PROFILE_HEIGHT = 16.0
 
     def build(self):
-        with Sketch(plane="XY") as sketch:
-    profile = Polygon2D(
+        with Sketch(name="Profile", plane="XY") as sketch:
+            Polygon2D(
                 [
                     (0, 0),
                     (self.ARM_LENGTH, 0),
@@ -32,7 +32,6 @@ class LProfile:
                 ],
                 plane="XY",
             )
-            sketch.add(profile)
         return sketch.extrude(
             self.PROFILE_HEIGHT,
             direction=Direction.POSITIVE,
