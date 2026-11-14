@@ -928,17 +928,6 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 links.append(escape(name))
         return ", ".join(links) if links else "—"
 
-    def forge_support_status(forge):
-        value = forge.lower()
-        if value.startswith("missing"):
-            return "Missing"
-        if any(marker in value for marker in (
-            "partial", "subset", "limited", "internal", "special-case",
-            "cli/project", "little public",
-        )):
-            return "Partial"
-        return "Supported"
-
     solidcraft_rows = []
     forge_status_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
     group_titles = dict(CAPABILITY_GROUPS)
@@ -949,8 +938,9 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     primitive_names = {"Box", "Cylinder", "Sphere", "Cone", "Torus"}
     primitive_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
 
-    for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
-        status = forge_support_status(forge)
+    for group, capability, solidcraft, status, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
+        if status not in forge_status_counts:
+            raise ValueError(f"Unknown Forge support status: {status}")
         forge_status_counts[status] += 1
         group_status_counts[group][status] += 1
         if capability in primitive_names:
