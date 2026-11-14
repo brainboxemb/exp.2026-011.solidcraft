@@ -1,61 +1,62 @@
 {
   "bodies": [
     {
-      "area_mm2": 43200.0,
+      "area_mm2": 42265.84565773242,
       "bbox": {
         "max": [
-          60.0,
-          40.0,
-          60.0
+          60.00000000000001,
+          40.00000000000001,
+          60.00000000000003
         ],
         "min": [
-          -60.0,
+          -60.000000000000014,
           -40.0,
-          0.0
+          -9.365091704158134e-15
         ]
       },
       "center_of_mass": [
-        0.0,
-        0.0,
-        30.0
+        -2.3037717244535025e-15,
+        8.43128909529027e-15,
+        29.99999999999999
       ],
       "closed": true,
       "density_g_cm3": 1.29,
-      "edges": 12,
+      "edges": 24,
       "face_types": {
+        "cylinder": 4,
         "plane": 6
       },
-      "faces": 6,
+      "faces": 10,
       "kernel": {
-        "edges": 12,
-        "faces": 6,
+        "edges": 24,
+        "faces": 10,
         "shells": 1,
-        "vertices": 8
+        "vertices": 16
       },
-      "mass_g": 743.04,
+      "mass_g": 738.7850050610076,
       "material": "Default",
       "name": "FrameBlock",
-      "vertices": 8,
-      "volume_mm3": 576000.0
+      "vertices": 16,
+      "volume_mm3": 572701.5543108586
     },
     {
-      "area_mm2": 1216.0,
+      "area_mm2": 2528.0,
       "bbox": {
         "max": [
           -32.0,
-          -40.0,
-          60.0
+          -12.0,
+          16.0
         ],
         "min": [
-          -60.0,
+          -64.0,
           -44.0,
-          32.0
+          0.0
         ]
       },
       "center_of_mass": [
-        -50.166666666666664,
-        -42.0,
-        50.166666666666664
+        -54.53333333333333,
+        -34.53333333333333,
+        8.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -70,30 +71,30 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 1.98144,
+      "mass_g": 4.953600000000001,
       "material": "Default",
-      "name": "LBracket",
+      "name": "LProfile",
       "vertices": 12,
-      "volume_mm3": 1536.0
+      "volume_mm3": 3840.0
     },
     {
-      "area_mm2": 1216.0,
+      "area_mm2": 2528.0,
       "bbox": {
         "max": [
-          60.0,
-          -40.0,
+          -32.0,
+          -12.0,
           60.0
         ],
         "min": [
-          32.0,
+          -64.0,
           -44.0,
-          32.0
+          44.0
         ]
       },
       "center_of_mass": [
-        50.166666666666664,
-        -42.0,
-        50.166666666666664
+        -54.53333333333333,
+        -34.53333333333333,
+        52.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -108,19 +109,19 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 1.98144,
+      "mass_g": 4.953600000000001,
       "material": "Default",
-      "name": "LBracket (LBracket:2)",
+      "name": "LProfile (LProfile:2)",
       "vertices": 12,
-      "volume_mm3": 1536.0
+      "volume_mm3": 3840.0
     },
     {
-      "area_mm2": 1216.0000000000002,
+      "area_mm2": 2528.0,
       "bbox": {
         "max": [
-          60.0,
-          -40.0,
-          28.0
+          64.0,
+          -12.0,
+          16.0
         ],
         "min": [
           32.0,
@@ -129,9 +130,9 @@
         ]
       },
       "center_of_mass": [
-        50.166666666666664,
-        -42.0,
-        9.833333333333334
+        54.53333333333333,
+        -34.53333333333333,
+        8.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -146,30 +147,30 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 1.98144,
+      "mass_g": 4.953600000000001,
       "material": "Default",
-      "name": "LBracket (LBracket:3)",
+      "name": "LProfile (LProfile:3)",
       "vertices": 12,
-      "volume_mm3": 1536.0
+      "volume_mm3": 3840.0
     },
     {
-      "area_mm2": 1216.0000000000002,
+      "area_mm2": 2528.0,
       "bbox": {
         "max": [
-          -32.0,
-          -40.0,
-          28.0
+          64.0,
+          -12.0,
+          60.0
         ],
         "min": [
-          -60.0,
+          32.0,
           -44.0,
-          0.0
+          44.0
         ]
       },
       "center_of_mass": [
-        -50.166666666666664,
-        -42.0,
-        9.833333333333334
+        54.53333333333333,
+        -34.53333333333333,
+        52.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -184,14 +185,128 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 1.98144,
+      "mass_g": 4.953600000000001,
       "material": "Default",
-      "name": "LBracket (LBracket:4)",
+      "name": "LProfile (LProfile:4)",
       "vertices": 12,
-      "volume_mm3": 1536.0
+      "volume_mm3": 3840.0
     },
     {
-      "area_mm2": 1216.0,
+      "area_mm2": 2528.0,
+      "bbox": {
+        "max": [
+          64.0,
+          44.0,
+          16.0
+        ],
+        "min": [
+          32.0,
+          12.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        54.53333333333333,
+        34.53333333333333,
+        8.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 18,
+      "face_types": {
+        "plane": 8
+      },
+      "faces": 8,
+      "kernel": {
+        "edges": 18,
+        "faces": 8,
+        "shells": 1,
+        "vertices": 12
+      },
+      "mass_g": 4.953600000000001,
+      "material": "Default",
+      "name": "LProfile (LProfile:5)",
+      "vertices": 12,
+      "volume_mm3": 3840.0
+    },
+    {
+      "area_mm2": 2528.0,
+      "bbox": {
+        "max": [
+          64.0,
+          44.0,
+          60.0
+        ],
+        "min": [
+          32.0,
+          12.0,
+          44.0
+        ]
+      },
+      "center_of_mass": [
+        54.53333333333333,
+        34.53333333333333,
+        52.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 18,
+      "face_types": {
+        "plane": 8
+      },
+      "faces": 8,
+      "kernel": {
+        "edges": 18,
+        "faces": 8,
+        "shells": 1,
+        "vertices": 12
+      },
+      "mass_g": 4.953600000000001,
+      "material": "Default",
+      "name": "LProfile (LProfile:6)",
+      "vertices": 12,
+      "volume_mm3": 3840.0
+    },
+    {
+      "area_mm2": 2528.0,
+      "bbox": {
+        "max": [
+          -32.0,
+          44.0,
+          16.0
+        ],
+        "min": [
+          -64.0,
+          12.0,
+          0.0
+        ]
+      },
+      "center_of_mass": [
+        -54.53333333333334,
+        34.53333333333333,
+        8.0
+      ],
+      "closed": true,
+      "density_g_cm3": 1.29,
+      "edges": 18,
+      "face_types": {
+        "plane": 8
+      },
+      "faces": 8,
+      "kernel": {
+        "edges": 18,
+        "faces": 8,
+        "shells": 1,
+        "vertices": 12
+      },
+      "mass_g": 4.953599999999998,
+      "material": "Default",
+      "name": "LProfile (LProfile:7)",
+      "vertices": 12,
+      "volume_mm3": 3839.9999999999977
+    },
+    {
+      "area_mm2": 2528.0,
       "bbox": {
         "max": [
           -32.0,
@@ -199,15 +314,15 @@
           60.0
         ],
         "min": [
-          -60.0,
-          40.0,
-          32.0
+          -64.0,
+          12.0,
+          44.0
         ]
       },
       "center_of_mass": [
-        -50.166666666666664,
-        42.0,
-        50.166666666666664
+        -54.53333333333334,
+        34.53333333333333,
+        52.0
       ],
       "closed": true,
       "density_g_cm3": 1.29,
@@ -222,125 +337,11 @@
         "shells": 1,
         "vertices": 12
       },
-      "mass_g": 1.98144,
+      "mass_g": 4.953599999999998,
       "material": "Default",
-      "name": "LBracket (LBracket:5)",
+      "name": "LProfile (LProfile:8)",
       "vertices": 12,
-      "volume_mm3": 1536.0
-    },
-    {
-      "area_mm2": 1216.0,
-      "bbox": {
-        "max": [
-          60.0,
-          44.0,
-          60.0
-        ],
-        "min": [
-          32.0,
-          40.0,
-          32.0
-        ]
-      },
-      "center_of_mass": [
-        50.166666666666664,
-        42.0,
-        50.166666666666664
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 18,
-      "face_types": {
-        "plane": 8
-      },
-      "faces": 8,
-      "kernel": {
-        "edges": 18,
-        "faces": 8,
-        "shells": 1,
-        "vertices": 12
-      },
-      "mass_g": 1.98144,
-      "material": "Default",
-      "name": "LBracket (LBracket:6)",
-      "vertices": 12,
-      "volume_mm3": 1536.0
-    },
-    {
-      "area_mm2": 1216.0000000000002,
-      "bbox": {
-        "max": [
-          60.0,
-          44.0,
-          28.0
-        ],
-        "min": [
-          32.0,
-          40.0,
-          0.0
-        ]
-      },
-      "center_of_mass": [
-        50.166666666666664,
-        42.0,
-        9.833333333333334
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 18,
-      "face_types": {
-        "plane": 8
-      },
-      "faces": 8,
-      "kernel": {
-        "edges": 18,
-        "faces": 8,
-        "shells": 1,
-        "vertices": 12
-      },
-      "mass_g": 1.98144,
-      "material": "Default",
-      "name": "LBracket (LBracket:7)",
-      "vertices": 12,
-      "volume_mm3": 1536.0
-    },
-    {
-      "area_mm2": 1216.0000000000002,
-      "bbox": {
-        "max": [
-          -32.0,
-          44.0,
-          28.0
-        ],
-        "min": [
-          -60.0,
-          40.0,
-          0.0
-        ]
-      },
-      "center_of_mass": [
-        -50.166666666666664,
-        42.0,
-        9.833333333333334
-      ],
-      "closed": true,
-      "density_g_cm3": 1.29,
-      "edges": 18,
-      "face_types": {
-        "plane": 8
-      },
-      "faces": 8,
-      "kernel": {
-        "edges": 18,
-        "faces": 8,
-        "shells": 1,
-        "vertices": 12
-      },
-      "mass_g": 1.98144,
-      "material": "Default",
-      "name": "LBracket (LBracket:8)",
-      "vertices": 12,
-      "volume_mm3": 1536.0
+      "volume_mm3": 3839.9999999999977
     }
   ],
   "body_count": 9,
@@ -386,7 +387,7 @@
     {
       "curves": 6,
       "dof": 10,
-      "id": 7,
+      "id": 8,
       "name": "Profile",
       "profiles": 1,
       "status": "solved",
@@ -401,7 +402,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 0.174703,
+      "ms": 0.225319,
       "name": "FrameBlock footprint",
       "rolled_back": false,
       "suppressed": false,
@@ -415,7 +416,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 0.624669,
+      "ms": 0.74428,
       "name": "Extrude1",
       "rolled_back": false,
       "suppressed": false,
@@ -428,8 +429,22 @@
         "truncated": false
       },
       "error": null,
-      "id": 7,
-      "ms": 0.074902,
+      "id": 5,
+      "ms": 43.576353,
+      "name": "Fillet1",
+      "rolled_back": false,
+      "suppressed": false,
+      "type": "FilletFeature",
+      "warning": null
+    },
+    {
+      "boolean_diagnostics": {
+        "events": [],
+        "truncated": false
+      },
+      "error": null,
+      "id": 8,
+      "ms": 0.12087200000000001,
       "name": "Profile",
       "rolled_back": false,
       "suppressed": false,
@@ -442,8 +457,8 @@
         "truncated": false
       },
       "error": null,
-      "id": 8,
-      "ms": 0.309345,
+      "id": 9,
+      "ms": 0.365961,
       "name": "Extrude2",
       "rolled_back": false,
       "suppressed": false,
@@ -452,12 +467,12 @@
     }
   ],
   "total": {
-    "area_mm2": 52928.0,
-    "edges": 156,
-    "faces": 70,
-    "mass_g": 758.8915200000001,
+    "area_mm2": 62489.84565773242,
+    "edges": 168,
+    "faces": 74,
+    "mass_g": 778.413805061008,
     "open_bodies_skipped": 0,
-    "vertices": 104,
-    "volume_mm3": 588288.0
+    "vertices": 112,
+    "volume_mm3": 603421.5543108586
   }
 }

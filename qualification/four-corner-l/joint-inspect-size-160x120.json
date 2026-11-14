@@ -12,14 +12,14 @@
               0.0
             ],
             "x": [
+              1.0,
               0.0,
-              -1.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              -1.0
+              1.0
             ]
           },
           "occurrence": 2,
@@ -35,41 +35,41 @@
             ],
             "type": "point",
             "x": [
+              1.0,
               0.0,
-              -1.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              -1.0
+              1.0
             ]
           }
         },
         "angle": 0.0,
         "b": {
-          "component": 5,
-          "component_name": "CornerFoot",
+          "component": 6,
+          "component_name": "LProfile",
           "frame": {
             "origin": [
               -80.0,
               -60.0,
-              0.0
+              22.0
             ],
             "x": [
+              1.0,
               0.0,
-              -1.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              1.0
+              -1.0
             ]
           },
-          "occurrence": 6,
-          "occurrence_name": "CornerFoot:1",
-          "path": "CornerFoot:1",
+          "occurrence": 7,
+          "occurrence_name": "LProfile:1",
+          "path": "LProfile:1",
           "references": [],
           "resolves": true,
           "snap": {
@@ -80,14 +80,14 @@
             ],
             "type": "point",
             "x": [
+              1.0,
               0.0,
-              -1.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              1.0
+              -1.0
             ]
           }
         },
@@ -99,148 +99,17 @@
         ],
         "errors": [],
         "expressions": {
+          "offset": "(frame_height - 16 mm) / 2",
           "values": [
-            "frame_depth / 2",
-            "frame_width / 2"
-          ]
-        },
-        "flip": false,
-        "id": 12,
-        "links": [],
-        "name": "Attach CornerFoot:1 to FrameBlock:1",
-        "offset": 0.0,
-        "suppressed": false,
-        "type": "planar",
-        "values": [
-          {
-            "limits": null,
-            "name": "x",
-            "unit": "mm",
-            "value": 60.0
-          },
-          {
-            "limits": null,
-            "name": "y",
-            "unit": "mm",
-            "value": 80.0
-          },
-          {
-            "limits": null,
-            "name": "angle",
-            "unit": "deg",
-            "value": 0.0
-          }
-        ],
-        "visible": false
-      },
-      {
-        "a": {
-          "component": 1,
-          "component_name": "FrameBlock",
-          "frame": {
-            "origin": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "x": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              -1.0
-            ]
-          },
-          "occurrence": 2,
-          "occurrence_name": "FrameBlock:1",
-          "path": "FrameBlock:1",
-          "references": [],
-          "resolves": true,
-          "snap": {
-            "point": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "type": "point",
-            "x": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              -1.0
-            ]
-          }
-        },
-        "angle": 0.0,
-        "b": {
-          "component": 5,
-          "component_name": "CornerFoot",
-          "frame": {
-            "origin": [
-              80.0,
-              -60.0,
-              0.0
-            ],
-            "x": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              1.0
-            ]
-          },
-          "occurrence": 9,
-          "occurrence_name": "CornerFoot:2",
-          "path": "CornerFoot:2",
-          "references": [],
-          "resolves": true,
-          "snap": {
-            "point": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "type": "point",
-            "x": [
-              -1.0,
-              0.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              1.0
-            ]
-          }
-        },
-        "conflicts": [],
-        "dofs": [
-          "x",
-          "y",
-          "angle"
-        ],
-        "errors": [],
-        "expressions": {
-          "values": [
-            "frame_depth / 2",
-            "-(frame_width / 2)"
+            "-(frame_width / 2)",
+            "-(frame_depth / 2)"
           ]
         },
         "flip": false,
         "id": 13,
         "links": [],
-        "name": "Attach CornerFoot:2 to FrameBlock:1",
-        "offset": 0.0,
+        "name": "Attach LProfile:1 to FrameBlock:1",
+        "offset": 22.0,
         "suppressed": false,
         "type": "planar",
         "values": [
@@ -248,13 +117,13 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": 60.0
+            "value": -80.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": -80.0
+            "value": -60.0
           },
           {
             "limits": null,
@@ -276,14 +145,14 @@
               0.0
             ],
             "x": [
+              1.0,
               0.0,
-              -1.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              -1.0
+              1.0
             ]
           },
           "occurrence": 2,
@@ -299,30 +168,8 @@
             ],
             "type": "point",
             "x": [
+              1.0,
               0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              -1.0
-            ]
-          }
-        },
-        "angle": 0.0,
-        "b": {
-          "component": 5,
-          "component_name": "CornerFoot",
-          "frame": {
-            "origin": [
-              80.0,
-              60.0,
-              0.0
-            ],
-            "x": [
-              0.0,
-              -1.0,
               0.0
             ],
             "z": [
@@ -330,10 +177,32 @@
               0.0,
               1.0
             ]
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 6,
+          "component_name": "LProfile",
+          "frame": {
+            "origin": [
+              80.0,
+              -60.0,
+              22.0
+            ],
+            "x": [
+              6.123233995736766e-17,
+              1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
           },
           "occurrence": 10,
-          "occurrence_name": "CornerFoot:3",
-          "path": "CornerFoot:3",
+          "occurrence_name": "LProfile:2",
+          "path": "LProfile:2",
           "references": [],
           "resolves": true,
           "snap": {
@@ -344,14 +213,14 @@
             ],
             "type": "point",
             "x": [
-              0.0,
               1.0,
+              0.0,
               0.0
             ],
             "z": [
               0.0,
               0.0,
-              1.0
+              -1.0
             ]
           }
         },
@@ -363,16 +232,17 @@
         ],
         "errors": [],
         "expressions": {
+          "offset": "(frame_height - 16 mm) / 2",
           "values": [
-            "-(frame_depth / 2)",
-            "-(frame_width / 2)"
+            "frame_width / 2",
+            "-(frame_depth / 2)"
           ]
         },
         "flip": false,
         "id": 14,
         "links": [],
-        "name": "Attach CornerFoot:3 to FrameBlock:1",
-        "offset": 0.0,
+        "name": "Attach LProfile:2 to FrameBlock:1",
+        "offset": 22.0,
         "suppressed": false,
         "type": "planar",
         "values": [
@@ -380,19 +250,19 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": -60.0
+            "value": 80.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": -80.0
+            "value": -60.0
           },
           {
             "limits": null,
             "name": "angle",
             "unit": "deg",
-            "value": 0.0
+            "value": 90.0
           }
         ],
         "visible": false
@@ -408,53 +278,8 @@
               0.0
             ],
             "x": [
+              1.0,
               0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              -1.0
-            ]
-          },
-          "occurrence": 2,
-          "occurrence_name": "FrameBlock:1",
-          "path": "FrameBlock:1",
-          "references": [],
-          "resolves": true,
-          "snap": {
-            "point": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "type": "point",
-            "x": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "z": [
-              0.0,
-              0.0,
-              -1.0
-            ]
-          }
-        },
-        "angle": 0.0,
-        "b": {
-          "component": 5,
-          "component_name": "CornerFoot",
-          "frame": {
-            "origin": [
-              -80.0,
-              60.0,
-              0.0
-            ],
-            "x": [
-              0.0,
-              -1.0,
               0.0
             ],
             "z": [
@@ -463,9 +288,9 @@
               1.0
             ]
           },
-          "occurrence": 11,
-          "occurrence_name": "CornerFoot:4",
-          "path": "CornerFoot:4",
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
           "references": [],
           "resolves": true,
           "snap": {
@@ -487,6 +312,51 @@
             ]
           }
         },
+        "angle": 0.0,
+        "b": {
+          "component": 6,
+          "component_name": "LProfile",
+          "frame": {
+            "origin": [
+              80.0,
+              60.0,
+              22.0
+            ],
+            "x": [
+              -1.0,
+              1.2246467991473532e-16,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          },
+          "occurrence": 11,
+          "occurrence_name": "LProfile:3",
+          "path": "LProfile:3",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          }
+        },
         "conflicts": [],
         "dofs": [
           "x",
@@ -495,16 +365,17 @@
         ],
         "errors": [],
         "expressions": {
+          "offset": "(frame_height - 16 mm) / 2",
           "values": [
-            "-(frame_depth / 2)",
-            "frame_width / 2"
+            "frame_width / 2",
+            "frame_depth / 2"
           ]
         },
         "flip": false,
         "id": 15,
         "links": [],
-        "name": "Attach CornerFoot:4 to FrameBlock:1",
-        "offset": 0.0,
+        "name": "Attach LProfile:3 to FrameBlock:1",
+        "offset": 22.0,
         "suppressed": false,
         "type": "planar",
         "values": [
@@ -512,19 +383,152 @@
             "limits": null,
             "name": "x",
             "unit": "mm",
-            "value": -60.0
+            "value": 80.0
           },
           {
             "limits": null,
             "name": "y",
             "unit": "mm",
-            "value": 80.0
+            "value": 60.0
           },
           {
             "limits": null,
             "name": "angle",
             "unit": "deg",
-            "value": 0.0
+            "value": 180.0
+          }
+        ],
+        "visible": false
+      },
+      {
+        "a": {
+          "component": 1,
+          "component_name": "FrameBlock",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "FrameBlock:1",
+          "path": "FrameBlock:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 6,
+          "component_name": "LProfile",
+          "frame": {
+            "origin": [
+              -80.0,
+              60.0,
+              22.0
+            ],
+            "x": [
+              -1.8369701987210297e-16,
+              -1.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          },
+          "occurrence": 12,
+          "occurrence_name": "LProfile:4",
+          "path": "LProfile:4",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [
+          "x",
+          "y",
+          "angle"
+        ],
+        "errors": [],
+        "expressions": {
+          "offset": "(frame_height - 16 mm) / 2",
+          "values": [
+            "-(frame_width / 2)",
+            "frame_depth / 2"
+          ]
+        },
+        "flip": false,
+        "id": 16,
+        "links": [],
+        "name": "Attach LProfile:4 to FrameBlock:1",
+        "offset": 22.0,
+        "suppressed": false,
+        "type": "planar",
+        "values": [
+          {
+            "limits": null,
+            "name": "x",
+            "unit": "mm",
+            "value": -80.0
+          },
+          {
+            "limits": null,
+            "name": "y",
+            "unit": "mm",
+            "value": 60.0
+          },
+          {
+            "limits": null,
+            "name": "angle",
+            "unit": "deg",
+            "value": 270.0
           }
         ],
         "visible": false

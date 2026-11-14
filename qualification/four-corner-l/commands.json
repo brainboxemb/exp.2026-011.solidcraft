@@ -17,6 +17,14 @@
       }
     },
     {
+      "command": "parameters.add",
+      "params": {
+        "name": "frame_height",
+        "expression": "60",
+        "unit": "mm"
+      }
+    },
+    {
       "command": "component.create",
       "params": {
         "name": "FrameBlock",
@@ -50,8 +58,37 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 60.0,
+        "distance": "frame_height",
         "body_name": "FrameBlock"
+      }
+    },
+    {
+      "command": "solid.fillet",
+      "params": {
+        "edges": [
+          [
+            -60.0,
+            -40.0,
+            30.0
+          ],
+          [
+            60.0,
+            -40.0,
+            30.0
+          ],
+          [
+            60.0,
+            40.0,
+            30.0
+          ],
+          [
+            -60.0,
+            40.0,
+            30.0
+          ]
+        ],
+        "radius": 8,
+        "body": "FrameBlock"
       }
     },
     {
@@ -63,7 +100,7 @@
     {
       "command": "component.create",
       "params": {
-        "name": "CornerFoot",
+        "name": "LProfile",
         "grounded": false
       }
     },
@@ -88,14 +125,14 @@
           ],
           [
             28.0,
-            8.0
+            -4.0
           ],
           [
-            8.0,
-            8.0
+            -4.0,
+            -4.0
           ],
           [
-            8.0,
+            -4.0,
             28.0
           ],
           [
@@ -121,9 +158,9 @@
     {
       "command": "solid.extrude",
       "params": {
-        "distance": 30.0,
-        "direction": "negative",
-        "body_name": "CornerFoot"
+        "distance": 16.0,
+        "direction": "positive",
+        "body_name": "LProfile"
       }
     },
     {
@@ -135,193 +172,28 @@
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "CornerFoot"
+        "component": "LProfile"
       }
     },
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "CornerFoot"
+        "component": "LProfile"
       }
     },
     {
       "command": "occurrence.copy",
       "params": {
-        "component": "CornerFoot"
+        "component": "LProfile"
       }
     },
     {
       "command": "joint.create",
       "params": {
         "type": "planar",
-        "name": "Attach CornerFoot:1 to FrameBlock:1",
+        "name": "Attach LProfile:1 to FrameBlock:1",
         "a": {
           "occurrence": "FrameBlock:1",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            -1.0
-          ],
-          "x": [
-            0.0,
-            -1.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "CornerFoot:1",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "x": [
-            0.0,
-            -1.0,
-            0.0
-          ]
-        },
-        "values": [
-          "frame_depth / 2",
-          "frame_width / 2",
-          0.0
-        ],
-        "angle": 0.0
-      }
-    },
-    {
-      "command": "joint.create",
-      "params": {
-        "type": "planar",
-        "name": "Attach CornerFoot:2 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            -1.0
-          ],
-          "x": [
-            0.0,
-            -1.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "CornerFoot:2",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "x": [
-            -1.0,
-            0.0,
-            0.0
-          ]
-        },
-        "values": [
-          "frame_depth / 2",
-          "-(frame_width / 2)",
-          0.0
-        ],
-        "angle": 0.0
-      }
-    },
-    {
-      "command": "joint.create",
-      "params": {
-        "type": "planar",
-        "name": "Attach CornerFoot:3 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            -1.0
-          ],
-          "x": [
-            0.0,
-            -1.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "CornerFoot:3",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            1.0
-          ],
-          "x": [
-            0.0,
-            1.0,
-            0.0
-          ]
-        },
-        "values": [
-          "-(frame_depth / 2)",
-          "-(frame_width / 2)",
-          0.0
-        ],
-        "angle": 0.0
-      }
-    },
-    {
-      "command": "joint.create",
-      "params": {
-        "type": "planar",
-        "name": "Attach CornerFoot:4 to FrameBlock:1",
-        "a": {
-          "occurrence": "FrameBlock:1",
-          "point": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "z": [
-            0.0,
-            0.0,
-            -1.0
-          ],
-          "x": [
-            0.0,
-            -1.0,
-            0.0
-          ]
-        },
-        "b": {
-          "occurrence": "CornerFoot:4",
           "point": [
             0.0,
             0.0,
@@ -338,10 +210,179 @@
             0.0
           ]
         },
+        "b": {
+          "occurrence": "LProfile:1",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": "(frame_height - 16 mm) / 2",
         "values": [
+          "-(frame_width / 2)",
           "-(frame_depth / 2)",
-          "frame_width / 2",
           0.0
+        ],
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "planar",
+        "name": "Attach LProfile:2 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LProfile:2",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": "(frame_height - 16 mm) / 2",
+        "values": [
+          "frame_width / 2",
+          "-(frame_depth / 2)",
+          90.0
+        ],
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "planar",
+        "name": "Attach LProfile:3 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LProfile:3",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": "(frame_height - 16 mm) / 2",
+        "values": [
+          "frame_width / 2",
+          "frame_depth / 2",
+          180.0
+        ],
+        "angle": 0.0
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "planar",
+        "name": "Attach LProfile:4 to FrameBlock:1",
+        "a": {
+          "occurrence": "FrameBlock:1",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "b": {
+          "occurrence": "LProfile:4",
+          "point": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "z": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "x": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "offset": "(frame_height - 16 mm) / 2",
+        "values": [
+          "-(frame_width / 2)",
+          "frame_depth / 2",
+          270.0
         ],
         "angle": 0.0
       }

@@ -12,6 +12,12 @@
     "value": 80.0
   },
   {
+    "display_value": 60.0,
+    "name": "frame_height",
+    "unit": "mm",
+    "value": 60.0
+  },
+  {
     "component": 1,
     "grounded": true,
     "name": "FrameBlock",
@@ -94,8 +100,22 @@
       "FrameBlock"
     ],
     "feature": 4,
-    "ms": 0.747673,
+    "ms": 0.8200240000000001,
     "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  },
+  {
+    "bodies": [
+      "FrameBlock"
+    ],
+    "changed_bodies": [
+      "FrameBlock"
+    ],
+    "created_bodies": [],
+    "feature": 5,
+    "ms": 45.062208,
+    "name": "Fillet1",
     "removed_bodies": [],
     "warning": null
   },
@@ -103,10 +123,10 @@
     "active": 0
   },
   {
-    "component": 5,
+    "component": 6,
     "grounded": false,
-    "name": "CornerFoot",
-    "occurrence": 6,
+    "name": "LProfile",
+    "occurrence": 7,
     "parent": 0
   },
   {
@@ -119,7 +139,7 @@
     },
     "name": "Profile",
     "projected": null,
-    "sketch": 7
+    "sketch": 8
   },
   {
     "constraints": [
@@ -162,19 +182,19 @@
   },
   {
     "profiles": 1,
-    "sketch": 7
+    "sketch": 8
   },
   {
     "bodies": [
       "FrameBlock",
-      "CornerFoot"
+      "LProfile"
     ],
     "changed_bodies": [],
     "created_bodies": [
-      "CornerFoot"
+      "LProfile"
     ],
-    "feature": 8,
-    "ms": 0.238057,
+    "feature": 9,
+    "ms": 0.337247,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null
@@ -183,52 +203,16 @@
     "active": 0
   },
   {
-    "component": 5,
-    "occurrence": 9
-  },
-  {
-    "component": 5,
+    "component": 6,
     "occurrence": 10
   },
   {
-    "component": 5,
+    "component": 6,
     "occurrence": 11
   },
   {
-    "conflicts": [],
-    "dof": [
-      {
-        "dof": 0,
-        "occurrence": 0
-      },
-      {
-        "dof": 0,
-        "occurrence": 2
-      },
-      {
-        "dof": 3,
-        "occurrence": 6
-      },
-      {
-        "dof": 6,
-        "occurrence": 9
-      },
-      {
-        "dof": 6,
-        "occurrence": 10
-      },
-      {
-        "dof": 6,
-        "occurrence": 11
-      }
-    ],
-    "errors": [],
-    "fixed": [
-      0,
-      2
-    ],
-    "joint": 12,
-    "name": "Attach CornerFoot:1 to FrameBlock:1"
+    "component": 6,
+    "occurrence": 12
   },
   {
     "conflicts": [],
@@ -243,11 +227,7 @@
       },
       {
         "dof": 3,
-        "occurrence": 6
-      },
-      {
-        "dof": 3,
-        "occurrence": 9
+        "occurrence": 7
       },
       {
         "dof": 6,
@@ -256,6 +236,10 @@
       {
         "dof": 6,
         "occurrence": 11
+      },
+      {
+        "dof": 6,
+        "occurrence": 12
       }
     ],
     "errors": [],
@@ -264,7 +248,7 @@
       2
     ],
     "joint": 13,
-    "name": "Attach CornerFoot:2 to FrameBlock:1"
+    "name": "Attach LProfile:1 to FrameBlock:1"
   },
   {
     "conflicts": [],
@@ -279,11 +263,7 @@
       },
       {
         "dof": 3,
-        "occurrence": 6
-      },
-      {
-        "dof": 3,
-        "occurrence": 9
+        "occurrence": 7
       },
       {
         "dof": 3,
@@ -292,6 +272,10 @@
       {
         "dof": 6,
         "occurrence": 11
+      },
+      {
+        "dof": 6,
+        "occurrence": 12
       }
     ],
     "errors": [],
@@ -300,7 +284,7 @@
       2
     ],
     "joint": 14,
-    "name": "Attach CornerFoot:3 to FrameBlock:1"
+    "name": "Attach LProfile:2 to FrameBlock:1"
   },
   {
     "conflicts": [],
@@ -315,11 +299,7 @@
       },
       {
         "dof": 3,
-        "occurrence": 6
-      },
-      {
-        "dof": 3,
-        "occurrence": 9
+        "occurrence": 7
       },
       {
         "dof": 3,
@@ -328,6 +308,10 @@
       {
         "dof": 3,
         "occurrence": 11
+      },
+      {
+        "dof": 6,
+        "occurrence": 12
       }
     ],
     "errors": [],
@@ -336,17 +320,53 @@
       2
     ],
     "joint": 15,
-    "name": "Attach CornerFoot:4 to FrameBlock:1"
+    "name": "Attach LProfile:3 to FrameBlock:1"
+  },
+  {
+    "conflicts": [],
+    "dof": [
+      {
+        "dof": 0,
+        "occurrence": 0
+      },
+      {
+        "dof": 0,
+        "occurrence": 2
+      },
+      {
+        "dof": 3,
+        "occurrence": 7
+      },
+      {
+        "dof": 3,
+        "occurrence": 10
+      },
+      {
+        "dof": 3,
+        "occurrence": 11
+      },
+      {
+        "dof": 3,
+        "occurrence": 12
+      }
+    ],
+    "errors": [],
+    "fixed": [
+      0,
+      2
+    ],
+    "joint": 16,
+    "name": "Attach LProfile:4 to FrameBlock:1"
   },
   {
     "changed": 4,
     "visibility": {
       "hidden_bodies": [],
       "hidden_joints": [
-        12,
         13,
         14,
-        15
+        15,
+        16
       ],
       "hidden_occurrences": [],
       "hidden_origin": [],
