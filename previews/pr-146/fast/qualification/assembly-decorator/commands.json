@@ -1,0 +1,60 @@
+{
+  "commands": [
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Post",
+        "grounded": true
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 10,
+        "width": 10,
+        "height": 20,
+        "corner": [
+          -5.0,
+          -5.0,
+          0
+        ],
+        "body_name": "Post"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Post"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Post:1",
+        "translate": [
+          -15.0,
+          0.0,
+          0.0
+        ],
+        "move_grounded": true
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Post:2",
+        "translate": [
+          15.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ]
+}
