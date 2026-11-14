@@ -70,14 +70,17 @@ def compile_base(shape, name):
         _require_positive(length, "box length")
         _require_positive(width, "box width")
         _require_positive(height, "box height")
+        # Native 3D primitives must not synthesize a 2D sketch.
+        # Match the historical centered XY / bottom Z=0 Box placement.
         steps = [
-            _command("sketch.create", plane="XY", name=f"{name} footprint"),
-            _command("sketch.rectangle.two_point",
-                     p0=[_half(length, True), _half(width, True)],
-                     p1=[_half(length), _half(width)]),
-            _command("sketch.finish"),
-            _command("solid.extrude", distance=command_value(height),
-                     body_name=name),
+            _command(
+                "solid.box",
+                length=command_value(length),
+                width=command_value(width),
+                height=command_value(height),
+                corner=[_half(length, True), _half(width, True), 0],
+                body_name=name,
+            ),
         ]
         return steps, {"profile": "rectangle", "width": length,
                        "depth": width, "thickness": height,
