@@ -109,6 +109,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "attach-angle",
+        "group": "associativity",
+        "title": "Native attachment clocking angle",
+        "intent": "Verify that attach(angle=...) remains a native rigid-joint turn rather than being pre-baked into child geometry or an occurrence rotation.",
+        "forge_api": "Arm().attach(base, parent=Anchor.TOP, child=Anchor.BOTTOM, angle=90)",
+        "forge_model": "One square Base and one non-square 30x10 Arm. The child definition stays neutral; only the attachment carries the quarter-turn.",
+        "lowering": "joint.create(type='rigid', angle=90) is the only authored clocking relationship. Forge does not rotate the Arm occurrence separately.",
+        "native_expectation": "The Arm sits on the Base TOP face and its 30x10 footprint is quarter-turned to 10x30 in world XY.",
+        "mutation": "Not required; this case isolates native orientation/clocking and is qualified by measured bounds plus fixed-camera visual regression.",
+        "references": [
+            ("SolidCraft", "The joint angle is the persisted native relationship value that clocks the child about the attachment normal."),
+            ("BOSL2", "Conceptually comparable to spin/clocking around an attachment normal, while the child geometry remains reusable and neutral."),
+        ],
+    },
+    {
         "slug": "parametric-attach",
         "q5_required": True,
         "group": "associativity",

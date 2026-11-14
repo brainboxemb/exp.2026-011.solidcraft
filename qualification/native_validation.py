@@ -258,6 +258,25 @@ def validate_components(root: Path) -> Validation:
     return v
 
 
+def validate_attach_angle(root: Path) -> Validation:
+    v = Validation("attach-angle")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "attach-angle")
+    v.check("two bodies", d["body_count"] == 2, 2, d["body_count"])
+    arm = one_body(d, "Arm")
+    v.check(
+        "90 degree joint swaps 30x10 footprint to 10x30",
+        bbox_close(
+            arm,
+            [-5, -15, 10],
+            [5, 15, 16],
+        ),
+        {"min": [-5, -15, 10], "max": [5, 15, 16]},
+        arm["bbox"],
+    )
+    return v
+
+
 def validate_parametric_attach(root: Path) -> Validation:
     v = Validation("parametric-attach")
     d = load(root / "measurements.json")
@@ -580,6 +599,7 @@ VALIDATORS = {
     "parameter-scope": validate_parameter_scope,
     "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
+    "attach-angle": validate_attach_angle,
     "parametric-attach": validate_parametric_attach,
     "parametric-offset": validate_parametric_offset,
     "parametric-anchor": validate_parametric_anchor,

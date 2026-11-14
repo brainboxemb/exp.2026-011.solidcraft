@@ -27,6 +27,10 @@ EXPECTED_BOUNDS = {
         {"label": "left", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "right", "min": [20, -15, 0], "max": [60, 15, 10]},
     ],
+    "attach-angle": [
+        {"label": "Base", "min": [-30, -30, 0], "max": [30, 30, 10]},
+        {"label": "Arm", "min": [-5, -15, 10], "max": [5, 15, 16]},
+    ],
     "parametric-attach": [
         {"label": "Base", "min": [-20, -15, 0], "max": [20, 15, 10]},
         {"label": "Block", "min": [30, -10, 0], "max": [50, 10, 10]},
