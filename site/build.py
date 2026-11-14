@@ -18,7 +18,7 @@ from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
-from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
+from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES
 
 sys.path.insert(0, str(ROOT))
 try:
@@ -912,51 +912,6 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         level_rows=level_rows,
         group_sections=group_sections,
     )
-    capability_root = qualification_root / "capabilities"
-    capability_root.mkdir(exist_ok=True)
-    capability_sections = []
-    for group_key, group_title in CAPABILITY_GROUPS:
-        rows = []
-        for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
-            if group != group_key:
-                continue
-            rows.append(
-                f"<tr><td><strong>{escape(capability)}</strong></td>"
-                f"<td>{escape(solidcraft)}</td><td>{escape(forge)}</td>"
-                f"<td>{escape(need)}</td><td>{escape(references)}</td>"
-                f"<td>{escape(note)}</td></tr>"
-            )
-        if rows:
-            capability_sections.append(
-                f'<section class="panel"><h2>{escape(group_title)}</h2>'
-                '<table><thead><tr><th>Capability</th><th>SolidCraft</th>'
-                '<th>Forge today</th><th>Need</th><th>API reference</th>'
-                '<th>Design note</th></tr></thead>'
-                f'<tbody>{"".join(rows)}</tbody></table></section>'
-            )
-
-    reference_cards = "".join(
-        f'<article class="reference"><h2><a href="{escape(item["url"])}">'
-        f'{escape(item["name"])}</a></h2><p><strong>{escape(item["role"])}</strong></p>'
-        f'<p>{escape(item["use"])}</p><p>{escape(item["strength"])}</p></article>'
-        for item in REFERENCE_MODELS
-    )
-    capability_body = render_template(
-        "capabilities.html",
-        reference_cards=reference_cards,
-        capability_sections="".join(capability_sections),
-    )
-    (capability_root / "index.html").write_text(
-        page(
-            "CAD capability map",
-            capability_body,
-            stylesheet="../../style.css",
-            home="../../",
-            cheatsheet="../../cheatsheet/",
-        ),
-        encoding="utf-8",
-    )
-
     coverage_root = qualification_root / "coverage"
     coverage_root.mkdir(exist_ok=True)
     case_slugs = {case["slug"] for case in QUALIFICATION_CASES}
