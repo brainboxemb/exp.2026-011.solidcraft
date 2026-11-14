@@ -467,6 +467,11 @@ Cardinal directions use one shared BOSL2-style vocabulary:
 Add two directions to identify one rectangular-solid edge, for example
 `BOTTOM + LEFT` or `TOP + RIGHT`.
 
+The same composed directions can be used as reusable-component assembly
+anchors. For example, `FRONT + TOP + LEFT` resolves to the standard
+front/top/left corner anchor; there is no separate naming system for the
+same corner.
+
 A native Box can also be positioned by one of those anchors:
 
 ```python
