@@ -8,7 +8,7 @@ class AnchoredHoles:
     spacing: float = 40
 
     def build(self):
-        with Sketch(plane="XY") as sketch:
+        with Sketch(name="Base", plane="XY") as sketch:
             Rectangle2D(self.width, self.depth)
         plate = sketch.extrude(self.thickness)
         holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
