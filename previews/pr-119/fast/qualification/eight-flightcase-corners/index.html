@@ -25,7 +25,7 @@
   <p>Qualify a genuinely three-dimensional corner component: one neutral trihedral protector reused on all eight outside corners of a rectangular case.</p>
   <h3>Pass criteria</h3>
   <p>Each protector physically wraps its case corner on three adjacent faces. All eight occurrences remain instances of one component definition and point inward along the case edges.</p>
-  <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every protector must follow its moved topology corner without rerunning Python.</p>
+  <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every fixed-size protector must follow its moved topology corner without rerunning Python. The protector itself must not resize.</p>
 </section>
 
 <section class="panel">
@@ -44,6 +44,9 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
+    # Fixed representative dimensions for this orientation qualification.
+    # They deliberately do not depend on CaseBlock dimensions; testing a
+    # child component sized from its parent belongs in a separate case.
     ARM = 30.0
     THICKNESS = 4.0
     OVERLAP = 0.5
@@ -141,7 +144,7 @@ EightFlightcaseCorners()
   <h3>Public Forge API used</h3>
   <p><code>FlightcaseCorner + AnchorFrame(z=Anchor.BACK, x=Anchor.DOWN) attached to all eight FRONT/BACK corner anchors.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One CaseBlock plus eight occurrences of one trihedral protector made from three square plates. The reusable component owns only its local outside-corner geometry; the assembly owns which case corner each occurrence wraps.</p>
+  <p>One CaseBlock plus eight occurrences of one trihedral protector made from three fixed-size 30 mm plates. The reusable component owns only its local outside-corner geometry; its size is deliberately independent of the case dimensions in this qualification.</p>
 </section>
 
 <section class="panel">
