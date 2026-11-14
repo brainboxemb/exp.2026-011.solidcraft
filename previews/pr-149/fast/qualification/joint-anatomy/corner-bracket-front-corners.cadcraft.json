@@ -1,0 +1,665 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Four front corner topology frames",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "WOOD",
+        "color": 8,
+        "lineweight": 1,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            150
+          ],
+          [
+            110,
+            150
+          ],
+          [
+            30,
+            164
+          ],
+          [
+            110,
+            164
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            90
+          ],
+          [
+            44,
+            90
+          ],
+          [
+            30,
+            150
+          ],
+          [
+            44,
+            150
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            210,
+            150
+          ],
+          [
+            290,
+            150
+          ],
+          [
+            210,
+            164
+          ],
+          [
+            290,
+            164
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            276,
+            90
+          ],
+          [
+            290,
+            90
+          ],
+          [
+            276,
+            150
+          ],
+          [
+            290,
+            150
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            10
+          ],
+          [
+            110,
+            10
+          ],
+          [
+            30,
+            24
+          ],
+          [
+            110,
+            24
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            24
+          ],
+          [
+            44,
+            24
+          ],
+          [
+            30,
+            84
+          ],
+          [
+            44,
+            84
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            210,
+            10
+          ],
+          [
+            290,
+            10
+          ],
+          [
+            210,
+            24
+          ],
+          [
+            290,
+            24
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            276,
+            24
+          ],
+          [
+            290,
+            24
+          ],
+          [
+            276,
+            84
+          ],
+          [
+            290,
+            84
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKETS",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            164
+          ],
+          [
+            82,
+            164
+          ],
+          [
+            30,
+            172
+          ],
+          [
+            82,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            22,
+            112
+          ],
+          [
+            30,
+            112
+          ],
+          [
+            22,
+            164
+          ],
+          [
+            30,
+            164
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            238,
+            164
+          ],
+          [
+            290,
+            164
+          ],
+          [
+            238,
+            172
+          ],
+          [
+            290,
+            172
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            290,
+            112
+          ],
+          [
+            298,
+            112
+          ],
+          [
+            290,
+            164
+          ],
+          [
+            298,
+            164
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            30,
+            2
+          ],
+          [
+            82,
+            2
+          ],
+          [
+            30,
+            10
+          ],
+          [
+            82,
+            10
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            22,
+            10
+          ],
+          [
+            30,
+            10
+          ],
+          [
+            22,
+            62
+          ],
+          [
+            30,
+            62
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            238,
+            2
+          ],
+          [
+            290,
+            2
+          ],
+          [
+            238,
+            10
+          ],
+          [
+            290,
+            10
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            290,
+            10
+          ],
+          [
+            298,
+            10
+          ],
+          [
+            290,
+            62
+          ],
+          [
+            298,
+            62
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "POINTS",
+        "color": 1,
+        "lineweight": 1.4,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          30,
+          150
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          290,
+          150
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          30,
+          24
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          290,
+          24
+        ],
+        "radius": 3.5
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "X_AXIS",
+        "color": 3,
+        "lineweight": 1.5,
+        "current": true
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            30,
+            150
+          ],
+          [
+            30,
+            118
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            290,
+            150
+          ],
+          [
+            255,
+            150
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            30,
+            24
+          ],
+          [
+            65,
+            24
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            290,
+            24
+          ],
+          [
+            290,
+            58
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          50,
+          182
+        ],
+        "text": "TOP LEFT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          270,
+          182
+        ],
+        "text": "TOP RIGHT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          50,
+          -10
+        ],
+        "text": "BOTTOM LEFT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          270,
+          -10
+        ],
+        "text": "BOTTOM RIGHT",
+        "height": 5,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          34,
+          146
+        ],
+        "text": "A",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          274,
+          146
+        ],
+        "text": "B",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          34,
+          28
+        ],
+        "text": "B",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          274,
+          28
+        ],
+        "text": "A",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          34,
+          118
+        ],
+        "text": "x=-Z",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          248,
+          154
+        ],
+        "text": "x=-X",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          66,
+          28
+        ],
+        "text": "x=+X",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          294,
+          58
+        ],
+        "text": "x=+Z",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          112,
+          86
+        ],
+        "text": "parent z = -Y for all four front corners",
+        "height": 5
+      }
+    }
+  ]
+}

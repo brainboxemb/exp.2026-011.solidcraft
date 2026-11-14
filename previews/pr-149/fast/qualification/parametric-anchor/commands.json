@@ -1,0 +1,107 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_width",
+        "expression": "40",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Base",
+        "grounded": true
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": "base_width",
+        "width": 30,
+        "height": 10,
+        "corner": [
+          "-base_width / 2",
+          -15.0,
+          0
+        ],
+        "body_name": "Base"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Block",
+        "grounded": false
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 20,
+        "width": 20,
+        "height": 10,
+        "corner": [
+          -10.0,
+          -10.0,
+          0
+        ],
+        "body_name": "Block"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Block:1",
+        "translate": [
+          30.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Block:1 to Base:1",
+        "a": {
+          "occurrence": "Base:1",
+          "face": [
+            20.0,
+            0.0,
+            5.0
+          ]
+        },
+        "b": {
+          "occurrence": "Block:1",
+          "face": [
+            20.0,
+            0.0,
+            5.0
+          ]
+        }
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}
