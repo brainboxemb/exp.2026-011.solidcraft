@@ -3,8 +3,8 @@ class Arm:
         return {
             "tip": AnchorFrame(
                 origin=(20, 0, 5),
-                z=RIGHT,
-                x=UP,
+                z=Anchor.RIGHT,
+                x=Anchor.UP,
             ),
         }
 
@@ -17,8 +17,8 @@ class Marker:
         return {
             "mount": AnchorFrame(
                 origin=(0, 0, 5),
-                z=LEFT,
-                x=UP,
+                z=Anchor.LEFT,
+                x=Anchor.UP,
             ),
         }
 

@@ -36,8 +36,8 @@
         return {
             &quot;tip&quot;: AnchorFrame(
                 origin=(20, 0, 5),
-                z=RIGHT,
-                x=UP,
+                z=Anchor.RIGHT,
+                x=Anchor.UP,
             ),
         }
 
@@ -50,8 +50,8 @@ class Marker:
         return {
             &quot;mount&quot;: AnchorFrame(
                 origin=(0, 0, 5),
-                z=LEFT,
-                x=UP,
+                z=Anchor.LEFT,
+                x=Anchor.UP,
             ),
         }
 
@@ -73,7 +73,7 @@ class CustomAnchor:
 CustomAnchor()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>AnchorFrame(origin=..., z=RIGHT, x=UP); attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
+  <p><code>AnchorFrame(origin=..., z=Anchor.RIGHT, x=Anchor.UP); attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>AnchorFrame is a local coordinate frame: origin says where the point is, Z says which way it faces, and X fixes the clocking around Z.</p>
 </section>

@@ -22,10 +22,10 @@
   <h2>1. Test setup</h2>
   <figure class="qualification-setup-diagram"><a href="eight-flightcase-corners.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="eight-flightcase-corners.svg" alt="Eight flightcase corner protectors expected setup diagram"></a><figcaption>Expected setup — technical drawing generated from the committed CadCraft command source; not verification output. <a href="eight-flightcase-corners.cadcraft.json">CadCraft source</a> · <a href="eight-flightcase-corners.dxf">DXF</a></figcaption></figure>
   <h3>Test goal</h3>
-  <p>Prove the corner API on a second, genuinely 3D component: one three-plate flightcase corner protector reused on all eight corners of a case.</p>
+  <p>Qualify a genuinely three-dimensional corner component: one neutral trihedral protector reused on all eight outside corners of a rectangular case.</p>
   <h3>Pass criteria</h3>
-  <p>Each protector wraps its outside case corner with three axis-aligned 30 mm plates extending inward over the adjacent faces and 4 mm outward past the case surfaces; all eight remain one shared component definition.</p>
-  <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every protector must follow its moved corner.</p>
+  <p>Each protector physically wraps its case corner on three adjacent faces. All eight occurrences remain instances of one component definition and point inward along the case edges.</p>
+  <h3>Mutation criterion</h3><p>Change case_width, case_depth and case_height from 120x80x60 mm to 160x120x90 mm; every fixed-size protector must follow its moved topology corner without rerunning Python. The protector itself must not resize.</p>
 </section>
 
 <section class="panel">
@@ -44,6 +44,9 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
+    # Fixed representative dimensions for this orientation qualification.
+    # They deliberately do not depend on CaseBlock dimensions; testing a
+    # child component sized from its parent belongs in a separate case.
     ARM = 30.0
     THICKNESS = 4.0
     OVERLAP = 0.5
@@ -98,8 +101,8 @@ class EightFlightcaseCorners:
         # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=BACK,
-            x=DOWN,
+            z=Anchor.BACK,
+            x=Anchor.DOWN,
         )
 
         front_top_left = protector.copy().attach(
@@ -139,14 +142,14 @@ class EightFlightcaseCorners:
 EightFlightcaseCorners()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>FlightcaseCorner + one child AnchorFrame(z=BACK, x=DOWN) reused at all eight FRONT/BACK corner anchors.</code></p>
+  <p><code>FlightcaseCorner + AnchorFrame(z=Anchor.BACK, x=Anchor.DOWN) attached to all eight FRONT/BACK corner anchors.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One CaseBlock plus eight occurrences of one trihedral corner cap made from three 30 mm plates. The reusable component owns only its local outside-corner geometry.</p>
+  <p>One CaseBlock plus eight occurrences of one trihedral protector made from three fixed-size 30 mm plates. The reusable component owns only its local outside-corner geometry; its size is deliberately independent of the case dimensions in this qualification.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight rigid topology-backed corner joints place the same 3D corner cap around all eight box corners; no occurrence-specific geometry is authored.</p>
+  <p>Eight rigid topology-backed corner joints place one shared 3D component at the eight case corners. No occurrence-specific geometry or frozen world-coordinate placement is authored.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -523,7 +526,7 @@ EightFlightcaseCorners()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A second component family demonstrates that the corner-frame API is not HUB75-specific.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The same local trihedral corner is reoriented by the assembly at all eight topology corners.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The case demonstrates topology-backed 3D corner attachment with one reusable component definition.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The same local trihedral component is reoriented by the assembly at all eight semantic corners.</li></ul>
     </div>
   </div>
 </section>

@@ -54,8 +54,8 @@ class EightCornerBrackets:
         # supplies the corner position/orientation on the front or rear face.
         bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
-            z=FRONT,
-            x=RIGHT,
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
         )
 
         front_top_left = bracket.copy().attach(

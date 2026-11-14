@@ -88,29 +88,29 @@ class FourCornerL:
         # required clocking. The reusable CornerFoot itself remains neutral.
         bottom_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=DOWN,
-            x=FRONT,
+            z=Anchor.DOWN,
+            x=Anchor.FRONT,
         )
 
         front_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=FRONT,
+            z=Anchor.UP,
+            x=Anchor.FRONT,
         )
         front_right_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=LEFT,
+            z=Anchor.UP,
+            x=Anchor.LEFT,
         )
         back_right_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=BACK,
+            z=Anchor.UP,
+            x=Anchor.BACK,
         )
         back_left_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=UP,
-            x=RIGHT,
+            z=Anchor.UP,
+            x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
@@ -150,14 +150,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>attach(parent=assembly-local bottom AnchorFrame, child=assembly-local AnchorFrame, offset=(u, v)); parent uses z=DOWN/x=FRONT and child X uses FRONT/LEFT/BACK/RIGHT</code></p>
+  <p><code>attach(parent=assembly-local bottom AnchorFrame, child=assembly-local AnchorFrame, offset=(u, v)); parent uses z=Anchor.DOWN/x=Anchor.FRONT and child X uses FRONT/LEFT/BACK/RIGHT</code></p>
   <h3>Forge model represented by this fixture</h3>
   <p>One parametric frame plus four occurrences of one neutral CornerFoot definition. CornerFoot owns only its local L-shaped geometry; the assembly owns position and clocking through four explicit AnchorFrames with the same origin/Z and different X directions.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=DOWN; x=FRONT). Parametric (u,v) expressions move to the four corners. Because both sides are explicit AnchorFrames, Forge emits mating angle=0 so SolidCraft cannot substitute its optional automatic half-turn.</p>
+  <p>Four planar joint.create commands use an explicit bottom-centre parent frame (origin 0,0,0; z=Anchor.DOWN; x=Anchor.FRONT). Parametric (u,v) expressions move to the four corners. Because both sides are explicit AnchorFrames, Forge emits mating angle=0 so SolidCraft cannot substitute its optional automatic half-turn.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
