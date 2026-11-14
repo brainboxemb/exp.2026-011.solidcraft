@@ -711,6 +711,21 @@ def validate_circle_negative_extrude(root: Path) -> Validation:
             1,
             b.get("face_types", {}).get("cylinder"),
         )
+
+    timeline = [
+        (row.get("type"), row.get("name"))
+        for row in d.get("timeline", [])
+    ]
+    expected_timeline = [
+        ("Sketch", "Profile"),
+        ("ExtrudeFeature", "Extrude1"),
+    ]
+    v.check(
+        "direct circle extrusion remains native sketch/extrude history",
+        timeline == expected_timeline,
+        expected_timeline,
+        timeline,
+    )
     return v
 
 def validate_primitive_csg(root: Path) -> Validation:
