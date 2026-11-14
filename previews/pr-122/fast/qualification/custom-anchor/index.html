@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Named oriented AnchorFrame · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Named oriented AnchorFrame</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Named oriented AnchorFrame</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Named oriented AnchorFrame expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify that a reusable component can publish a named attachment datum with both position and orientation.</p>
+  <h3>Pass criteria</h3>
+  <p>After the arm rotates 90 degrees about Z, the marker remains attached to the rotated tip with the authored frame orientation.</p>
+  
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>class Arm:
+    def anchors(self):
+        return {
+            &quot;tip&quot;: AnchorFrame(
+                origin=(20, 0, 5),
+                z=Anchor.RIGHT,
+                x=Anchor.UP,
+            ),
+        }
+
+    def build(self):
+        return Box(40, 10, 10)
+
+
+class Marker:
+    def anchors(self):
+        return {
+            &quot;mount&quot;: AnchorFrame(
+                origin=(0, 0, 5),
+                z=Anchor.LEFT,
+                x=Anchor.UP,
+            ),
+        }
+
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class CustomAnchor:
+    def build(self):
+        arm = Arm().rotate(Axis.Z, 90)
+        marker = Marker().attach(
+            arm,
+            parent=&quot;tip&quot;,
+            child=&quot;mount&quot;,
+        )
+        return arm + marker
+
+
+CustomAnchor()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>AnchorFrame(origin=..., z=Anchor.RIGHT, x=Anchor.UP); attach(parent=&#x27;tip&#x27;, child=&#x27;mount&#x27;)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>AnchorFrame is a local coordinate frame: origin says where the point is, Z says which way it faces, and X fixes the clocking around Z.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>For the rotated parent occurrence Forge materializes/uses the native joint-origin path so SolidCraft owns the occurrence rotation.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.origin&quot;,
+    &quot;params&quot;: {
+      &quot;name&quot;: &quot;Arm:1.tip&quot;,
+      &quot;occurrence&quot;: &quot;Arm:1&quot;,
+      &quot;frame&quot;: {
+        &quot;origin&quot;: [
+          20.0,
+          0.0,
+          5.0
+        ],
+        &quot;z&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Marker:1 to Arm:1&quot;,
+      &quot;a&quot;: &quot;Arm:1.tip&quot;,
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:1&quot;,
+        &quot;point&quot;: [
+          20.0,
+          0.0,
+          5.0
+        ],
+        &quot;z&quot;: [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Closest conceptual match: an anchor defines position, local Z direction and spin/orientation information.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
