@@ -122,19 +122,19 @@ Y      = calculated automatically</code></pre>
   <table>
     <thead><tr><th>Forge</th><th>Vector</th><th>Direction</th></tr></thead>
     <tbody>
-      <tr><td><code>RIGHT</code></td><td><code>(1, 0, 0)</code></td><td>+X</td></tr>
-      <tr><td><code>LEFT</code></td><td><code>(-1, 0, 0)</code></td><td>-X</td></tr>
-      <tr><td><code>BACK</code></td><td><code>(0, 1, 0)</code></td><td>+Y</td></tr>
-      <tr><td><code>FRONT</code></td><td><code>(0, -1, 0)</code></td><td>-Y</td></tr>
-      <tr><td><code>UP</code></td><td><code>(0, 0, 1)</code></td><td>+Z</td></tr>
-      <tr><td><code>DOWN</code></td><td><code>(0, 0, -1)</code></td><td>-Z</td></tr>
+      <tr><td><code>Anchor.RIGHT</code></td><td><code>(1, 0, 0)</code></td><td>+X</td></tr>
+      <tr><td><code>Anchor.LEFT</code></td><td><code>(-1, 0, 0)</code></td><td>-X</td></tr>
+      <tr><td><code>Anchor.BACK</code></td><td><code>(0, 1, 0)</code></td><td>+Y</td></tr>
+      <tr><td><code>Anchor.FRONT</code></td><td><code>(0, -1, 0)</code></td><td>-Y</td></tr>
+      <tr><td><code>Anchor.UP</code></td><td><code>(0, 0, 1)</code></td><td>+Z</td></tr>
+      <tr><td><code>Anchor.DOWN</code></td><td><code>(0, 0, -1)</code></td><td>-Z</td></tr>
     </tbody>
   </table>
 
   <pre><code>AnchorFrame(
     origin=(10, 25, 0),
-    z=RIGHT,
-    x=UP,
+    z=Anchor.RIGHT,
+    x=Anchor.UP,
 )</code></pre>
 
   <p>These names are only readable unit vectors. They do not add a second orientation system.
@@ -230,10 +230,10 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
       <tr><th>Corner</th><th>Parent anchor</th><th>Child point</th><th>Parent z</th><th>Parent x</th><th>Current child input</th></tr>
     </thead>
     <tbody>
-      <tr><td>Top left</td><td><code>FRONT_TOP_LEFT</code></td><td>A</td><td><code>-Y</code></td><td><code>-Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
-      <tr><td>Top right</td><td><code>FRONT_TOP_RIGHT</code></td><td>B</td><td><code>-Y</code></td><td><code>-X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
-      <tr><td>Bottom right</td><td><code>FRONT_BOTTOM_RIGHT</code></td><td>A</td><td><code>-Y</code></td><td><code>+Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
-      <tr><td>Bottom left</td><td><code>FRONT_BOTTOM_LEFT</code></td><td>B</td><td><code>-Y</code></td><td><code>+X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Top left</td><td><code>Anchor.FRONT_TOP_LEFT</code></td><td>A</td><td><code>-Y</code></td><td><code>-Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Top right</td><td><code>Anchor.FRONT_TOP_RIGHT</code></td><td>B</td><td><code>-Y</code></td><td><code>-X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Bottom right</td><td><code>Anchor.FRONT_BOTTOM_RIGHT</code></td><td>A</td><td><code>-Y</code></td><td><code>+Z</code></td><td><code>z=+Y, x=-Z</code></td></tr>
+      <tr><td>Bottom left</td><td><code>Anchor.FRONT_BOTTOM_LEFT</code></td><td>B</td><td><code>-Y</code></td><td><code>+X</code></td><td><code>z=+Y, x=-Z</code></td></tr>
     </tbody>
   </table>
 
@@ -247,10 +247,10 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
       <tr><th>Corner</th><th>Parent anchor</th><th>Child point</th><th>Parent z</th><th>Parent x</th><th>Current child input</th></tr>
     </thead>
     <tbody>
-      <tr><td>Top left</td><td><code>BACK_TOP_LEFT</code></td><td>A</td><td><code>+Y</code></td><td><code>+X</code></td><td><code>z=-Y, x=+X</code></td></tr>
-      <tr><td>Top right</td><td><code>BACK_TOP_RIGHT</code></td><td>B</td><td><code>+Y</code></td><td><code>-Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
-      <tr><td>Bottom right</td><td><code>BACK_BOTTOM_RIGHT</code></td><td>A</td><td><code>+Y</code></td><td><code>-X</code></td><td><code>z=-Y, x=+X</code></td></tr>
-      <tr><td>Bottom left</td><td><code>BACK_BOTTOM_LEFT</code></td><td>B</td><td><code>+Y</code></td><td><code>+Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Top left</td><td><code>Anchor.BACK_TOP_LEFT</code></td><td>A</td><td><code>+Y</code></td><td><code>+X</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Top right</td><td><code>Anchor.BACK_TOP_RIGHT</code></td><td>B</td><td><code>+Y</code></td><td><code>-Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Bottom right</td><td><code>Anchor.BACK_BOTTOM_RIGHT</code></td><td>A</td><td><code>+Y</code></td><td><code>-X</code></td><td><code>z=-Y, x=+X</code></td></tr>
+      <tr><td>Bottom left</td><td><code>Anchor.BACK_BOTTOM_LEFT</code></td><td>B</td><td><code>+Y</code></td><td><code>+Z</code></td><td><code>z=-Y, x=+X</code></td></tr>
     </tbody>
   </table>
 
@@ -264,8 +264,8 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
 
   <pre><code>bracket_corner = AnchorFrame(
     origin=(0, 0, 0),
-    z=FRONT,
-    x=RIGHT,
+    z=Anchor.FRONT,
+    x=Anchor.RIGHT,
 )</code></pre>
 
   <p>and then uses it in the assembly:</p>
@@ -294,8 +294,7 @@ joint x = +X = (1, 0, 0)     # right along the bracket profile</code></pre>
   </ol>
 
   <div class="notice"><strong>Chosen API:</strong> keep <code>AnchorFrame(origin, z, x)</code>,
-  expose <code>RIGHT</code>, <code>LEFT</code>, <code>FRONT</code>, <code>BACK</code>,
-  <code>UP</code> and <code>DOWN</code> as readable unit vectors, and keep arbitrary vectors
+  use the cardinal <code>Anchor</code> members as readable direction vectors, and keep arbitrary vectors
   available for non-axis-aligned frames. Forge does not guess any additional orientation.</div>
 </section>
 

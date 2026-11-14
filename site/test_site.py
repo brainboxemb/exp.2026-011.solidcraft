@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES, QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
-from capability_map import SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
+from capability_map import SOLIDCRAFT_CAPABILITIES
 import scpf
 
 
@@ -18,7 +18,6 @@ def check(site: Path, sha: str, require_native: bool = False):
         "case.html",
         "index.html",
         "results.html",
-        "capabilities.html",
         "coverage.html",
         "joint-anatomy.html",
         "report.md",
@@ -31,6 +30,8 @@ def check(site: Path, sha: str, require_native: bool = False):
     from build import GUIDES
     guide_index = (site / "guide" / "index.html").read_text(encoding="utf-8")
     assert "API Guide" in home and "API Guide" in guide_index
+    assert "Development status — do not rely on this as a support guarantee." in home
+    assert "not a warranty" in home
     assert "full API Guide" in cheatsheet
     for chapter in GUIDES:
         page = (site / "guide" / chapter["slug"] / "index.html").read_text(encoding="utf-8")
@@ -72,12 +73,17 @@ def check(site: Path, sha: str, require_native: bool = False):
         site / "qualification" / "results" / "index.html"
     ).read_text(encoding="utf-8")
     assert "Qualification results" in results_page
+    for page_text in (qualification_index, coverage_page, results_page):
+        assert "Development status — do not rely on this as a support guarantee." in page_text
+        assert "not a warranty" in page_text
     assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
         "Every public scpf.__all__ symbol must have a declared qualification row"
     )
-    assert "API & SolidCraft coverage matrix" in coverage_page
+    assert "SolidCraft functionality coverage" in coverage_page
     for api_name in scpf.__all__:
         assert f"<code>{api_name}</code>" in coverage_page, api_name
+    for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
+        assert capability in coverage_page, capability
     for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
         assert capability in coverage_page, capability
         assert target.startswith("Q")
@@ -94,14 +100,14 @@ def check(site: Path, sha: str, require_native: bool = False):
         "English — simple explanation",
         "The real SolidCraft relationship remains explicit",
         "AnchorFrame(",
-        "<code>RIGHT</code>",
+        "<code>Anchor.RIGHT</code>",
         "child joint origin",
         "4 brackets",
         "8 brackets",
         "No second orientation solver",
-        "FRONT_TOP_LEFT",
+        "Anchor.FRONT_TOP_LEFT",
         "z=+Y, x=-Z",
-        "BACK_TOP_RIGHT",
+        "Anchor.BACK_TOP_RIGHT",
     ):
         assert term in joint_anatomy_page, term
     for diagram in (
@@ -128,14 +134,7 @@ def check(site: Path, sha: str, require_native: bool = False):
     assert all(case["group"] in group_keys for case in QUALIFICATION_CASES)
     for _, title, _ in QUALIFICATION_GROUPS:
         assert title in qualification_index
-    capability_page = (
-        site / "qualification" / "capabilities" / "index.html"
-    ).read_text(encoding="utf-8")
-    assert "SolidCraft capability & Forge API map" in capability_page
-    for item in REFERENCE_MODELS:
-        assert item["name"] in capability_page
-    for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
-        assert capability in capability_page
+    assert not (site / "qualification" / "capabilities").exists()
     for case in QUALIFICATION_CASES:
         slug = case["slug"]
         page_text = (

@@ -11,6 +11,9 @@ class CaseBlock:
 
 
 class FlightcaseCorner:
+    # Fixed representative dimensions for this orientation qualification.
+    # They deliberately do not depend on CaseBlock dimensions; testing a
+    # child component sized from its parent belongs in a separate case.
     ARM = 30.0
     THICKNESS = 4.0
     OVERLAP = 0.5
@@ -65,8 +68,8 @@ class EightFlightcaseCorners:
         # extend inward over the three adjacent case faces.
         corner_frame = AnchorFrame(
             origin=(0, 0, 0),
-            z=BACK,
-            x=DOWN,
+            z=Anchor.BACK,
+            x=Anchor.DOWN,
         )
 
         front_top_left = protector.copy().attach(

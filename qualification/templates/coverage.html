@@ -1,34 +1,62 @@
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / API coverage</div>
+<div class="crumb"><a href="../">← Qualification</a> / SolidCraft coverage</div>
 
 <section class="hero small">
-  <p class="eyebrow">Declared coverage, including gaps</p>
-  <h1>API & SolidCraft coverage matrix</h1>
-  <p>This matrix is deliberately stricter than code coverage. It states the
-  qualification level appropriate for each public API/capability and the highest
-  dedicated level currently demonstrated.</p>
-  <p class="meta">Public export gaps: $gap_exports · capability gaps: $gap_capabilities</p>
+  <p class="eyebrow">SolidCraft → Forge → qualification</p>
+  <h1>SolidCraft functionality coverage</h1>
+  <p>This page separates two questions. First: how much of the useful SolidCraft
+  capability surface is exposed coherently through Forge? Second: how much of that
+  Forge support has been functionally qualified against native SolidCraft?</p>
+  <p class="meta">Capability inventory: $capability_total · supported: $forge_supported · partial: $forge_partial · missing: $forge_missing</p>
 </section>
 
 <section class="notice">
-  <strong>Meaning of GAP:</strong> the API may already have unit tests or incidental
-  use, but it does not yet have the dedicated qualification case required by its
-  target level. The gap remains visible until that case exists.
+  <strong>Development status — do not rely on this as a support guarantee.</strong>
+  Forge and its qualification suite are still under active development and testing.
+  Coverage, API behaviour, qualification levels and results may be incomplete,
+  experimental or change without notice. A PASS only means that the stated checks
+  passed for the referenced source commit and SolidCraft version; it is not a warranty,
+  compatibility promise or statement that the capability is production-ready.
+</section>
+
+<section class="notice">
+  <strong>Coverage is capability-based, not command-count based.</strong>
+  One row represents a meaningful CAD capability such as primitives, extrusion,
+  fillet/chamfer, components or joints. SolidCraft may expose several commands and
+  options behind one row.
 </section>
 
 <section class="panel">
-  <h2>Public exports</h2>
+  <h2>1. SolidCraft → Forge support</h2>
+  <p class="meta">This is the primary completeness view: what SolidCraft can do,
+  what Forge exposes today, and how important that capability is for the intended Forge API.</p>
+  <table>
+    <thead><tr><th>Area</th><th>Capability</th><th>SolidCraft</th><th>Forge status</th><th>Forge today</th><th>Target / priority</th></tr></thead>
+    <tbody>$solidcraft_rows</tbody>
+  </table>
+</section>
+
+<section class="panel">
+  <h2>2. Functional qualification</h2>
+  <p class="meta">Only after a capability exists in Forge do we ask how strongly it
+  has been proven. Target is the intended qualification depth; Current is the
+  highest dedicated Q-level demonstrated today.</p>
+  <table>
+    <thead><tr><th>Area</th><th>Capability</th><th>Target qualification</th><th>Current qualification</th><th>Cases</th><th>Notes</th></tr></thead>
+    <tbody>$capability_rows</tbody>
+  </table>
+  <p class="meta">Qualification gaps: $gap_capabilities</p>
+</section>
+
+<section class="panel">
+  <h2>3. Public Python API exports</h2>
+  <p class="meta">This is a secondary implementation check. It verifies that every
+  public Forge symbol has an explicit qualification expectation, but it is not a
+  measure of SolidCraft feature completeness.</p>
   <table>
     <thead><tr><th>API</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
     <tbody>$export_rows</tbody>
   </table>
-</section>
-
-<section class="panel">
-  <h2>Behavioural capabilities</h2>
-  <table>
-    <thead><tr><th>Area</th><th>Capability</th><th>Target</th><th>Current</th><th>Cases</th><th>Notes</th></tr></thead>
-    <tbody>$capability_rows</tbody>
-  </table>
+  <p class="meta">Public export qualification gaps: $gap_exports</p>
 </section>
 </main>

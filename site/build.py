@@ -18,7 +18,7 @@ from scpf.runner import run_script
 from scpf.version import TESTED_SOLIDCRAFT_VERSION
 from guides import GUIDES
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
-from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES, REFERENCE_MODELS
+from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES
 
 sys.path.insert(0, str(ROOT))
 try:
@@ -912,51 +912,6 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         level_rows=level_rows,
         group_sections=group_sections,
     )
-    capability_root = qualification_root / "capabilities"
-    capability_root.mkdir(exist_ok=True)
-    capability_sections = []
-    for group_key, group_title in CAPABILITY_GROUPS:
-        rows = []
-        for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
-            if group != group_key:
-                continue
-            rows.append(
-                f"<tr><td><strong>{escape(capability)}</strong></td>"
-                f"<td>{escape(solidcraft)}</td><td>{escape(forge)}</td>"
-                f"<td>{escape(need)}</td><td>{escape(references)}</td>"
-                f"<td>{escape(note)}</td></tr>"
-            )
-        if rows:
-            capability_sections.append(
-                f'<section class="panel"><h2>{escape(group_title)}</h2>'
-                '<table><thead><tr><th>Capability</th><th>SolidCraft</th>'
-                '<th>Forge today</th><th>Need</th><th>API reference</th>'
-                '<th>Design note</th></tr></thead>'
-                f'<tbody>{"".join(rows)}</tbody></table></section>'
-            )
-
-    reference_cards = "".join(
-        f'<article class="reference"><h2><a href="{escape(item["url"])}">'
-        f'{escape(item["name"])}</a></h2><p><strong>{escape(item["role"])}</strong></p>'
-        f'<p>{escape(item["use"])}</p><p>{escape(item["strength"])}</p></article>'
-        for item in REFERENCE_MODELS
-    )
-    capability_body = render_template(
-        "capabilities.html",
-        reference_cards=reference_cards,
-        capability_sections="".join(capability_sections),
-    )
-    (capability_root / "index.html").write_text(
-        page(
-            "CAD capability map",
-            capability_body,
-            stylesheet="../../style.css",
-            home="../../",
-            cheatsheet="../../cheatsheet/",
-        ),
-        encoding="utf-8",
-    )
-
     coverage_root = qualification_root / "coverage"
     coverage_root.mkdir(exist_ok=True)
     case_slugs = {case["slug"] for case in QUALIFICATION_CASES}
@@ -969,6 +924,31 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             else:
                 links.append(escape(name))
         return ", ".join(links) if links else "—"
+
+    def forge_support_status(forge):
+        value = forge.lower()
+        if value.startswith("missing"):
+            return "Missing"
+        if any(marker in value for marker in (
+            "partial", "subset", "limited", "internal", "special-case",
+            "cli/project", "little public",
+        )):
+            return "Partial"
+        return "Supported"
+
+    solidcraft_rows = []
+    forge_status_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
+    group_titles = dict(CAPABILITY_GROUPS)
+    for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
+        status = forge_support_status(forge)
+        forge_status_counts[status] += 1
+        solidcraft_rows.append(
+            f"<tr><td>{escape(group_titles.get(group, group))}</td>"
+            f"<td><strong>{escape(capability)}</strong></td>"
+            f"<td>{escape(solidcraft)}</td>"
+            f"<td><strong>{escape(status)}</strong></td>"
+            f"<td>{escape(forge)}</td><td>{escape(need)}</td></tr>"
+        )
 
     export_rows = []
     for api_name, (target, current, cases, note) in EXPORT_COVERAGE.items():
@@ -990,8 +970,13 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
     coverage_body = render_template(
         "coverage.html",
+        capability_total=escape(len(SOLIDCRAFT_CAPABILITIES)),
+        forge_supported=escape(forge_status_counts["Supported"]),
+        forge_partial=escape(forge_status_counts["Partial"]),
+        forge_missing=escape(forge_status_counts["Missing"]),
         gap_exports=escape(gap_exports),
         gap_capabilities=escape(gap_capabilities),
+        solidcraft_rows="".join(solidcraft_rows),
         export_rows="".join(export_rows),
         capability_rows="".join(capability_rows),
     )
@@ -1095,6 +1080,10 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
     home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft.forge / Python Forge</p>
 <h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: {TESTED_SOLIDCRAFT_VERSION} · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
+<section class="notice"><strong>Development status — do not rely on this as a support guarantee.</strong>
+Forge is still under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete,
+experimental or change without notice. Published examples and PASS results are not a warranty, compatibility promise or
+statement that the library is production-ready.</section>
 <div class="actions"><a class="button primary" href="guide/">Read the API Guide →</a>\n<a class="button" href="qualification/">Qualification →</a>\n<a class="button" href="cheatsheet/">Quick cheatsheet →</a>\n<a class="button" href="{CAD_SITE}">See real CAD models →</a></div></section>
 <section class="section-heading"><h2>Small public examples</h2><p>Each source produces its own native-command JSON.
 Source and commands are regenerated together by CI.</p></section>

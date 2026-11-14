@@ -20,16 +20,8 @@ class Direction(str, Enum):
     SYMMETRIC = "symmetric"
 
 
-RIGHT = (1.0, 0.0, 0.0)
-LEFT = (-1.0, 0.0, 0.0)
-BACK = (0.0, 1.0, 0.0)
-FRONT = (0.0, -1.0, 0.0)
-UP = (0.0, 0.0, 1.0)
-DOWN = (0.0, 0.0, -1.0)
-
-
 class Anchor(str, Enum):
-    """Assembly attachment references between reusable components."""
+    """Assembly attachment references and cardinal direction vectors."""
     CENTER = "center"
     TOP = "top"
     BOTTOM = "bottom"
@@ -47,6 +39,33 @@ class Anchor(str, Enum):
     BACK_BOTTOM_RIGHT = "back_bottom_right"
     INNER_BOTTOM = "inner_bottom"
 
+    UP = TOP
+    DOWN = BOTTOM
+
+    @property
+    def vector(self) -> tuple[float, float, float]:
+        """Return the 3-D direction/selector vector for this anchor."""
+        vectors = {
+            Anchor.CENTER: (0.0, 0.0, 0.0),
+            Anchor.TOP: (0.0, 0.0, 1.0),
+            Anchor.BOTTOM: (0.0, 0.0, -1.0),
+            Anchor.LEFT: (-1.0, 0.0, 0.0),
+            Anchor.RIGHT: (1.0, 0.0, 0.0),
+            Anchor.FRONT: (0.0, -1.0, 0.0),
+            Anchor.BACK: (0.0, 1.0, 0.0),
+            Anchor.FRONT_TOP_LEFT: (-1.0, -1.0, 1.0),
+            Anchor.FRONT_TOP_RIGHT: (1.0, -1.0, 1.0),
+            Anchor.FRONT_BOTTOM_LEFT: (-1.0, -1.0, -1.0),
+            Anchor.FRONT_BOTTOM_RIGHT: (1.0, -1.0, -1.0),
+            Anchor.BACK_TOP_LEFT: (-1.0, 1.0, 1.0),
+            Anchor.BACK_TOP_RIGHT: (1.0, 1.0, 1.0),
+            Anchor.BACK_BOTTOM_LEFT: (-1.0, 1.0, -1.0),
+            Anchor.BACK_BOTTOM_RIGHT: (1.0, 1.0, -1.0),
+        }
+        if self not in vectors:
+            raise ValueError(f"Anchor.{self.name} has no direction vector")
+        return vectors[self]
+
 
 @dataclass(frozen=True)
 class AnchorFrame:
@@ -58,8 +77,8 @@ class AnchorFrame:
     """
 
     origin: tuple[float, float, float] = (0.0, 0.0, 0.0)
-    z: tuple[float, float, float] = (0.0, 0.0, 1.0)
-    x: tuple[float, float, float] = (1.0, 0.0, 0.0)
+    z: tuple[float, float, float] | Anchor = Anchor.UP
+    x: tuple[float, float, float] | Anchor = Anchor.RIGHT
 
     def __post_init__(self):
         vectors = {}
@@ -68,6 +87,8 @@ class AnchorFrame:
             ("z", self.z),
             ("x", self.x),
         ):
+            if isinstance(value, Anchor):
+                value = value.vector
             if not isinstance(value, (tuple, list)) or len(value) != 3:
                 raise ValueError(f"AnchorFrame {name} must be an XYZ triple")
             if any(
