@@ -646,6 +646,51 @@ def validate_xz_anchor(root: Path) -> Validation:
     return v
 
 
+
+def validate_history_policy(root: Path) -> Validation:
+    v = Validation("history-policy")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "history-policy", tol=0.01)
+    v.check("single joined history-policy body", d["body_count"] == 1, 1, d["body_count"])
+    if d["bodies"]:
+        b = d["bodies"][0]
+        v.check(
+            "combined history-policy bounds",
+            bbox_close(b, [-25, -25, 0], [25, 25, 16], 0.01),
+            {"min": [-25, -25, 0], "max": [25, 25, 16]},
+            b["bbox"],
+        )
+        v.check(
+            "expected cylindrical feature faces",
+            b.get("face_types", {}).get("cylinder") == 7,
+            7,
+            b.get("face_types", {}).get("cylinder"),
+        )
+
+    timeline = [
+        (row.get("type"), row.get("name"))
+        for row in d.get("timeline", [])
+    ]
+    expected_timeline = [
+        ("Sketch", "HistoryPolicyBoss footprint"),
+        ("ExtrudeFeature", "Extrude1"),
+        ("BossFeature", "Boss1"),
+        ("BossFeature", "Boss2"),
+        ("Sketch", "Boss"),
+        ("ExtrudeFeature", "Boss"),
+        ("Sketch", "Boss hole"),
+        ("ExtrudeFeature", "Boss hole"),
+        ("Sketch", "Explicit pad"),
+        ("ExtrudeFeature", "Explicit pad"),
+    ]
+    v.check(
+        "native versus sketch history is persisted",
+        timeline == expected_timeline,
+        expected_timeline,
+        timeline,
+    )
+    return v
+
 def validate_primitive_csg(root: Path) -> Validation:
     v = Validation("primitive-csg")
     d = load(root / "measurements.json")
@@ -693,6 +738,7 @@ VALIDATORS = {
     "eight-corner-brackets": validate_eight_corner_brackets,
     "custom-anchor": validate_custom_anchor,
     "xz-anchor": validate_xz_anchor,
+    "history-policy": validate_history_policy,
     "primitive-csg": validate_primitive_csg,
     "bracket": validate_bracket,
 }
