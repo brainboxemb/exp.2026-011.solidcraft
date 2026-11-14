@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: scpf-native-${{ github.ref }}
+  group: scpf-package-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
