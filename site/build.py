@@ -971,16 +971,48 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
             f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
         )
 
+    def qualification_number(value):
+        if value.startswith("Q") and value[1:].isdigit():
+            return int(value[1:])
+        return None
+
     capability_rows = []
+    qualification_counts = {"At target": 0, "Below target": 0, "Gap": 0}
+    qualification_group_counts = {}
     for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
+        target_level = qualification_number(target)
+        current_level = qualification_number(current)
+        if current == "GAP":
+            qualification_status = "Gap"
+        elif current_level is not None and target_level is not None and current_level >= target_level:
+            qualification_status = "At target"
+        else:
+            qualification_status = "Below target"
+
+        qualification_counts[qualification_status] += 1
+        group_counts = qualification_group_counts.setdefault(
+            group, {"At target": 0, "Below target": 0, "Gap": 0}
+        )
+        group_counts[qualification_status] += 1
+
         capability_rows.append(
             f"<tr><td>{escape(group)}</td><td><code>{escape(capability)}</code></td>"
             f"<td>{escape(target)}</td><td><strong>{escape(current)}</strong></td>"
+            f"<td>{escape(qualification_status)}</td>"
             f"<td>{coverage_case_links(cases)}</td><td>{escape(note)}</td></tr>"
         )
 
+    qualification_summary_rows = []
+    for group, counts in qualification_group_counts.items():
+        total = sum(counts.values())
+        qualification_summary_rows.append(
+            f"<tr><td><strong>{escape(group)}</strong></td>"
+            f"<td>{total}</td><td>{counts['At target']}</td>"
+            f"<td>{counts['Below target']}</td><td>{counts['Gap']}</td></tr>"
+        )
+
     gap_exports = sum(1 for row in EXPORT_COVERAGE.values() if row[1] == "GAP")
-    gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
+    gap_capabilities = qualification_counts["Gap"]
     coverage_body = render_template(
         "coverage.html",
         capability_total=escape(len(SOLIDCRAFT_CAPABILITIES)),
@@ -992,6 +1024,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         primitive_partial=escape(primitive_counts["Partial"]),
         primitive_missing=escape(primitive_counts["Missing"]),
         area_summary_rows="".join(area_summary_rows),
+        qualification_total=escape(sum(qualification_counts.values())),
+        qualification_at_target=escape(qualification_counts["At target"]),
+        qualification_below_target=escape(qualification_counts["Below target"]),
+        qualification_gap=escape(qualification_counts["Gap"]),
+        qualification_summary_rows="".join(qualification_summary_rows),
         gap_exports=escape(gap_exports),
         gap_capabilities=escape(gap_capabilities),
         solidcraft_rows="".join(solidcraft_rows),
