@@ -1,4 +1,4 @@
-"""Eight reusable L-brackets mounted outside a rectangular frame."""
+"""Eight reusable L-profiles: two on each XZ corner line."""
 
 
 class FrameBlock:
@@ -7,7 +7,11 @@ class FrameBlock:
     _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self._height).fillet(8, edges=Edges.VERTICAL)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
 class LBracket:
@@ -16,9 +20,6 @@ class LBracket:
     THICKNESS = 4.0
 
     def build(self):
-        # Neutral reusable component in its own local XZ plane.
-        # The profile starts at its local corner and the material is extruded
-        # in local +Y. It has no front/rear/top/bottom frame knowledge.
         profile = Polygon2D(
             [
                 (0, 0),
@@ -32,7 +33,7 @@ class LBracket:
         )
         return profile.extrude(
             self.THICKNESS,
-            direction=Direction.POSITIVE,
+            direction=Direction.SYMMETRIC,
         )
 
 
@@ -49,77 +50,50 @@ class EightCornerBrackets:
         )
         bracket = LBracket()
 
-        # Placement belongs to this assembly. Think in four XZ corner lines:
-        # each line receives two occurrences, one near each end of the depth.
-        # The FRONT/BACK topology identifies those ends, while a negative gap
-        # moves the 4 mm profile inward so it sits on the side/corner line
-        # rather than outside the front or rear face.
-        bracket_corner = AnchorFrame(
+        frame_xz = AnchorFrame(
+            origin=(0, 0, 0),
+            z=Anchor.FRONT,
+            x=Anchor.RIGHT,
+        )
+        bracket_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=Anchor.FRONT,
             x=Anchor.RIGHT,
         )
 
-        front_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_LEFT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        front_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_TOP_RIGHT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        front_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_RIGHT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        front_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.FRONT_BOTTOM_LEFT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
+        half_width = self.frame_width / 2
+        depth_position = self.frame_depth / 2 - LBracket.THICKNESS / 2
 
-        rear_top_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_LEFT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        rear_top_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_TOP_RIGHT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        rear_bottom_right = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_RIGHT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
-        rear_bottom_left = bracket.copy().attach(
-            frame,
-            parent=Anchor.BACK_BOTTOM_LEFT,
-            child=bracket_corner,
-            gap=-LBracket.THICKNESS,
-        )
+        def placed(x, z, angle, gap):
+            return bracket.copy().attach(
+                frame,
+                parent=frame_xz,
+                child=bracket_origin,
+                offset=(x, z),
+                gap=gap,
+                angle=angle,
+            )
+
+        # Positive gap follows the frame normal (FRONT / -Y); negative gap
+        # reaches the rear side. Each pair therefore belongs to one XZ corner.
+        top_left_front = placed(-half_width, self.frame_height, 270, depth_position)
+        top_left_rear = placed(-half_width, self.frame_height, 270, -depth_position)
+
+        top_right_front = placed(half_width, self.frame_height, 180, depth_position)
+        top_right_rear = placed(half_width, self.frame_height, 180, -depth_position)
+
+        bottom_right_front = placed(half_width, 0, 90, depth_position)
+        bottom_right_rear = placed(half_width, 0, 90, -depth_position)
+
+        bottom_left_front = placed(-half_width, 0, 0, depth_position)
+        bottom_left_rear = placed(-half_width, 0, 0, -depth_position)
 
         return (
             frame
-            + front_top_left
-            + front_top_right
-            + front_bottom_right
-            + front_bottom_left
-            + rear_top_left
-            + rear_top_right
-            + rear_bottom_right
-            + rear_bottom_left
+            + top_left_front + top_left_rear
+            + top_right_front + top_right_rear
+            + bottom_right_front + bottom_right_rear
+            + bottom_left_front + bottom_left_rear
         )
 
 
