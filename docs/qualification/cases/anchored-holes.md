@@ -13,7 +13,9 @@ arbitrary subtraction cylinders positioned by hand.
 ## Forge API
 
 ```python
-plate = Rectangle2D(width, depth).extrude(thickness)
+with Sketch(plane="XY") as sketch:
+    Rectangle2D(width, depth)
+plate = sketch.extrude(thickness)
 holes = Hole(d=8, depth=Depth.THROUGH_ALL).pattern(
     count=2, spacing=spacing, axis=Axis.Y
 ).on(plate, face=Faces.TOP)
