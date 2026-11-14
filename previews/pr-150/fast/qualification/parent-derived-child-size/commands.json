@@ -1,0 +1,85 @@
+{
+  "commands": [
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_width",
+        "expression": "120",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "parameters.add",
+      "params": {
+        "name": "base_depth",
+        "expression": "80",
+        "unit": "mm"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "ParentBlock",
+        "grounded": true
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": "base_width",
+        "width": "base_depth",
+        "height": 10.0,
+        "corner": [
+          "-base_width / 2",
+          "-base_depth / 2",
+          0
+        ],
+        "body_name": "ParentBlock"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "DerivedChild",
+        "grounded": false
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": "base_width / 2",
+        "width": "base_depth / 2",
+        "height": 6.0,
+        "corner": [
+          "-(base_width / 2) / 2",
+          "-(base_depth / 2) / 2",
+          0
+        ],
+        "body_name": "DerivedChild"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "DerivedChild:1",
+        "translate": [
+          0.0,
+          0.0,
+          20.0
+        ]
+      }
+    }
+  ]
+}
