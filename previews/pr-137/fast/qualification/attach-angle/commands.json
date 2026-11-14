@@ -1,0 +1,134 @@
+{
+  "commands": [
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Base",
+        "grounded": true
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Base footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          -30.0,
+          -30.0
+        ],
+        "p1": [
+          30.0,
+          30.0
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 10.0,
+        "body_name": "Base"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Arm",
+        "grounded": false
+      }
+    },
+    {
+      "command": "sketch.create",
+      "params": {
+        "plane": "XY",
+        "name": "Arm footprint"
+      }
+    },
+    {
+      "command": "sketch.rectangle.two_point",
+      "params": {
+        "p0": [
+          -15.0,
+          -5.0
+        ],
+        "p1": [
+          15.0,
+          5.0
+        ]
+      }
+    },
+    {
+      "command": "sketch.finish",
+      "params": {}
+    },
+    {
+      "command": "solid.extrude",
+      "params": {
+        "distance": 6.0,
+        "body_name": "Arm"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Arm:1",
+        "translate": [
+          0.0,
+          0.0,
+          10.0
+        ]
+      }
+    },
+    {
+      "command": "joint.create",
+      "params": {
+        "type": "rigid",
+        "name": "Attach Arm:1 to Base:1",
+        "a": {
+          "occurrence": "Base:1",
+          "face": [
+            0.0,
+            0.0,
+            10.0
+          ]
+        },
+        "b": {
+          "occurrence": "Arm:1",
+          "face": [
+            0.0,
+            0.0,
+            10.0
+          ]
+        },
+        "angle": 90.0
+      }
+    },
+    {
+      "command": "browser.visibility",
+      "params": {
+        "folder": "joints",
+        "visible": false
+      }
+    }
+  ]
+}
