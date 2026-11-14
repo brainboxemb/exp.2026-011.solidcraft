@@ -1,0 +1,41 @@
+{
+  "library_commit": "398d949f386b1e85dc9f4dd6e8c0bb789a6dbe57",
+  "qualifier": "command-generation",
+  "examples": {
+    "simple-box": {
+      "source": "examples/simple-box/model.py",
+      "commands": "examples/simple-box/commands.json",
+      "command_count": 7,
+      "preview": "examples/simple-box/preview.svg",
+      "preview_kind": "schematic"
+    },
+    "anchored-holes": {
+      "source": "examples/anchored-holes/model.py",
+      "commands": "examples/anchored-holes/commands.json",
+      "command_count": 13,
+      "preview": "examples/anchored-holes/preview.svg",
+      "preview_kind": "schematic"
+    },
+    "components": {
+      "source": "examples/components/model.py",
+      "commands": "examples/components/commands.json",
+      "command_count": 13,
+      "preview": "examples/components/preview.svg",
+      "preview_kind": "schematic"
+    },
+    "corner-anchor": {
+      "source": "examples/corner-anchor/model.py",
+      "commands": "examples/corner-anchor/commands.json",
+      "command_count": 17,
+      "preview": "examples/corner-anchor/preview.svg",
+      "preview_kind": "schematic"
+    },
+    "custom-anchor": {
+      "source": "examples/custom-anchor/model.py",
+      "commands": "examples/custom-anchor/commands.json",
+      "command_count": 17,
+      "preview": "examples/custom-anchor/preview.svg",
+      "preview_kind": "schematic"
+    }
+  }
+}
