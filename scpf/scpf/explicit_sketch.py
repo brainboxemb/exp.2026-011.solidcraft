@@ -19,7 +19,7 @@ def register_profile(profile):
 
 
 class Sketch:
-    """Prototype named XY sketch attached to a supported parent face."""
+    """Explicit 2D sketch scope, standalone or attached to an existing shape."""
 
     def __init__(self, *, name="Profile", on=None, parent=Anchor.TOP, plane=None, origin=None, offset=None):
         if not isinstance(name, str) or not name.strip():
