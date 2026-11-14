@@ -45,8 +45,11 @@ CAPABILITY_GROUPS = [
 ]
 
 SOLIDCRAFT_CAPABILITIES = [
-    ("fundamentals", "Box / Cylinder / Sphere", "Native primitives; Cylinder also supports an axis vector.", "Q6 · Box, Cylinder and Sphere native-qualified for the current Forge subset.", "Core", "PythonSCAD + OpenSCAD", "Keep primitive constructors small and predictable."),
-    ("fundamentals", "Cone / Torus", "Native primitives.", "Missing", "Later", "PythonSCAD + OpenSCAD", "Useful breadth, not needed for current frame work."),
+    ("fundamentals", "Box", "Native box primitive.", "Q6 · native-qualified in the current Forge subset.", "Core", "PythonSCAD + OpenSCAD", "Core rectangular solid."),
+    ("fundamentals", "Cylinder", "Native cylinder primitive, including axis-vector support.", "Q6 · basic Z-axis primitive native-qualified.", "Core", "PythonSCAD + OpenSCAD", "General orientation remains a separate transform capability."),
+    ("fundamentals", "Sphere", "Native sphere primitive.", "Q6 · native-qualified through primitive CSG.", "Core", "PythonSCAD + OpenSCAD", "Core rounded primitive."),
+    ("fundamentals", "Cone", "Native cone primitive.", "Missing", "Later", "PythonSCAD + OpenSCAD", "Useful breadth, not needed for current frame work."),
+    ("fundamentals", "Torus", "Native torus primitive.", "Missing", "Later", "PythonSCAD + OpenSCAD", "Useful breadth, not needed for current frame work."),
     ("fundamentals", "Boolean join / cut / intersect", "Native solid operations.", "Q6", "Core", "PythonSCAD + OpenSCAD", "Operator syntax is a good fit."),
     ("fundamentals", "Translation", "Native primitive positions and occurrence moves.", "Q6 for CSG; component move also supported", "Core", "PythonSCAD + OpenSCAD", "Keep world movement distinct from local attachment offsets."),
     ("fundamentals", "General rotation / mirror / scale", "Occurrence rotation is native; SolidCraft has richer placement machinery.", "Partial rotation; mirror/scale gaps", "Core rotation; mirror/scale later", "PythonSCAD + OpenSCAD", "Prefer one general transform model over type-specific shortcuts."),
