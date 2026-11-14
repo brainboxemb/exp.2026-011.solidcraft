@@ -970,6 +970,31 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
                 links.append(escape(name))
         return ", ".join(links) if links else "—"
 
+    def forge_support_status(forge):
+        value = forge.lower()
+        if value.startswith("missing"):
+            return "Missing"
+        if any(marker in value for marker in (
+            "partial", "subset", "limited", "internal", "special-case",
+            "cli/project", "little public",
+        )):
+            return "Partial"
+        return "Supported"
+
+    solidcraft_rows = []
+    forge_status_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
+    group_titles = dict(CAPABILITY_GROUPS)
+    for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
+        status = forge_support_status(forge)
+        forge_status_counts[status] += 1
+        solidcraft_rows.append(
+            f"<tr><td>{escape(group_titles.get(group, group))}</td>"
+            f"<td><strong>{escape(capability)}</strong></td>"
+            f"<td>{escape(solidcraft)}</td>"
+            f"<td><strong>{escape(status)}</strong></td>"
+            f"<td>{escape(forge)}</td><td>{escape(need)}</td></tr>"
+        )
+
     export_rows = []
     for api_name, (target, current, cases, note) in EXPORT_COVERAGE.items():
         export_rows.append(
@@ -990,8 +1015,13 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     gap_capabilities = sum(1 for row in CAPABILITY_COVERAGE if row[3] == "GAP")
     coverage_body = render_template(
         "coverage.html",
+        capability_total=escape(len(SOLIDCRAFT_CAPABILITIES)),
+        forge_supported=escape(forge_status_counts["Supported"]),
+        forge_partial=escape(forge_status_counts["Partial"]),
+        forge_missing=escape(forge_status_counts["Missing"]),
         gap_exports=escape(gap_exports),
         gap_capabilities=escape(gap_capabilities),
+        solidcraft_rows="".join(solidcraft_rows),
         export_rows="".join(export_rows),
         capability_rows="".join(capability_rows),
     )
