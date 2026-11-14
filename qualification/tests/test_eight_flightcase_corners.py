@@ -27,6 +27,20 @@ class EightFlightcaseCornersCommandTests(unittest.TestCase):
         commands = run_script(
             ROOT / "examples/eight-flightcase-corners/scpf/model.py"
         )["commands"]
+        parameters = [
+            row["params"]
+            for row in commands
+            if row["command"] == "parameters.add"
+        ]
+        self.assertEqual(
+            [(row["name"], row["expression"]) for row in parameters],
+            [
+                ("case_width", "120"),
+                ("case_depth", "80"),
+                ("case_height", "60"),
+            ],
+        )
+
         components = [
             row["params"]["name"] for row in commands
             if row["command"] == "component.create"
