@@ -1,0 +1,6 @@
+{
+  "commands": [
+    {"command":"parameters.change","params":{"name":"base_width","expression":"80 mm"}},
+    {"command":"parameters.change","params":{"name":"base_height","expression":"40 mm"}}
+  ]
+}
