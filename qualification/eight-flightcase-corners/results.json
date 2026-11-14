@@ -33,7 +33,7 @@
       "CaseBlock"
     ],
     "feature": 3,
-    "ms": 0.710136,
+    "ms": 0.8475050000000001,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -47,7 +47,7 @@
     ],
     "created_bodies": [],
     "feature": 4,
-    "ms": 42.271341,
+    "ms": 35.124933,
     "name": "Fillet1",
     "removed_bodies": [],
     "warning": null
@@ -72,7 +72,7 @@
       "FlightcaseCorner"
     ],
     "feature": 7,
-    "ms": 0.225741,
+    "ms": 0.194923,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null
@@ -87,7 +87,7 @@
     ],
     "created_bodies": [],
     "feature": 8,
-    "ms": 3.963928,
+    "ms": 3.203011,
     "name": "Box3",
     "removed_bodies": [],
     "warning": null
@@ -102,7 +102,7 @@
     ],
     "created_bodies": [],
     "feature": 9,
-    "ms": 5.515619,
+    "ms": 4.180793,
     "name": "Box4",
     "removed_bodies": [],
     "warning": null

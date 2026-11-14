@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "anchored-holes",
   "title": "Face-relative hole pattern",
-  "source_commit": "fd573d04b88dd7be9b6df13dba1cf9b0e3e2551e",
+  "source_commit": "7387e8e10743d010932f26e4a26a7c4d5b1c7e75",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
