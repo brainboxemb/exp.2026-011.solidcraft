@@ -30,8 +30,9 @@ def check(site: Path, sha: str, require_native: bool = False):
     from build import GUIDES
     guide_index = (site / "guide" / "index.html").read_text(encoding="utf-8")
     assert "API Guide" in home and "API Guide" in guide_index
-    assert "Development status — do not rely on this as a support guarantee." in home
-    assert "not a warranty" in home
+    assert 'class="development-banner"' in home
+    assert "Development version." in home
+    assert "not a support guarantee" in home
     assert "full API Guide" in cheatsheet
     for chapter in GUIDES:
         page = (site / "guide" / chapter["slug"] / "index.html").read_text(encoding="utf-8")
@@ -74,8 +75,9 @@ def check(site: Path, sha: str, require_native: bool = False):
     ).read_text(encoding="utf-8")
     assert "Qualification results" in results_page
     for page_text in (qualification_index, coverage_page, results_page):
-        assert "Development status — do not rely on this as a support guarantee." in page_text
-        assert "not a warranty" in page_text
+        assert 'class="development-banner"' in page_text
+        assert "Development version." in page_text
+        assert "not a support guarantee" in page_text
     assert set(scpf.__all__) == set(EXPORT_COVERAGE), (
         "Every public scpf.__all__ symbol must have a declared qualification row"
     )
