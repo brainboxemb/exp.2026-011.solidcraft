@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "site"))
 from build import EXAMPLES, QUALIFICATION_CASES, QUALIFICATION_GROUPS
 from api_coverage import EXPORT_COVERAGE, CAPABILITY_COVERAGE
-from capability_map import SOLIDCRAFT_CAPABILITIES
+from capability_map import CAPABILITY_GROUPS, SOLIDCRAFT_CAPABILITIES
 import scpf
 
 
@@ -86,6 +86,15 @@ def check(site: Path, sha: str, require_native: bool = False):
         assert f"<code>{api_name}</code>" in coverage_page, api_name
     for _, capability, *_ in SOLIDCRAFT_CAPABILITIES:
         assert capability in coverage_page, capability
+    statuses = {
+        status
+        for _, _, _, status, *_ in SOLIDCRAFT_CAPABILITIES
+    }
+    assert statuses <= {"Supported", "Partial", "Missing"}
+    assert "Basic primitives:</strong> 3/5 supported" in coverage_page
+    assert "Coverage by area" in coverage_page
+    for _, title in CAPABILITY_GROUPS:
+        assert title in coverage_page, title
     for group, capability, target, current, cases, note in CAPABILITY_COVERAGE:
         assert capability in coverage_page, capability
         assert target.startswith("Q")

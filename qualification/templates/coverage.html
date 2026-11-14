@@ -8,6 +8,7 @@
   capability surface is exposed coherently through Forge? Second: how much of that
   Forge support has been functionally qualified against native SolidCraft?</p>
   <p class="meta">Capability inventory: $capability_total · supported: $forge_supported · partial: $forge_partial · missing: $forge_missing</p>
+  <p class="meta"><strong>Basic primitives:</strong> $primitive_supported/$primitive_total supported · $primitive_partial partial · $primitive_missing missing</p>
 </section>
 
 <section class="notice">
@@ -21,6 +22,12 @@
   <h2>1. SolidCraft → Forge support</h2>
   <p class="meta">This is the primary completeness view: what SolidCraft can do,
   what Forge exposes today, and how important that capability is for the intended Forge API.</p>
+  <h3>Coverage by area</h3>
+  <table>
+    <thead><tr><th>Area</th><th>Total</th><th>Supported</th><th>Partial</th><th>Missing</th></tr></thead>
+    <tbody>$area_summary_rows</tbody>
+  </table>
+  <h3>Capability detail</h3>
   <table>
     <thead><tr><th>Area</th><th>Capability</th><th>SolidCraft</th><th>Forge status</th><th>Forge today</th><th>Target / priority</th></tr></thead>
     <tbody>$solidcraft_rows</tbody>

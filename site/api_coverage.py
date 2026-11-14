@@ -45,7 +45,11 @@ EXPORT_COVERAGE = {
 
 
 CAPABILITY_COVERAGE = [
-    ("Primitive CSG", "Sphere + Cylinder creation", "Q6", "Q6", ["primitive-csg"], "Simplified primitive path passed native SolidCraft build/evaluation and snapshot."),
+    ("Primitive objects", "Box", "Q6", "Q6", ["simple-box"], "Native parameterized box baseline."),
+    ("Primitive objects", "Cylinder", "Q6", "Q6", ["primitive-csg"], "Basic Z-axis cylinder passed native build, measurement and visual qualification."),
+    ("Primitive objects", "Sphere", "Q6", "Q6", ["primitive-csg"], "Sphere passed native build, measurement and visual qualification."),
+    ("Primitive objects", "Cone", "Q6", "GAP", [], "Not yet exposed through the public Forge API."),
+    ("Primitive objects", "Torus", "Q6", "GAP", [], "Not yet exposed through the public Forge API."),
     ("Primitive CSG", "union / difference / intersection", "Q6", "Q6", ["primitive-csg"], "All three Boolean operators passed native SolidCraft qualification."),
     ("Shape transforms", "Shape.move(x,y,z)", "Q6", "Q6", ["primitive-csg"], "Translated primitive passed native SolidCraft qualification."),
     ("Shape transforms", "General primitive rotation/orientation", "Q6", "GAP", [], "Design one general transform/direction API; do not add type-specific multi-axis shortcuts."),
