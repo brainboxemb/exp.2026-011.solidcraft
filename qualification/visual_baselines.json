@@ -520,6 +520,28 @@
           "changed_pixel_fraction_threshold": 0.08
         }
       }
+    },
+    "circle-negative-extrude": {
+      "case": "circle-negative-extrude",
+      "approval": "approved",
+      "source_commit": "e920108e39bcb1e92cc1fa4a7c9b33c1f3ca4a48",
+      "views": {
+        "front": {
+          "pixels_zlib_base64": "eNrV2MlPE1EcwPH/zsSrhujJGKOJiIkxSjAGD0BiiAghCAFrsSkttKWULshSuk3Z1ZPdprSzdDpdpu10Slu26sUWY+Ll93h5HYL9JO/6/eXNJL/Dq9evVq3DVTvc0XWqKJcpl8sVdAJBqTXOz89aTv9x9sd5U6PR+PmrplTIKDXe5fZ4/YEARQW3gsGLQ1EByu/3+byeTff62heX08ohByDuLp8edA8Mj32Y1szq5gzzJrPZtGDU62Y/zUxNjI28Hezve/b43p0bO2eyQkQ++d43OqnRGRYsVpvd6VpZcTntNqulOeSzZnpibHiov/fpo679Uxn9gyCl428vRyZmZvVGU2uAw+l0tPIm45xOOzM1/v7twOsX3Q9u7Z2UykRU6cuwYv0rTn/3uCgTUaVfghVqB1j9eqFERJV+ESZVsfo7NalIRKrut98vwPJHWP3tar5ARJW+BMtV9nD6W0c5iUhH9POwrLKL0w9WsnkiqvRzsGx5B6uvZHJEmv3etvtZWEbG6lNlMUtElX4GJpa2cfoBOZ0hokpfhKWLW1j9kiASUaWfhgmFIE7fX0yliajSF2ApicLp+wq8QESVfgrG57H6XolLEVGlz8O4XACn78mzPJH/pZ9D9TkYm/Xj9RmOCGZ/M3udfRbGZHxY/UySJcKIWH03ss/AkqIXqy8mGCLJNE7/9gayn4QlBLx++jBJJCF42u8nYIcprP66EEdFYHF+E6ufog+JdEQ/DqM5rP4aH4sToTl3+30aFmOx+qtclCaiSj8GizIbWH02EiMSZdyXvo/1POxC96OwCLPaM/hufOqjVqdvPe9ZLGbTvEGv02qmJ8dHh4fevHr+5P7dm042HCUSie8bFq1LtmV769s0uZrH4bDbl5dttiXrosW8YJzTa/fiEVQEhWaBFXWxulrrl2U5OoKOIIRDoTAk9Fc4cp3CHS7U4X5csd+wFYXP",
+          "mean_abs_threshold": 6,
+          "changed_pixel_fraction_threshold": 0.08
+        },
+        "right": {
+          "pixels_zlib_base64": "eNrV2MlPE1EcwPH/zsSrhoPxpkQT44Ia4xqMSERUEGSrQGFaxFKWtqhYSlfWqjfpdKMz03Y603VmCi2L9WSL4eYbfvkxDfaTd5n3ku+bubxJXrlcX6UGt9Pgtk9TUZaV48hF9YQKpfS7Uqn8qjk4sn/o6Km6UikpRRylxM1++rxgtzuWnC632+P1eH0+3/Lf4fV6PG6X0+GY51Q3UPly6WDtzIVL1+48aH3e8bq7t39QNzw6Nk4ZDBQ1ph95P9Tf86bj2aPL/gNJQZH2/U1XW+63tr962zc0rB83fvg4NT0zWzUzbTZNGqlRXV/Xi9s/9tT6Mllhb+Nc8417T9pedvUO6Eb0VG0D83SVeco0OUGNDQ/2vm6/+X23IKNo0pfI8rug/rdyXkLRpF8gy5XXQf1SroAC7PtV+3mybGkN1N/J5lE06efIMjurkP7GdiaHokk/S5beXoH014vpLEpD9DNkYhHWV8QMilhchvTXVPtpMkGB9WUhjaJJXyRLyT5If1VKiSia9AUyXgL1Vwq8gKJJP0WWLHgh/eU8n0LRpM+TJfIeUD+X5FE06SfJ4jk3pO/LJpIomvQTZFzWBel7M/EEiib9OBmbAfU9aS6OUvd+2nnyPkfGwPpukeVQGLHe/aWT91mymADrCwyLEhMckL5Ltc+QbaVg/VSMQQH2nar9GFmUXwT1+a0Yiib9LbJIEtZPRlUiUbJwwn4e0F9KRKIo/0s/rtaPkIXiXyF9BxeOoGjSD5MFOVB/kQ2FUYLcwsn7ITKaBfXtTDCEUu03Xbl13P1Yy6JqP0gWYOfPXmy+fvfh0/bOrp6+gdr1HmUwVhmocf2IbvBdd2fb4+YvDB1EoSMbo8aJSZPJXH3ruTmL1WK1WW3zttqwWa0Wy9zsjNls9EfU+jRZkA5zhz8I0klVm2XYMI0W2DwS+LfDJfo0BRrcZoP7WWd/AEAdbPU=",
+          "mean_abs_threshold": 6,
+          "changed_pixel_fraction_threshold": 0.08
+        },
+        "iso": {
+          "pixels_zlib_base64": "eNrF2MlPG1ccwPE/sJeSXkJapWoDamgIW9jCYowBY2MaKVEOILCFQuxZPMaoLZAFiI0plTgkeOyxxxve921mbAzcakOrRi3vzeuzUT+SpZnD+/5+cxgfplK5XRIiURREUapU6yeuL1tJFKSzi8vzqlguFEpi9fzy4kwSRMS9ZAli7VKMndh+ZQjj+msjwWzZnDHpstZ4jOYJwkXFv0sY9GvrRoKkKJIwvlrTG8i9YOVCEBCOw5XOKp/o1TXCzJhpmrpC0/Ub09oq9alyVhKaUzoPUSsmxkz9i9lsWqFC53IDylCl2tGykaGpG9GMcfn3WqmMr1g7WALV60iaWXLUivANIYpV95KFgmKWuGqxhKlYNppoeJ82mcrwBlhB4lcZSgazykuFIpZ89dgg3zccV/OwJcHylWO9fF9/XMkXsOSq9kUrCc+T1kX7WQ62JFi2an+4KdMnNjtt1WweS1Y6+koHH0Bs6r74TYL1c2AZ6fBe5zMrTYLfL+uz+3cOpUwOS0ZytD9+OENsUDdOIKkNUvVdR5sD2s+CpUVHe/dA79BzwmKmSPKzIY0b8wb5vP+HHx+0OcR0FstVv29kdHBs0UBZLEzj//lqCs1YLJRBN9LT39cl18+ApQTHve6+oaeKqfEx5cJL/TpB0WYzTRHr+pdaxfDQ6OhAT71/IKQyWP7qT0yp5manlVNK1axarZ6bmVZMTkwqlYqnw832D/7sT8/MzS/UaTUazXz9p1HXh0wg9dNgyfJnfbVGo61P0Om0Ws28elb1d99eTqax3NSvP8N/66fAEiU7St9WSqSwtKSfBIsXbUj9YjyJBa1/5wO0nwCLFdD6hVgCS0v6cbBo/gNKfz8fjWNpST8GFsnto/T3cpEYlpb0o2Dh7B5SPxuOYmlJPwJ2mkHq72ZOI1ha0g+DhdK7KP336VAYy633U++b75+CBdH671LBUyzB5G333yH1k7B+CCyQQOq/TQZCWAKJt0j9BKwfBPPH0fpxfxALYv8NtB8A88XeIPVjvgAWxP4OtO8H46No/SgPifjAvJEdpH7E68OC2N/+X/s8mCe8jdQPe3gsnvBO830vGHf6S7tsv6Pt5zDnxcKFN+8+lu1/aYX2PWBcwPHto36Z/vd3HX7Og4cLTHY8gfcffT0ShOY5CLd//0H/MKzf2/XNXsDN4XKF6M7hcXB/sOc+EXJBE24oV9Da+2RKeXN/bLS7iwm53M1gg4fagfF6/p99lVIx2D1/GGDdzWF5fks3Nq5qfB/QXfe1je8DiuEh7RbPy+ZdcljW57W/WpxWKGfUmkZ8fnZaMT6pXbN5/SzragEn6/VzR9umlRc/1ddfWHyxbNo6cvu9rBPhMIvCecJyvI/n2JOPH09Yz/Wlk20lp/PE6WSvFrq+RD53u/4A64CwOw==",
+          "mean_abs_threshold": 6,
+          "changed_pixel_fraction_threshold": 0.08
+        }
+      }
     }
   }
 }

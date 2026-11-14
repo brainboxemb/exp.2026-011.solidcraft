@@ -110,6 +110,9 @@ EXPECTED_BOUNDS = {
     "history-policy": [
         {"label": "HistoryPolicyBoss", "min": [-25, -25, 0], "max": [25, 25, 16]},
     ],
+    "circle-negative-extrude": [
+        {"label": "NegativeCircleExtrude", "min": [-10, -10, -30], "max": [10, 10, 0]},
+    ],
     "primitive-csg": [
         {"label": "PrimitiveCsg", "min": [-20, -20, 0], "max": [25, 20, 20]},
     ],
