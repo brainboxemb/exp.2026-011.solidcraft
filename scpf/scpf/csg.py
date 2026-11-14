@@ -35,14 +35,18 @@ def _csg_primitive(shape, body_name, operation, *, offset=(0, 0, 0)):
         _require_positive(width, "box width")
         _require_positive(height, "box height")
         params = dict(length=command_value(length), width=command_value(width),
-                      height=command_value(height), center=list(offset),
+                      height=command_value(height),
+                      center=[command_value(value) for value in offset],
                       operation=operation)
         command = "solid.box"
     elif kind == "sphere":
         (radius,) = data
         _require_positive(radius, "sphere radius")
-        params = dict(radius=command_value(radius), center=list(offset),
-                      operation=operation)
+        params = dict(
+            radius=command_value(radius),
+            center=[command_value(value) for value in offset],
+            operation=operation,
+        )
         command = "solid.sphere"
     elif kind == "cylinder":
         height, diameter, axis = data
@@ -50,7 +54,7 @@ def _csg_primitive(shape, body_name, operation, *, offset=(0, 0, 0)):
         _require_positive(diameter, "cylinder diameter")
         params = dict(height=command_value(height),
                       diameter=command_value(diameter),
-                      base=list(offset),
+                      base=[command_value(value) for value in offset],
                       axis=axis, operation=operation)
         command = "solid.cylinder"
     else:
