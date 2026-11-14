@@ -30,6 +30,8 @@ def check(site: Path, sha: str, require_native: bool = False):
     from build import GUIDES
     guide_index = (site / "guide" / "index.html").read_text(encoding="utf-8")
     assert "API Guide" in home and "API Guide" in guide_index
+    assert "Development status — do not rely on this as a support guarantee." in home
+    assert "not a warranty" in home
     assert "full API Guide" in cheatsheet
     for chapter in GUIDES:
         page = (site / "guide" / chapter["slug"] / "index.html").read_text(encoding="utf-8")
