@@ -222,9 +222,9 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Four centred L-profiles on corner lines",
         "intent": "Place one neutral XZ L-profile on each of the four vertical corner lines of a rounded rectangular frame. All four profiles sit at the middle of the frame depth; this is the simple 4-profile baseline before duplicating each corner line in the 8-profile case.",
-        "forge_api": "LBracket + four standard FRONT corner anchors; a parametric gap moves each occurrence from the front topology reference to the Y-centre of the same corner line.",
+        "forge_api": "LBracket + one assembly-local XZ AnchorFrame; four planar offsets select the X/Z corner lines and angle=0/90/180/270 clocks the neutral profile.",
         "forge_model": "One rounded parametric FrameBlock plus four occurrences of one neutral LBracket definition. The bracket owns only its local XZ polygon; the assembly owns which corner line and depth position each occurrence uses.",
-        "lowering": "Four rigid joint.create commands use the four FRONT XZ corner topology references and one symbolic normal offset derived from frame_depth. The offset keeps every 4 mm profile centred around Y=0 after native depth mutation.",
+        "lowering": "Four planar joint.create commands share one parent XZ frame at Y=0. Symbolic X/Z offsets use frame_width/frame_height, while native joint clocking gives the four L orientations. No sharp corner edge is required, so the 8 mm frame fillets remain valid.",
         "native_expectation": "One L-profile sits on each top-left, top-right, bottom-right and bottom-left XZ corner line. All four are centred in depth and their two arms follow the adjacent X/Z frame edges.",
         "mutation": "Change frame_width/depth from 120x80 to 160x120 mm in the saved .sc design; the four profiles follow the wider X corner positions while remaining centred around Y=0.",
         "references": [
@@ -238,9 +238,9 @@ QUALIFICATION_CASES = [
         "group": "anchors",
         "title": "Eight L-profiles: two on each corner line",
         "intent": "Extend the 4-profile baseline by placing two copies on each XZ corner line: one near the front end and one near the rear end of the frame depth. The eight profiles form four explicit corner pairs.",
-        "forge_api": "the same neutral LBracket attached through FRONT/BACK topology references with a fixed inward gap equal to the profile thickness.",
+        "forge_api": "the same neutral LBracket and central XZ AnchorFrame as the 4-profile case; each X/Z corner offset is emitted twice with opposite symbolic depth gaps.",
         "forge_model": "One rounded parametric FrameBlock plus eight occurrences of one LBracket definition, organised conceptually as four XZ corner lines with two depth positions per line.",
-        "lowering": "Eight rigid joint.create commands use FRONT/BACK corner topology only to identify the two ends of each corner line. A -4 mm normal offset moves every profile inward so its 4 mm thickness lies inside the frame depth rather than outside the front/rear faces.",
+        "lowering": "Eight planar joint.create commands reuse the same four X/Z offsets and clocking angles. The normal gap is +(frame_depth/2-2) for the front member of each pair and the negative value for the rear member, keeping the symmetric 4 mm profile inside the rounded frame depth.",
         "native_expectation": "Each of the four XZ corner lines carries exactly two L-profiles. At 80 mm depth the front profiles occupy Y=-40..-36 and the rear profiles Y=36..40.",
         "mutation": "Change frame_width/depth/height from 120x80x60 to 160x120x90 mm; each pair follows its X/Z corner and the front/rear profile remains flush inside the new depth limits.",
         "references": [
