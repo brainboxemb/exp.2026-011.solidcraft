@@ -406,6 +406,76 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
     return tuple(found.values())
 
 
+def _dim_add(left, right):
+    """Add CAD dimensions without turning a zero into noisy expressions."""
+    if left == 0:
+        return right
+    if right == 0:
+        return left
+    return left + right
+
+
+def _dim_sub(left, right):
+    """Subtract CAD dimensions while preserving Parameter/Expression intent."""
+    if right == 0:
+        return left
+    if left == 0:
+        return -right
+    return left - right
+
+
+def _shape_center(shape):
+    """Return the nominal CENTER anchor of a direct CSG shape.
+
+    Boolean composites are accepted only when both operands have the same
+    center. This keeps CENTER alignment deterministic without inventing a
+    general bounding-box/geometry solver in Forge.
+    """
+    if not isinstance(shape, Shape):
+        raise TypeError("align() target must be a Shape")
+
+    if shape.kind in ("box", "sphere"):
+        return (0, 0, 0)
+
+    if shape.kind == "cylinder":
+        height, _diameter, axis = shape.data
+        half = height / 2
+        return {
+            "X": (half, 0, 0),
+            "Y": (0, half, 0),
+            "Z": (0, 0, half),
+        }[axis]
+
+    if shape.kind == "translated":
+        child, delta = shape.data
+        center = _shape_center(child)
+        return tuple(_dim_add(center[i], delta[i]) for i in range(3))
+
+    if shape.kind == "placed3d":
+        child, x, y, z = shape.data
+        if child.kind != "cylinder":
+            raise ValueError("CENTER alignment only supports placed Cylinder CSG shapes")
+        center = _shape_center(child)
+        base = (x, y, z)
+        return tuple(_dim_add(base[i], center[i]) for i in range(3))
+
+    if shape.kind in ("intersection", "union"):
+        left, right = shape.data
+        left_center = _shape_center(left)
+        right_center = _shape_center(right)
+        if left_center != right_center:
+            raise ValueError(
+                "CENTER alignment of a CSG composite requires operands "
+                "with the same center"
+            )
+        return left_center
+
+    raise ValueError(
+        "CENTER alignment currently supports direct Box, Sphere, Cylinder "
+        "and centered CSG composites"
+    )
+
+
 @dataclass(frozen=True)
 class Shape:
     kind: str
@@ -423,6 +493,29 @@ class Shape:
 
     def __sub__(self, other):
         return Shape("difference", (self, _shape(other)))
+
+    def align(self, target, *, parent=Anchor.CENTER, child=Anchor.CENTER):
+        """Align one direct CSG shape anchor to another without an assembly joint.
+
+        The first supported contract is CENTER-to-CENTER. Cylinder CENTER is
+        derived from its native axis and height, so the resulting translation
+        still lowers directly to solid.cylinder(base=..., axis=...).
+        """
+        try:
+            parent = Anchor(parent)
+            child = Anchor(child)
+        except ValueError as exc:
+            raise ValueError("align() requires valid Anchor values") from exc
+        if parent is not Anchor.CENTER or child is not Anchor.CENTER:
+            raise ValueError("align() currently supports CENTER-to-CENTER only")
+
+        target_center = _shape_center(target)
+        child_center = _shape_center(self)
+        delta = tuple(
+            _dim_sub(target_center[i], child_center[i])
+            for i in range(3)
+        )
+        return Shape("translated", (self, delta))
 
     def move(self, x=0, y=0, z=0):
         """Translate a CSG shape by millimetres.
