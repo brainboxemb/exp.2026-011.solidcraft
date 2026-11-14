@@ -79,6 +79,22 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "parent-derived-child-size",
+        "q5_required": True,
+        "group": "parameters",
+        "title": "Child dimensions derived from parent parameters",
+        "intent": "Isolate one dependency contract: a reusable child receives width and depth expressions derived from parent parameters, and those child dimensions remain editable/associative in the saved SolidCraft design.",
+        "forge_api": "DerivedChild(width=self.base_width / 2, depth=self.base_depth / 2)",
+        "forge_model": "One ParentBlock and one DerivedChild. Only base_width and base_depth are published as document parameters; the child carries expressions that reference those existing parent parameters instead of receiving independent duplicated values.",
+        "lowering": "The parent and child sketch dimensions preserve base_width/base_depth expressions. Forge must not flatten base_width / 2 or base_depth / 2 to numeric constants when compiling the child component.",
+        "native_expectation": "At 120x80 mm parent size, the child measures 60x40 mm. Its fixed height and fixed placement are deliberately unrelated to this qualification.",
+        "mutation": "Change base_width/base_depth from 120x80 to 160x120 mm in the saved .sc design; without rerunning Python the child must rebuild from 60x40 to 80x60 mm.",
+        "references": [
+            ("SolidCraft", "Native parameters and expressions must preserve the parent-to-child dimensional dependency after the Python compiler has finished."),
+            ("PythonSCAD", "The Python model expresses the dependency with ordinary arithmetic rather than a special application-specific sizing API."),
+        ],
+    },
+    {
         "slug": "components",
         "group": "components",
         "title": "Place one component relative to another",

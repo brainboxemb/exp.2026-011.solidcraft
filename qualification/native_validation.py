@@ -198,6 +198,51 @@ def validate_parameter_scope(root: Path) -> Validation:
     return v
 
 
+def validate_parent_derived_child_size(root: Path) -> Validation:
+    v = Validation("parent-derived-child-size")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "parent-derived-child-size")
+    v.check("two bodies", d["body_count"] == 2, 2, d["body_count"])
+    v.check(
+        "baseline parent parameters",
+        params(d) == {"base_width": 120.0, "base_depth": 80.0},
+        {"base_width": 120.0, "base_depth": 80.0},
+        params(d),
+    )
+    v.check(
+        "child is half parent width/depth",
+        sorted(body_size(body) for body in d["bodies"])
+        == [(60.0, 40.0, 6.0), (120.0, 80.0, 10.0)],
+        [(60.0, 40.0, 6.0), (120.0, 80.0, 10.0)],
+        sorted(body_size(body) for body in d["bodies"]),
+    )
+
+    m = load(root / "measurements-size-160x120.json")
+    _check_declared_bounds(
+        v,
+        m,
+        "parent-derived-child-size",
+        level="q5",
+        mutation=True,
+    )
+    v.check(
+        "parent parameters changed",
+        params(m) == {"base_width": 160.0, "base_depth": 120.0},
+        {"base_width": 160.0, "base_depth": 120.0},
+        params(m),
+        "q5",
+    )
+    v.check(
+        "child rebuilds from parent expressions",
+        sorted(body_size(body) for body in m["bodies"])
+        == [(80.0, 60.0, 6.0), (160.0, 120.0, 10.0)],
+        [(80.0, 60.0, 6.0), (160.0, 120.0, 10.0)],
+        sorted(body_size(body) for body in m["bodies"]),
+        "q5",
+    )
+    return v
+
+
 def validate_components(root: Path) -> Validation:
     v = Validation("components")
     d = load(root / "measurements.json")
@@ -443,6 +488,7 @@ VALIDATORS = {
     "simple-box": validate_simple_box,
     "anchored-holes": validate_anchored_holes,
     "parameter-scope": validate_parameter_scope,
+    "parent-derived-child-size": validate_parent_derived_child_size,
     "components": validate_components,
     "parametric-attach": validate_parametric_attach,
     "parametric-offset": validate_parametric_offset,
