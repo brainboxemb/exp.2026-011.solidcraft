@@ -1,0 +1,462 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Four reusable L-profile feet – bottom-face placement",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "FRAME",
+        "color": 8,
+        "lineweight": 0.35,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          -60,
+          -40
+        ],
+        "p2": [
+          60,
+          40
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "FEET",
+        "color": 3,
+        "lineweight": 0.5,
+        "current": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -60,
+            -40
+          ],
+          [
+            -32,
+            -40
+          ],
+          [
+            -32,
+            -32
+          ],
+          [
+            -52,
+            -32
+          ],
+          [
+            -52,
+            -12
+          ],
+          [
+            -60,
+            -12
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            60,
+            -40
+          ],
+          [
+            60,
+            -12
+          ],
+          [
+            52,
+            -12
+          ],
+          [
+            52,
+            -32
+          ],
+          [
+            32,
+            -32
+          ],
+          [
+            32,
+            -40
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            60,
+            40
+          ],
+          [
+            32,
+            40
+          ],
+          [
+            32,
+            32
+          ],
+          [
+            52,
+            32
+          ],
+          [
+            52,
+            12
+          ],
+          [
+            60,
+            12
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            -60,
+            40
+          ],
+          [
+            -60,
+            12
+          ],
+          [
+            -52,
+            12
+          ],
+          [
+            -52,
+            32
+          ],
+          [
+            -32,
+            32
+          ],
+          [
+            -32,
+            40
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "PLACEMENT",
+        "color": 1,
+        "lineweight": 0.3,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          -60,
+          -40
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          60,
+          -40
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          60,
+          40
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          -60,
+          40
+        ],
+        "radius": 2
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            -60,
+            -40
+          ],
+          [
+            -92,
+            -52
+          ]
+        ],
+        "text": "BOTTOM offset (-W/2, -D/2) | 0 deg"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            60,
+            -40
+          ],
+          [
+            88,
+            -52
+          ]
+        ],
+        "text": "BOTTOM offset (+W/2, -D/2) | 90 deg"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            60,
+            40
+          ],
+          [
+            88,
+            52
+          ]
+        ],
+        "text": "BOTTOM offset (+W/2, +D/2) | 180 deg"
+      }
+    },
+    {
+      "command": "mleader",
+      "params": {
+        "points": [
+          [
+            -60,
+            40
+          ],
+          [
+            -92,
+            52
+          ]
+        ],
+        "text": "BOTTOM offset (-W/2, +D/2) | 270 deg"
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "DIM",
+        "color": 4,
+        "lineweight": 0.2,
+        "current": true
+      }
+    },
+    {
+      "command": "dimlinear",
+      "params": {
+        "p1": [
+          -60,
+          -40
+        ],
+        "p2": [
+          60,
+          -40
+        ],
+        "at": [
+          0,
+          -66
+        ],
+        "rotation": 0
+      }
+    },
+    {
+      "command": "dimlinear",
+      "params": {
+        "p1": [
+          -60,
+          -40
+        ],
+        "p2": [
+          -60,
+          40
+        ],
+        "at": [
+          -106,
+          0
+        ],
+        "rotation": 90
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "DETAIL",
+        "color": 7,
+        "lineweight": 0.35,
+        "current": true
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          118,
+          0
+        ],
+        "p2": [
+          188,
+          18
+        ]
+      }
+    },
+    {
+      "command": "layer.current",
+      "params": {
+        "name": "FEET"
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          118,
+          -30
+        ],
+        "p2": [
+          146,
+          0
+        ]
+      }
+    },
+    {
+      "command": "layer.current",
+      "params": {
+        "name": "DIM"
+      }
+    },
+    {
+      "command": "dimlinear",
+      "params": {
+        "p1": [
+          112,
+          -30
+        ],
+        "p2": [
+          112,
+          0
+        ],
+        "at": [
+          104,
+          -15
+        ],
+        "rotation": 90
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TEXT",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -105,
+          72
+        ],
+        "text": "FOUR REUSABLE L-PROFILE CORNER FEET",
+        "height": 5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -105,
+          64
+        ],
+        "text": "BOTTOM VIEW – one neutral CornerFoot, four assembly-owned positions and rotations",
+        "height": 3
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          116,
+          28
+        ],
+        "text": "SIDE DETAIL",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          116,
+          22
+        ],
+        "text": "frame",
+        "height": 2.8
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          120,
+          -18
+        ],
+        "text": "foot extends below frame",
+        "height": 2.8
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          -105,
+          -78
+        ],
+        "text": "CornerFoot contains geometry only. The assembly owns BOTTOM-face offset and spin.",
+        "height": 3
+      }
+    }
+  ]
+}

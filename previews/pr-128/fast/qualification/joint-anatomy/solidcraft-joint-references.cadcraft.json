@@ -1,0 +1,330 @@
+{
+  "cadcraft_version": "0.20.1",
+  "title": "Topology-backed parent and explicit child joint origin",
+  "commands": [
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BOARD",
+        "color": 8,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            110,
+            0
+          ],
+          [
+            0,
+            82
+          ],
+          [
+            110,
+            82
+          ]
+        ]
+      }
+    },
+    {
+      "command": "rectang",
+      "params": {
+        "p1": [
+          0,
+          0
+        ],
+        "p2": [
+          110,
+          82
+        ],
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "TOPO",
+        "color": 3,
+        "lineweight": 1.4,
+        "current": true
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            110,
+            0
+          ],
+          [
+            110,
+            82
+          ]
+        ]
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          110,
+          68
+        ],
+        "radius": 3.2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          110,
+          41
+        ],
+        "radius": 3.2
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          92,
+          41
+        ],
+        "radius": 3.2
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "BRACKET",
+        "color": 5,
+        "lineweight": 1.2,
+        "current": true
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            200,
+            0
+          ],
+          [
+            212,
+            0
+          ],
+          [
+            200,
+            72
+          ],
+          [
+            212,
+            72
+          ]
+        ]
+      }
+    },
+    {
+      "command": "solid",
+      "params": {
+        "points": [
+          [
+            212,
+            60
+          ],
+          [
+            280,
+            60
+          ],
+          [
+            212,
+            72
+          ],
+          [
+            280,
+            72
+          ]
+        ]
+      }
+    },
+    {
+      "command": "pline",
+      "params": {
+        "vertices": [
+          [
+            200,
+            0
+          ],
+          [
+            212,
+            0
+          ],
+          [
+            212,
+            60
+          ],
+          [
+            280,
+            60
+          ],
+          [
+            280,
+            72
+          ],
+          [
+            200,
+            72
+          ]
+        ],
+        "closed": true,
+        "width": 0.8
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "FRAME",
+        "color": 1,
+        "lineweight": 1.4,
+        "current": true
+      }
+    },
+    {
+      "command": "circle",
+      "params": {
+        "center": [
+          212,
+          60
+        ],
+        "radius": 3.2
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            212,
+            60
+          ],
+          [
+            255,
+            60
+          ]
+        ]
+      }
+    },
+    {
+      "command": "line",
+      "params": {
+        "points": [
+          [
+            212,
+            60
+          ],
+          [
+            212,
+            100
+          ]
+        ]
+      }
+    },
+    {
+      "command": "layer.new",
+      "params": {
+        "name": "LABELS",
+        "color": 7,
+        "current": true
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          55,
+          94
+        ],
+        "text": "A",
+        "height": 8,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          242,
+          94
+        ],
+        "text": "B",
+        "height": 8,
+        "justify": "C"
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          114,
+          69
+        ],
+        "text": "corner",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          114,
+          42
+        ],
+        "text": "edge",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          64,
+          42
+        ],
+        "text": "face",
+        "height": 4
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          258,
+          64
+        ],
+        "text": "z",
+        "height": 4.5
+      }
+    },
+    {
+      "command": "text",
+      "params": {
+        "at": [
+          216,
+          96
+        ],
+        "text": "x",
+        "height": 4.5
+      }
+    }
+  ]
+}
