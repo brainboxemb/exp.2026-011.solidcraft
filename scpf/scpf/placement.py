@@ -130,7 +130,9 @@ def _anchored_features(shape):
             if (boss_feature.kind == "cylinder" and boss_parent == previous
                     and boss_anchor is Anchor.TOP and boss_child is Anchor.BOTTOM
                     and all(pv(v) == 0 for v in boss_offset)):
-                boss_height, boss_diameter = boss_feature.data
+                boss_height, boss_diameter, boss_axis = boss_feature.data
+                if boss_axis != "Z":
+                    raise ValueError("attached boss Cylinder must use Axis.Z")
                 _require_positive_local = pv(boss_height) > 0 and pv(boss_diameter) > 0
                 if not _require_positive_local:
                     raise ValueError("invalid attached boss")
@@ -171,6 +173,8 @@ def _anchored_features(shape):
     else:
         height = feature.data[0] if feature.kind == "cylinder" else None
     if feature.kind == "cylinder":
+        if feature.data[2] != "Z":
+            raise ValueError("attached Cylinder must use Axis.Z")
         if child_anchor is Anchor.BOTTOM:
             base_z = face_z
         elif child_anchor is Anchor.CENTER:
