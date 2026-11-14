@@ -1,0 +1,95 @@
+{
+  "commands": [
+    {
+      "command": "component.create",
+      "params": {
+        "name": "PanelGroup",
+        "activate": false,
+        "grounded": true
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Panel",
+        "grounded": false,
+        "parent": "PanelGroup"
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 10,
+        "width": 2,
+        "height": 20,
+        "corner": [
+          -5.0,
+          -1.0,
+          0
+        ],
+        "body_name": "Panel"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.copy",
+      "params": {
+        "component": "Panel"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Panel:2",
+        "translate": [
+          11.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "command": "component.create",
+      "params": {
+        "name": "Frame",
+        "grounded": false
+      }
+    },
+    {
+      "command": "solid.box",
+      "params": {
+        "length": 35,
+        "width": 10,
+        "height": 40,
+        "corner": [
+          -17.5,
+          -5.0,
+          0
+        ],
+        "body_name": "Frame"
+      }
+    },
+    {
+      "command": "component.activate",
+      "params": {
+        "component": "root"
+      }
+    },
+    {
+      "command": "occurrence.move",
+      "params": {
+        "occurrence": "Frame:1",
+        "translate": [
+          0.0,
+          20.0,
+          0.0
+        ]
+      }
+    }
+  ]
+}

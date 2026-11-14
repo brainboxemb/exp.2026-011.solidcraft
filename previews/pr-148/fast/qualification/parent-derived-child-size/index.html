@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Child dimensions derived from parent parameters · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Child dimensions derived from parent parameters</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
+  <h1>Child dimensions derived from parent parameters</h1>
+</section>
+
+
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Child dimensions derived from parent parameters expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Isolate one dependency contract: a reusable child receives width and depth expressions derived from parent parameters, and those child dimensions remain editable/associative in the saved SolidCraft design.</p>
+  <h3>Pass criteria</h3>
+  <p>At 120x80 mm parent size, the child measures 60x40 mm. Its fixed height and fixed placement are deliberately unrelated to this qualification.</p>
+  <h3>Mutation criterion</h3><p>Change base_width/base_depth from 120x80 to 160x120 mm in the saved .sc design; without rerunning Python the child must rebuild from 60x40 to 80x60 mm.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Qualification: child dimensions intentionally derived from parent parameters.&quot;&quot;&quot;
+
+
+class ParentBlock:
+    width = 120.0
+    depth = 80.0
+    HEIGHT = 10.0
+
+    def build(self):
+        return Box(self.width, self.depth, self.HEIGHT)
+
+
+class DerivedChild:
+    width = 60.0
+    depth = 40.0
+    HEIGHT = 6.0
+
+    def build(self):
+        return Box(self.width, self.depth, self.HEIGHT)
+
+
+class ParentDerivedChildSize:
+    base_width = 120.0
+    base_depth = 80.0
+
+    def build(self):
+        parent = ParentBlock(
+            width=self.base_width,
+            depth=self.base_depth,
+            name=&quot;parent&quot;,
+        )
+        child = DerivedChild(
+            width=self.base_width / 2,
+            depth=self.base_depth / 2,
+            name=&quot;child&quot;,
+        ).move(z=20)
+
+        return parent + child
+
+
+ParentDerivedChildSize()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>DerivedChild(width=self.base_width / 2, depth=self.base_depth / 2)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>One ParentBlock and one DerivedChild. Only base_width and base_depth are published as document parameters; the child carries expressions that reference those existing parent parameters instead of receiving independent duplicated values.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>The parent and child sketch dimensions preserve base_width/base_depth expressions. Forge must not flatten base_width / 2 or base_depth / 2 to numeric constants when compiling the child component.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>parameters.add
+parameters.add
+component.create
+solid.box
+component.activate
+component.create
+solid.box
+component.activate
+occurrence.move</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>3. Results</h2><div class="notice">Native result data was not supplied to this site build. Run the native qualification for measured results.</div></section>
+
+<div class="notice">No source-matched native verification was supplied to this site build. The case sheet and command contract are still shown.</div>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Native parameters and expressions must preserve the parent-to-child dimensional dependency after the Python compiler has finished.</li><li><strong><a href="https://github.com/pythonscad/pythonscad">PythonSCAD</a>:</strong> The Python model expresses the dependency with ordinary arithmetic rather than a special application-specific sizing API.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>
