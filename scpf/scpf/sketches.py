@@ -4,7 +4,7 @@ Each supported base shape returns its command list plus simple shape metadata.
 Feature operations (Hole, Fillet, join, cut) are handled separately.
 """
 from math import isfinite
-from .core import Shape, Parameter, command_value, pv
+from .core import Shape, command_value, pv
 
 
 def _combine_dimension(a, b):
@@ -19,61 +19,6 @@ def _combine_dimension(a, b):
 
 from .compiler import ModelError, _command, _require_positive
 from .csg import _half
-
-def _circle_profiles(shape, dx=0, dy=0, z=0):
-    """Return circles from planar shapes and their placements.
-
-    Each circle is (x, y, z, diameter). A union in a 2D sketch is a
-    collection of profiles, not a 3D Boolean operation.
-    """
-    if shape.kind == "positioned":
-        base, x, y, dz = shape.data
-        if base.kind == "positioned":
-            raise ValueError("nested at() placement is not yet supported")
-        return _circle_profiles(base, pv(x), pv(y), dz)
-    if shape.kind == "circle":
-        (diameter,) = shape.data
-        return [(dx, dy, z, diameter)]
-    if shape.kind == "union":
-        left, right = shape.data
-        return _circle_profiles(left) + _circle_profiles(right)
-    raise ValueError("Expected Circle or union of Circle profiles")
-
-
-def _rectangle_profile(shape):
-    if shape.kind == "rectangle":
-        return shape.data, (0, 0, 0)
-    if shape.kind == "positioned":
-        child, x, y, z = shape.data
-        if child.kind != "rectangle":
-            raise ValueError("Unsupported positioned profile")
-        return child.data, (x, y, z)
-    raise ValueError("Base shape must be a Rectangle")
-
-
-def _polygon_profile(shape):
-    """Return polygon data plus an optional sketch-plane offset.
-
-    Positioned XZ polygons use .at(y=...) to select the world-Y plane while
-    keeping their X/Z profile coordinates unchanged. This lets an editable
-    parameter such as cabinet_depth move the sketch plane natively.
-    """
-    if shape.kind == "polygon":
-        points, plane, ids = shape.data
-        return points, plane, ids, None
-    if shape.kind == "positioned":
-        child, x, y, z = shape.data
-        if child.kind != "polygon" or child.data[1] != "XZ":
-            raise ValueError("positioned Polygon2D currently requires plane='XZ'")
-        if pv(x) != 0 or pv(z) != 0:
-            raise ValueError(
-                "positioned XZ Polygon2D currently supports only .at(y=...)"
-            )
-        points, plane, ids = child.data
-        return points, plane, ids, y
-    raise ValueError("Base shape must be a Polygon2D")
-
-
 
 def compile_base(shape, name):
     """Create a native editable base body, regardless of example/model name."""
@@ -135,10 +80,17 @@ def compile_base(shape, name):
                 raise ModelError("Polygon2D plane must match Sketch plane")
             if pv(ox) or pv(oy):
                 raise ModelError("standalone Polygon2D offset is not supported yet")
+            concrete = [tuple(pv(v) for v in point) for point in points]
+            if not all(isfinite(v) for point in concrete for v in point):
+                raise ModelError("non-finite polygon coordinate")
+            if len(set(concrete)) != len(concrete):
+                raise ModelError("duplicate polygon vertices")
+            if any(a == b for a, b in zip(concrete, concrete[1:] + concrete[:1])):
+                raise ModelError("zero-length polygon edge")
             sketch.append(_command("sketch.line",
                 points=[[command_value(v) for v in point] for point in points],
                 closed=True, ids=list(ids) if ids is not None else
-                [f"edge_{i}" for i in range(len(points))]))
+                [chr(ord("a") + i) for i in range(len(points))]))
             meta = {"profile": "polygon", "sketch_plane": plane,
                     "sketch_plane_offset": plane_offset if plane_offset is not None else 0,
                     "thickness": distance,
