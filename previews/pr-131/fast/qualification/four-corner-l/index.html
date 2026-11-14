@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Four centred L-profiles on corner lines · SCPF Python library</title>
+<title>Qualification · Four centred vertical L-profiles · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
@@ -11,24 +11,24 @@
 <strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
 </div></div>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Four centred L-profiles on corner lines</div>
+<div class="crumb"><a href="../">← Qualification</a> / Four centred vertical L-profiles</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Four centred L-profiles on corner lines</h1>
+  <h1>Four centred vertical L-profiles</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Four centred L-profiles on corner lines expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Four centred vertical L-profiles expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
   <h3>Test goal</h3>
-  <p>Place one neutral XZ L-profile on each of the four vertical corner lines of a rounded rectangular frame. All four profiles sit at the middle of the frame depth; this is the simple 4-profile baseline before duplicating each corner line in the 8-profile case.</p>
+  <p>Place one short vertical angle profile around each of the four rounded side corners of a rectangular frame. The profile is centred in height and wraps the two adjacent side faces instead of lying flat on a front/rear face.</p>
   <h3>Pass criteria</h3>
-  <p>One L-profile sits on each top-left, top-right, bottom-right and bottom-left XZ corner line. All four are centred in depth and their two arms follow the adjacent X/Z frame edges.</p>
-  <h3>Mutation criterion</h3><p>Change frame_width/depth from 120x80 to 160x120 mm in the saved .sc design; the four profiles follow the wider X corner positions while remaining centred around Y=0.</p>
+  <p>One vertical angle profile wraps each front-left, front-right, rear-right and rear-left rounded side corner. All four occupy Z=22..38 on the 60 mm frame.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width/depth from 120x80 to 160x120 mm in the saved .sc design; all four profiles follow the moved side corners while remaining centred at the same frame height.</p>
 </section>
 
 <section class="panel">
@@ -144,14 +144,14 @@ class FourCornerL:
 FourCornerL()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>LBracket + one assembly-local XZ AnchorFrame; four planar offsets select the X/Z corner lines and angle=0/90/180/270 clocks the neutral profile.</code></p>
+  <p><code>LProfile + one assembly-local XY AnchorFrame; planar X/Y offsets select the four side corners, gap selects height, and angle=0/90/180/270 clocks the same neutral profile.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One rounded parametric FrameBlock plus four occurrences of one neutral LBracket definition. The bracket owns only its local XZ polygon; the assembly owns which corner line and depth position each occurrence uses.</p>
+  <p>One rounded parametric FrameBlock plus four occurrences of one vertical LProfile definition. The child is a true XY angle section extruded in Z; the assembly owns only corner position, height and clocking.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Four planar joint.create commands share one parent XZ frame at Y=0. Symbolic X/Z offsets use frame_width/frame_height, while native joint clocking gives the four L orientations. No sharp corner edge is required, so the 8 mm frame fillets remain valid.</p>
+  <p>Four planar joint.create commands share one parent XY frame at Z=0. Symbolic X/Y offsets use frame_width/frame_depth and a symbolic normal offset centres the fixed-height profile vertically. Placement does not depend on a sharp corner edge, so the frame may keep its vertical fillets.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -376,7 +376,7 @@ FourCornerL()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable part stays local; the assembly selects a semantic corner and supplies the depth position.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The corner topology and symbolic joint offset remain native so saved-design mutation can re-solve the placement.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> A planar relationship against an assembly-local XY frame preserves dimensional placement without requiring a sharp topology corner.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The reusable angle profile remains neutral; the assembly selects position and clocking around the four side corners.</li></ul>
     </div>
   </div>
 </section>

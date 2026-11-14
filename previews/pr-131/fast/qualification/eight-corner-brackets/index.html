@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Qualification · Eight L-profiles: two on each corner line · SCPF Python library</title>
+<title>Qualification · Eight vertical L-profiles: two per side corner · SCPF Python library</title>
 <link rel="stylesheet" href="../../style.css"></head>
 <body><header class="top"><div class="wrap nav">
 <a class="brand" href="../../">SCPF <span>Python library</span></a>
@@ -11,24 +11,24 @@
 <strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
 </div></div>
 <main class="wrap">
-<div class="crumb"><a href="../">← Qualification</a> / Eight L-profiles: two on each corner line</div>
+<div class="crumb"><a href="../">← Qualification</a> / Eight vertical L-profiles: two per side corner</div>
 
 <section class="hero small">
   <p class="eyebrow">Forge qualification case</p>
   <div class="qualification-status-line"><span class="qualification-status not-run">NOT RUN</span><span class="qualification-levels">Q1 Q2 documented</span></div>
-  <h1>Eight L-profiles: two on each corner line</h1>
+  <h1>Eight vertical L-profiles: two per side corner</h1>
 </section>
 
 
 
 <section class="panel qualification-test-purpose">
   <h2>1. Test setup</h2>
-  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Eight L-profiles: two on each corner line expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Eight vertical L-profiles: two per side corner expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
   <h3>Test goal</h3>
-  <p>Extend the 4-profile baseline by placing two copies on each XZ corner line: one near the front end and one near the rear end of the frame depth. The eight profiles form four explicit corner pairs.</p>
+  <p>Extend the four-profile baseline by placing two short vertical angle profiles on each rounded side corner: one at the bottom and one at the top.</p>
   <h3>Pass criteria</h3>
-  <p>Each of the four XZ corner lines carries exactly two L-profiles. At 80 mm depth the front profiles occupy Y=-40..-36 and the rear profiles Y=36..40.</p>
-  <h3>Mutation criterion</h3><p>Change frame_width/depth/height from 120x80x60 to 160x120x90 mm; each pair follows its X/Z corner and the front/rear profile remains flush inside the new depth limits.</p>
+  <p>Each rounded vertical side corner carries exactly two outside angle profiles. On the 60 mm frame they occupy Z=0..16 and Z=44..60.</p>
+  <h3>Mutation criterion</h3><p>Change frame_width/depth/height from 120x80x60 to 160x120x90 mm; all four corner pairs follow X/Y growth and each upper member moves to Z=74..90 while the lower member remains at the bottom.</p>
 </section>
 
 <section class="panel">
@@ -137,14 +137,14 @@ class EightCornerBrackets:
 EightCornerBrackets()
 </code></pre>
   <h3>Public Forge API used</h3>
-  <p><code>the same neutral LBracket and central XZ AnchorFrame as the 4-profile case; each X/Z corner offset is emitted twice with opposite symbolic depth gaps.</code></p>
+  <p><code>the same neutral LProfile and central XY AnchorFrame as the 4-profile case; every X/Y corner offset is emitted twice with different Z gaps.</code></p>
   <h3>Forge model represented by this fixture</h3>
-  <p>One rounded parametric FrameBlock plus eight occurrences of one LBracket definition, organised conceptually as four XZ corner lines with two depth positions per line.</p>
+  <p>One rounded parametric FrameBlock plus eight occurrences of one LProfile definition, organised as four vertical side corners with a bottom/top pair on each.</p>
 </section>
 
 <section class="panel">
   <h2>3. Generated SolidCraft relationship</h2>
-  <p>Eight planar joint.create commands reuse the same four X/Z offsets and clocking angles. The normal gap is +(frame_depth/2-2) for the front member of each pair and the negative value for the rear member, keeping the symmetric 4 mm profile inside the rounded frame depth.</p>
+  <p>Eight planar joint.create commands reuse the same four X/Y offsets and clocking angles. The lower member uses Z=0; the upper member uses frame_height-PROFILE_HEIGHT so the fixed 16 mm profile remains flush with the top after native height mutation.</p>
   <details>
     <summary>Show generated relationship / command details</summary>
     <pre><code>[
@@ -565,7 +565,7 @@ EightCornerBrackets()
     <div>
       <h3>Reference models</h3>
       <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
-      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> Front/rear topology supplies associative end positions on one shared XZ corner line; the inward offset defines the profile&#x27;s side placement.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> The component remains neutral while the assembly decides both the corner identity and which of the two depth positions is used.</li></ul>
+      <ul><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The same dimensional XY placement is reused twice per corner; only the native Z offset distinguishes bottom and top.</li><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> This is still one neutral component repeated by assembly-owned placement; the child does not know which corner or height position it occupies.</li></ul>
     </div>
   </div>
 </section>

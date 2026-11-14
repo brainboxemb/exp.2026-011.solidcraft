@@ -1,5 +1,5 @@
 {
-  "library_commit": "daede8b139bdadee0cb86dd578e7a870ed6fb277",
+  "library_commit": "6c3ad73bad6767a614fe68995bee2e05fc2a7842",
   "solidcraft_version": "0.30.1",
   "native_verified": false,
   "cases": {
@@ -160,7 +160,7 @@
       "parameter_count": null
     },
     "four-corner-l": {
-      "title": "Four centred L-profiles on corner lines",
+      "title": "Four centred vertical L-profiles",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 24,
@@ -173,7 +173,7 @@
       "parameter_count": null
     },
     "eight-corner-brackets": {
-      "title": "Eight L-profiles: two on each corner line",
+      "title": "Eight vertical L-profiles: two per side corner",
       "status": "NOT RUN",
       "status_detail": "Q1 Q2 documented",
       "command_count": 32,
