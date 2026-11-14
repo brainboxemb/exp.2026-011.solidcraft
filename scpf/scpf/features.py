@@ -11,7 +11,7 @@ from .compiler import ModelError, _command, _collect, _param_commands, _require_
 from .placement import (
     _anchored_features, _base_rectangle, _combine, _shell_thickness,
 )
-from .sketches import compile_base, _circle_profiles
+from .sketches import compile_base
 
 
 def _is_feature_tree(shape):
@@ -698,41 +698,6 @@ def _explicit_sketch_commands(shape, original, feature, name):
 
     commands.append(_command("solid.extrude", **extrude))
     return commands
-
-
-def _circle_boolean_commands(shape, cutter, name, *, feature_name=None):
-    profiles, distance, direction = cutter.data
-    try:
-        circles = _circle_profiles(profiles)
-    except ValueError as exc:
-        raise ModelError("boolean sketch requires Circle2D profiles") from exc
-    if not circles:
-        raise ModelError("empty circular cutter sketch")
-    z_values = [pv(z) for _, _, z, _ in circles]
-    if len(set(z_values)) != 1:
-        raise ModelError("a sketch cannot mix circles on different Z planes")
-    if shape.kind == "union" and direction != "positive":
-        raise ModelError("joining circles must extrude upward")
-    label = feature_name or ("Join" if shape.kind == "union" else "Cut")
-    plane = dict(plane="XY", name=label)
-    z = circles[0][2]
-    if pv(z):
-        plane["offset"] = command_value(z)
-    result = [_command("sketch.create", **plane)]
-    for x, y, _, diameter in circles:
-        _require_positive(diameter, "circle diameter")
-        result.append(_command("sketch.circle.center",
-                               center=[command_value(x), command_value(y)],
-                               diameter=command_value(diameter)))
-    result.extend([
-        _command("sketch.finish"),
-        _command("solid.extrude", distance=command_value(distance),
-                 direction=direction,
-                 operation="join" if shape.kind == "union" else "cut",
-                 targets=[name],
-                 name=label),
-    ])
-    return result
 
 
 def _to_commands(shape, name):
