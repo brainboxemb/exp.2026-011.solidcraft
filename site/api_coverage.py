@@ -78,6 +78,7 @@ CAPABILITY_COVERAGE = [
     ("Assemblies", "AnchorTopology", "Q5", "GAP", [], "Needs native mutation fixture."),
     ("Assemblies", "assembly.with_anchor()/anchor()", "Q5", "GAP", [], "Needs dedicated native semantic-datum fixture."),
     ("Parameters", "implicit component parameters and inherited bindings", "Q5", "Q5", ["parameter-scope"], "Native SolidCraft mutation proves local independence, shared bindings and derived expressions."),
+    ("Parameters", "child dimensions derived from parent geometry", "Q5", "GAP", [], "Keep separate from orientation cases: qualify a reusable child whose own dimensions intentionally follow parent parameters."),
     ("CLI", "--out command generation", "Q2", "Q2", ["all command fixtures"], "Every CI fixture uses --out."),
     ("CLI", "native solidcraft-cli run/eval/snapshot", "Q6", "Q6", ["native qualification job"], "Official 0.30.1 is checksum-verified in CI."),
     ("CLI", "live --connect / replay", "Q2", "Q1", [], "Transport/argument behavior should be tested separately from headless geometry."),
