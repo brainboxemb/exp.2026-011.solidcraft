@@ -1080,7 +1080,7 @@ Cheatsheet fragments describe API calls; a fragment alone is not a complete runn
     home = f"""<main class="wrap"><section class="hero"><p class="eyebrow">lib.py.solidcraft.forge / Python Forge</p>
 <h1>SCPF examples & API cheatsheet</h1><p class="meta">Tested SolidCraft version: {TESTED_SOLIDCRAFT_VERSION} · older releases rejected, newer releases warned</p><p>Small, readable Python examples to verify the SCPF command compiler.
 This is <strong>not</strong> the SolidCraft CAD model gallery.</p>
-<section class="notice"><strong>Development status — do not rely on this as a support guarantee.</strong>
+<section class="notice development-warning"><strong>Development status — do not rely on this as a support guarantee.</strong>
 Forge is still under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete,
 experimental or change without notice. Published examples and PASS results are not a warranty, compatibility promise or
 statement that the library is production-ready.</section>
