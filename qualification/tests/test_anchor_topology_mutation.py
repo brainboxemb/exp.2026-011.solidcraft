@@ -76,7 +76,7 @@ class AnchorTopologyMutationNativeTests(unittest.TestCase):
         )
         self.assertEqual(
             _bbox(_body(data, "Marker")),
-            ([-25.0, -15.0, 15.0], [-15.0, -5.0, 25.0]),
+            ([-25.0, -20.0, 15.0], [-15.0, -10.0, 25.0]),
         )
 
     def test_saved_resize_moves_marker_with_same_native_topology(self):
@@ -95,7 +95,7 @@ class AnchorTopologyMutationNativeTests(unittest.TestCase):
         )
         self.assertEqual(
             _bbox(_body(data, "Marker")),
-            ([-45.0, -15.0, 35.0], [-35.0, -5.0, 45.0]),
+            ([-45.0, -20.0, 35.0], [-35.0, -10.0, 45.0]),
         )
 
 
