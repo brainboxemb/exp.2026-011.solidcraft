@@ -463,9 +463,9 @@ def validate_eight_flightcase_corners(root: Path) -> Validation:
     baseline_corners = bodies_named(d, "FlightcaseCorner")
     baseline_sizes = sorted(body_size(body) for body in baseline_corners)
     v.check(
-        "eight fixed 34x34x34 protector envelopes",
-        baseline_sizes == [(34.0, 34.0, 34.0)] * 8,
-        [(34.0, 34.0, 34.0)] * 8,
+        "eight fixed 24x24x24 protector envelopes",
+        baseline_sizes == [(24.0, 24.0, 24.0)] * 8,
+        [(24.0, 24.0, 24.0)] * 8,
         baseline_sizes,
     )
 
@@ -496,8 +496,8 @@ def validate_eight_flightcase_corners(root: Path) -> Validation:
     )
     v.check(
         "protector envelopes remain fixed after parent resize",
-        mutated_sizes == baseline_sizes == [(34.0, 34.0, 34.0)] * 8,
-        [(34.0, 34.0, 34.0)] * 8,
+        mutated_sizes == baseline_sizes == [(24.0, 24.0, 24.0)] * 8,
+        [(24.0, 24.0, 24.0)] * 8,
         mutated_sizes,
         "q5",
     )
