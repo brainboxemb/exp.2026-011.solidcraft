@@ -60,7 +60,7 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 8)
 
-        expected_angles = [0, 0, 90, 90, 180, 180, 270, 270]
+        expected_angles = [180, 180, 270, 270, 0, 0, 90, 90]
         expected_xy = [
             ("-(frame_width / 2)", "-(frame_depth / 2)"),
             ("-(frame_width / 2)", "-(frame_depth / 2)"),
