@@ -1,28 +1,23 @@
-"""Four reusable L-profile feet mounted under one rectangular frame."""
+"""Four reusable L-profiles centred on the four XZ corner lines."""
 
 
 class FrameBlock:
     _width = 120.0
     _depth = 80.0
-    HEIGHT = 60.0
+    _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self.HEIGHT)
+        return Box(self._width, self._depth, self._height)
 
 
-class CornerFoot:
+class LBracket:
     ARM_LENGTH = 28.0
     WALL = 8.0
-    HEIGHT = 30.0
+    THICKNESS = 4.0
 
     def build(self):
-        # Neutral reusable component.
-        #
-        # The local origin is the outside top corner of the foot.
-        # The L-shaped footprint extends in local +X/+Y and the foot extends
-        # downwards in local -Z. It has no knowledge of the frame or of which
-        # of the four frame corners it will occupy.
-        footprint = Polygon2D(
+        # Neutral reusable L-profile in its local XZ plane.
+        profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
@@ -31,87 +26,66 @@ class CornerFoot:
                 (self.WALL, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane="XY",
+            plane="XZ",
         )
-        return footprint.extrude(
-            self.HEIGHT,
-            direction=Direction.NEGATIVE,
+        return profile.extrude(
+            self.THICKNESS,
+            direction=Direction.POSITIVE,
         )
 
 
 class FourCornerL:
     frame_width = 120.0
     frame_depth = 80.0
+    frame_height = 60.0
 
     def build(self):
         frame = FrameBlock(
             _width=self.frame_width,
             _depth=self.frame_depth,
+            _height=self.frame_height,
         )
-        foot = CornerFoot()
+        bracket = LBracket()
 
-        # Placement belongs to this assembly. All four frames use the same
-        # local origin and Z direction; only local X changes to express the
-        # required clocking. The reusable CornerFoot itself remains neutral.
-        bottom_frame = AnchorFrame(
+        # Use the same neutral child frame as the eight-profile case.
+        bracket_corner = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.DOWN,
-            x=Anchor.FRONT,
-        )
-
-        front_left_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.FRONT,
-        )
-        front_right_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.LEFT,
-        )
-        back_right_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.BACK,
-        )
-        back_left_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
+            z=Anchor.FRONT,
             x=Anchor.RIGHT,
         )
 
-        half_width = self.frame_width / 2
-        half_depth = self.frame_depth / 2
+        # The FRONT topology gives us the four XZ corner identities. A
+        # parametric negative gap then moves each profile along that corner
+        # line to the middle of the frame depth. The profile's 4 mm extrusion
+        # is centred around Y=0.
+        centre_gap = -(self.frame_depth / 2 + LBracket.THICKNESS / 2)
 
-        # SolidCraft's BOTTOM frame uses local X along world -Y and local Y
-        # along world -X. Express the four positions in that local (u, v)
-        # frame; no extra joint angle is required.
-        front_left = foot.copy().attach(
+        top_left = bracket.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=front_left_origin,
-            offset=(half_depth, half_width),
+            parent=Anchor.FRONT_TOP_LEFT,
+            child=bracket_corner,
+            gap=centre_gap,
         )
-        front_right = foot.copy().attach(
+        top_right = bracket.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=front_right_origin,
-            offset=(half_depth, -half_width),
+            parent=Anchor.FRONT_TOP_RIGHT,
+            child=bracket_corner,
+            gap=centre_gap,
         )
-        back_right = foot.copy().attach(
+        bottom_right = bracket.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=back_right_origin,
-            offset=(-half_depth, -half_width),
+            parent=Anchor.FRONT_BOTTOM_RIGHT,
+            child=bracket_corner,
+            gap=centre_gap,
         )
-        back_left = foot.copy().attach(
+        bottom_left = bracket.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=back_left_origin,
-            offset=(-half_depth, half_width),
+            parent=Anchor.FRONT_BOTTOM_LEFT,
+            child=bracket_corner,
+            gap=centre_gap,
         )
 
-        return frame + front_left + front_right + back_right + back_left
+        return frame + top_left + top_right + bottom_right + bottom_left
 
 
 FourCornerL()
