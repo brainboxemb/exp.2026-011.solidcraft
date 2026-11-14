@@ -138,6 +138,7 @@ def collect(
                     name for name in native_files
                     if name.startswith("measurements")
                     or name.startswith("joint-")
+                    or name == "results-bom.json"
                     or name == "validation.json"
                 ],
             },

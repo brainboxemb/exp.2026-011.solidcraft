@@ -68,7 +68,7 @@ CAPABILITY_COVERAGE = [
     ("Explicit Sketch", "Sketch.add()/extrude()", "Q6", "GAP", [], "Cover rectangle, rounded rectangle, circle and text profiles."),
     ("History policy", "History.AUTO/NATIVE/SKETCH", "Q4", "Q2", ["history-policy"], "Compile coverage exists; saved native timeline comparison required."),
     ("Occurrences", "copy + move + rotate", "Q6", "Q6", ["custom-anchor"], "Rotation plus attachment is native-qualified; broader placement fixture remains useful."),
-    ("Occurrences", "group()", "Q6", "GAP", [], "Command tests exist; add native browser/hierarchy qualification."),
+    ("Occurrences", "group()", "Q6", "Q6", ["group-hierarchy"], "Native top/flat BOM inspection proves the named subassembly hierarchy and repeated child occurrences."),
     ("Assemblies", "rigid attach()", "Q6", "Q6", ["components"], "Native rigid relationship."),
     ("Assemblies", "@assembly imported subassembly", "Q6", "Q6", ["assembly-decorator"], "An imported @assembly factory returns reusable occurrences that compile and build natively."),
     ("Assemblies", "gap", "Q5", "Q6", ["parametric-attach"], "Saved-design mutation qualified."),
