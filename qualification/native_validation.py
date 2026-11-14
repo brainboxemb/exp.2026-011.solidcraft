@@ -660,6 +660,34 @@ def validate_history_policy(root: Path) -> Validation:
             {"min": [-25, -25, 0], "max": [25, 25, 16]},
             b["bbox"],
         )
+        v.check(
+            "expected cylindrical feature faces",
+            b.get("face_types", {}).get("cylinder") == 5,
+            5,
+            b.get("face_types", {}).get("cylinder"),
+        )
+
+    timeline = [
+        (row.get("type"), row.get("name"))
+        for row in d.get("timeline", [])
+    ]
+    expected_timeline = [
+        ("Sketch", "HistoryPolicyBoss footprint"),
+        ("ExtrudeFeature", "Extrude1"),
+        ("BossFeature", "Boss1"),
+        ("Sketch", "Boss"),
+        ("ExtrudeFeature", "Boss"),
+        ("Sketch", "Boss hole"),
+        ("ExtrudeFeature", "Boss hole"),
+        ("Sketch", "Explicit pad"),
+        ("ExtrudeFeature", "Explicit pad"),
+    ]
+    v.check(
+        "native versus sketch history is persisted",
+        timeline == expected_timeline,
+        expected_timeline,
+        timeline,
+    )
     return v
 
 def validate_primitive_csg(root: Path) -> Validation:
