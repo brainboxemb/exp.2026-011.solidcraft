@@ -785,6 +785,18 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(pv(width), 868.0)
         self.assertEqual(pv(width / 2), 434.0)
 
+    def test_is_positive_handles_symbolic_cad_dimensions(self):
+        from scpf import Parameter, is_positive
+
+        radius = Parameter("radius", 4.0)
+        self.assertTrue(is_positive(radius))
+        self.assertTrue(is_positive(radius / 2))
+        self.assertFalse(is_positive(0))
+        self.assertFalse(is_positive(-1))
+
+        with self.assertRaises(TypeError):
+            is_positive("4")
+
     def test_plain_model_fillet_keeps_radius_as_named_parameter(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "model.py"
