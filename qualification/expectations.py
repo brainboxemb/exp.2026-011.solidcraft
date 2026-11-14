@@ -116,6 +116,9 @@ EXPECTED_BOUNDS = {
     "rounded-rectangle-sketch": [
         {"label": "RoundedRectangleSketch", "min": [-40, -30, 0], "max": [40, 30, 13]},
     ],
+    "rectangle-sketch": [
+        {"label": "RectangleSketch", "min": [-40, -30, 0], "max": [40, 30, 13]},
+    ],
     "primitive-csg": [
         {"label": "PrimitiveCsg", "min": [-20, -20, 0], "max": [25, 20, 20]},
     ],

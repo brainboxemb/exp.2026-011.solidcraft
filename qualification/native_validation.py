@@ -782,6 +782,67 @@ def validate_rounded_rectangle_sketch(root: Path) -> Validation:
     )
     return v
 
+
+def validate_rectangle_sketch(root: Path) -> Validation:
+    v = Validation("rectangle-sketch")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "rectangle-sketch", tol=0.01)
+    v.check("single joined rectangle-pad body", d["body_count"] == 1, 1, d["body_count"])
+
+    if d["bodies"]:
+        b = d["bodies"][0]
+        v.check(
+            "rectangle sketch pad bounds",
+            bbox_close(b, [-40, -30, 0], [40, 30, 13], 0.01),
+            {"min": [-40, -30, 0], "max": [40, 30, 13]},
+            b["bbox"],
+        )
+        v.check(
+            "rectangle pad volume",
+            close(b.get("volume_mm3", 0), 33600.0, 0.01),
+            33600.0,
+            b.get("volume_mm3"),
+        )
+        v.check(
+            "rectangle pad uses planar faces only",
+            b.get("face_types", {}).get("cylinder", 0) == 0,
+            0,
+            b.get("face_types", {}).get("cylinder", 0),
+        )
+
+    rectangle = next(
+        (row for row in d.get("sketches", []) if row.get("name") == "Rectangle pad"),
+        None,
+    )
+    v.check(
+        "rectangle pad sketch remains one solved four-curve profile",
+        rectangle is not None
+        and rectangle.get("curves") == 4
+        and rectangle.get("profiles") == 1
+        and rectangle.get("status") == "solved"
+        and rectangle.get("dof") == 0,
+        {"curves": 4, "profiles": 1, "status": "solved", "dof": 0},
+        rectangle,
+    )
+
+    timeline = [
+        (row.get("type"), row.get("name"))
+        for row in d.get("timeline", [])
+    ]
+    expected_timeline = [
+        ("Sketch", "RectangleSketch footprint"),
+        ("ExtrudeFeature", "Extrude1"),
+        ("Sketch", "Rectangle pad"),
+        ("ExtrudeFeature", "Rectangle pad"),
+    ]
+    v.check(
+        "explicit rectangle sketch remains distinct native history",
+        timeline == expected_timeline,
+        expected_timeline,
+        timeline,
+    )
+    return v
+
 def validate_primitive_csg(root: Path) -> Validation:
     v = Validation("primitive-csg")
     d = load(root / "measurements.json")
@@ -832,6 +893,7 @@ VALIDATORS = {
     "history-policy": validate_history_policy,
     "circle-negative-extrude": validate_circle_negative_extrude,
     "rounded-rectangle-sketch": validate_rounded_rectangle_sketch,
+    "rectangle-sketch": validate_rectangle_sketch,
     "primitive-csg": validate_primitive_csg,
     "bracket": validate_bracket,
 }

@@ -384,6 +384,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "rectangle-sketch",
+        "group": "features",
+        "title": "Explicit rectangle sketch pad",
+        "intent": "Qualify Rectangle2D in the explicit named Sketch API with a minimal native rectangular pad.",
+        "forge_api": "with Sketch(name='Rectangle pad', on=body): add(Rectangle2D(...)); body + sketch.extrude(...)",
+        "forge_model": "One 80 x 60 x 5 mm base plate plus a centered 40 x 30 mm rectangular pad extruded 8 mm upward.",
+        "lowering": "The named explicit Sketch emits one sketch.rectangle.two_point followed by a native solid.extrude(operation='join').",
+        "native_expectation": "One joined body spans 80 x 60 x 13 mm with volume 33600 mm3; the saved Rectangle pad sketch remains one solved four-curve closed profile.",
+        "mutation": "No saved-design mutation in this fixture; it isolates explicit Rectangle2D sketch geometry and native join extrusion.",
+        "references": [
+            ("SolidCraft", "Native rectangle sketch geometry remains inspectable as a solved closed profile in the saved design."),
+            ("PythonSCAD", "The explicit Sketch scope keeps 2D rectangle authoring distinct from the subsequent 3D extrusion."),
+        ],
+    },
+    {
         "slug": "primitive-csg",
         "group": "fundamentals",
         "title": "Primitive CSG",
