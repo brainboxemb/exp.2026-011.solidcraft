@@ -1,4 +1,4 @@
-"""Eight reusable L-profiles: two on each XZ corner line."""
+"""Eight vertical L-profiles: two on each rounded side corner."""
 
 
 class FrameBlock:
@@ -14,26 +14,26 @@ class FrameBlock:
         ).fillet(8, edges=Edges.VERTICAL)
 
 
-class LBracket:
+class LProfile:
     ARM_LENGTH = 28.0
-    WALL = 8.0
     THICKNESS = 4.0
+    PROFILE_HEIGHT = 16.0
 
     def build(self):
         profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
+                (self.ARM_LENGTH, -self.THICKNESS),
+                (-self.THICKNESS, -self.THICKNESS),
+                (-self.THICKNESS, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane="XZ",
+            plane="XY",
         )
         return profile.extrude(
-            self.THICKNESS,
-            direction=Direction.SYMMETRIC,
+            self.PROFILE_HEIGHT,
+            direction=Direction.POSITIVE,
         )
 
 
@@ -48,52 +48,53 @@ class EightCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        profile = LProfile()
 
-        frame_xz = AnchorFrame(
+        frame_xy = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
-        bracket_origin = AnchorFrame(
+        profile_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
-        depth_position = self.frame_depth / 2 - LBracket.THICKNESS / 2
+        half_depth = self.frame_depth / 2
+        top_height = self.frame_height - LProfile.PROFILE_HEIGHT
 
-        def placed(x, z, angle, gap):
-            return bracket.copy().attach(
+        def placed(x, y, angle, height):
+            return profile.copy().attach(
                 frame,
-                parent=frame_xz,
-                child=bracket_origin,
-                offset=(x, z),
-                gap=gap,
+                parent=frame_xy,
+                child=profile_origin,
+                offset=(x, y),
+                gap=height,
                 angle=angle,
             )
 
-        # Positive gap follows the frame normal (FRONT / -Y); negative gap
-        # reaches the rear side. Each pair therefore belongs to one XZ corner.
-        top_left_front = placed(-half_width, self.frame_height, 270, depth_position)
-        top_left_rear = placed(-half_width, self.frame_height, 270, -depth_position)
+        # Two short vertical angle profiles on each of the four rounded
+        # side corners: one at the bottom and one at the top.
+        front_left_bottom = placed(-half_width, -half_depth, 0, 0)
+        front_left_top = placed(-half_width, -half_depth, 0, top_height)
 
-        top_right_front = placed(half_width, self.frame_height, 180, depth_position)
-        top_right_rear = placed(half_width, self.frame_height, 180, -depth_position)
+        front_right_bottom = placed(half_width, -half_depth, 90, 0)
+        front_right_top = placed(half_width, -half_depth, 90, top_height)
 
-        bottom_right_front = placed(half_width, 0, 90, depth_position)
-        bottom_right_rear = placed(half_width, 0, 90, -depth_position)
+        rear_right_bottom = placed(half_width, half_depth, 180, 0)
+        rear_right_top = placed(half_width, half_depth, 180, top_height)
 
-        bottom_left_front = placed(-half_width, 0, 0, depth_position)
-        bottom_left_rear = placed(-half_width, 0, 0, -depth_position)
+        rear_left_bottom = placed(-half_width, half_depth, 270, 0)
+        rear_left_top = placed(-half_width, half_depth, 270, top_height)
 
         return (
             frame
-            + top_left_front + top_left_rear
-            + top_right_front + top_right_rear
-            + bottom_right_front + bottom_right_rear
-            + bottom_left_front + bottom_left_rear
+            + front_left_bottom + front_left_top
+            + front_right_bottom + front_right_top
+            + rear_right_bottom + rear_right_top
+            + rear_left_bottom + rear_left_top
         )
 
 

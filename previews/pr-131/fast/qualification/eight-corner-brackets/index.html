@@ -34,7 +34,7 @@
 <section class="panel">
   <h2>2. Implementation under test</h2>
   <h3>Fixture source</h3>
-  <pre><code>&quot;&quot;&quot;Eight reusable L-profiles: two on each XZ corner line.&quot;&quot;&quot;
+  <pre><code>&quot;&quot;&quot;Eight vertical L-profiles: two on each rounded side corner.&quot;&quot;&quot;
 
 
 class FrameBlock:
@@ -50,26 +50,26 @@ class FrameBlock:
         ).fillet(8, edges=Edges.VERTICAL)
 
 
-class LBracket:
+class LProfile:
     ARM_LENGTH = 28.0
-    WALL = 8.0
     THICKNESS = 4.0
+    PROFILE_HEIGHT = 16.0
 
     def build(self):
         profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
+                (self.ARM_LENGTH, -self.THICKNESS),
+                (-self.THICKNESS, -self.THICKNESS),
+                (-self.THICKNESS, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane=&quot;XZ&quot;,
+            plane=&quot;XY&quot;,
         )
         return profile.extrude(
-            self.THICKNESS,
-            direction=Direction.SYMMETRIC,
+            self.PROFILE_HEIGHT,
+            direction=Direction.POSITIVE,
         )
 
 
@@ -84,52 +84,53 @@ class EightCornerBrackets:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        profile = LProfile()
 
-        frame_xz = AnchorFrame(
+        frame_xy = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
-        bracket_origin = AnchorFrame(
+        profile_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
-        depth_position = self.frame_depth / 2 - LBracket.THICKNESS / 2
+        half_depth = self.frame_depth / 2
+        top_height = self.frame_height - LProfile.PROFILE_HEIGHT
 
-        def placed(x, z, angle, gap):
-            return bracket.copy().attach(
+        def placed(x, y, angle, height):
+            return profile.copy().attach(
                 frame,
-                parent=frame_xz,
-                child=bracket_origin,
-                offset=(x, z),
-                gap=gap,
+                parent=frame_xy,
+                child=profile_origin,
+                offset=(x, y),
+                gap=height,
                 angle=angle,
             )
 
-        # Positive gap follows the frame normal (FRONT / -Y); negative gap
-        # reaches the rear side. Each pair therefore belongs to one XZ corner.
-        top_left_front = placed(-half_width, self.frame_height, 270, depth_position)
-        top_left_rear = placed(-half_width, self.frame_height, 270, -depth_position)
+        # Two short vertical angle profiles on each of the four rounded
+        # side corners: one at the bottom and one at the top.
+        front_left_bottom = placed(-half_width, -half_depth, 0, 0)
+        front_left_top = placed(-half_width, -half_depth, 0, top_height)
 
-        top_right_front = placed(half_width, self.frame_height, 180, depth_position)
-        top_right_rear = placed(half_width, self.frame_height, 180, -depth_position)
+        front_right_bottom = placed(half_width, -half_depth, 90, 0)
+        front_right_top = placed(half_width, -half_depth, 90, top_height)
 
-        bottom_right_front = placed(half_width, 0, 90, depth_position)
-        bottom_right_rear = placed(half_width, 0, 90, -depth_position)
+        rear_right_bottom = placed(half_width, half_depth, 180, 0)
+        rear_right_top = placed(half_width, half_depth, 180, top_height)
 
-        bottom_left_front = placed(-half_width, 0, 0, depth_position)
-        bottom_left_rear = placed(-half_width, 0, 0, -depth_position)
+        rear_left_bottom = placed(-half_width, half_depth, 270, 0)
+        rear_left_top = placed(-half_width, half_depth, 270, top_height)
 
         return (
             frame
-            + top_left_front + top_left_rear
-            + top_right_front + top_right_rear
-            + bottom_right_front + bottom_right_rear
-            + bottom_left_front + bottom_left_rear
+            + front_left_bottom + front_left_top
+            + front_right_bottom + front_right_top
+            + rear_right_bottom + rear_right_top
+            + rear_left_bottom + rear_left_top
         )
 
 
@@ -151,7 +152,7 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:1 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:1 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;point&quot;: [
@@ -161,8 +162,8 @@ EightCornerBrackets()
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           1.0,
@@ -171,7 +172,7 @@ EightCornerBrackets()
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:1&quot;,
+        &quot;occurrence&quot;: &quot;LProfile:1&quot;,
         &quot;point&quot;: [
           0.0,
           0.0,
@@ -179,8 +180,8 @@ EightCornerBrackets()
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           1.0,
@@ -188,310 +189,9 @@ EightCornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;(frame_depth / 2) - 2 mm&quot;,
       &quot;values&quot;: [
         &quot;-(frame_width / 2)&quot;,
-        &quot;frame_height&quot;,
-        270.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:2 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:2&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;-((frame_depth / 2) - 2 mm)&quot;,
-      &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        &quot;frame_height&quot;,
-        270.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:3 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:3&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;(frame_depth / 2) - 2 mm&quot;,
-      &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;frame_height&quot;,
-        180.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:4 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:4&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;-((frame_depth / 2) - 2 mm)&quot;,
-      &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        &quot;frame_height&quot;,
-        180.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:5 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:5&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;(frame_depth / 2) - 2 mm&quot;,
-      &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        0,
-        90.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:6 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:6&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;-((frame_depth / 2) - 2 mm)&quot;,
-      &quot;values&quot;: [
-        &quot;frame_width / 2&quot;,
-        0,
-        90.0
-      ],
-      &quot;angle&quot;: 0.0
-    }
-  },
-  {
-    &quot;command&quot;: &quot;joint.create&quot;,
-    &quot;params&quot;: {
-      &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:7 to FrameBlock:1&quot;,
-      &quot;a&quot;: {
-        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:7&quot;,
-        &quot;point&quot;: [
-          0.0,
-          0.0,
-          0.0
-        ],
-        &quot;z&quot;: [
-          0.0,
-          -1.0,
-          0.0
-        ],
-        &quot;x&quot;: [
-          1.0,
-          0.0,
-          0.0
-        ]
-      },
-      &quot;offset&quot;: &quot;(frame_depth / 2) - 2 mm&quot;,
-      &quot;values&quot;: [
-        &quot;-(frame_width / 2)&quot;,
-        0,
+        &quot;-(frame_depth / 2)&quot;,
         0.0
       ],
       &quot;angle&quot;: 0.0
@@ -501,7 +201,7 @@ EightCornerBrackets()
     &quot;command&quot;: &quot;joint.create&quot;,
     &quot;params&quot;: {
       &quot;type&quot;: &quot;planar&quot;,
-      &quot;name&quot;: &quot;Attach LBracket:8 to FrameBlock:1&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:2 to FrameBlock:1&quot;,
       &quot;a&quot;: {
         &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
         &quot;point&quot;: [
@@ -511,8 +211,8 @@ EightCornerBrackets()
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           1.0,
@@ -521,7 +221,7 @@ EightCornerBrackets()
         ]
       },
       &quot;b&quot;: {
-        &quot;occurrence&quot;: &quot;LBracket:8&quot;,
+        &quot;occurrence&quot;: &quot;LProfile:2&quot;,
         &quot;point&quot;: [
           0.0,
           0.0,
@@ -529,8 +229,8 @@ EightCornerBrackets()
         ],
         &quot;z&quot;: [
           0.0,
-          -1.0,
-          0.0
+          0.0,
+          1.0
         ],
         &quot;x&quot;: [
           1.0,
@@ -538,11 +238,308 @@ EightCornerBrackets()
           0.0
         ]
       },
-      &quot;offset&quot;: &quot;-((frame_depth / 2) - 2 mm)&quot;,
+      &quot;offset&quot;: &quot;frame_height - 16 mm&quot;,
       &quot;values&quot;: [
         &quot;-(frame_width / 2)&quot;,
-        0,
+        &quot;-(frame_depth / 2)&quot;,
         0.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:3 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:3&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        &quot;-(frame_depth / 2)&quot;,
+        90.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:4 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:4&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;frame_height - 16 mm&quot;,
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        &quot;-(frame_depth / 2)&quot;,
+        90.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:5 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:5&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        &quot;frame_depth / 2&quot;,
+        180.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:6 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:6&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;frame_height - 16 mm&quot;,
+      &quot;values&quot;: [
+        &quot;frame_width / 2&quot;,
+        &quot;frame_depth / 2&quot;,
+        180.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:7 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:7&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;values&quot;: [
+        &quot;-(frame_width / 2)&quot;,
+        &quot;frame_depth / 2&quot;,
+        270.0
+      ],
+      &quot;angle&quot;: 0.0
+    }
+  },
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;planar&quot;,
+      &quot;name&quot;: &quot;Attach LProfile:8 to FrameBlock:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;FrameBlock:1&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;LProfile:8&quot;,
+        &quot;point&quot;: [
+          0.0,
+          0.0,
+          0.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          0.0,
+          1.0
+        ],
+        &quot;x&quot;: [
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;offset&quot;: &quot;frame_height - 16 mm&quot;,
+      &quot;values&quot;: [
+        &quot;-(frame_width / 2)&quot;,
+        &quot;frame_depth / 2&quot;,
+        270.0
       ],
       &quot;angle&quot;: 0.0
     }

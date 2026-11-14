@@ -1,4 +1,4 @@
-"""Four reusable L-profiles centred on the four XZ corner lines."""
+"""Four vertical L-profiles centred on the four rounded side corners."""
 
 
 class FrameBlock:
@@ -14,27 +14,28 @@ class FrameBlock:
         ).fillet(8, edges=Edges.VERTICAL)
 
 
-class LBracket:
+class LProfile:
     ARM_LENGTH = 28.0
-    WALL = 8.0
     THICKNESS = 4.0
+    PROFILE_HEIGHT = 16.0
 
     def build(self):
+        # A real angle profile around a vertical corner. Local +X/+Y is the
+        # inside of the case; material sits just outside those two faces.
         profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
+                (self.ARM_LENGTH, -self.THICKNESS),
+                (-self.THICKNESS, -self.THICKNESS),
+                (-self.THICKNESS, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
-            plane="XZ",
+            plane="XY",
         )
-        # Symmetric depth makes the profile naturally centre on a corner line.
         return profile.extrude(
-            self.THICKNESS,
-            direction=Direction.SYMMETRIC,
+            self.PROFILE_HEIGHT,
+            direction=Direction.POSITIVE,
         )
 
 
@@ -49,53 +50,59 @@ class FourCornerL:
             _depth=self.frame_depth,
             _height=self.frame_height,
         )
-        bracket = LBracket()
+        profile = LProfile()
 
-        # Assembly-local XZ plane through Y=0. It survives the rounded outer
-        # corners because placement is dimensional, not based on a sharp edge.
-        frame_xz = AnchorFrame(
+        frame_xy = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
-        bracket_origin = AnchorFrame(
+        profile_origin = AnchorFrame(
             origin=(0, 0, 0),
-            z=Anchor.FRONT,
+            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
+        half_depth = self.frame_depth / 2
+        centre_height = (
+            self.frame_height - LProfile.PROFILE_HEIGHT
+        ) / 2
 
-        top_left = bracket.copy().attach(
+        front_left = profile.copy().attach(
             frame,
-            parent=frame_xz,
-            child=bracket_origin,
-            offset=(-half_width, self.frame_height),
-            angle=270,
-        )
-        top_right = bracket.copy().attach(
-            frame,
-            parent=frame_xz,
-            child=bracket_origin,
-            offset=(half_width, self.frame_height),
-            angle=180,
-        )
-        bottom_right = bracket.copy().attach(
-            frame,
-            parent=frame_xz,
-            child=bracket_origin,
-            offset=(half_width, 0),
-            angle=90,
-        )
-        bottom_left = bracket.copy().attach(
-            frame,
-            parent=frame_xz,
-            child=bracket_origin,
-            offset=(-half_width, 0),
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(-half_width, -half_depth),
+            gap=centre_height,
             angle=0,
         )
+        front_right = profile.copy().attach(
+            frame,
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(half_width, -half_depth),
+            gap=centre_height,
+            angle=90,
+        )
+        rear_right = profile.copy().attach(
+            frame,
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(half_width, half_depth),
+            gap=centre_height,
+            angle=180,
+        )
+        rear_left = profile.copy().attach(
+            frame,
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(-half_width, half_depth),
+            gap=centre_height,
+            angle=270,
+        )
 
-        return frame + top_left + top_right + bottom_right + bottom_left
+        return frame + front_left + front_right + rear_right + rear_left
 
 
 FourCornerL()
