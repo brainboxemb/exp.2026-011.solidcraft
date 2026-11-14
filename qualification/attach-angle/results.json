@@ -82,7 +82,7 @@
       "Base"
     ],
     "feature": 4,
-    "ms": 0.975233,
+    "ms": 0.935906,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -174,7 +174,7 @@
       "Arm"
     ],
     "feature": 8,
-    "ms": 0.289173,
+    "ms": 0.258492,
     "name": "Extrude2",
     "removed_bodies": [],
     "warning": null

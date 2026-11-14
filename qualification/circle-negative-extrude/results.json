@@ -1,0 +1,71 @@
+[
+  {
+    "display_value": 20.0,
+    "name": "diameter",
+    "unit": "mm",
+    "value": 20.0
+  },
+  {
+    "display_value": 30.0,
+    "name": "height",
+    "unit": "mm",
+    "value": 30.0
+  },
+  {
+    "attachment": "fixed",
+    "created": {
+      "constraints": [],
+      "curves": [],
+      "dimensions": [],
+      "points": []
+    },
+    "name": "Profile",
+    "projected": null,
+    "sketch": 1
+  },
+  {
+    "constraints": [
+      "k1",
+      "k2"
+    ],
+    "created": {
+      "constraints": [
+        "k2"
+      ],
+      "curves": [
+        "c1"
+      ],
+      "dimensions": [
+        "k1"
+      ],
+      "points": [
+        "c1.center"
+      ]
+    },
+    "curves": [
+      "c1"
+    ],
+    "sketch": {
+      "dof": 0,
+      "solved": true
+    }
+  },
+  {
+    "profiles": 1,
+    "sketch": 1
+  },
+  {
+    "bodies": [
+      "NegativeCircleExtrude"
+    ],
+    "changed_bodies": [],
+    "created_bodies": [
+      "NegativeCircleExtrude"
+    ],
+    "feature": 2,
+    "ms": 1.42089,
+    "name": "Extrude1",
+    "removed_bodies": [],
+    "warning": null
+  }
+]

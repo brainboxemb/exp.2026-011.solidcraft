@@ -1,0 +1,109 @@
+{
+  "case": "circle-negative-extrude",
+  "q4": "pass",
+  "q5": "not-required",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "NegativeCircleExtrude",
+          "min": [
+            -10,
+            -10,
+            -30
+          ],
+          "max": [
+            10,
+            10,
+            0
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -10.0,
+            -10.000000000000009,
+            -30.000000000000036
+          ],
+          "max": [
+            10.0,
+            10.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "single cylindrical body",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "negative extrusion bounds",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -10,
+          -10,
+          -30
+        ],
+        "max": [
+          10,
+          10,
+          0
+        ]
+      },
+      "actual": {
+        "max": [
+          10.0,
+          10.0,
+          0.0
+        ],
+        "min": [
+          -10.0,
+          -10.000000000000009,
+          -30.000000000000036
+        ]
+      }
+    },
+    {
+      "name": "one cylindrical side face",
+      "level": "q4",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "direct circle extrusion remains native sketch/extrude history",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        [
+          "Sketch",
+          "Profile"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ]
+      ],
+      "actual": [
+        [
+          "Sketch",
+          "Profile"
+        ],
+        [
+          "ExtrudeFeature",
+          "Extrude1"
+        ]
+      ]
+    }
+  ]
+}
