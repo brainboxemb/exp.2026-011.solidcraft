@@ -32,7 +32,7 @@ SOLIDCRAFT_CAPABILITIES = [
 
     ("features", "Extrude", "Native new/join/cut/intersect, symmetric, two-sided and to/from-object extents.", "Partial", "Q6 basic subset.", "Core", "PythonSCAD/OpenSCAD + SolidCraft richness", "Expose advanced extents only from real use cases."),
     ("features", "Hole", "Native direction, through/to, countersink/counterbore, threads and edge references.", "Partial", "Partial Q6 through-hole support.", "Core", "SolidCraft", "Grow from user scenarios instead of wrapping every option at once."),
-    ("features", "Fillet / chamfer / shell", "Native topology-based feature operations.", "Partial", "Basic Forge methods exist; dedicated native gaps remain.", "High", "PythonSCAD", "Important mechanical/workshop operations."),
+    ("features", "Fillet / chamfer / shell", "Native topology-based feature operations.", "Partial", "Basic Edges.VERTICAL fillet is Q6-qualified; chamfer, shell and richer edge-selection modes still have native gaps.", "High", "PythonSCAD", "Important mechanical/workshop operations."),
     ("features", "Patterns", "Native solid and sketch rectangular/circular patterns.", "Partial", "Hole pattern subset is available.", "High", "PythonSCAD + OpenSCAD", "General pattern API remains a gap."),
     ("features", "Materials / appearance", "Native material and appearance support.", "Partial", "Material assignment exists; appearance breadth is incomplete.", "Useful", "PythonSCAD", "Important for readable assemblies, not core geometry."),
 
