@@ -1,6 +1,8 @@
 """Standalone SCPF API geometry tests independent of real CAD projects."""
 import unittest
 
+from scpf import Sketch
+
 class GenericGeometryAPI(unittest.TestCase):
     def test_named_polygon_vertices_generate_sketch_ids(self):
         from scpf.core import Polygon2D
@@ -35,15 +37,14 @@ class GenericGeometryAPI(unittest.TestCase):
 
         for direction in (Direction.POSITIVE, Direction.NEGATIVE):
             with self.subTest(direction=direction):
-                shape = Polygon2D([
-                    (-width / 2, 0),
-                    (width / 2, 0),
-                    (width / 2 - trim, trim),
-                    (-width / 2 + trim, trim),
-                ], plane="XZ", world=True).extrude(
-                    12,
-                    direction=direction,
-                )
+                with Sketch(plane="XZ") as sketch:
+                    Polygon2D([
+                        (-width / 2, 0),
+                        (width / 2, 0),
+                        (width / 2 - trim, trim),
+                        (-width / 2 + trim, trim),
+                    ], plane="XZ", world=True)
+                shape = sketch.extrude(12, direction=direction)
                 commands = compile_features(shape, "Strip")
                 line = next(
                     command["params"]
@@ -60,12 +61,14 @@ class GenericGeometryAPI(unittest.TestCase):
 
         rear = Parameter("cabinet_depth", 100.0)
         depth = Parameter("panel_wood_thickness", 9.0)
-        shape = Polygon2D([
-            ("lower_left", (-10, 0)),
-            ("lower_right", (10, 0)),
-            ("upper_right", (10, 20)),
-            ("upper_left", (-10, 20)),
-        ], plane="XZ", world=True).at(y=rear).extrude(
+        with Sketch(plane="XZ", offset=rear) as sketch:
+            Polygon2D([
+                ("lower_left", (-10, 0)),
+                ("lower_right", (10, 0)),
+                ("upper_right", (10, 20)),
+                ("upper_left", (-10, 20)),
+            ], plane="XZ", world=True)
+        shape = sketch.extrude(
             depth,
             direction=Direction.POSITIVE,
         ).fillet(
@@ -101,11 +104,13 @@ class GenericGeometryAPI(unittest.TestCase):
         from scpf.features import compile_features
         from scpf.compiler import ModelError
 
-        shape = Polygon2D(
-            [(0, 0), (10, 0), (10, 10), (0, 10)],
-            plane="XZ",
-            ids=["bottom", "right", "top", "left"],
-        ).extrude(10, direction=Direction.SYMMETRIC)
+        with Sketch(plane="XZ") as sketch:
+            Polygon2D(
+                [(0, 0), (10, 0), (10, 10), (0, 10)],
+                plane="XZ",
+                ids=["bottom", "right", "top", "left"],
+            )
+        shape = sketch.extrude(10, direction=Direction.SYMMETRIC)
         shape = shape.chamfer(1, edges=Edges.from_profile("o_*"))
         with self.assertRaisesRegex(ModelError, "no polygon segment or vertex matches"):
             compile_features(shape, "Square")
@@ -115,10 +120,12 @@ class GenericGeometryAPI(unittest.TestCase):
         from scpf.features import compile_features
         from scpf.compiler import ModelError
 
-        shape = Polygon2D(
-            [(0, 0), (10, 0), (10, 10), (0, 10)],
-            plane="XZ",
-        ).extrude(10, direction=Direction.SYMMETRIC)
+        with Sketch(plane="XZ") as sketch:
+            Polygon2D(
+                [(0, 0), (10, 0), (10, 10), (0, 10)],
+                plane="XZ",
+            )
+        shape = sketch.extrude(10, direction=Direction.SYMMETRIC)
         shape = shape.chamfer(1, edges=Edges.from_profile("o_*"))
         with self.assertRaisesRegex(ModelError, "must define ids"):
             compile_features(shape, "Square")
@@ -127,10 +134,12 @@ class GenericGeometryAPI(unittest.TestCase):
         from scpf.core import Polygon2D, Direction, Edges
         from scpf.features import compile_features
 
-        shape = Polygon2D([
-            ("start", (0, 0)), ("tip", (10, 0)),
-            ("far", (10, 8)), ("end", (0, 8)),
-        ], plane="XZ", world=True).extrude(8, direction=Direction.SYMMETRIC)
+        with Sketch(plane="XZ") as sketch:
+            Polygon2D([
+                ("start", (0, 0)), ("tip", (10, 0)),
+                ("far", (10, 8)), ("end", (0, 8)),
+            ], plane="XZ", world=True)
+        shape = sketch.extrude(8, direction=Direction.SYMMETRIC)
         shape = shape.chamfer(0.5, edges=Edges.from_vertices("tip", "end"))
         chamfer = next(
             c for c in compile_features(shape, "Plate")
