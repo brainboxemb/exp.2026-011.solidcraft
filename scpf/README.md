@@ -452,9 +452,12 @@ circle extrusion, and `Bore` is a downward cut from the current top.
 The generated results website includes a `/cheatsheet/` page.
 2D profiles have an explicit suffix: `Rectangle2D`, `Circle2D` and
 `Polygon2D`. 3D solids use plain names: `Box`, `Cylinder`
-and `Sphere`. The direct `Cylinder(d=..., h=..., axis=Axis.Z)` starts at its base point; set `axis=Axis.X` or `Axis.Y` for the other native principal axes. The
-`pattern()` and `orient()` helpers place repeated or oriented cylinders;
-Hole patterns use native `solid.hole` features.
+and `Sphere`. The direct `Cylinder(d=..., h=..., axis=Axis.Z)` starts at its base point; set `axis=Axis.X` or `Axis.Y` for the other native principal axes.
+Use `shape.at(x, y, z)` for absolute placement. For direct CSG geometry,
+`shape.at(target)` places CENTER on the target CENTER; the explicit form is
+`shape.at(target, anchor=Anchor.CENTER, child=Anchor.CENTER)`.
+`pattern()` places repeated cylinders; Hole patterns use native
+`solid.hole` features.
 The old positional constructor and 3D-suffixed aliases are not supported.
 
 ## Edge and face selection
