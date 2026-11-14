@@ -559,13 +559,14 @@ class AssemblyTests(unittest.TestCase):
 
             def build(self):
                 x0 = self._x_position
-                profile = Polygon2D([
-                    (x0, 0),
-                    (x0 + self.width, 0),
-                    (x0 + self.width, 10),
-                    (x0, 10),
-                ], plane="XZ", world=True)
-                return profile.extrude(10, direction=Direction.POSITIVE)
+                with Sketch(plane="XZ") as sketch:
+                    Polygon2D([
+                        (x0, 0),
+                        (x0 + self.width, 0),
+                        (x0 + self.width, 10),
+                        (x0, 10),
+                    ], plane="XZ", world=True)
+                return sketch.extrude(10, direction=Direction.POSITIVE)
 
         BracketObject = component(Bracket)
         opening_width = Parameter("opening_width", 844.0)
