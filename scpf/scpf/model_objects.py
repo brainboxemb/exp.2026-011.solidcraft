@@ -7,7 +7,17 @@ construct Component or Occurrence objects explicitly.
 from dataclasses import dataclass, replace
 from math import isfinite
 
-from .core import Anchor, AnchorFrame, AnchorTopology, Axis, Shape, parameters_in, pv
+from .core import (
+    Anchor,
+    AnchorFrame,
+    AnchorTopology,
+    Axis,
+    Shape,
+    _DirectionSelector,
+    _selector_anchor,
+    parameters_in,
+    pv,
+)
 
 
 @dataclass(frozen=True)
@@ -56,7 +66,9 @@ def _custom_anchor(instance, name):
 
 
 def _resolve_anchor_reference(instance, value):
-    """Resolve a standard, named, or direct component attachment frame."""
+    """Resolve a standard, composed, named, or direct attachment frame."""
+    if isinstance(value, _DirectionSelector):
+        return _selector_anchor(value)
     if isinstance(value, (Anchor, AnchorFrame, AnchorTopology)):
         return value
     if isinstance(value, str):
@@ -66,8 +78,8 @@ def _resolve_anchor_reference(instance, value):
             _custom_anchor(instance, value)
             return value
     raise ValueError(
-        "component attach requires an Anchor, AnchorFrame, AnchorTopology "
-        "or anchor name"
+        "component attach requires a cardinal selector, Anchor, AnchorFrame, "
+        "AnchorTopology or anchor name"
     )
 
 
