@@ -539,43 +539,19 @@ def _attached_commands(shape, original, feature, name, *, feature_name=None):
         height, diameter = primitive.data
         _require_positive(height, "cylinder height")
         _require_positive(diameter, "cylinder diameter")
-        if child.kind != "cylinder":
-            params = dict(height=command_value(height),
-                          diameter=command_value(diameter), base=position,
-                          axis="Z",
-                          operation="join" if shape.kind == "union" else "cut",
-                          targets=[name])
-            if refs:
-                params["references"] = refs
-            operations.append(_command("solid.cylinder", **params))
-            continue
-        (_, _), (_, _, origin_z), thickness = _base_rectangle(target)
-        if shape.kind == "union" and child_anchor is Anchor.BOTTOM:
-            sketch_z = thickness if parent_anchor is Anchor.TOP else origin_z
-            direction = "positive"
-        elif shape.kind == "difference" and child_anchor is Anchor.BOTTOM:
-            anchor_z = origin_z if parent_anchor is Anchor.BOTTOM else thickness
-            sketch_z = (height if pv(anchor_z) == 0
-                        else _combine(anchor_z, height))
-            direction = "negative"
-        else:
-            raise ModelError("single attached Cylinder requires a bottom-anchored join/cut")
-        # Name by CAD feature intent; no example/model-specific switch.
-        label = feature_name or ("Boss" if shape.kind == "union" else "Cut")
-        plane = dict(plane="XY", name=label)
-        if pv(sketch_z):
-            plane["offset"] = command_value(sketch_z)
-        operations.extend([
-            _command("sketch.create", **plane),
-            _command("sketch.circle.center",
-                     center=position[:2], diameter=command_value(diameter)),
-            _command("sketch.finish"),
-            _command("solid.extrude", distance=command_value(height),
-                     direction=direction,
-                     operation="join" if shape.kind == "union" else "cut",
-                     targets=[name],
-                     name=label),
-        ])
+        params = dict(
+            height=command_value(height),
+            diameter=command_value(diameter),
+            base=position,
+            axis="Z",
+            operation="join" if shape.kind == "union" else "cut",
+            targets=[name],
+        )
+        if refs:
+            params["references"] = refs
+        if feature_name is not None:
+            params["name"] = feature_name
+        operations.append(_command("solid.cylinder", **params))
     return operations
 
 
