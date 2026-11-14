@@ -29,25 +29,18 @@ class ParameterScopeCommandTests(unittest.TestCase):
             ],
         )
 
-        rectangles = [
+        boxes = [
             row["params"]
             for row in document["commands"]
-            if row["command"] == "sketch.rectangle.two_point"
+            if row["command"] == "solid.box"
         ]
-        self.assertEqual(len(rectangles), 4)
+        self.assertEqual(len(boxes), 4)
 
-        x_expressions = [(row["p0"][0], row["p1"][0]) for row in rectangles]
-        self.assertIn(("-Panel_width / 2", "Panel_width / 2"), x_expressions)
-        self.assertIn(("-Panel_2_width / 2", "Panel_2_width / 2"), x_expressions)
-        self.assertIn(("-shared_width / 2", "shared_width / 2"), x_expressions)
-
-        derived = [
-            pair for pair in x_expressions
-            if "shared_width / 2" in str(pair[0])
-            and "shared_width / 2" in str(pair[1])
-            and pair != ("-shared_width / 2", "shared_width / 2")
-        ]
-        self.assertEqual(len(derived), 1)
+        lengths = [row["length"] for row in boxes]
+        self.assertIn("Panel_width", lengths)
+        self.assertIn("Panel_2_width", lengths)
+        self.assertIn("shared_width", lengths)
+        self.assertIn("shared_width / 2", lengths)
 
         creates = [
             row["params"]["name"]
