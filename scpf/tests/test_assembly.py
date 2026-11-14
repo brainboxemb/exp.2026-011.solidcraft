@@ -754,7 +754,8 @@ class AssemblyTests(unittest.TestCase):
         self.assertIsInstance(brackets, Assembly)
         self.assertEqual(len(brackets.instances), 2)
         self.assertIs(brackets.instances[0], frame)
-        self.assertEqual(brackets.instances[1].translation, (50.0, 0.0, 0.0))
+        self.assertEqual(brackets.instances[1].translation[0].name, "spacing")
+        self.assertEqual(brackets.instances[1].translation[1:], (0, 0))
 
     def test_imported_assembly_class_uses_object_syntax(self):
         from scpf.core import Box, Parameter
@@ -788,7 +789,8 @@ class AssemblyTests(unittest.TestCase):
 
         self.assertIsInstance(row, Assembly)
         self.assertEqual(len(row.instances), 2)
-        self.assertEqual(row.instances[1].translation, (170.0, 0.0, 0.0))
+        self.assertEqual(row.instances[1].translation[0].name, "panel_pitch")
+        self.assertEqual(row.instances[1].translation[1:], (0, 0))
         self.assertNotIn(
             "width",
             dict(row.instances[0].definition.parameters),
