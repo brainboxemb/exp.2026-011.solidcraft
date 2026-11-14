@@ -1,5 +1,5 @@
 {
-  "library_commit": "3b7c42f3c8de6bd41c6db135b24d5a211ec735c9",
+  "library_commit": "c42c58545ff7e2bd771b2276c0b6d7d46605d528",
   "solidcraft_version": "0.30.1",
   "native_verified": true,
   "cases": {
@@ -1054,6 +1054,112 @@
       },
       "solidcraft_version": "0.30.1",
       "body_count": 2,
+      "parameter_count": 2
+    },
+    "assembly-owned-anchor": {
+      "title": "Assembly-owned named anchor",
+      "status": "PASS",
+      "status_detail": "Q1 \u00b7 Q2 \u00b7 Q3 \u00b7 Q4 \u00b7 Q5 \u00b7 Q6",
+      "command_count": 24,
+      "native_evidence": [
+        "results.json",
+        "measurements-size-80x40.json",
+        "measurements.json",
+        "joint-inspect.json",
+        "model-size-80x40.sc",
+        "model.sc",
+        "model.step",
+        "qualification-result.json",
+        "validation.json",
+        "visual-validation.json",
+        "camera-front.json",
+        "camera-iso.json",
+        "camera-right.json"
+      ],
+      "native_images": [
+        "model.png",
+        "model-front.png",
+        "goal-front.png",
+        "overlay-front.png",
+        "visual-diff-front.png",
+        "model-right.png",
+        "goal-right.png",
+        "overlay-right.png",
+        "visual-diff-right.png",
+        "model-iso.png",
+        "goal-iso.png",
+        "overlay-iso.png",
+        "visual-diff-iso.png"
+      ],
+      "qualification_status": "pass",
+      "levels": {
+        "q1": {
+          "status": "pass",
+          "evidence": [
+            "q1-python-tests.txt"
+          ]
+        },
+        "q2": {
+          "status": "pass",
+          "commands": 24,
+          "evidence": [
+            "q2-python-qualification-tests.txt",
+            "q2-command-contract.tsv"
+          ]
+        },
+        "q3": {
+          "status": "pass",
+          "evidence": [
+            "model.sc",
+            "model.step",
+            "results.json"
+          ]
+        },
+        "q4": {
+          "status": "pass",
+          "evidence": [
+            "joint-inspect.json",
+            "measurements-size-80x40.json",
+            "measurements.json",
+            "validation.json"
+          ]
+        },
+        "q5": {
+          "status": "pass",
+          "required": true,
+          "mutation": "base 40x20 -> 80x40 mm; named semantic anchor follows corner",
+          "evidence": [
+            "measurements-size-80x40.json",
+            "model-size-80x40.sc"
+          ]
+        },
+        "q6": {
+          "status": "pass",
+          "images": [
+            "model.png",
+            "goal-front.png",
+            "goal-iso.png",
+            "goal-right.png",
+            "model-front.png",
+            "model-iso.png",
+            "model-right.png",
+            "overlay-front.png",
+            "overlay-iso.png",
+            "overlay-right.png",
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png"
+          ],
+          "evidence": [
+            "visual-diff-front.png",
+            "visual-diff-iso.png",
+            "visual-diff-right.png",
+            "visual-validation.json"
+          ]
+        }
+      },
+      "solidcraft_version": "0.30.1",
+      "body_count": 3,
       "parameter_count": 2
     },
     "four-corner-l": {

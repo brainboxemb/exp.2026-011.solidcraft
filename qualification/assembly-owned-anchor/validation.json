@@ -1,0 +1,253 @@
+{
+  "case": "assembly-owned-anchor",
+  "q4": "pass",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -20,
+            -15,
+            0
+          ],
+          "max": [
+            20,
+            15,
+            20
+          ]
+        },
+        {
+          "label": "Companion",
+          "min": [
+            65,
+            -5,
+            0
+          ],
+          "max": [
+            75,
+            5,
+            10
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            10,
+            -25,
+            10
+          ],
+          "max": [
+            20,
+            -15,
+            20
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            15.0,
+            20.0
+          ]
+        },
+        {
+          "min": [
+            65.0,
+            -5.0,
+            0.0
+          ],
+          "max": [
+            75.0,
+            5.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            10.0,
+            -25.0,
+            10.0
+          ],
+          "max": [
+            20.0,
+            -15.0,
+            20.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "three bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "named anchor reaches baseline corner",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          10,
+          -25,
+          10
+        ],
+        "max": [
+          20,
+          -15,
+          20
+        ]
+      },
+      "actual": {
+        "max": [
+          20.0,
+          -15.0,
+          20.0
+        ],
+        "min": [
+          10.0,
+          -25.0,
+          10.0
+        ]
+      }
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Base",
+          "min": [
+            -40,
+            -15,
+            0
+          ],
+          "max": [
+            40,
+            15,
+            40
+          ]
+        },
+        {
+          "label": "Companion",
+          "min": [
+            65,
+            -5,
+            0
+          ],
+          "max": [
+            75,
+            5,
+            10
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            30,
+            -25,
+            30
+          ],
+          "max": [
+            40,
+            -15,
+            40
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -15.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            15.0,
+            40.0
+          ]
+        },
+        {
+          "min": [
+            65.0,
+            -5.0,
+            0.0
+          ],
+          "max": [
+            75.0,
+            5.0,
+            10.0
+          ]
+        },
+        {
+          "min": [
+            30.0,
+            -25.0,
+            30.0
+          ],
+          "max": [
+            40.0,
+            -15.0,
+            40.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "base dimensions changed",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "base_width": 80.0,
+        "base_height": 40.0
+      },
+      "actual": {
+        "base_width": 80.0,
+        "base_height": 40.0
+      }
+    },
+    {
+      "name": "named anchor keeps native corner associativity",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "min": [
+          30,
+          -25,
+          30
+        ],
+        "max": [
+          40,
+          -15,
+          40
+        ]
+      },
+      "actual": {
+        "max": [
+          40.0,
+          -15.0,
+          40.0
+        ],
+        "min": [
+          30.0,
+          -25.0,
+          30.0
+        ]
+      }
+    }
+  ]
+}

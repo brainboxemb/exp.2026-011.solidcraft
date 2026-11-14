@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Qualification · Assembly-owned named anchor · SCPF Python library</title>
+<link rel="stylesheet" href="../../style.css"></head>
+<body><header class="top"><div class="wrap nav">
+<a class="brand" href="../../">SCPF <span>Python library</span></a>
+<nav aria-label="Main"><a href="../../">Examples</a><a href="../../guide/">API Guide</a><a href="../../qualification/">Qualification</a><a href="../../cheatsheet/">Cheatsheet</a>
+<a href="https://github.com/brainboxemb/lib.py.solidcraft.forge">Source</a></nav></div></header>
+<div class="development-banner" role="status"><div class="wrap">
+<strong>Development version.</strong> Forge is under active development and testing. APIs, behaviour, coverage and qualification results may be incomplete or change without notice; published PASS results are not a support guarantee or production-readiness claim.
+</div></div>
+<main class="wrap">
+<div class="crumb"><a href="../">← Qualification</a> / Assembly-owned named anchor</div>
+
+<section class="hero small">
+  <p class="eyebrow">Forge qualification case</p>
+  <div class="qualification-status-line"><span class="qualification-status pass">PASS</span><span class="qualification-levels">Q1 · Q2 · Q3 · Q4 · Q5 · Q6</span></div>
+  <h1>Assembly-owned named anchor</h1>
+</section>
+
+<figure class="qualification-case-preview"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size native preview"><img src="model-iso.png" alt="Assembly-owned named anchor native SolidCraft preview"></a><figcaption>Native SolidCraft preview — the same render used on the qualification overview page.</figcaption></figure>
+
+<section class="panel qualification-test-purpose">
+  <h2>1. Test setup</h2>
+  <figure class="qualification-setup-diagram"><a href="setup.svg" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size setup diagram"><img src="setup.svg" alt="Assembly-owned named anchor expected setup diagram"></a><figcaption>Expected setup — conceptual diagram, not verification output. Click for the full-size image.</figcaption></figure>
+  <h3>Test goal</h3>
+  <p>Verify that an assembly can publish a semantic attachment name without putting that application-specific datum on the reusable component, and that a consumer of the name still lowers to an associative native relationship.</p>
+  <h3>Pass criteria</h3>
+  <p>The marker sits on the base front-top-right corner while an unrelated companion occurrence remains part of the same assembly.</p>
+  <h3>Mutation criterion</h3><p>Change base_width/base_height from 40x20 to 80x40 mm in the saved .sc design; the marker created through the assembly-owned name must follow the moved corner without rerunning Python.</p>
+</section>
+
+<section class="panel">
+  <h2>2. Implementation under test</h2>
+  <h3>Fixture source</h3>
+  <pre><code>&quot;&quot;&quot;Qualification: an assembly-owned named anchor remains associative.&quot;&quot;&quot;
+
+
+class Base:
+    width = 40.0
+    height = 20.0
+    DEPTH = 30.0
+
+    def build(self):
+        return Box(self.width, self.DEPTH, self.height)
+
+
+class Companion:
+    SIZE = 10.0
+
+    def build(self):
+        return Box(self.SIZE, self.SIZE, self.SIZE)
+
+
+class Marker:
+    def build(self):
+        return Box(10, 10, 10)
+
+
+class AssemblyOwnedAnchor:
+    base_width = 40.0
+    base_height = 20.0
+
+    def build(self):
+        base = Base(
+            width=self.base_width,
+            height=self.base_height,
+            name=&quot;base&quot;,
+        )
+        companion = Companion(name=&quot;companion&quot;).move(x=70)
+
+        frame = (base + companion).with_anchor(
+            &quot;inspection_corner&quot;,
+            base,
+            Anchor.FRONT_TOP_RIGHT,
+        )
+        datum = frame.anchor(&quot;inspection_corner&quot;)
+
+        marker = Marker().attach(
+            datum.target,
+            parent=datum.reference,
+            child=Anchor.BACK_TOP_RIGHT,
+            offset=datum.offset,
+        )
+        return frame + marker
+
+
+AssemblyOwnedAnchor()
+</code></pre>
+  <h3>Public Forge API used</h3>
+  <p><code>(base + companion).with_anchor(&#x27;inspection_corner&#x27;, base, Anchor.FRONT_TOP_RIGHT); datum = frame.anchor(&#x27;inspection_corner&#x27;); Marker().attach(datum.target, parent=datum.reference, ...)</code></p>
+  <h3>Forge model represented by this fixture</h3>
+  <p>The assembly stores a name mapped to an existing target occurrence plus a normal Forge anchor reference. The reusable Base knows nothing about the semantic name.</p>
+</section>
+
+<section class="panel">
+  <h2>3. Generated SolidCraft relationship</h2>
+  <p>with_anchor()/anchor() are Forge-side semantic indirection only. The resulting native joint is the same topology-backed FRONT_TOP_RIGHT relationship that a direct attach would emit; no extra native helper object is required.</p>
+  <details>
+    <summary>Show generated relationship / command details</summary>
+    <pre><code>[
+  {
+    &quot;command&quot;: &quot;joint.create&quot;,
+    &quot;params&quot;: {
+      &quot;type&quot;: &quot;rigid&quot;,
+      &quot;name&quot;: &quot;Attach Marker:1 to Base:1&quot;,
+      &quot;a&quot;: {
+        &quot;occurrence&quot;: &quot;Base:1&quot;,
+        &quot;edge&quot;: [
+          20.0,
+          -15.0,
+          10.0
+        ],
+        &quot;on&quot;: [
+          0.0,
+          -15.0,
+          10.0
+        ],
+        &quot;corner&quot;: [
+          20.0,
+          -15.0,
+          20.0
+        ]
+      },
+      &quot;b&quot;: {
+        &quot;occurrence&quot;: &quot;Marker:1&quot;,
+        &quot;point&quot;: [
+          20.0,
+          -15.0,
+          20.0
+        ],
+        &quot;z&quot;: [
+          0.0,
+          1.0,
+          0.0
+        ],
+        &quot;x&quot;: [
+          -1.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  }
+]</code></pre>
+  </details>
+</section>
+
+<section class="panel"><h2>4. Machine verification</h2><p class="meta">Native runtime: <strong>SolidCraft 0.30.1</strong>. These values come from the saved native design, not from Python-side estimates.</p><details><summary><strong>size 80x40</strong> · 3 bodies · <a href="measurements-size-80x40.json">measurements-size-80x40.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>base_width</code></td><td>80.0</td></tr><tr><td><code>base_height</code></td><td>40.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Base</td><td><code>[-40, -15, 0]</code></td><td><code>[40, 15, 40]</code></td></tr><tr><td>Companion</td><td><code>[65, -5, 0]</code></td><td><code>[75, 5, 10]</code></td></tr><tr><td>Marker</td><td><code>[30, -25, 30]</code></td><td><code>[40, -15, 40]</code></td></tr></tbody></table></details><details open><summary><strong>Baseline</strong> · 3 bodies · <a href="measurements.json">measurements.json</a></summary><h4>Parameters</h4><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody><tr><td><code>base_width</code></td><td>40.0</td></tr><tr><td><code>base_height</code></td><td>20.0</td></tr></tbody></table><h4>Bodies</h4><table><thead><tr><th>Body</th><th>BBox min</th><th>BBox max</th></tr></thead><tbody><tr><td>Base</td><td><code>[-20, -15, 0]</code></td><td><code>[20, 15, 20]</code></td></tr><tr><td>Companion</td><td><code>[65, -5, 0]</code></td><td><code>[75, 5, 10]</code></td></tr><tr><td>Marker</td><td><code>[10, -25, 10]</code></td><td><code>[20, -15, 20]</code></td></tr></tbody></table></details><h3>Semantic validation</h3><table class="qualification-checks"><thead><tr><th>Status</th><th>Level</th><th>Check</th><th>Expected</th><th>Actual</th></tr></thead><tbody><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>declared target geometry</td><td><code>[{&quot;label&quot;: &quot;Base&quot;, &quot;min&quot;: [-20, -15, 0], &quot;max&quot;: [20, 15, 20]}, {&quot;label&quot;: &quot;Companion&quot;, &quot;min&quot;: [65, -5, 0], &quot;max&quot;: [75, 5, 10]}, {&quot;label&quot;: &quot;Marker&quot;, &quot;min&quot;: [10, -25, 10], &quot;max&quot;: [20, -15, 20]}]</code></td><td><code>[{&quot;min&quot;: [-20.0, -15.0, 0.0], &quot;max&quot;: [20.0, 15.0, 20.0]}, {&quot;min&quot;: [65.0, -5.0, 0.0], &quot;max&quot;: [75.0, 5.0, 10.0]}, {&quot;min&quot;: [10.0, -25.0, 10.0], &quot;max&quot;: [20.0, -15.0, 20.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>three bodies</td><td><code>3</code></td><td><code>3</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q4</td><td>named anchor reaches baseline corner</td><td><code>{&quot;min&quot;: [10, -25, 10], &quot;max&quot;: [20, -15, 20]}</code></td><td><code>{&quot;max&quot;: [20.0, -15.0, 20.0], &quot;min&quot;: [10.0, -25.0, 10.0]}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>declared mutation target geometry</td><td><code>[{&quot;label&quot;: &quot;Base&quot;, &quot;min&quot;: [-40, -15, 0], &quot;max&quot;: [40, 15, 40]}, {&quot;label&quot;: &quot;Companion&quot;, &quot;min&quot;: [65, -5, 0], &quot;max&quot;: [75, 5, 10]}, {&quot;label&quot;: &quot;Marker&quot;, &quot;min&quot;: [30, -25, 30], &quot;max&quot;: [40, -15, 40]}]</code></td><td><code>[{&quot;min&quot;: [-40.0, -15.0, 0.0], &quot;max&quot;: [40.0, 15.0, 40.0]}, {&quot;min&quot;: [65.0, -5.0, 0.0], &quot;max&quot;: [75.0, 5.0, 10.0]}, {&quot;min&quot;: [30.0, -25.0, 30.0], &quot;max&quot;: [40.0, -15.0, 40.0]}]</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>base dimensions changed</td><td><code>{&quot;base_width&quot;: 80.0, &quot;base_height&quot;: 40.0}</code></td><td><code>{&quot;base_width&quot;: 80.0, &quot;base_height&quot;: 40.0}</code></td></tr><tr><td><span class="qualification-status pass">PASS</span></td><td>Q5</td><td>named anchor keeps native corner associativity</td><td><code>{&quot;min&quot;: [30, -25, 30], &quot;max&quot;: [40, -15, 40]}</code></td><td><code>{&quot;max&quot;: [40.0, -15.0, 40.0], &quot;min&quot;: [30.0, -25.0, 30.0]}</code></td></tr></tbody></table></section>
+
+<section class="panel qualification-visual-check"><h2>5. Visual verification</h2><p class="meta">Actual is the current SolidCraft result. Goal is the independent expected geometry. Overlay shows both together. Click any image for the full-size PNG.</p><section class="qualification-view" data-view="iso"><h3>Iso</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-iso.png" alt="Assembly-owned named anchor iso Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft iso view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-iso.png" alt="Assembly-owned named anchor iso Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same iso view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-iso.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-iso.png" alt="Assembly-owned named anchor iso Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual iso view</figcaption></figure></div></section><details class="qualification-extra-views"><summary>Additional front/right views</summary><section class="qualification-view" data-view="front"><h3>Front</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-front.png" alt="Assembly-owned named anchor front Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft front view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-front.png" alt="Assembly-owned named anchor front Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same front view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-front.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-front.png" alt="Assembly-owned named anchor front Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual front view</figcaption></figure></div></section><section class="qualification-view" data-view="right"><h3>Right</h3><div class="qualification-view-grid"><figure class="qualification-visual-item"><a href="model-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Actual image"><img src="model-right.png" alt="Assembly-owned named anchor right Actual" loading="lazy"></a><figcaption><strong>Actual</strong><br>Current SolidCraft right view</figcaption></figure><figure class="qualification-visual-item"><a href="goal-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Goal image"><img src="goal-right.png" alt="Assembly-owned named anchor right Goal" loading="lazy"></a><figcaption><strong>Goal</strong><br>Expected geometry in the same right view</figcaption></figure><figure class="qualification-visual-item"><a href="overlay-right.png" class="qualification-image-link" target="_blank" rel="noopener" title="Open full-size Overlay image"><img src="overlay-right.png" alt="Assembly-owned named anchor right Overlay" loading="lazy"></a><figcaption><strong>Overlay</strong><br>Expected geometry over the actual right view</figcaption></figure></div></section></details></section>
+
+<section class="panel">
+  <h2>6. Evidence and references</h2>
+  <div class="twocol">
+    <div>
+      <h3>Raw evidence</h3>
+      <details>
+        <summary>Show generated files and measurements</summary>
+        <ul><li><a href="model.py">Fixture source</a></li><li><a href="commands.json">Generated command JSON</a></li><li><a href="results.json">results.json</a></li><li><a href="measurements-size-80x40.json">measurements-size-80x40.json</a></li><li><a href="measurements.json">measurements.json</a></li><li><a href="joint-inspect.json">joint-inspect.json</a></li><li><a href="model-size-80x40.sc">model-size-80x40.sc</a></li><li><a href="model.sc">model.sc</a></li><li><a href="model.step">model.step</a></li><li><a href="qualification-result.json">qualification-result.json</a></li><li><a href="validation.json">validation.json</a></li><li><a href="visual-validation.json">visual-validation.json</a></li><li><a href="camera-front.json">camera-front.json</a></li><li><a href="camera-iso.json">camera-iso.json</a></li><li><a href="camera-right.json">camera-right.json</a></li><li><a href="model.png">Native snapshot: model.png</a></li><li><a href="model-front.png">Native snapshot: model-front.png</a></li><li><a href="goal-front.png">Native snapshot: goal-front.png</a></li><li><a href="overlay-front.png">Native snapshot: overlay-front.png</a></li><li><a href="visual-diff-front.png">Native snapshot: visual-diff-front.png</a></li><li><a href="model-right.png">Native snapshot: model-right.png</a></li><li><a href="goal-right.png">Native snapshot: goal-right.png</a></li><li><a href="overlay-right.png">Native snapshot: overlay-right.png</a></li><li><a href="visual-diff-right.png">Native snapshot: visual-diff-right.png</a></li><li><a href="model-iso.png">Native snapshot: model-iso.png</a></li><li><a href="goal-iso.png">Native snapshot: goal-iso.png</a></li><li><a href="overlay-iso.png">Native snapshot: overlay-iso.png</a></li><li><a href="visual-diff-iso.png">Native snapshot: visual-diff-iso.png</a></li></ul>
+      </details>
+    </div>
+    <div>
+      <h3>Reference models</h3>
+      <p>These comparisons clarify concepts; Forge does not promise API compatibility with them.</p>
+      <ul><li><strong><a href="https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview">BOSL2</a>:</strong> Semantic attachment names belong naturally to the assembly that owns their meaning rather than to a generic reusable component.</li><li><strong><a href="https://docs.solidcraft.io/guide/assemblies.html">SolidCraft</a>:</strong> The semantic name disappears during lowering; the persisted native relationship remains topology-backed and associative.</li></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><strong>SCPF</strong> generates commands; native SolidCraft creates the geometry.
+<a href="https://brainboxemb.github.io/2026-011-02.cad.solidcraft/">Full SolidCraft CAD projects →</a></div></footer>
+</body></html>

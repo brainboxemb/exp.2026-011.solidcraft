@@ -2,7 +2,7 @@
   "schema_version": 1,
   "case": "primitive-csg",
   "title": "Primitive CSG",
-  "source_commit": "3b7c42f3c8de6bd41c6db135b24d5a211ec735c9",
+  "source_commit": "c42c58545ff7e2bd771b2276c0b6d7d46605d528",
   "solidcraft_version": "0.30.1",
   "status": "pass",
   "levels": {
