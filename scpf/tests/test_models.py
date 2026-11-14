@@ -112,6 +112,16 @@ class SCPFExamples(unittest.TestCase):
         self.assertEqual(frame.z, (0.0, 1.0, 0.0))
         self.assertEqual(frame.x, (0.0, 0.0, -1.0))
 
+    def test_cardinal_directions_combine_like_bosl2_selectors(self):
+        from scpf import BOTTOM, FRONT, LEFT, RIGHT, TOP
+
+        self.assertEqual((BOTTOM + LEFT).vector, (-1, 0, -1))
+        self.assertEqual((TOP + RIGHT).vector, (1, 0, 1))
+        self.assertEqual((FRONT + TOP + LEFT).vector, (-1, -1, 1))
+
+        with self.assertRaisesRegex(ValueError, "same axis"):
+            _ = LEFT + RIGHT
+
     def test_removed_aliases_are_not_exposed(self):
         import scpf
         for name in ("Rectangle", "Circle", "Polygon", "Cube", "Box3D", "Cylinder3D", "Sphere3D"):
@@ -784,6 +794,82 @@ class SCPFExamples(unittest.TestCase):
         width = Parameter("width", 868.0)
         self.assertEqual(pv(width), 868.0)
         self.assertEqual(pv(width / 2), 434.0)
+
+    def test_native_box_supports_directional_anchor_and_edge_selectors(self):
+        from scpf import BOTTOM, FRONT, LEFT, RIGHT, Box
+        from scpf.compiler import compile_model
+
+        body = Box(100, 40, 12).at(
+            0,
+            10,
+            5,
+            anchor=FRONT + BOTTOM,
+        ).fillet(
+            4,
+            edges=[
+                BOTTOM + LEFT,
+                BOTTOM + RIGHT,
+            ],
+        )
+
+        commands = compile_model(body, "Board")["commands"]
+        self.assertFalse(
+            any(command["command"].startswith("sketch.") for command in commands)
+        )
+
+        box = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.box"
+        )
+        self.assertEqual(box["corner"], [-50.0, 10, 5])
+
+        fillet = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.fillet"
+        )
+        self.assertEqual(
+            fillet["edges"],
+            [
+                [-50.0, 30.0, 5.0],
+                [50.0, 30.0, 5.0],
+            ],
+        )
+
+    def test_positioned_box_keeps_symbolic_dimensions(self):
+        from scpf import BOTTOM, FRONT, Box, Parameter
+        from scpf.compiler import compile_model
+
+        width = Parameter("width", 100)
+        depth = Parameter("depth", 40)
+        height = Parameter("height", 12)
+        x = Parameter("x_position", 20)
+        y = Parameter("y_position", 10)
+        z = Parameter("z_position", 5)
+
+        commands = compile_model(
+            Box(width, depth, height).at(
+                x,
+                y,
+                z,
+                anchor=FRONT + BOTTOM,
+            ),
+            "Board",
+        )["commands"]
+
+        box = next(
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.box"
+        )
+        self.assertEqual(box["length"], "width")
+        self.assertEqual(box["width"], "depth")
+        self.assertEqual(box["height"], "height")
+        self.assertIn("x_position", str(box["corner"][0]))
+        self.assertIn("width", str(box["corner"][0]))
+        self.assertEqual(box["corner"][1], "y_position")
+        self.assertEqual(box["corner"][2], "z_position")
 
     def test_plain_model_fillet_keeps_radius_as_named_parameter(self):
         with tempfile.TemporaryDirectory() as directory:
