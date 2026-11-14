@@ -1,117 +1,108 @@
-"""Four reusable L-profile feet mounted under one rectangular frame."""
+"""Four vertical L-profiles centred on the four rounded side corners."""
 
 
 class FrameBlock:
     _width = 120.0
     _depth = 80.0
-    HEIGHT = 60.0
+    _height = 60.0
 
     def build(self):
-        return Box(self._width, self._depth, self.HEIGHT)
+        return Box(
+            self._width,
+            self._depth,
+            self._height,
+        ).fillet(8, edges=Edges.VERTICAL)
 
 
-class CornerFoot:
+class LProfile:
     ARM_LENGTH = 28.0
-    WALL = 8.0
-    HEIGHT = 30.0
+    THICKNESS = 4.0
+    PROFILE_HEIGHT = 16.0
 
     def build(self):
-        # Neutral reusable component.
-        #
-        # The local origin is the outside top corner of the foot.
-        # The L-shaped footprint extends in local +X/+Y and the foot extends
-        # downwards in local -Z. It has no knowledge of the frame or of which
-        # of the four frame corners it will occupy.
-        footprint = Polygon2D(
+        # A real angle profile around a vertical corner. Local +X/+Y is the
+        # inside of the case; material sits just outside those two faces.
+        profile = Polygon2D(
             [
                 (0, 0),
                 (self.ARM_LENGTH, 0),
-                (self.ARM_LENGTH, self.WALL),
-                (self.WALL, self.WALL),
-                (self.WALL, self.ARM_LENGTH),
+                (self.ARM_LENGTH, -self.THICKNESS),
+                (-self.THICKNESS, -self.THICKNESS),
+                (-self.THICKNESS, self.ARM_LENGTH),
                 (0, self.ARM_LENGTH),
             ],
             plane="XY",
         )
-        return footprint.extrude(
-            self.HEIGHT,
-            direction=Direction.NEGATIVE,
+        return profile.extrude(
+            self.PROFILE_HEIGHT,
+            direction=Direction.POSITIVE,
         )
 
 
 class FourCornerL:
     frame_width = 120.0
     frame_depth = 80.0
+    frame_height = 60.0
 
     def build(self):
         frame = FrameBlock(
             _width=self.frame_width,
             _depth=self.frame_depth,
+            _height=self.frame_height,
         )
-        foot = CornerFoot()
+        profile = LProfile()
 
-        # Placement belongs to this assembly. All four frames use the same
-        # local origin and Z direction; only local X changes to express the
-        # required clocking. The reusable CornerFoot itself remains neutral.
-        bottom_frame = AnchorFrame(
+        frame_xy = AnchorFrame(
+            origin=(0, 0, 0),
+            z=Anchor.UP,
+            x=Anchor.RIGHT,
+        )
+        profile_origin = AnchorFrame(
             origin=(0, 0, 0),
             z=Anchor.DOWN,
-            x=Anchor.FRONT,
-        )
-
-        front_left_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.FRONT,
-        )
-        front_right_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.LEFT,
-        )
-        back_right_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
-            x=Anchor.BACK,
-        )
-        back_left_origin = AnchorFrame(
-            origin=(0, 0, 0),
-            z=Anchor.UP,
             x=Anchor.RIGHT,
         )
 
         half_width = self.frame_width / 2
         half_depth = self.frame_depth / 2
+        centre_height = (
+            self.frame_height - LProfile.PROFILE_HEIGHT
+        ) / 2
 
-        # SolidCraft's BOTTOM frame uses local X along world -Y and local Y
-        # along world -X. Express the four positions in that local (u, v)
-        # frame; no extra joint angle is required.
-        front_left = foot.copy().attach(
+        front_left = profile.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=front_left_origin,
-            offset=(half_depth, half_width),
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(-half_width, -half_depth),
+            gap=centre_height,
+            angle=0,
         )
-        front_right = foot.copy().attach(
+        front_right = profile.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=front_right_origin,
-            offset=(half_depth, -half_width),
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(half_width, -half_depth),
+            gap=centre_height,
+            angle=90,
         )
-        back_right = foot.copy().attach(
+        rear_right = profile.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=back_right_origin,
-            offset=(-half_depth, -half_width),
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(half_width, half_depth),
+            gap=centre_height,
+            angle=180,
         )
-        back_left = foot.copy().attach(
+        rear_left = profile.copy().attach(
             frame,
-            parent=bottom_frame,
-            child=back_left_origin,
-            offset=(-half_depth, half_width),
+            parent=frame_xy,
+            child=profile_origin,
+            offset=(-half_width, half_depth),
+            gap=centre_height,
+            angle=270,
         )
 
-        return frame + front_left + front_right + back_right + back_left
+        return frame + front_left + front_right + rear_right + rear_left
 
 
 FourCornerL()

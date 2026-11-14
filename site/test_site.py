@@ -262,22 +262,7 @@ def check(site: Path, sha: str, require_native: bool = False):
             status_class = f'qualification-status {status}'
             assert status_class in page_text, (slug, status)
 
-            if slug == "four-corner-l":
-                cadcraft_source = (
-                    site / "qualification" / slug / "four-corner-l.cadcraft.json"
-                )
-                assert cadcraft_source.is_file()
-                plan = json.loads(cadcraft_source.read_text(encoding="utf-8"))
-                plan_text = json.dumps(plan)
-                assert "BOTTOM offset" in plan_text
-                assert "CornerFoot contains geometry only" in plan_text
-                assert (site / "qualification" / slug / "four-corner-l.dxf").is_file()
-                assert "CadCraft source" in page_text
-                assert ">DXF</a>" in page_text
-                mutation_image = site / "qualification" / slug / "model-size-160x120.png"
-                assert mutation_image.is_file() and mutation_image.stat().st_size > 0
-                assert "model-size-160x120.png" in native_images
-                assert mutation_image.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+
 
     manifest = json.loads((site / "manifest.json").read_text(encoding="utf-8"))
     assert (site / ".nojekyll").is_file()

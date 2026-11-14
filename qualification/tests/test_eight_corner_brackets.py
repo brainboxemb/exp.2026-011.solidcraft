@@ -1,4 +1,4 @@
-"""Qualification tests for eight reusable outside L-brackets."""
+"""Qualification tests for eight vertical L-profiles: two per side corner."""
 import json
 import os
 from pathlib import Path
@@ -10,20 +10,9 @@ from scpf.runner import run_script
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE_ROOT = os.environ.get("SCPF_NATIVE_ROOT")
 
-EXPECTED_CORNERS = [
-    [-60.0, -40.0, 60.0],
-    [60.0, -40.0, 60.0],
-    [60.0, -40.0, 0.0],
-    [-60.0, -40.0, 0.0],
-    [-60.0, 40.0, 60.0],
-    [60.0, 40.0, 60.0],
-    [60.0, 40.0, 0.0],
-    [-60.0, 40.0, 0.0],
-]
-
 
 class EightCornerBracketsCommandTests(unittest.TestCase):
-    def test_generated_eight_corner_relationship_contract(self):
+    def test_generated_two_profiles_per_vertical_corner_contract(self):
         document = run_script(
             ROOT / "examples/eight-corner-brackets/scpf/model.py"
         )
@@ -48,16 +37,21 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
             for row in commands
             if row["command"] == "component.create"
         ]
-        self.assertEqual(components, ["FrameBlock", "LBracket"])
+        self.assertEqual(components, ["FrameBlock", "LProfile"])
 
         copies = [
             row for row in commands
             if row["command"] == "occurrence.copy"
         ]
         self.assertEqual(len(copies), 7)
-        self.assertTrue(
-            all(row["params"]["component"] == "LBracket" for row in copies)
-        )
+
+        fillets = [
+            row["params"]
+            for row in commands
+            if row["command"] == "solid.fillet"
+        ]
+        self.assertEqual(len(fillets), 1)
+        self.assertEqual(float(fillets[0]["radius"]), 8.0)
 
         joints = [
             row["params"]
@@ -66,22 +60,41 @@ class EightCornerBracketsCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 8)
 
-        for index, (joint, corner) in enumerate(
-            zip(joints, EXPECTED_CORNERS),
-            1,
-        ):
-            self.assertEqual(joint["type"], "rigid")
-            self.assertEqual(joint["angle"], 0)
+        expected_angles = [0, 0, 90, 90, 180, 180, 270, 270]
+        expected_xy = [
+            ("-(frame_width / 2)", "-(frame_depth / 2)"),
+            ("-(frame_width / 2)", "-(frame_depth / 2)"),
+            ("frame_width / 2", "-(frame_depth / 2)"),
+            ("frame_width / 2", "-(frame_depth / 2)"),
+            ("frame_width / 2", "frame_depth / 2"),
+            ("frame_width / 2", "frame_depth / 2"),
+            ("-(frame_width / 2)", "frame_depth / 2"),
+            ("-(frame_width / 2)", "frame_depth / 2"),
+        ]
+
+        for index, joint in enumerate(joints, 1):
+            self.assertEqual(joint["type"], "planar")
+            self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(
+                tuple(joint["values"][:2]),
+                expected_xy[index - 1],
+            )
+            self.assertEqual(joint["values"][2], expected_angles[index - 1])
             self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
-            self.assertEqual(joint["a"]["corner"], corner)
-            self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
-            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
+            self.assertEqual(joint["a"]["z"], [0.0, 0.0, 1.0])
+            self.assertEqual(joint["b"]["occurrence"], f"LProfile:{index}")
+            self.assertEqual(joint["b"]["z"], [0.0, 0.0, -1.0])
+
+        # Every corner is a bottom/top pair. The bottom member has no normal
+        # offset; the top member keeps a symbolic frame-height dependency.
+        for bottom, top in zip(joints[0::2], joints[1::2]):
+            self.assertNotIn("offset", bottom)
+            self.assertIn("frame_height", str(top["offset"]))
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
 class EightCornerBracketsNativeTests(unittest.TestCase):
-    def test_native_bounding_boxes_match_all_eight_outside_corners(self):
+    def test_native_bounding_boxes_match_two_profiles_per_vertical_corner(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "eight-corner-brackets"
@@ -89,43 +102,31 @@ class EightCornerBracketsNativeTests(unittest.TestCase):
         )
         self.assertEqual(data["body_count"], 9)
 
-        frame = next(
+        profiles = [
             body for body in data["bodies"]
-            if body["name"] == "FrameBlock"
-        )
-        self.assertEqual(
-            _rounded_bbox(frame),
-            {
-                "min": [-60.0, -40.0, 0.0],
-                "max": [60.0, 40.0, 60.0],
-            },
-        )
-
-        brackets = [
-            body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
+            if body["name"].startswith("LProfile")
         ]
-        self.assertEqual(len(brackets), 8)
+        self.assertEqual(len(profiles), 8)
         actual = sorted(
             (
                 tuple(_rounded_bbox(body)["min"]),
                 tuple(_rounded_bbox(body)["max"]),
             )
-            for body in brackets
+            for body in profiles
         )
         expected = sorted([
-            ((-60.0, -44.0, 32.0), (-32.0, -40.0, 60.0)),
-            ((32.0, -44.0, 32.0), (60.0, -40.0, 60.0)),
-            ((32.0, -44.0, 0.0), (60.0, -40.0, 28.0)),
-            ((-60.0, -44.0, 0.0), (-32.0, -40.0, 28.0)),
-            ((-60.0, 40.0, 32.0), (-32.0, 44.0, 60.0)),
-            ((32.0, 40.0, 32.0), (60.0, 44.0, 60.0)),
-            ((32.0, 40.0, 0.0), (60.0, 44.0, 28.0)),
-            ((-60.0, 40.0, 0.0), (-32.0, 44.0, 28.0)),
+            ((-64.0, -44.0, 0.0), (-32.0, -12.0, 16.0)),
+            ((-64.0, -44.0, 44.0), (-32.0, -12.0, 60.0)),
+            ((32.0, -44.0, 0.0), (64.0, -12.0, 16.0)),
+            ((32.0, -44.0, 44.0), (64.0, -12.0, 60.0)),
+            ((32.0, 12.0, 0.0), (64.0, 44.0, 16.0)),
+            ((32.0, 12.0, 44.0), (64.0, 44.0, 60.0)),
+            ((-64.0, 12.0, 0.0), (-32.0, 44.0, 16.0)),
+            ((-64.0, 12.0, 44.0), (-32.0, 44.0, 60.0)),
         ])
         self.assertEqual(actual, expected)
 
-    def test_saved_size_mutation_moves_all_eight_brackets(self):
+    def test_saved_size_mutation_keeps_two_profiles_on_each_corner(self):
         data = _load(
             Path(NATIVE_ROOT)
             / "eight-corner-brackets"
@@ -141,26 +142,26 @@ class EightCornerBracketsNativeTests(unittest.TestCase):
             },
         )
 
-        brackets = [
+        profiles = [
             body for body in data["bodies"]
-            if body["name"].startswith("LBracket")
+            if body["name"].startswith("LProfile")
         ]
         actual = sorted(
             (
                 tuple(_rounded_bbox(body)["min"]),
                 tuple(_rounded_bbox(body)["max"]),
             )
-            for body in brackets
+            for body in profiles
         )
         expected = sorted([
-            ((-80.0, -64.0, 62.0), (-52.0, -60.0, 90.0)),
-            ((52.0, -64.0, 62.0), (80.0, -60.0, 90.0)),
-            ((52.0, -64.0, 0.0), (80.0, -60.0, 28.0)),
-            ((-80.0, -64.0, 0.0), (-52.0, -60.0, 28.0)),
-            ((-80.0, 60.0, 62.0), (-52.0, 64.0, 90.0)),
-            ((52.0, 60.0, 62.0), (80.0, 64.0, 90.0)),
-            ((52.0, 60.0, 0.0), (80.0, 64.0, 28.0)),
-            ((-80.0, 60.0, 0.0), (-52.0, 64.0, 28.0)),
+            ((-84.0, -64.0, 0.0), (-52.0, -32.0, 16.0)),
+            ((-84.0, -64.0, 74.0), (-52.0, -32.0, 90.0)),
+            ((52.0, -64.0, 0.0), (84.0, -32.0, 16.0)),
+            ((52.0, -64.0, 74.0), (84.0, -32.0, 90.0)),
+            ((52.0, 32.0, 0.0), (84.0, 64.0, 16.0)),
+            ((52.0, 32.0, 74.0), (84.0, 64.0, 90.0)),
+            ((-84.0, 32.0, 0.0), (-52.0, 64.0, 16.0)),
+            ((-84.0, 32.0, 74.0), (-52.0, 64.0, 90.0)),
         ])
         self.assertEqual(actual, expected)
 
