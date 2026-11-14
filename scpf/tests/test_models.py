@@ -475,6 +475,7 @@ class SCPFExamples(unittest.TestCase):
                 "sketch.finish",
                 "solid.extrude",
                 "plastic.boss",
+                "plastic.boss",
                 "sketch.create",
                 "sketch.circle.center",
                 "sketch.finish",
