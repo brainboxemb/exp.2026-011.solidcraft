@@ -100,7 +100,7 @@
       "CaseBlock"
     ],
     "feature": 4,
-    "ms": 0.750959,
+    "ms": 0.8704189999999999,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -125,7 +125,7 @@
       "FlightcaseCorner"
     ],
     "feature": 7,
-    "ms": 0.17302,
+    "ms": 0.230358,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -140,7 +140,7 @@
     ],
     "created_bodies": [],
     "feature": 8,
-    "ms": 4.845180999999999,
+    "ms": 5.9880819999999995,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null
@@ -155,7 +155,7 @@
     ],
     "created_bodies": [],
     "feature": 9,
-    "ms": 4.868805,
+    "ms": 7.577698,
     "name": "Box3",
     "removed_bodies": [],
     "warning": null
