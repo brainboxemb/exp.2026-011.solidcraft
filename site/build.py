@@ -88,6 +88,8 @@ CHEATSHEET = [
          "with Sketch(plane='XY') as sketch:\n    Rectangle2D(80, 50)\nplate = sketch.extrude(8)", "anchored-holes"),
         ("Hole(d=..., depth=...)", "A native hole. THROUGH_ALL follows the target body.",
          "Hole(d=8, depth=Depth.THROUGH_ALL)", "anchored-holes"),
+        ("shape.at(target, anchor=..., child=...)", "Place a direct CSG shape anchor on another shape anchor; CENTER-to-CENTER is supported first.",
+         "Cylinder(d=8, h=50, axis=Axis.X).at(body)", "primitive-csg"),
         ("shape.on(target, face=...)", "Place a feature on a selected face of another shape.",
          "Hole(d=8, depth=Depth.THROUGH_ALL).on(plate, face=Faces.TOP)", "anchored-holes"),
         ("shape.pattern(...)", "Repeat a supported feature before placing it on its parent shape.",

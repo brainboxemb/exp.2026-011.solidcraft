@@ -406,6 +406,76 @@ def parameters_in(*values) -> tuple[Parameter, ...]:
     return tuple(found.values())
 
 
+def _dim_add(left, right):
+    """Add CAD dimensions without turning a zero into noisy expressions."""
+    if left == 0:
+        return right
+    if right == 0:
+        return left
+    return left + right
+
+
+def _dim_sub(left, right):
+    """Subtract CAD dimensions while preserving Parameter/Expression intent."""
+    if right == 0:
+        return left
+    if left == 0:
+        return -right
+    return left - right
+
+
+def _shape_center(shape):
+    """Return the nominal CENTER anchor of a direct CSG shape.
+
+    Boolean composites are accepted only when both operands have the same
+    center. This keeps CENTER alignment deterministic without inventing a
+    general bounding-box/geometry solver in Forge.
+    """
+    if not isinstance(shape, Shape):
+        raise TypeError("align() target must be a Shape")
+
+    if shape.kind in ("box", "sphere"):
+        return (0, 0, 0)
+
+    if shape.kind == "cylinder":
+        height, _diameter, axis = shape.data
+        half = height / 2
+        return {
+            "X": (half, 0, 0),
+            "Y": (0, half, 0),
+            "Z": (0, 0, half),
+        }[axis]
+
+    if shape.kind == "translated":
+        child, delta = shape.data
+        center = _shape_center(child)
+        return tuple(_dim_add(center[i], delta[i]) for i in range(3))
+
+    if shape.kind == "placed3d":
+        child, x, y, z = shape.data
+        if child.kind != "cylinder":
+            raise ValueError("CENTER alignment only supports placed Cylinder CSG shapes")
+        center = _shape_center(child)
+        base = (x, y, z)
+        return tuple(_dim_add(base[i], center[i]) for i in range(3))
+
+    if shape.kind in ("intersection", "union"):
+        left, right = shape.data
+        left_center = _shape_center(left)
+        right_center = _shape_center(right)
+        if left_center != right_center:
+            raise ValueError(
+                "CENTER alignment of a CSG composite requires operands "
+                "with the same center"
+            )
+        return left_center
+
+    raise ValueError(
+        "CENTER alignment currently supports direct Box, Sphere, Cylinder "
+        "and centered CSG composites"
+    )
+
+
 @dataclass(frozen=True)
 class Shape:
     kind: str
@@ -501,13 +571,42 @@ class Shape:
             raise ValueError("material color must be a #RRGGBB hex string")
         return Shape("material_assignment", (self, name, density_g_cm3, color))
 
-    def at(self, x=0, y=0, z=0):
-        """Place a supported profile, primitive or feature at world coordinates.
+    def at(self, x=0, y=0, z=0, *, anchor=Anchor.CENTER, child=Anchor.CENTER):
+        """Place a shape at coordinates or at an anchor of another Shape.
 
-        For XY sketches, x and y locate the profile on its sketch plane and z
-        offsets that plane. For 3D and plastic features the point is the native
-        SolidCraft authoring position.
+        Coordinate form keeps the existing native placement semantics:
+        `shape.at(x, y, z)`.
+
+        Shape form places one anchor of this shape on an anchor of the target:
+        `shape.at(target, anchor=Anchor.CENTER, child=Anchor.CENTER)`.
+        The first supported shape-to-shape contract is CENTER-to-CENTER.
         """
+        if isinstance(x, Shape):
+            if y != 0 or z != 0:
+                raise ValueError(
+                    "at(target, ...) does not accept coordinate y/z arguments"
+                )
+            try:
+                anchor = Anchor(anchor)
+                child = Anchor(child)
+            except ValueError as exc:
+                raise ValueError("at() requires valid Anchor values") from exc
+            if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
+                raise ValueError(
+                    "shape-to-shape at() currently supports CENTER-to-CENTER only"
+                )
+            target_center = _shape_center(x)
+            child_center = _shape_center(self)
+            delta = tuple(
+                _dim_sub(target_center[i], child_center[i])
+                for i in range(3)
+            )
+            return Shape("translated", (self, delta))
+
+        if anchor is not Anchor.CENTER or child is not Anchor.CENTER:
+            raise ValueError(
+                "anchor/child are only valid for shape-to-shape at()"
+            )
         if self.kind not in (
             "circle", "rectangle", "polygon", "positioned", "cylinder", "hole",
             "lip", "snap_fit", "boss", "rest",

@@ -256,6 +256,43 @@ class SCPFExamples(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Cylinder axis"):
             Cylinder(d=12, h=30, axis="diagonal")
 
+    def test_cylinder_at_places_center_on_centered_csg_body(self):
+        from scpf.compiler import compile_model
+        from scpf.core import Anchor, Axis, Box, Cylinder, Parameter, Sphere
+
+        size = Parameter("size", 50)
+        body = Sphere(size / 1.5) & Box(size, size, size)
+        diameter = size / 1.5
+
+        holes = (
+            Cylinder(d=diameter, h=size, axis=Axis.X).at(body)
+            + Cylinder(d=diameter, h=size, axis=Axis.Y).at(body)
+            + Cylinder(d=diameter, h=size, axis=Axis.Z).at(body)
+        )
+        commands = compile_model(body - holes, "CsgCube")["commands"]
+
+        cylinders = [
+            command["params"]
+            for command in commands
+            if command["command"] == "solid.cylinder"
+        ]
+        self.assertEqual([item["axis"] for item in cylinders], ["X", "Y", "Z"])
+        self.assertEqual(
+            [item["base"] for item in cylinders],
+            [
+                ["-(size / 2)", 0, 0],
+                [0, "-(size / 2)", 0],
+                [0, 0, "-(size / 2)"],
+            ],
+        )
+
+        with self.assertRaisesRegex(ValueError, "CENTER-to-CENTER"):
+            Cylinder(d=10, h=20).at(
+                body,
+                anchor=Anchor.TOP,
+                child=Anchor.CENTER,
+            )
+
     def test_cylinder_standalone_native_command(self):
         with tempfile.TemporaryDirectory() as directory:
             script = Path(directory) / "model.py"
