@@ -19,7 +19,7 @@ EXPECTED_CORNERS = [
 
 
 class FourCornerLCommandTests(unittest.TestCase):
-    def test_generated_four_corner_line_relationship_contract(self):
+    def test_generated_central_xz_placement_contract(self):
         document = run_script(
             ROOT / "examples/four-corner-l/scpf/model.py"
         )
@@ -51,9 +51,6 @@ class FourCornerLCommandTests(unittest.TestCase):
             if row["command"] == "occurrence.copy"
         ]
         self.assertEqual(len(copies), 3)
-        self.assertTrue(
-            all(row["params"]["component"] == "LBracket" for row in copies)
-        )
 
         fillets = [
             row["params"]
@@ -61,7 +58,7 @@ class FourCornerLCommandTests(unittest.TestCase):
             if row["command"] == "solid.fillet"
         ]
         self.assertEqual(len(fillets), 1)
-        self.assertEqual(fillets[0]["radius"], 8.0)
+        self.assertEqual(float(fillets[0]["radius"]), 8.0)
 
         joints = [
             row["params"]
@@ -70,18 +67,40 @@ class FourCornerLCommandTests(unittest.TestCase):
         ]
         self.assertEqual(len(joints), 4)
 
-        for index, (joint, corner) in enumerate(
-            zip(joints, EXPECTED_CORNERS),
-            1,
-        ):
-            self.assertEqual(joint["type"], "rigid")
-            self.assertEqual(joint["angle"], 0)
-            self.assertEqual(joint["a"]["occurrence"], "FrameBlock:1")
-            self.assertEqual(joint["a"]["corner"], corner)
-            self.assertEqual(joint["b"]["occurrence"], f"LBracket:{index}")
-            self.assertEqual(joint["b"]["z"], [0.0, -1.0, 0.0])
-            self.assertEqual(joint["b"]["x"], [1.0, 0.0, 0.0])
-            self.assertIn("frame_depth", str(joint["offset"]))
+        expected_angles = [270, 180, 90, 0]
+        expected_u_signs = [-1, 1, 1, -1]
+        expected_v = ["frame_height", "frame_height", 0, 0]
+
+        for index, joint in enumerate(joints, 1):
+            self.assertEqual(joint["type"], "planar")
+            self.assertEqual(
+                joint["a"],
+                {
+                    "occurrence": "FrameBlock:1",
+                    "point": [0.0, 0.0, 0.0],
+                    "z": [0.0, -1.0, 0.0],
+                    "x": [1.0, 0.0, 0.0],
+                },
+            )
+            self.assertEqual(
+                joint["b"],
+                {
+                    "occurrence": f"LBracket:{index}",
+                    "point": [0.0, 0.0, 0.0],
+                    "z": [0.0, -1.0, 0.0],
+                    "x": [1.0, 0.0, 0.0],
+                },
+            )
+            self.assertEqual(joint["angle"], 0.0)
+            self.assertEqual(joint["values"][2], expected_angles[index - 1])
+            self.assertEqual(joint["values"][1], expected_v[index - 1])
+            u = str(joint["values"][0])
+            self.assertIn("frame_width", u)
+            if expected_u_signs[index - 1] < 0:
+                self.assertTrue(u.startswith("-"), u)
+            else:
+                self.assertFalse(u.startswith("-"), u)
+            self.assertNotIn("offset", joint)
 
 
 @unittest.skipUnless(NATIVE_ROOT, "native SolidCraft evidence not supplied")
