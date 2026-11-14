@@ -4,37 +4,6 @@ The map is intentionally capability-based, not a mirror of SolidCraft's
 hundreds of individual commands.
 """
 
-REFERENCE_MODELS = [
-    {
-        "name": "SolidCraft",
-        "role": "Native capability truth",
-        "use": "What can remain editable and associative in the actual CAD engine?",
-        "strength": "Parametric sketches/features, BRep topology, components, occurrences and joints.",
-        "url": "https://docs.solidcraft.io/reference/commands.html",
-    },
-    {
-        "name": "PythonSCAD",
-        "role": "Primary Python API ergonomics reference",
-        "use": "How should ordinary scripted modelling feel to a Python user?",
-        "strength": "First-class solids, Python methods/operators, composability and the normal Python ecosystem.",
-        "url": "https://pythonscad.org/tutorial/site/index.html",
-    },
-    {
-        "name": "BOSL2",
-        "role": "Attachment and local-frame reference",
-        "use": "How can anchors, orientation and parent-relative placement stay understandable?",
-        "strength": "Attachables, semantic anchors and explicit local orientation/spin concepts.",
-        "url": "https://github.com/BelfrySCAD/BOSL2/wiki/Tutorial-Attachment-Overview",
-    },
-    {
-        "name": "OpenSCAD",
-        "role": "Minimal CSG and transform baseline",
-        "use": "What is the smallest familiar vocabulary for primitives, transforms and booleans?",
-        "strength": "Simple CSG, transformations, modules and a compact language reference.",
-        "url": "https://openscad.org/documentation.html",
-    },
-]
-
 CAPABILITY_GROUPS = [
     ("fundamentals", "1 · Geometry fundamentals"),
     ("sketches", "2 · Sketches and parametric profiles"),
