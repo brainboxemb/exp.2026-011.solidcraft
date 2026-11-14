@@ -170,6 +170,22 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "anchor-topology-mutation",
+        "q5_required": True,
+        "group": "anchors",
+        "title": "Explicit topology pick follows parent resize",
+        "intent": "Verify the AnchorTopology contract directly: Forge supplies fixed baseline edge/face/corner pick coordinates once, then native SolidCraft must retain that selected topology when the parent dimensions change.",
+        "forge_api": "anchors() -> AnchorTopology(edge=..., on=..., corner=..., z=..., x=...); attach(parent='front_top_left_pick', child=AnchorFrame())",
+        "forge_model": "One parametric Board, one named topology anchor with deliberately fixed numeric pick points, and one centered Marker attached to that anchor.",
+        "lowering": "AnchorTopology is inlined into joint.create as edge/on/corner plus optional z/x. No persistent joint.origin and no Forge-side recomputation of the pick coordinates occurs after the saved design is mutated.",
+        "native_expectation": "On the 40x20x20 board the marker is centered on the front-top-left corner selected by the explicit topology pick.",
+        "mutation": "Change base_width/base_height from 40x20 to 80x40 mm in the saved .sc design; the unchanged native relationship must move the marker to the new front-top-left corner without rerunning Python.",
+        "references": [
+            ("SolidCraft", "This is a direct test of native topology persistence: the initial pick identifies topology, while later parameter changes move that topology."),
+            ("BOSL2", "The higher-level intent is still a semantic attachment point, but this fixture specifically qualifies Forge's lower-level explicit topology reference."),
+        ],
+    },
+    {
         "slug": "four-corner-l",
         "q5_required": True,
         "diagram": "four-corner-l.svg",
