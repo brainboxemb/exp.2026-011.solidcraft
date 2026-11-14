@@ -29,8 +29,8 @@ intent; Forge does not become the geometry kernel.
 
 ## SolidCraft mapping
 
-Forge emits native parameters and lowers the box through SolidCraft's native
-sketch/extrude path.
+Forge emits native parameters followed directly by SolidCraft's native
+`solid.box` primitive. Forge does not create a sketch for `Box`.
 
 ## Acceptance criteria
 
