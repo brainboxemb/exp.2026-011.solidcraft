@@ -5,6 +5,18 @@ Feature operations (Hole, Fillet, join, cut) are handled separately.
 """
 from math import isfinite
 from .core import Shape, Parameter, command_value, pv
+
+
+def _combine_dimension(a, b):
+    """Preserve native expressions when adding an offset to a parameter."""
+    if isinstance(a, (int, float)) and a == 0:
+        return b
+    if isinstance(b, (int, float)) and b == 0:
+        return a
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return a + b
+    return f"({command_value(a)}) + ({command_value(b)})"
+
 from .compiler import ModelError, _command, _require_positive
 from .csg import _half
 
@@ -85,6 +97,55 @@ def compile_base(shape, name):
         return steps, {"profile": "rectangle", "width": length,
                        "depth": width, "thickness": height,
                        "origin": (-length / 2, -width / 2, 0)}
+
+    if shape.kind == "sketch_base_extrusion":
+        sketch_name, plane, origin, profiles, distance, direction = shape.data
+        _require_positive(distance, "sketch extrusion distance")
+        if plane not in ("XY", "XZ", "YZ"):
+            raise ModelError("standalone Sketch requires an XY, XZ or YZ plane")
+        if len(profiles) != 1:
+            raise ModelError("standalone Sketch currently requires exactly one profile")
+        profile, (ox, oy) = profiles[0]
+        if origin is not None:
+            raise ModelError("standalone Sketch origin is not supported yet")
+        sketch = [_command("sketch.create", plane=plane, name=sketch_name)]
+        if profile.kind == "rectangle":
+            width, depth = profile.data
+            _require_positive(width, "rectangle width")
+            _require_positive(depth, "rectangle depth")
+            sketch.append(_command("sketch.rectangle.two_point",
+                p0=[command_value(ox), command_value(oy)],
+                p1=[command_value(_combine_dimension(ox, width)),
+                    command_value(_combine_dimension(oy, depth))]))
+            meta = {"profile": "rectangle", "width": width, "depth": depth,
+                    "thickness": distance, "origin": (ox, oy, 0)}
+        elif profile.kind == "circle":
+            (diameter,) = profile.data
+            _require_positive(diameter, "circle diameter")
+            sketch.append(_command("sketch.circle.center",
+                center=[command_value(ox), command_value(oy)],
+                diameter=command_value(diameter)))
+            meta = {"profile": "circle", "thickness": distance}
+        elif profile.kind == "polygon":
+            points, profile_plane, ids = profile.data
+            if profile_plane != plane:
+                raise ModelError("Polygon2D plane must match Sketch plane")
+            if pv(ox) or pv(oy):
+                raise ModelError("standalone Polygon2D offset is not supported yet")
+            sketch.append(_command("sketch.line",
+                points=[[command_value(v) for v in point] for point in points],
+                closed=True, ids=list(ids) if ids is not None else
+                [f"edge_{i}" for i in range(len(points))]))
+            meta = {"profile": "polygon", "sketch_plane": plane,
+                    "sketch_plane_offset": 0, "thickness": distance,
+                    "extrusion_direction": direction,
+                    "profile_points": points, "profile_ids": ids}
+        else:
+            raise ModelError("standalone Sketch supports Rectangle2D, Circle2D and Polygon2D")
+        sketch.extend([_command("sketch.finish"),
+            _command("solid.extrude", distance=command_value(distance),
+                     direction=direction, body_name=name)])
+        return sketch, meta
 
     if shape.kind == "tapered_box":
         # A straight front mask and a long, smoothly tapered rear housing.
