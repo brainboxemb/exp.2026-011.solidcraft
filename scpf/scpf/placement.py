@@ -33,6 +33,14 @@ def _base_rectangle(shape):
         child, x, y, z = shape.data
         if child.kind == "rectangle":
             return child.data, (x, y, z), None
+    if shape.kind == "sketch_base_extrusion":
+        _, plane, origin, profiles, height, direction = shape.data
+        if plane != "XY" or origin is not None or direction != "positive":
+            raise ValueError("anchoring requires a positive XY rectangular Sketch")
+        if len(profiles) != 1 or profiles[0][0].kind != "rectangle":
+            raise ValueError("anchoring requires one rectangular Sketch profile")
+        (width, depth), offset = profiles[0][0].data, profiles[0][1]
+        return (width, depth), (offset[0], offset[1], 0), height
     if shape.kind == "extrusion":
         child, height, direction = shape.data
         dimensions, origin, old_height = _base_rectangle(child)
@@ -43,7 +51,7 @@ def _base_rectangle(shape):
         return _base_rectangle(shape.data[0])
     if shape.kind in ("union", "difference"):
         return _base_rectangle(shape.data[0])
-    raise ValueError("anchor target must be a supported Box, tapered Box or extruded Rectangle2D")
+    raise ValueError("anchor target must be a supported Box or explicit rectangular Sketch extrusion")
 
 
 def _shell_thickness(shape):
