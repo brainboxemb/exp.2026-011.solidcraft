@@ -942,15 +942,35 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
     solidcraft_rows = []
     forge_status_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
     group_titles = dict(CAPABILITY_GROUPS)
+    group_status_counts = {
+        key: {"Supported": 0, "Partial": 0, "Missing": 0}
+        for key, _ in CAPABILITY_GROUPS
+    }
+    primitive_names = {"Box", "Cylinder", "Sphere", "Cone", "Torus"}
+    primitive_counts = {"Supported": 0, "Partial": 0, "Missing": 0}
+
     for group, capability, solidcraft, forge, need, references, note in SOLIDCRAFT_CAPABILITIES:
         status = forge_support_status(forge)
         forge_status_counts[status] += 1
+        group_status_counts[group][status] += 1
+        if capability in primitive_names:
+            primitive_counts[status] += 1
         solidcraft_rows.append(
             f"<tr><td>{escape(group_titles.get(group, group))}</td>"
             f"<td><strong>{escape(capability)}</strong></td>"
             f"<td>{escape(solidcraft)}</td>"
             f"<td><strong>{escape(status)}</strong></td>"
             f"<td>{escape(forge)}</td><td>{escape(need)}</td></tr>"
+        )
+
+    area_summary_rows = []
+    for group, title in CAPABILITY_GROUPS:
+        counts = group_status_counts[group]
+        total = sum(counts.values())
+        area_summary_rows.append(
+            f"<tr><td><strong>{escape(title)}</strong></td>"
+            f"<td>{total}</td><td>{counts['Supported']}</td>"
+            f"<td>{counts['Partial']}</td><td>{counts['Missing']}</td></tr>"
         )
 
     export_rows = []
@@ -977,6 +997,11 @@ These examples are API smoke tests, not substitutes for a full mechanical CAD pr
         forge_supported=escape(forge_status_counts["Supported"]),
         forge_partial=escape(forge_status_counts["Partial"]),
         forge_missing=escape(forge_status_counts["Missing"]),
+        primitive_total=escape(sum(primitive_counts.values())),
+        primitive_supported=escape(primitive_counts["Supported"]),
+        primitive_partial=escape(primitive_counts["Partial"]),
+        primitive_missing=escape(primitive_counts["Missing"]),
+        area_summary_rows="".join(area_summary_rows),
         gap_exports=escape(gap_exports),
         gap_capabilities=escape(gap_capabilities),
         solidcraft_rows="".join(solidcraft_rows),
