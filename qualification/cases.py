@@ -354,6 +354,21 @@ QUALIFICATION_CASES = [
         ],
     },
     {
+        "slug": "circle-negative-extrude",
+        "group": "fundamentals",
+        "title": "Negative circle profile extrusion",
+        "intent": "Qualify direct Circle2D extrusion and an explicitly selected negative extrusion direction with one minimal native model.",
+        "forge_api": "Circle2D(d=20).extrude(30, direction=Direction.NEGATIVE)",
+        "forge_model": "One direct circular 2D profile extruded 30 mm along negative Z; no CSG, attachment or explicit Sketch wrapper is involved.",
+        "lowering": "Native XY sketch with one circle followed by solid.extrude(direction='negative').",
+        "native_expectation": "One 20 mm diameter cylindrical body spans X/Y -10..10 mm and Z -30..0 mm, with an error-free saved SolidCraft timeline.",
+        "mutation": "No saved-design mutation in this fixture; it isolates direct circle-profile lowering and negative extrusion semantics.",
+        "references": [
+            ("OpenSCAD", "Comparable to a circle followed by linear_extrude(height=30) after selecting the opposite extrusion direction."),
+            ("SolidCraft", "The persisted native extrusion direction and measured Z bounds are the source of truth for negative-direction semantics."),
+        ],
+    },
+    {
         "slug": "primitive-csg",
         "group": "fundamentals",
         "title": "Primitive CSG",

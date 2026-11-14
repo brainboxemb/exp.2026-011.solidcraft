@@ -691,6 +691,28 @@ def validate_history_policy(root: Path) -> Validation:
     )
     return v
 
+
+def validate_circle_negative_extrude(root: Path) -> Validation:
+    v = Validation("circle-negative-extrude")
+    d = load(root / "measurements.json")
+    _check_declared_bounds(v, d, "circle-negative-extrude", tol=0.01)
+    v.check("single cylindrical body", d["body_count"] == 1, 1, d["body_count"])
+    if d["bodies"]:
+        b = d["bodies"][0]
+        v.check(
+            "negative extrusion bounds",
+            bbox_close(b, [-10, -10, -30], [10, 10, 0], 0.01),
+            {"min": [-10, -10, -30], "max": [10, 10, 0]},
+            b["bbox"],
+        )
+        v.check(
+            "one cylindrical side face",
+            b.get("face_types", {}).get("cylinder") == 1,
+            1,
+            b.get("face_types", {}).get("cylinder"),
+        )
+    return v
+
 def validate_primitive_csg(root: Path) -> Validation:
     v = Validation("primitive-csg")
     d = load(root / "measurements.json")
@@ -739,6 +761,7 @@ VALIDATORS = {
     "custom-anchor": validate_custom_anchor,
     "xz-anchor": validate_xz_anchor,
     "history-policy": validate_history_policy,
+    "circle-negative-extrude": validate_circle_negative_extrude,
     "primitive-csg": validate_primitive_csg,
     "bracket": validate_bracket,
 }
