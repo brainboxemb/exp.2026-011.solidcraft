@@ -101,7 +101,7 @@
       "AnchoredHoles"
     ],
     "feature": 2,
-    "ms": 0.912816,
+    "ms": 0.709867,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -171,7 +171,7 @@
     ],
     "created_bodies": [],
     "feature": 4,
-    "ms": 17.239401,
+    "ms": 10.508718,
     "name": "Holes",
     "removed_bodies": [],
     "warning": null
