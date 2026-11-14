@@ -117,6 +117,21 @@ def _selector_rank(value):
     return sum(component != 0 for component in _direction_selector(value).vector)
 
 
+def _selector_anchor(value):
+    """Resolve a composable cardinal selector to a standard Anchor."""
+    selector = _direction_selector(value)
+    for anchor in Anchor:
+        try:
+            vector = tuple(int(component) for component in anchor.vector)
+        except ValueError:
+            continue
+        if vector == selector.vector:
+            return anchor
+    raise ValueError(
+        f"direction selector {selector.vector!r} is not a standard assembly anchor"
+    )
+
+
 @dataclass(frozen=True)
 class AnchorFrame:
     """One local attachment frame for a reusable component occurrence.
