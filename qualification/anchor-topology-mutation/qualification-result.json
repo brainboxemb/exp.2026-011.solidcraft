@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "case": "anchor-topology-mutation",
+  "title": "Explicit topology pick follows parent resize",
+  "source_commit": "3b7c42f3c8de6bd41c6db135b24d5a211ec735c9",
+  "solidcraft_version": "0.30.1",
+  "status": "pass",
+  "levels": {
+    "q1": {
+      "status": "pass",
+      "evidence": [
+        "q1-python-tests.txt"
+      ]
+    },
+    "q2": {
+      "status": "pass",
+      "commands": 14,
+      "evidence": [
+        "q2-python-qualification-tests.txt",
+        "q2-command-contract.tsv"
+      ]
+    },
+    "q3": {
+      "status": "pass",
+      "evidence": [
+        "model.sc",
+        "model.step",
+        "results.json"
+      ]
+    },
+    "q4": {
+      "status": "pass",
+      "evidence": [
+        "joint-inspect.json",
+        "measurements-size-80x40.json",
+        "measurements.json",
+        "validation.json"
+      ]
+    },
+    "q5": {
+      "status": "pass",
+      "required": true,
+      "mutation": "board 40x20 -> 80x40 mm; fixed topology pick follows corner",
+      "evidence": [
+        "measurements-size-80x40.json",
+        "model-size-80x40.sc"
+      ]
+    },
+    "q6": {
+      "status": "pass",
+      "images": [
+        "model.png",
+        "goal-front.png",
+        "goal-iso.png",
+        "goal-right.png",
+        "model-front.png",
+        "model-iso.png",
+        "model-right.png",
+        "overlay-front.png",
+        "overlay-iso.png",
+        "overlay-right.png",
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png"
+      ],
+      "evidence": [
+        "visual-diff-front.png",
+        "visual-diff-iso.png",
+        "visual-diff-right.png",
+        "visual-validation.json"
+      ]
+    }
+  },
+  "evidence": {
+    "native_files": [
+      "joint-inspect.json",
+      "measurements-size-80x40.json",
+      "measurements.json",
+      "model-size-80x40.sc",
+      "model.sc",
+      "model.step",
+      "results.json",
+      "validation.json",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png",
+      "visual-validation.json"
+    ],
+    "images": [
+      "model.png",
+      "goal-front.png",
+      "goal-iso.png",
+      "goal-right.png",
+      "model-front.png",
+      "model-iso.png",
+      "model-right.png",
+      "overlay-front.png",
+      "overlay-iso.png",
+      "overlay-right.png",
+      "visual-diff-front.png",
+      "visual-diff-iso.png",
+      "visual-diff-right.png"
+    ]
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "case": "anchor-topology-mutation",
+  "q4": "pass",
+  "q5": "pass",
+  "checks": [
+    {
+      "name": "declared target geometry",
+      "level": "q4",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Board",
+          "min": [
+            -20,
+            -10,
+            0
+          ],
+          "max": [
+            20,
+            10,
+            20
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            -25,
+            -20,
+            15
+          ],
+          "max": [
+            -15,
+            -10,
+            25
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -20.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            20.0,
+            10.0,
+            20.0
+          ]
+        },
+        {
+          "min": [
+            -25.0,
+            -20.0,
+            15.0
+          ],
+          "max": [
+            -15.0,
+            -10.0,
+            25.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two bodies",
+      "level": "q4",
+      "status": "pass",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "marker touches baseline topology corner outside front face",
+      "level": "q4",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -25,
+          -20,
+          15
+        ],
+        "max": [
+          -15,
+          -10,
+          25
+        ]
+      },
+      "actual": {
+        "max": [
+          -15.0,
+          -10.0,
+          25.0
+        ],
+        "min": [
+          -25.0,
+          -20.0,
+          15.0
+        ]
+      }
+    },
+    {
+      "name": "declared mutation target geometry",
+      "level": "q5",
+      "status": "pass",
+      "expected": [
+        {
+          "label": "Board",
+          "min": [
+            -40,
+            -10,
+            0
+          ],
+          "max": [
+            40,
+            10,
+            40
+          ]
+        },
+        {
+          "label": "Marker",
+          "min": [
+            -45,
+            -20,
+            35
+          ],
+          "max": [
+            -35,
+            -10,
+            45
+          ]
+        }
+      ],
+      "actual": [
+        {
+          "min": [
+            -40.0,
+            -10.0,
+            0.0
+          ],
+          "max": [
+            40.0,
+            10.0,
+            40.0
+          ]
+        },
+        {
+          "min": [
+            -45.0,
+            -20.0,
+            35.0
+          ],
+          "max": [
+            -35.0,
+            -10.0,
+            45.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "parent dimensions changed",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "base_width": 80.0,
+        "base_height": 40.0
+      },
+      "actual": {
+        "base_width": 80.0,
+        "base_height": 40.0
+      }
+    },
+    {
+      "name": "fixed topology pick follows resized corner",
+      "level": "q5",
+      "status": "pass",
+      "expected": {
+        "min": [
+          -45,
+          -20,
+          35
+        ],
+        "max": [
+          -35,
+          -10,
+          45
+        ]
+      },
+      "actual": {
+        "max": [
+          -35.0,
+          -10.0,
+          45.0
+        ],
+        "min": [
+          -45.0,
+          -20.0,
+          35.0
+        ]
+      }
+    }
+  ]
+}

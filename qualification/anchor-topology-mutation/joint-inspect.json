@@ -1,0 +1,192 @@
+[
+  {
+    "joints": [
+      {
+        "a": {
+          "component": 1,
+          "component_name": "Board",
+          "frame": {
+            "origin": [
+              -20.0,
+              -10.0,
+              20.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "occurrence": 2,
+          "occurrence_name": "Board:1",
+          "path": "Board:1",
+          "references": [
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Board footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l4",
+                  "role_in_feature": "side:l4",
+                  "sketch": {
+                    "curve": "l4",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Board footprint"
+                  }
+                }
+              ],
+              "name": "F4:side:l1|F4:side:l4",
+              "role": "edge"
+            },
+            {
+              "feature": {
+                "id": 4,
+                "name": "Extrude1",
+                "type": "ExtrudeFeature"
+              },
+              "name": "F4:side:l1",
+              "role": "face",
+              "role_in_feature": "side:l1",
+              "sketch": {
+                "curve": "l1",
+                "curve_type": "line",
+                "id": 3,
+                "name": "Board footprint"
+              }
+            },
+            {
+              "faces": [
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:side:l1",
+                  "role_in_feature": "side:l1",
+                  "sketch": {
+                    "curve": "l1",
+                    "curve_type": "line",
+                    "id": 3,
+                    "name": "Board footprint"
+                  }
+                },
+                {
+                  "feature": {
+                    "id": 4,
+                    "name": "Extrude1",
+                    "type": "ExtrudeFeature"
+                  },
+                  "name": "F4:top",
+                  "role_in_feature": "top"
+                }
+              ],
+              "name": "F4:side:l1|F4:top",
+              "role": "corner"
+            }
+          ],
+          "resolves": true,
+          "snap": {
+            "axis": {
+              "fixed": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            },
+            "corner": "F4:side:l1|F4:top",
+            "edge": "F4:side:l1|F4:side:l4",
+            "face": "F4:side:l1",
+            "pick": [
+              -20.0,
+              -10.0,
+              10.0
+            ],
+            "type": "edge"
+          }
+        },
+        "angle": 0.0,
+        "b": {
+          "component": 5,
+          "component_name": "Marker",
+          "frame": {
+            "origin": [
+              -20.0,
+              -10.0,
+              20.0
+            ],
+            "x": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          },
+          "occurrence": 6,
+          "occurrence_name": "Marker:1",
+          "path": "Marker:1",
+          "references": [],
+          "resolves": true,
+          "snap": {
+            "point": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "type": "point",
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "z": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        },
+        "conflicts": [],
+        "dofs": [],
+        "errors": [],
+        "flip": false,
+        "id": 8,
+        "links": [],
+        "name": "Attach Marker:1 to Board:1",
+        "offset": 0.0,
+        "suppressed": false,
+        "type": "rigid",
+        "values": [],
+        "visible": false
+      }
+    ]
+  }
+]
