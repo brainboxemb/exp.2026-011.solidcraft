@@ -768,8 +768,7 @@ def validate_rounded_rectangle_sketch(root: Path) -> Validation:
         for row in d.get("timeline", [])
     ]
     expected_timeline = [
-        ("Sketch", "RoundedRectangleSketch footprint"),
-        ("ExtrudeFeature", "Extrude1"),
+        ("BoxFeature", "Box1"),
         ("Sketch", "Rounded pad"),
         ("ExtrudeFeature", "Rounded pad"),
     ]
