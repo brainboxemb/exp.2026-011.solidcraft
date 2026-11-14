@@ -27,8 +27,8 @@ Box(self.length, 30, 10)</code></pre><p class="tip"><a href="../examples/simple-
     Rectangle2D(100, 60)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>Circle2D(d=...)</code></h3>
 <p>A round 2D profile authored inside a Sketch.</p><pre><code>with Sketch(plane=&#x27;XY&#x27;) as sketch:
     Circle2D(d=8)</code></pre></article><article class="reference"><h3><code>Polygon2D(points, plane=...)</code></h3>
-<p>A closed profile on XY, XZ or YZ.</p><pre><code>Polygon2D([(0,0), (40,0), (0,30)], plane=&#x27;XZ&#x27;)</code></pre></article><article class="reference"><h3><code>Cylinder(d=..., h=...)</code></h3>
-<p>Direct 3D cylinder, with its base at the placement point.</p><pre><code>Cylinder(d=24, h=14).at(0, 0, 8)</code></pre></article></div></section><section><h2>Features and placement</h2><div class="reference-grid"><article class="reference"><h3><code>sketch.extrude(distance)</code></h3>
+<p>A closed profile on XY, XZ or YZ.</p><pre><code>Polygon2D([(0,0), (40,0), (0,30)], plane=&#x27;XZ&#x27;)</code></pre></article><article class="reference"><h3><code>Cylinder(d=..., h=..., axis=...)</code></h3>
+<p>Direct native cylinder on Axis.X, Axis.Y or Axis.Z, with its base at the placement point.</p><pre><code>Cylinder(d=24, h=14, axis=Axis.X).at(-7, 0, 0)</code></pre></article></div></section><section><h2>Features and placement</h2><div class="reference-grid"><article class="reference"><h3><code>sketch.extrude(distance)</code></h3>
 <p>Extrude an explicitly authored Sketch into editable native solid history.</p><pre><code>with Sketch(plane=&#x27;XY&#x27;) as sketch:
     Rectangle2D(80, 50)
 plate = sketch.extrude(8)</code></pre><p class="tip"><a href="../examples/anchored-holes/">View working example →</a></p></article><article class="reference"><h3><code>Hole(d=..., depth=...)</code></h3>

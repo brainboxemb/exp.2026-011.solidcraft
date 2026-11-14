@@ -27,7 +27,7 @@
       "ParentBlock"
     ],
     "feature": 3,
-    "ms": 0.9962300000000001,
+    "ms": 0.899822,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null
@@ -52,7 +52,7 @@
       "DerivedChild"
     ],
     "feature": 6,
-    "ms": 0.202911,
+    "ms": 0.234781,
     "name": "Box2",
     "removed_bodies": [],
     "warning": null

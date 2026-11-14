@@ -1,27 +1,27 @@
 {
   "bodies": [
     {
-      "area_mm2": 5548.172494650442,
+      "area_mm2": 5306.746195211498,
       "bbox": {
         "max": [
           25.000116688074947,
           19.99966515508273,
-          20.00000000000001
+          20.0
         ],
         "min": [
-          -19.999999999494193,
+          -19.59591794396563,
           -19.999665155175794,
           0.000059519390469256
         ]
       },
       "center_of_mass": [
-        5.572878614152768,
-        -1.4880643768877925e-6,
-        8.850164072389246
+        5.47618132024383,
+        -8.759215732516709e-6,
+        9.250125756758983
       ],
       "closed": true,
       "density_g_cm3": 1.29,
-      "edges": 22,
+      "edges": 21,
       "face_types": {
         "cylinder": 1,
         "plane": 7,
@@ -29,16 +29,16 @@
       },
       "faces": 9,
       "kernel": {
-        "edges": 36,
+        "edges": 33,
         "faces": 13,
         "shells": 1,
-        "vertices": 24
+        "vertices": 22
       },
-      "mass_g": 29.54841122766693,
+      "mass_g": 29.38152342494981,
       "material": "Default",
       "name": "PrimitiveCsg",
-      "vertices": 15,
-      "volume_mm3": 22905.745137726302
+      "vertices": 14,
+      "volume_mm3": 22776.374748023107
     }
   ],
   "body_count": 1,
@@ -52,7 +52,7 @@
       },
       "error": null,
       "id": 1,
-      "ms": 10.548073,
+      "ms": 10.505844999999999,
       "name": "Sphere1",
       "rolled_back": false,
       "suppressed": false,
@@ -66,7 +66,7 @@
       },
       "error": null,
       "id": 2,
-      "ms": 672.156245,
+      "ms": 681.204962,
       "name": "Box1",
       "rolled_back": false,
       "suppressed": false,
@@ -80,7 +80,7 @@
       },
       "error": null,
       "id": 3,
-      "ms": 851.497273,
+      "ms": 777.72915,
       "name": "Cylinder1",
       "rolled_back": false,
       "suppressed": false,
@@ -102,7 +102,7 @@
       },
       "error": null,
       "id": 4,
-      "ms": 2956.1841329999997,
+      "ms": 2820.827133,
       "name": "Box2",
       "rolled_back": false,
       "suppressed": false,
@@ -111,12 +111,12 @@
     }
   ],
   "total": {
-    "area_mm2": 5548.172494650442,
-    "edges": 22,
+    "area_mm2": 5306.746195211498,
+    "edges": 21,
     "faces": 9,
-    "mass_g": 29.54841122766693,
+    "mass_g": 29.38152342494981,
     "open_bodies_skipped": 0,
-    "vertices": 15,
-    "volume_mm3": 22905.745137726302
+    "vertices": 14,
+    "volume_mm3": 22776.374748023107
   }
 }

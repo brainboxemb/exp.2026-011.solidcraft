@@ -36,11 +36,11 @@
         "height": 60,
         "diameter": 8,
         "base": [
-          0.0,
-          0.0,
-          -30.0
+          -30,
+          0,
+          0
         ],
-        "axis": "Z",
+        "axis": "X",
         "operation": "cut",
         "targets": [
           "PrimitiveCsg"

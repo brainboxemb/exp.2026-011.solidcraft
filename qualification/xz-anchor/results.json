@@ -78,7 +78,7 @@
       "Board"
     ],
     "feature": 4,
-    "ms": 1.040984,
+    "ms": 0.938144,
     "name": "Extrude1",
     "removed_bodies": [],
     "warning": null
@@ -115,7 +115,7 @@
       "Marker"
     ],
     "feature": 7,
-    "ms": 0.226906,
+    "ms": 0.208002,
     "name": "Box1",
     "removed_bodies": [],
     "warning": null

@@ -7,8 +7,8 @@
       "image": "model-front.png",
       "diff": "visual-diff-front.png",
       "metrics": {
-        "mean_abs": 0.0,
-        "changed_pixel_fraction": 0.0
+        "mean_abs": 0.5799,
+        "changed_pixel_fraction": 0.016204
       },
       "limits": {
         "mean_abs": 6.0,
@@ -20,8 +20,8 @@
       "image": "model-right.png",
       "diff": "visual-diff-right.png",
       "metrics": {
-        "mean_abs": 0.0,
-        "changed_pixel_fraction": 0.0
+        "mean_abs": 0.7331,
+        "changed_pixel_fraction": 0.022135
       },
       "limits": {
         "mean_abs": 6.0,
@@ -33,8 +33,8 @@
       "image": "model-iso.png",
       "diff": "visual-diff-iso.png",
       "metrics": {
-        "mean_abs": 0.0,
-        "changed_pixel_fraction": 0.0
+        "mean_abs": 1.4295,
+        "changed_pixel_fraction": 0.035012
       },
       "limits": {
         "mean_abs": 6.0,
